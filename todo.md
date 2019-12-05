@@ -1,9 +1,9 @@
 jsonotron
 =========
-entryPointTests should test happy and error routes with mocked doc store
-jsonotron end-to-end tests for input validation and happy route (to check it actually connects to the internal functions)
-handling deleted fields on update (strip automatically?)
+switch jsonotron from class to closure. setup end-to-end tests for input validation and happy route (to check it actually connects to the internal functions)
+handling deleted fields on update (strip automatically - or perhaps pre-save adjustment function?)
 drop builtin doctypes?
+drop testing docs in entrypointdata?
 
 jsonotron-apollo
 ================

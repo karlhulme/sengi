@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { createTestRequest } = require('./shared.test')
+const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronActionForbiddenByPolicyError,
   JsonotronInsufficientPermissionsError
@@ -7,11 +7,25 @@ const {
 const queryDocuments = require('./queryDocuments')
 
 test('Query all document of a type in collection.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    queryAll: async () => {
+      return {
+        docs: [
+          { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0' },
+          { id: '06151119-065a-4691-a7c8-2d84ec746ba9' },
+          { id: '9070692f-b12c-4bbc-9888-5704fe5bc480' }
+        ]
+      }
+    }
+  })
+
   const result = await queryDocuments({
-    ...createTestRequest(),
+    ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'person',
-    fieldNames: ['id']
+    fieldNames: ['id'],
+    onFieldsQueried: null,
+    docStoreOptions: { custom: 'prop' }
   })
 
   expect(result).toEqual({
@@ -21,24 +35,69 @@ test('Query all document of a type in collection.', async () => {
       { id: '9070692f-b12c-4bbc-9888-5704fe5bc480' }
     ]
   })
+
+  expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id'], { custom: 'prop' }])
 })
 
-test('Query all document of a type in collection without an onFieldsQueried delegate.', async () => {
-  await expect(queryDocuments({
-    ...createTestRequest(),
-    onFieldsQueried: null,
+test('Query all document of a type in collection with an onFieldsQueried delegate.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    queryAll: async () => {
+      return {
+        docs: [
+          { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0' },
+          { id: '06151119-065a-4691-a7c8-2d84ec746ba9' },
+          { id: '9070692f-b12c-4bbc-9888-5704fe5bc480' }
+        ]
+      }
+    }
+  })
+
+  const onFieldsQueriedDelegate = jest.fn()
+
+  const result = await queryDocuments({
+    ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'person',
-    fieldNames: ['id']
-  })).resolves.not.toThrow()
+    fieldNames: ['id'],
+    onFieldsQueried: onFieldsQueriedDelegate,
+    docStoreOptions: { custom: 'prop' }
+  })
+
+  expect(result).toEqual({
+    docs: [
+      { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0' },
+      { id: '06151119-065a-4691-a7c8-2d84ec746ba9' },
+      { id: '9070692f-b12c-4bbc-9888-5704fe5bc480' }
+    ]
+  })
+
+  expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id'], { custom: 'prop' }])
+
+  expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
+  expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id'], ['id']])
 })
 
 test('Query all documents of a type with declared, calculated and default fields.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    queryAll: async () => {
+      return {
+        docs: [
+          { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0', shortName: 'Max', allowMarketing: 'no', addressLines: '24 Ryan Gardens\nFerndown', postCode: 'BH23 9KL' },
+          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', shortName: 'Maisie', allowMarketing: 'yes', addressLines: '30 Ryan Gardens\nFerndown', postCode: 'BH23 4FG' },
+          { id: '9070692f-b12c-4bbc-9888-5704fe5bc480', shortName: 'Dave', allowMarketing: 'no', addressLines: '11 Arcadia Close\nSalisbury', postCode: 'GU23 5GH' }
+        ]
+      }
+    }
+  })
+
   const result = await queryDocuments({
-    ...createTestRequest(),
+    ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'person',
-    fieldNames: ['id', 'shortName', 'allowMarketing', 'fullAddress']
+    fieldNames: ['id', 'shortName', 'allowMarketing', 'fullAddress'],
+    docStoreOptions: { custom: 'prop' }
   })
 
   expect(result).toEqual({
@@ -48,11 +107,16 @@ test('Query all documents of a type with declared, calculated and default fields
       { id: '9070692f-b12c-4bbc-9888-5704fe5bc480', shortName: 'Dave', allowMarketing: 'no', fullAddress: '11 Arcadia Close\nSalisbury\nGU23 5GH' }
     ]
   })
+
+  expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id', 'shortName', 'allowMarketing', 'addressLines', 'postCode'], { custom: 'prop' }])
 })
 
 test('Fail to query all documents of type if permissions insufficient.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore()
+
   await expect(queryDocuments({
-    ...createTestRequest(),
+    ...testRequest,
     roleNames: ['invalid'],
     docTypeName: 'person',
     fieldNames: ['id']
@@ -60,8 +124,10 @@ test('Fail to query all documents of type if permissions insufficient.', async (
 })
 
 test('Fail to query all document of a type in collection if fetchWholeCollection is not allowed.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore()
+
   await expect(queryDocuments({
-    ...createTestRequest(),
+    ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'car',
     fieldNames: ['id']
