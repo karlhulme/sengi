@@ -89,6 +89,48 @@ test('Replacing a document with a required version should call upsert on the doc
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
+test('Replacing a document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    upsert: async () => ({})
+  })
+
+  await expect(replaceDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    doc: {
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+      docType: 'person',
+      docOps: [],
+      docVersion: 'bbbb',
+      tenantId: 'companyA',
+      shortName: 'Francesco',
+      fullName: 'Francesco Speedio',
+      dateOfBirth: '2010-11-05',
+      favouriteColors: ['orange', 'purple'],
+      unrecognisedProperty: 'unrecognisedValue'
+    },
+    reqVersion: 'aaaa',
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.not.toThrow()
+
+  const resultDoc = {
+    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+    docType: 'person',
+    docOps: [],
+    docVersion: 'bbbb',
+    tenantId: 'companyA',
+    shortName: 'Francesco',
+    fullName: 'Francesco Speedio',
+    dateOfBirth: '2010-11-05',
+    favouriteColors: ['orange', 'purple'],
+    unrecognisedProperty: 'unrecognisedValue'
+  }
+
+  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+})
+
 test('Fail to replace a document with an unavailable required version.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
@@ -142,7 +184,7 @@ test('Fail to replace a document if it does not conform to the doc type schema.'
       docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
-      shortName: 'Francesco',
+      shortNamePropertyRequiredButMissing: 'Francesco',
       fullName: 'Francesco Speedio',
       dateOfBirth: '2010-11-05',
       favouriteColors: ['orange', 'purple'],

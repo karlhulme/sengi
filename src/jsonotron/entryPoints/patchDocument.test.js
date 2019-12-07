@@ -10,7 +10,7 @@ const {
 const { errorCodes } = require('../docStore')
 const patchDocument = require('./patchDocument')
 
-test('Patching a document should call fetch and upsert on doc store.', async () => {
+test('Patching a document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones).', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     fetch: async () => ({
       doc: {
@@ -20,7 +20,8 @@ test('Patching a document should call fetch and upsert on doc store.', async () 
         docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
-        fullName: 'David Doohickey'
+        fullName: 'David Doohickey',
+        unrecognisedProp: 'unrecognisdValue'
       }
     }),
     upsert: async () => ({})
@@ -48,7 +49,8 @@ test('Patching a document should call fetch and upsert on doc store.', async () 
     docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
-    fullName: 'David Doohickey'
+    fullName: 'David Doohickey',
+    unrecognisedProp: 'unrecognisdValue'
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)

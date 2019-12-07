@@ -123,7 +123,7 @@ const createJsonSchemaForDocTypeFields = (docType, fieldTypes) => {
     title: `${docType.title} JSON Schema`,
     $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',
-    additionalProperties: false,
+    additionalProperties: true,
     properties,
     required,
     definitions

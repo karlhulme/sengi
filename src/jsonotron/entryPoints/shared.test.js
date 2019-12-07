@@ -1,5 +1,4 @@
 /* eslint-env jest */
-const builtinDocTypes = require('../builtinDocTypes')
 const builtinFieldTypes = require('../builtinFieldTypes')
 const testDocTypes = require('../entryPointTestData/docTypes')
 const testFieldTypes = require('../entryPointTestData/fieldTypes')
@@ -17,10 +16,9 @@ const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
  */
 const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
   const fieldTypes = combineCustomAndBuiltInFieldTypes(builtinFieldTypes, testFieldTypes)
-  const docTypes = builtinDocTypes.concat(testDocTypes)
 
   const ajv = createCustomisedAjv()
-  const validatorCache = initValidatorCache(ajv, docTypes, fieldTypes)
+  const validatorCache = initValidatorCache(ajv, testDocTypes, fieldTypes)
 
   const docStore = Object.keys(mockedDocStoreTemplate || {})
     .reduce((agg, key) => ({ ...agg, [key]: jest.fn(mockedDocStoreTemplate[key]) }), {})
@@ -28,7 +26,7 @@ const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
   return {
     mockedDocStore: docStore,
     safeDocStore: wrapDocStore(docStore),
-    docTypes,
+    docTypes: testDocTypes,
     fieldTypes,
     validatorCache,
     roleTypes: testRoleTypes

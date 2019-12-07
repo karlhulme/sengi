@@ -1,9 +1,7 @@
 jsonotron
 =========
 switch jsonotron from class to closure. setup end-to-end tests for input validation and happy route (to check it actually connects to the internal functions)
-handling deleted fields on update (strip automatically - or perhaps pre-save adjustment function?)
-drop builtin doctypes?
-drop testing docs in entrypointdata?
+have a cleanup function that enables deprecated props to be removed/migrated that runs pre-validation+pre-save after patch or operation
 
 jsonotron-apollo
 ================

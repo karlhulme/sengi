@@ -1,10 +1,20 @@
 /* eslint-env jest */
 const builtinFieldTypes = require('../builtinFieldTypes')
-const builtinDocTypes = require('../builtinDocTypes')
 const { createCustomisedAjv } = require('../jsonValidation')
 const ensureDocTypesAreValid = require('./ensureDocTypesAreValid')
 
-const createValidDocType = () => ({
+const createSimpleValidDocType = () => ({
+  name: 'simpleDoc',
+  pluralName: 'simpleDocs',
+  title: 'Simple Doc',
+  pluralTitle: 'Simple Docs',
+  fields: {
+    propA: { type: 'integer', isRequired: true, canUpdate: true, description: 'Property A.' },
+    propB: { type: 'float', description: 'Property B.' }
+  }
+})
+
+const createComplexValidDocType = () => ({
   name: 'candidateDoc',
   pluralName: 'candidateDocs',
   title: 'Candidate Doc',
@@ -62,68 +72,63 @@ const createValidDocType = () => ({
   }
 })
 
-test('Valid doc type can be verified.', () => {
+test('Valid doc types can be verified.', () => {
   const ajv = createCustomisedAjv()
-  expect(() => ensureDocTypesAreValid(ajv, [createValidDocType()], builtinFieldTypes)).not.toThrow()
+  expect(() => ensureDocTypesAreValid(ajv, [createSimpleValidDocType(), createComplexValidDocType()], builtinFieldTypes)).not.toThrow()
 })
 
 test('Valid doc type does not require a constructor to be verified.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   delete candidate.ctor
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).not.toThrow()
 })
 
 test('Valid doc type does not require operations to be verified.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   delete candidate.operations
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).not.toThrow()
 })
 
 test('Doc type with missing fields section fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   delete candidate.fields
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/Unable to validate against docTypeSchema/)
 })
 
 test('Doc type with calculated field that refers to erroneous field fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   candidate.calculatedFields.propAandB.inputFields = ['a', 'madeup', 'b']
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/Calculated field 'propAandB' requires unrecognised input field/)
 })
 
 test('Doc type with declared field that is marked as required and has default fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   candidate.fields.propA.default = 'failTest'
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/cannot be marked as required and supply a default/)
 })
 
 test('Doc type with unresolvable lookup constructor parameters fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   candidate.ctor.parameters.invalidParam = { lookup: 'field' }
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/Constructor parameter 'invalidParam' is a lookup field but/)
 })
 
 test('Doc type with a property that clashes with a system property name fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   candidate.fields.id = { type: 'string', description: 'A field that clashes with a system field.' }
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/clash with a reserved system field name/)
 })
 
 test('Doc type with unresolvable lookup operation parameters fails validation.', () => {
   const ajv = createCustomisedAjv()
-  const candidate = createValidDocType()
+  const candidate = createComplexValidDocType()
   candidate.operations.changePropB.parameters.invalidParam = { lookup: 'field' }
   expect(() => ensureDocTypesAreValid(ajv, [candidate], builtinFieldTypes)).toThrow(/Operation 'changePropB' states parameter 'invalidParam' is a lookup field but/)
-})
-
-test('All built-in doc types are valid.', () => {
-  const ajv = createCustomisedAjv()
-  expect(ensureDocTypesAreValid(ajv, builtinDocTypes, builtinFieldTypes)).toBeUndefined()
 })

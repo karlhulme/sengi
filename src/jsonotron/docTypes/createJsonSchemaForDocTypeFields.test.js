@@ -25,7 +25,7 @@ test('Build a JSON Schema for doc type fields.', () => {
     title: 'Map JSON Schema',
     $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',
-    additionalProperties: false,
+    additionalProperties: true,
     properties: {
       id: { $ref: '#/definitions/docId', description: 'The id of the document.' },
       docType: { enum: ['map'], description: 'The type of the document.' },

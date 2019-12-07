@@ -8,7 +8,7 @@ const {
 } = require('../errors')
 const operateOnDocument = require('./operateOnDocument')
 
-test('Operate on document should call fetch and upsert on doc store.', async () => {
+test('Operate on document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones)..', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     fetch: async () => ({
       doc: {
@@ -18,7 +18,8 @@ test('Operate on document should call fetch and upsert on doc store.', async () 
         docOps: [],
         tenantId: 'dddd',
         shortName: 'Mikey',
-        fullName: 'Mikey Manhattan'
+        fullName: 'Mikey Manhattan',
+        unrecognisedProp: 'unrecognisedValue'
       }
     }),
     upsert: async () => ({})
@@ -48,7 +49,8 @@ test('Operate on document should call fetch and upsert on doc store.', async () 
     tenantId: 'dddd',
     shortName: 'Mikey',
     fullName: 'Mikey Manhattan',
-    favouriteColors: ['silver', 'puse', 'gold']
+    favouriteColors: ['silver', 'puse', 'gold'],
+    unrecognisedProp: 'unrecognisedValue'
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)

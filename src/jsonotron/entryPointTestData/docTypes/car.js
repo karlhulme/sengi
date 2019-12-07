@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 module.exports = {
   name: 'car',
   pluralName: 'cars',
