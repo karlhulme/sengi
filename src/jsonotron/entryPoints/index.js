@@ -6,6 +6,5 @@ module.exports = {
   queryDocuments: require('./queryDocuments'),
   queryDocumentsByFilter: require('./queryDocumentsByFilter'),
   queryDocumentsByIds: require('./queryDocumentsByIds'),
-  replaceDocument: require('./replaceDocument'),
-  resolveDocTypeNameFromPlural: require('./resolveDocTypeNameFromPlural')
+  replaceDocument: require('./replaceDocument')
 }

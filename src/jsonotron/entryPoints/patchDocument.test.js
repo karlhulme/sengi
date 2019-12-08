@@ -32,7 +32,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
     },
@@ -77,7 +77,7 @@ test('Patching a document for a second time should only call fetch on doc store.
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
     },
@@ -109,7 +109,7 @@ test('Patching a document using a required version should call fetch and upsert 
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
@@ -155,7 +155,7 @@ test('Fail to patch document when required version is not available.', async () 
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
@@ -201,7 +201,7 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
@@ -238,7 +238,7 @@ test('Reject a patch to a non-existent doc.', async () => {
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-aaaaaaaaaaaa',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
     },
@@ -267,7 +267,7 @@ test('Reject a patch to any field that is not explicitly allowed for patching.',
       roleNames: ['admin'],
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         pinCode: 4444
       },
@@ -304,7 +304,7 @@ test('Reject a patch to a non-existent field.', async () => {
       roleNames: ['admin'],
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         madeup: 'value'
       },
@@ -341,7 +341,7 @@ test('Reject a patch with a field value that is invalid.', async () => {
       roleNames: ['admin'],
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         shortName: 123
       },
@@ -378,7 +378,7 @@ test('Reject a patch that would change a system field.', async () => {
       roleNames: ['admin'],
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         id: 'aaaaaaaa-065a-4691-a7c8-2d84ec746ba9'
       },
@@ -415,7 +415,7 @@ test('Reject a patch that would leave the document in an invalid state.', async 
       roleNames: ['admin'],
       docTypeName: 'car',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         registration: 'AB78 9KL'
       },
@@ -439,7 +439,7 @@ test('Fail to patch a document if permissions insufficient.', async () => {
     roleNames: ['invalid'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
     }

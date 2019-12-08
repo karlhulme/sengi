@@ -13,7 +13,7 @@ const {
 } = require('../docTypes')
 const { canOperate, ensurePermission } = require('../roleTypes')
 
-const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, opId, operationName, operationParams, docStoreOptions }) => {
+const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -22,7 +22,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
   check.assert.string(docTypeName)
   check.assert.string(id)
   check.assert.maybe.string(reqVersion)
-  check.assert.string(opId)
+  check.assert.string(operationId)
   check.assert.string(operationName)
   check.assert.maybe.object(operationParams)
   check.assert.maybe.object(docStoreOptions)
@@ -37,7 +37,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
   ensureDocWasFound(docType.name, id, doc)
   ensureDocHasSystemFields(doc)
 
-  const opIdAlreadyExists = isOpIdInDocument(doc, opId)
+  const opIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
   if (!opIdAlreadyExists) {
     validatorCache.ensureDocTypeOperationParams(docType.name, operationName, operationParams)
@@ -47,7 +47,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
     ensureOperationMergePatchAvoidsSystemFields(docType.name, operationName, mergePatch)
     applyMergePatch(doc, mergePatch)
 
-    updateSystemFieldsOnDocument(docType, doc, opId)
+    updateSystemFieldsOnDocument(docType, doc, operationId)
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 

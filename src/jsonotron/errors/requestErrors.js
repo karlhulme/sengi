@@ -138,14 +138,6 @@ class JsonotronUnrecognisedDocTypeNameError extends JsonotronRequestError {
   }
 }
 
-class JsonotronUnrecognisedDocTypePluralNameError extends JsonotronRequestError {
-  constructor (docTypePluralName) {
-    check.assert.string(docTypePluralName)
-    super(`A document type with a plural name of '${docTypePluralName}' is not defined.`)
-    this.docTypePluralName = docTypePluralName
-  }
-}
-
 class JsonotronUnrecognisedFieldNameError extends JsonotronRequestError {
   constructor (docTypeName, fieldName) {
     check.assert.string(docTypeName)
@@ -199,7 +191,6 @@ module.exports = {
   JsonotronOperationParamsValidationError,
   JsonotronRequiredVersionNotAvailableError,
   JsonotronUnrecognisedDocTypeNameError,
-  JsonotronUnrecognisedDocTypePluralNameError,
   JsonotronUnrecognisedFieldNameError,
   JsonotronUnrecognisedFilterNameError,
   JsonotronUnrecognisedOperationNameError,

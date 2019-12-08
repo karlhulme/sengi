@@ -15,7 +15,7 @@ const {
   ensurePermission
 } = require('../roleTypes')
 
-const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, opId, mergePatch, docStoreOptions }) => {
+const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, mergePatch, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -24,7 +24,7 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
   check.assert.string(docTypeName)
   check.assert.string(id)
   check.assert.maybe.string(reqVersion)
-  check.assert.string(opId)
+  check.assert.string(operationId)
   check.assert.object(mergePatch)
   check.assert.maybe.object(docStoreOptions)
 
@@ -37,14 +37,14 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
   ensureDocWasFound(docType.name, id, doc)
   ensureDocHasSystemFields(doc)
 
-  const opIdAlreadyExists = isOpIdInDocument(doc, opId)
+  const operationIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
-  if (!opIdAlreadyExists) {
+  if (!operationIdAlreadyExists) {
     validatorCache.ensureDocTypeMergePatch(docType.name, mergePatch)
     ensureMergePatchAvoidsSystemFields(mergePatch)
 
     applyMergePatch(doc, mergePatch)
-    updateSystemFieldsOnDocument(docType, doc, opId)
+    updateSystemFieldsOnDocument(docType, doc, operationId)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)

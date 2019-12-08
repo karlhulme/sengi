@@ -12,8 +12,7 @@ const {
   queryDocuments: queryDocumentsInternal,
   queryDocumentsByIds: queryDocumentsByIdsInternal,
   queryDocumentsByFilter: queryDocumentsByFilterInternal,
-  replaceDocument: replaceDocumentInternal,
-  resolveDocTypeNameFromPlural: resolveDocTypeNameFromPluralInternal
+  replaceDocument: replaceDocumentInternal
 } = require('./entryPoints')
 
 /**
@@ -25,25 +24,23 @@ const requestParameterValidators = {
   doc: v => typeof v === 'object',
   docStoreOptions: v => typeof v === 'object' || typeof v === 'undefined',
   docTypeName: v => typeof v === 'string',
-  docTypePluralName: v => typeof v === 'string',
   fieldNames: v => Array.isArray(v),
   filterName: v => typeof v === 'string',
   filterParams: v => typeof v === 'object',
   id: v => typeof v === 'string',
   ids: v => Array.isArray(v),
   mergePatch: v => typeof v === 'object',
-  onFieldsQueried: v => typeof v === 'function',
+  operationId: v => typeof v === 'string',
   operationName: v => typeof v === 'string',
   operationParams: v => typeof v === 'object',
   reqVersion: v => typeof v === 'string',
-  roleNames: v => Array.isArray(v),
-  versionGeneratorFunc: v => typeof v === 'function'
+  roleNames: v => Array.isArray(v)
 }
 
 /**
  * Raises an error if the given request object contains an unrecognised parameter
 // or contains a parameter value that is not valid.
- * @param {*} req An external request object.
+ * @param {Object} req An external request object.
  * @param  {...any} parameterNames An array of parameter names expected by a request.
  */
 const validateRequestParameters = function (req, ...parameterNames) {
@@ -54,12 +51,8 @@ const validateRequestParameters = function (req, ...parameterNames) {
   for (const parameterName of parameterNames) {
     const validator = requestParameterValidators[parameterName]
 
-    if (!validator) {
-      throw new TypeError(`Unrecognised parameter '${parameterName}'.`)
-    }
-
     if (!validator(req[parameterName])) {
-      throw new TypeError(`Input parameter '${parameterName}' is not valid.`)
+      throw new TypeError(`Input parameter '${parameterName}' with value '${JSON.stringify(req[parameterName])}' is not valid.`)
     }
   }
 }
@@ -87,6 +80,14 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
 
   if (typeof config !== 'object' || Array.isArray(config) || config === null) {
     throw new TypeError('Constructor parameter \'config\' must be an object if supplied.')
+  }
+
+  if (typeof config.customFieldTypes !== 'undefined' && !Array.isArray(config.customFieldTypes)) {
+    throw new TypeError('Constructor parameter \'config.customFieldTypes\' must be an array.')
+  }
+
+  if (typeof config.onFieldsQueried !== 'undefined' && typeof config.onFieldsQueried !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onFieldsQueried\' must be function.')
   }
 
   // wrap the doc store so methods are safe to call
@@ -130,9 +131,9 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {String} req.id The id to be assigned to the newly created document.
      * @param {Object} req.constructorParams The parameters to be passed to the doc type constructor.
-     * @param {Object} [req.docStoreoptions] A property bag of doc store options that is passed to the underlying document store.
+     * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    createDocument: async (req = { roleNames: null, docTypeName: null, id: null, constructorParams: {}, docStoreOptions: {} }) => {
+    createDocument: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'constructorParams', 'docStoreOptions')
       return createDocumentInternal(buildEntryPointParameterObject(req))
     },
@@ -145,9 +146,42 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {String} req.id The id of the document to be deleted.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    deleteDocument: async (req = { roleNames: null, docTypeName: null, id: null, docStoreOptions: {} }) => {
+    deleteDocument: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'docStoreOptions')
       return deleteDocumentInternal(buildEntryPointParameterObject(req))
+    },
+
+    /**
+     * Invoke an operation on a document.
+     * @param {Object} req A request.
+     * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
+     * @param {String} req.docTypeName The name of the document type to be created.
+     * @param {String} req.id The id of a document.
+     * @param {String} req.reqVersion The version of the existing document if the operation is to be accepted.
+     * @param {String} req.operationId The id of this operation request.
+     * @param {String} req.operationName The name of an operation defined for the doc type.
+     * @param {Object} req.operationParams The parameters to be passed to the operation.
+     * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
+     */
+    operateOnDocument: async req => {
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'operationName', 'operationParams', 'docStoreOptions')
+      return operateOnDocumentInternal(buildEntryPointParameterObject(req))
+    },
+
+    /**
+     * Patch a document.
+     * @param {Object} req A request.
+     * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
+     * @param {String} req.docTypeName The name of the document type to be created.
+     * @param {String} req.id The id of the document to update.
+     * @param {String} req.reqVersion The version of the existing document if the operation is to be accepted.
+     * @param {String} req.operationId The id of this operation request.
+     * @param {Object} req.mergePatch An object that provides new values for specified keys in the document.
+     * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
+     */
+    patchDocument: async req => {
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'mergePatch', 'docStoreOptions')
+      return patchDocumentInternal(buildEntryPointParameterObject(req))
     },
 
     /**
@@ -158,23 +192,9 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    queryDocuments: async (req = { roleNames: null, docTypeName: null, fieldNames: [], docStoreOptions: {} }) => {
+    queryDocuments: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'docStoreOptions')
       return queryDocumentsInternal(buildEntryPointParameterObject(req))
-    },
-
-    /**
-     * Queries for the documents of a given doc type that have the given ids.
-     * @param {Object} req A request.
-     * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
-     * @param {String} req.docTypeName The name of the document type to be created.
-     * @param {Array} req.fieldNames The field names to include in the response for each queried document.
-     * @param {Array} req.ids The ids of the documents to include in the response.
-     * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
-     */
-    queryDocumentsByIds: async (req = { roleNames: null, docTypeName: null, fieldNames: [], ids: [], docStoreOptions: {} }) => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'ids', 'docStoreOptions')
-      return queryDocumentsByIdsInternal(buildEntryPointParameterObject(req))
     },
 
     /**
@@ -187,40 +207,23 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {Object} req.filterParams The parameters to be passed to the filter.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    queryDocumentsByFilter: async (req = { roleNames: null, docTypeName: null, fieldNames: [], filterName: null, filterParams: {}, docStoreOptions: {} }) => {
+    queryDocumentsByFilter: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'filterName', 'filterParams', 'docStoreOptions')
       return queryDocumentsByFilterInternal(buildEntryPointParameterObject(req))
     },
 
     /**
-     * Invoke an operation on a document.
+     * Queries for the documents of a given doc type that have the given ids.
      * @param {Object} req A request.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
-     * @param {String} req.id The id of a document.
-     * @param {String} req.reqVersion The version of the existing document if the operation is to be accepted.
-     * @param {String} req.operationName The name of an operation defined for the doc type.
-     * @param {Object} req.operationParams The parameters to be passed to the operation.
+     * @param {Array} req.fieldNames The field names to include in the response for each queried document.
+     * @param {Array} req.ids The ids of the documents to include in the response.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    operateOnDocument: async (req = { roleNames: null, docTypeName: null, id: null, reqVersion: null, operationName: null, operationParams: {}, docStoreOptions: {} }) => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationName', 'operationParams', 'docStoreOptions')
-      return operateOnDocumentInternal(buildEntryPointParameterObject(req))
-    },
-
-    /**
-     * Patch a document.
-     * @param {Object} req A request.
-     * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
-     * @param {String} req.docTypeName The name of the document type to be created.
-     * @param {String} req.id The id of the document to update.
-     * @param {String} req.reqVersion The version of the existing document if the operation is to be accepted.
-     * @param {Object} req.mergePatch An object that provides new values for specified keys in the document.
-     * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
-     */
-    patchDocument: async (req = { roleNames: null, docTypeName: null, id: null, reqVersion: null, mergePatch: {}, docStoreOptions: {} }) => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'mergePatch', 'docStoreOptions')
-      return patchDocumentInternal(buildEntryPointParameterObject(req))
+    queryDocumentsByIds: async req => {
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'ids', 'docStoreOptions')
+      return queryDocumentsByIdsInternal(buildEntryPointParameterObject(req))
     },
 
     /**
@@ -231,19 +234,9 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {Object} req.doc The replacement document that must include all system fields (id, docType and docOps).
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
-    replaceDocument: async (req = { roleNames: null, docTypeName: null, doc: {}, docStoreOptions: {} }) => {
+    replaceDocument: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
-    },
-
-    /**
-     * Determine the doc type name from given the doc type plural name.
-     * @param {Object} req A request.
-     * @param {String} req.docTypePluralName A doc type plural name.
-     */
-    resolveDocTypeNameFromPlural: (req = { docTypePluralName: null }) => {
-      validateRequestParameters(req, 'docTypePluralName')
-      return resolveDocTypeNameFromPluralInternal(buildEntryPointParameterObject(req))
     }
   }
 }

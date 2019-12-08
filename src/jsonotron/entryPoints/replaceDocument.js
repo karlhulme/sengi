@@ -21,10 +21,10 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   check.assert.object(doc)
   check.assert.maybe.object(docStoreOptions)
 
-  const docType = selectDocTypeFromArray(docTypes, docTypeName)
-
-  ensureCanReplaceDocuments(docType)
   ensurePermission(roleNames, roleTypes, docTypeName, 'replace', r => canReplace(r, docTypeName))
+
+  const docType = selectDocTypeFromArray(docTypes, docTypeName)
+  ensureCanReplaceDocuments(docType)
 
   validatorCache.ensureDocTypeFields(docType.name, doc)
   executeValidator(docType, doc)

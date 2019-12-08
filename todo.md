@@ -1,6 +1,6 @@
 jsonotron
 =========
-switch jsonotron from class to closure. setup end-to-end tests for input validation and happy route (to check it actually connects to the internal functions)
+get involved in meta at all? I THINK NO. add permission for accessing meta?  or just make docTypes/roleTypes gettable?
 have a cleanup function that enables deprecated props to be removed/migrated that runs pre-validation+pre-save after patch or operation
 
 jsonotron-apollo

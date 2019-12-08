@@ -30,7 +30,7 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
       favouriteColors: ['puse', 'gold']
@@ -77,7 +77,7 @@ test('Operate on document for second time should only call fetch on doc store.',
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
       favouriteColors: ['puse', 'gold']
@@ -110,7 +110,7 @@ test('Operate on document using a required version should call exists and upsert
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     reqVersion: 'aaaa',
     operationName: 'replaceFavouriteColors',
     operationParams: {
@@ -158,7 +158,7 @@ test('Fail to operate on document when required version is not available.', asyn
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     reqVersion: 'aaaa',
     operationName: 'replaceFavouriteColors',
     operationParams: {
@@ -206,7 +206,7 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
       favouriteColors: ['puse', 'gold']
@@ -244,7 +244,7 @@ test('Fail to operate on document if it does not exist.', async () => {
     roleNames: ['admin'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-888888888888',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
       favouriteColors: ['puse', 'gold']
@@ -260,7 +260,7 @@ test('Fail to invoke an operation if permissions insufficient.', async () => {
     roleNames: ['invalid'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
       favouriteColors: ['puse', 'gold']

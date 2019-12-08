@@ -22,10 +22,10 @@ const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   check.assert.array.of.string(fieldNames)
   check.assert.maybe.object(docStoreOptions)
 
-  const docType = selectDocTypeFromArray(docTypes, docTypeName)
-
-  ensureCanFetchWholeCollection(docType)
   ensurePermission(roleNames, roleTypes, docTypeName, `query(${fieldNames.join(',')})`, r => canQuery(r, docTypeName, fieldNames))
+
+  const docType = selectDocTypeFromArray(docTypes, docTypeName)
+  ensureCanFetchWholeCollection(docType)
 
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)

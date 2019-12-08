@@ -18,10 +18,10 @@ const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   check.assert.string(id)
   check.assert.maybe.object(docStoreOptions)
 
-  const docType = selectDocTypeFromArray(docTypes, docTypeName)
-
-  ensureCanDeleteDocuments(docType)
   ensurePermission(roleNames, roleTypes, docTypeName, 'delete', r => canDelete(r, docTypeName))
+
+  const docType = selectDocTypeFromArray(docTypes, docTypeName)
+  ensureCanDeleteDocuments(docType)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   await safeDocStore.deleteById(docTypeName, id, combinedDocStoreOptions)
