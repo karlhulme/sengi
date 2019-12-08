@@ -1,25 +1,92 @@
 # Jsonotron
 
-You define a JSON schema for a domain object, e.g. Customer, along with any methods required to construct or mutate it, all in a single file.  This is analogous to a table definition in SQL.  You then connect Jsonotron to a doc store like CosmosDB or MongoDB and to an interface like Express.  You end up with an end-to-end data microservice, similar to an installed DB product, but all config/code is native JS, versioned, evolvable, and ready for your CI process.
+A component set for rapidly building a RESTful microservice in NodeJS for storing and querying JSON documents that have a known enforced schema, but are stored in a schemaless database.
 
-## Example
+Everything is defined in code.  You can add new objects and evolve existing ones by updating your coded definitions, running your tests and redeploying your microservice.
 
-Start with the fields of your domain object.
+Crucially, you **don't** need to change the config of your database.
 
-Then you can add some calculated fields.
+## Getting Started
 
-Then define a constructor and any operations (mutators).
+Begin by creating a definition for a business entity that you want to store.  For example, a Pet.
 
+```javascript
+const petDocType = {
+  name: 'pet',
+  pluralName: 'pets',
+  title: 'Pet',
+  pluralTitle: 'Pets',
+  fields: {
+    name: { type: 'shortString', isRequired: true, canUpdate: true, description: 'The pet\'s name.' },
+    animalType: { type: 'mediumString', isRequired: true, canUpdate: true, description: 'The type of animal.' },
+    dateOfBirth: { type: 'date', canUpdate: true, description: 'The date of birth.' },
+    medicalChecks: { type: 'date', isRequired: true, isArray: true, description: 'The date of birth.' }
+  }
+}
+```
 
-Then instantiate the jsonotron engine and connect it to a doc store and an interface.
- 
+Then you can add some calculated fields.  When querying the database, you can treat calculated fields like regular fields.
 
+```javascript
+petDocType.calculatedFields = {
+  lastMedicalCheck: {
+    description: 'The date that the pet had their last medical.',
+    inputFields: ['medicalChecks'],
+    value: data => data.medicalChecks.reduce((agg, cur) => Math.max(agg, cur), 0)
+  }
+}
+```
 
+Define a constructor to make it easy to create records.
 
-## All Inclusive
+```javascript
+petDocType.ctor = {
+  parameters: {
+      name: { lookup: 'field', isRequired: true },
+      animalType: { lookup: 'field' },
+      dateOfBirth: { lookup: 'field', isRequired: true }
+    },
+    implementation: input => {
+      return {
+        name: input.name,
+        animalType: input.animalType || 'dog',
+        dateOfBirth: input.dateOfBirth,
+        medicalChecks: []
+      }
+    }
+}
+```
 
-All of the interface options are bundled together.  This has the following advantages:
+Fields marked with `canUpdate: true` can be adjusted with a patch command.  For anything else, define operations to mutate the data.
 
-* It's easier to setup Jsonotron because everything except the document store is included.
-* The Jsonotron engine and the interfaces to it tend to evolve together.  This reduces release friction and allows users to just update one package.
-* No need to separate out an errors package to be depended upon.
+```javascript
+petDocType.operations = {
+  addMedicalCheck: {
+    title: 'Add Medical Check',
+    description: 'Make a record of the latest medical check.',
+    parameters: {
+      newMedicalCheck: { type: 'date', isRequired: true }
+    },
+    implementation: (doc, input) => ({
+      medicalChecks: [...doc.medicalChecks, input.newMedicalCheck]
+    })
+  }
+}
+```
+
+Remember it's all just javascript.  So you can define operations, filters and constructors in separate files if that makes it easier to read and/or test.
+
+Then instantiate the jsonotron engine, using whatever platform is good for you, and connect it to a doc store.
+
+```javascript
+const { createJsonotronExpress } = require('jsonotron-express')
+const { createMemDocStore } = require('jsonotron-memdocstore')
+const uuid = require('uuid/v4')
+
+const docs = []
+const memDocStore = createMemDocStore(docs, uuid)
+
+// need to show how to define roleType and docTypes and pass them in here.
+// also need to show how to create custom field types.
+const jsonotronExpress = createJosotronExpress({}, [], [])
+```

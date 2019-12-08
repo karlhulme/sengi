@@ -1,7 +1,6 @@
 jsonotron
 =========
-get involved in meta at all? I THINK NO. add permission for accessing meta?  or just make docTypes/roleTypes gettable?
-have a cleanup function that enables deprecated props to be removed/migrated that runs pre-validation+pre-save after patch or operation
+pre-validation function that runs after patch or operation
 
 jsonotron-apollo
 ================
