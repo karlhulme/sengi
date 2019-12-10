@@ -94,3 +94,13 @@ const memDocStore = createMemDocStore(docs, uuid)
 // also need to show how to create custom field types.
 const jsonotronExpress = createJosotronExpress({}, [], [])
 ```
+
+## Development
+
+Code base adheres to the rules chosen by https://standardjs.com/.  Code is formatted with 2 spaces.
+
+Tests are written using Jest with 100% coverage.
+
+```javascript
+npm test
+```
