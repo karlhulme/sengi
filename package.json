@@ -1,6 +1,6 @@
 {
   "name": "jsonotron",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Provides a RESTful interface to a document-based database.",
   "main": "index.js",
   "scripts": {
