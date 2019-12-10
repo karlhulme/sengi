@@ -1,5 +1,9 @@
 # Jsonotron
 
+![](https://github.com/karlhulme/jsonotron/workflows/CI/badge.svg)
+[![npm](https://img.shields.io/npm/v/jsonotron.svg)](https://www.npmjs.com/package/jsonotron)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 A component set for rapidly building a RESTful microservice in NodeJS for storing and querying JSON documents that have a known enforced schema, but are stored in a schemaless database.
 
 Everything is defined in code.  You can add new objects and evolve existing ones by updating your coded definitions, running your tests and redeploying your microservice.
