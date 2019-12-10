@@ -62,7 +62,7 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Object} docStore A collection of functions for reading and writing JSON data.
  * @param {Array} docTypes An array of doc types.
  * @param {Array} roleTypes An array of role types.
- * @param {Object} config A configuration object.
+ * @param {Object} [config] A configuration object.
  * @param {Array} config.customFieldTypes An array of custom field types.
  */
 const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
