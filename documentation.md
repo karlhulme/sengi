@@ -140,7 +140,7 @@ Jsonotron also introduces constructors and mutators.  Similar to schema, you don
 
 The logic is expressed as more javascript.
 
-## Architecture
+# Architecture
 
 Consumers can call the microservice directly but in a typical large-scale deployment, with some degree of command query separation, the data flow looks like this:
 
@@ -152,7 +152,7 @@ Consumer ---> GraphQL Server ---> Jsonotron Microservice ---> MongoDB/Azure Cosm
 
 Consumer ---> Service Bus ---> Workflow Worker ---> Jsonotron Microservice ---> MongoDB/Azure Cosmos/Amazon DynamoDB
 
-## Document Type Definition
+# Document Type Definition
 
 A **docType** consists of the following sections:
 
