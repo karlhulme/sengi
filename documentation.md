@@ -130,7 +130,7 @@ Jsonotron reintroduces schema - in this case JSON schema.
 
 But the schemas exist in your code, not as config on your database.  That means:
 * You can create your schemas in parts and combine it any way permitted by the Javascript language.
-* It easy to test using your preferred test tool, e.g. Mocha, Jest
+* It's easy to test using your preferred test tool, e.g. Mocha, Jest
 * You don't need any *database deployment scripts*.  Instead, you just deploy your updated microservice.
 
 
