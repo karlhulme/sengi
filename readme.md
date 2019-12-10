@@ -78,7 +78,7 @@ petDocType.operations = {
 }
 ```
 
-Remember it's all just javascript.  So you can define operations, filters and constructors in separate files if that makes it easier to read and/or test.
+Remember it's all just javascript, so you can define operations, filters and constructors in separate files if that makes it easier to read and/or test.
 
 Then instantiate the jsonotron engine, using whatever platform is good for you, and connect it to a doc store.
 
