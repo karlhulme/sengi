@@ -4,7 +4,6 @@
   "description": "Provides a RESTful interface to a document-based database.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon",
     "test": "jest",
     "reinstall": "rm -rf node_modules && npm install",
     "setupStandard": "standard --env jest"

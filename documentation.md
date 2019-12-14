@@ -6,6 +6,8 @@ Jsonotron is...
 * stored in a schemaless/NoSQL **database**
 * that have known, enforceable, and **evolving schemas**.
 
+NoSQL Database + Jsonotron = A microservice for your curated/governed data
+
 # Example
 
 Suppose you plan to create an application for running a Veterinary Practice.
