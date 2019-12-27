@@ -18,7 +18,8 @@ const createValidRoleType = () => ({
       create: true,
       delete: true,
       replace: true
-    }
+    },
+    location: true
   }
 })
 
