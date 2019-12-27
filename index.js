@@ -1,1 +1,4 @@
-exports.createJsonotron = require('./src/createJsonotron')
+module.exports = {
+  createJsonotron: require('./src/createJsonotron'),
+  errors: require('./src/errors')
+}
