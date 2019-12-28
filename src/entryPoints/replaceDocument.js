@@ -30,7 +30,9 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   executeValidator(docType, doc)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  await safeDocStore.upsert(docTypeName, doc, reqVersion || null, Boolean(reqVersion), combinedDocStoreOptions)
+  const isNew = await safeDocStore.upsert(docTypeName, doc, reqVersion || null, Boolean(reqVersion), combinedDocStoreOptions)
+
+  return { isNew }
 }
 
 module.exports = replaceDocument

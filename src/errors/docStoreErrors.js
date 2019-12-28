@@ -38,7 +38,7 @@ class JsonotronDocStoreUnrecognisedErrorCodeError extends JsonotronDocStoreError
   constructor (functionName, errorCode) {
     check.assert.string(functionName)
     check.assert.string(errorCode)
-    super(functionName, `The document store function '${functionName}' returned an object without an unrecognised error code '${errorCode}'.`)
+    super(functionName, `The document store function '${functionName}' returned an object with an unrecognised error code '${errorCode}'.`)
     this.errorCode = errorCode
   }
 }

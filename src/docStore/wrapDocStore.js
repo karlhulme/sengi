@@ -1,5 +1,6 @@
 const check = require('check-types')
-const ErrorCodes = require('./errorCodes')
+const errorCodes = require('./errorCodes')
+const successCodes = require('./successCodes')
 const {
   JsonotronConflictOnSaveError,
   JsonotronInternalError,
@@ -25,7 +26,7 @@ const ensureDocStoreResult = (functionName, result, reqVersionExplicit) => {
     throw new JsonotronDocStoreInvalidResponseError(functionName, 'Response must be an object.')
   }
 
-  if (result.errorCode === ErrorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE) {
+  if (result.errorCode === errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE) {
     if (reqVersionExplicit) {
       throw new JsonotronRequiredVersionNotAvailableError()
     } else {
@@ -277,7 +278,8 @@ const wrapDocStore = (docStore) => {
         throw new JsonotronInternalError(`Cannot upsert document with docType property '${doc.docType}' that does not match docTypeName '${docTypeName}'.`)
       }
 
-      await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, doc, reqVersion, options], reqVersionExplicit)
+      const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, doc, reqVersion, options], reqVersionExplicit)
+      return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_CREATED
     }
   }
 }

@@ -7,7 +7,7 @@ const {
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
 } = require('../errors')
-const { errorCodes } = require('../docStore')
+const { errorCodes, successCodes } = require('../docStore')
 const replaceDocument = require('./replaceDocument')
 
 test('Replacing a document should call upsert on the doc store.', async () => {
@@ -31,7 +31,7 @@ test('Replacing a document should call upsert on the doc store.', async () => {
       favouriteColors: ['orange', 'purple']
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isNew: false })
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -71,7 +71,7 @@ test('Replacing a document with a required version should call upsert on the doc
     },
     reqVersion: 'aaaa',
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isNew: false })
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -91,7 +91,7 @@ test('Replacing a document with a required version should call upsert on the doc
 
 test('Replacing a document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
-    upsert: async () => ({})
+    upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_CREATED })
   })
 
   await expect(replaceDocument({
@@ -112,7 +112,7 @@ test('Replacing a document with a version that contains additional unrecognised 
     },
     reqVersion: 'aaaa',
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isNew: true })
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',

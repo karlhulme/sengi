@@ -37,14 +37,24 @@ const docStoreWithValidFunctions = {
   queryAll: () => ({ docs: [] }),
   queryByFilter: () => ({ docs: [] }),
   queryByIds: () => ({ docs: [] }),
-  upsert: () => ({})
+  upsert: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_CREATED' })
 }
 
 const docStoreWithFunctionsWithErrorReturns = {
   deleteById: () => null,
   exists: () => ({ errorCode: 'UNKNOWN_CODE' }),
   queryByIds: () => ({}),
-  upsert: () => ({ errorCode: 'DOC_STORE_REQ_VERSION_NOT_AVAILABLE' })
+  upsert: () => ({ errorCode: 'DOC_STORE_REQ_VERSION_NOT_AVAILABLE' }),
+  upsertNew: () => ({ errorCode: 'DOC_STORE_DOCUMENT_WAS_CREATED' }),
+  upsertUpdated: () => ({ errorCode: 'DOC_STORE_DOCUMENT_WAS_UPDATED' })
+}
+
+const docStoreWithUpsertNewDoc = {
+  upsert: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_CREATED' })
+}
+
+const docStoreWithUpsertUpdatedDoc = {
+  upsert: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_UPDATED' })
 }
 
 const docStoreWithMalformedExists = { exists: () => ({ missingFoundProp: true }) }
@@ -95,6 +105,13 @@ test('A doc store with error function responses will throw appropriate errors.',
   await expect(safeDocStore.upsert('test', { docType: 'test' }, '123', true)).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 })
 
+test('A doc store with success function responses will return success codes.', async () => {
+  const safeDocStoreNewDoc = wrapDocStore(docStoreWithUpsertNewDoc)
+  await expect(safeDocStoreNewDoc.upsert('test', { docType: 'test' }, '123', true)).resolves.toEqual(true)
+  const safeDocStoreUpdatedDoc = wrapDocStore(docStoreWithUpsertUpdatedDoc)
+  await expect(safeDocStoreUpdatedDoc.upsert('test', { docType: 'test' }, '123', true)).resolves.toEqual(false)
+})
+
 test('A doc store with an invalid response to the exists function will throw an error.', async () => {
   const storeExists = wrapDocStore(docStoreWithMalformedExists)
   await expect(storeExists.exists('test', '123')).rejects.toThrow(/Property 'found' must be a boolean/)
@@ -136,7 +153,7 @@ test('A doc store with valid functions will return the underlying function retur
   await expect(safeDocStore.queryAll('test', ['id'])).resolves.not.toThrow()
   await expect(safeDocStore.queryByFilter('test', ['id'], 'A and B')).resolves.not.toThrow()
   await expect(safeDocStore.queryByIds('test', ['id'], ['123', '234'])).resolves.not.toThrow()
-  await expect(safeDocStore.upsert('test', { docType: 'test' })).resolves.not.toThrow()
+  await expect(safeDocStore.upsert('test', { docType: 'test' })).resolves.toEqual(true)
 })
 
 test('Upserts will fail if the doc types are not consistent.', async () => {
