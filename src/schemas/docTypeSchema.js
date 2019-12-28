@@ -178,6 +178,7 @@ module.exports = {
       type: 'object',
       additionalProperties: false,
       properties: {
+        canDeleteDocuments: { type: 'boolean' },
         canFetchWholeCollection: { type: 'boolean' },
         canReplaceDocuments: { type: 'boolean' },
         maxOpsSize: { type: 'number' }
