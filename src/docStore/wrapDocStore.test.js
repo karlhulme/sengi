@@ -1,6 +1,7 @@
 /* eslint-env jest */
 const wrapDocStore = require('./wrapDocStore')
 const {
+  JsonotronConflictOnSaveError,
   JsonotronDocStoreInvalidResponseError,
   JsonotronDocStoreFailureError,
   JsonotronDocStoreMissingFunctionError,
@@ -39,7 +40,7 @@ const docStoreWithValidFunctions = {
   upsert: () => ({})
 }
 
-const docStoreWithFunctionsWithInvalidReturns = {
+const docStoreWithFunctionsWithErrorReturns = {
   deleteById: () => null,
   exists: () => ({ errorCode: 'UNKNOWN_CODE' }),
   queryByIds: () => ({}),
@@ -85,12 +86,13 @@ test('A doc store with erroring functions will throw erroring function errors.',
   await expect(safeDocStore.upsert('test', { docType: 'test' })).rejects.toThrow(/'upsert' raised an error.[\n]Error: F/)
 })
 
-test('A doc store with invalid function responses will throw errors.', async () => {
-  const safeDocStore = wrapDocStore(docStoreWithFunctionsWithInvalidReturns)
+test('A doc store with error function responses will throw appropriate errors.', async () => {
+  const safeDocStore = wrapDocStore(docStoreWithFunctionsWithErrorReturns)
   await expect(safeDocStore.deleteById('test', '123')).rejects.toThrow(JsonotronDocStoreInvalidResponseError)
   await expect(safeDocStore.exists('test', '123')).rejects.toThrow(JsonotronDocStoreUnrecognisedErrorCodeError)
   await expect(safeDocStore.queryByIds('test', ['id'], ['123', '234'])).rejects.toThrow(JsonotronDocStoreInvalidResponseError)
-  await expect(safeDocStore.upsert('test', { docType: 'test' })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  await expect(safeDocStore.upsert('test', { docType: 'test' })).rejects.toThrow(JsonotronConflictOnSaveError)
+  await expect(safeDocStore.upsert('test', { docType: 'test' }, '123', true)).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 })
 
 test('A doc store with an invalid response to the exists function will throw an error.', async () => {

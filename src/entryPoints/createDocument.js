@@ -37,7 +37,7 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 
-    await safeDocStore.upsert(docTypeName, doc, null, combinedDocStoreOptions)
+    await safeDocStore.upsert(docTypeName, doc, null, false, combinedDocStoreOptions)
   }
 }
 

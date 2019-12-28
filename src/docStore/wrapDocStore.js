@@ -1,6 +1,7 @@
 const check = require('check-types')
 const ErrorCodes = require('./errorCodes')
 const {
+  JsonotronConflictOnSaveError,
   JsonotronInternalError,
   JsonotronDocStoreFailureError,
   JsonotronDocStoreInvalidResponseError,
@@ -14,8 +15,10 @@ const {
  * indicates there was a problem with processing a request.
  * @param {String} functionName The name of a doc store function.
  * @param {Object} result The return value from a doc store method.
+ * @param {Boolean} reqVersionExplicit True if the version requirement was specified
+ * by the client, or false if it was determined based on a previous fetch request.
  */
-const ensureDocStoreResult = (functionName, result) => {
+const ensureDocStoreResult = (functionName, result, reqVersionExplicit) => {
   check.assert.string(functionName)
 
   if (typeof result !== 'object' || Array.isArray(result) || result === null) {
@@ -23,7 +26,11 @@ const ensureDocStoreResult = (functionName, result) => {
   }
 
   if (result.errorCode === ErrorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE) {
-    throw new JsonotronRequiredVersionNotAvailableError()
+    if (reqVersionExplicit) {
+      throw new JsonotronRequiredVersionNotAvailableError()
+    } else {
+      throw new JsonotronConflictOnSaveError()
+    }
   } else if (typeof result.errorCode !== 'undefined') {
     throw new JsonotronDocStoreUnrecognisedErrorCodeError(functionName, result.errorCode)
   }
@@ -89,11 +96,14 @@ const safeInvokeDocStoreFunction = (functionName, func, docStore, params) => {
  * @param {Object} docStore A document store.
  * @param {String} functionName The name of a function.
  * @param {Array} params The parameters for the function.
+ * @param {Boolean} reqVersionExplicit True if the version requirement was specified
+ * by the client, or false if it was determined based on a previous fetch request.
  */
-const safeExecuteDocStoreFunction = async (docStore, functionName, params) => {
+const safeExecuteDocStoreFunction = async (docStore, functionName, params, reqVersionExplicit) => {
   check.assert.object(docStore)
   check.assert.string(functionName)
   check.assert.array(params)
+  check.assert.maybe.boolean(reqVersionExplicit)
 
   const func = docStore[functionName]
 
@@ -102,7 +112,7 @@ const safeExecuteDocStoreFunction = async (docStore, functionName, params) => {
   }
 
   const result = await safeInvokeDocStoreFunction(functionName, func, docStore, params)
-  ensureDocStoreResult(functionName, result)
+  ensureDocStoreResult(functionName, result, reqVersionExplicit)
 
   return result
 }
@@ -127,7 +137,7 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, id, options])
+      await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, id, options], false)
     },
 
     /**
@@ -142,7 +152,7 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, id, options])
+      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, id, options], false)
 
       if (typeof result.found !== 'boolean') {
         throw new JsonotronDocStoreInvalidResponseError('exists', 'Property \'found\' must be a boolean.')
@@ -162,7 +172,7 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, id, options])
+      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, id, options], false)
 
       if (typeof result.doc !== 'object' || Array.isArray(result.doc)) {
         throw new JsonotronDocStoreInvalidResponseError('fetch', 'Property \'doc\' must be an object.')
@@ -204,7 +214,7 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, fieldNames, options])
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, fieldNames, options], false)
       ensureReturnedDocsArray('queryAll', result.docs, docTypeName)
       return result.docs
     },
@@ -223,7 +233,7 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, fieldNames, filterExpression, options])
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, fieldNames, filterExpression, options], false)
       ensureReturnedDocsArray('queryByFilter', result.docs, docTypeName)
       return result.docs
     },
@@ -241,7 +251,7 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(ids)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, fieldNames, ids, options])
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, fieldNames, ids, options], false)
       ensureReturnedDocsArray('queryByIds', result.docs, docTypeName)
       return result.docs
     },
@@ -252,19 +262,22 @@ const wrapDocStore = (docStore) => {
      * @param {String} doc The document to store.
      * @param {String} reqVersion The document version required to complete the upsert
      * or null if any version is acceptable.
+     * @param {Boolean} reqVersionExplicit True if the version requirement was specified
+     * by the client, or false if it was determined based on a previous fetch request.
      * @param {Object} options A set of options supplied with the original request.
      */
-    upsert: async (docTypeName, doc, reqVersion, options) => {
+    upsert: async (docTypeName, doc, reqVersion, reqVersionExplicit, options) => {
       check.assert.string(docTypeName)
       check.assert.object(doc)
       check.assert.maybe.string(reqVersion)
+      check.assert.maybe.boolean(reqVersionExplicit)
       check.assert.maybe.object(options)
 
       if (doc.docType !== docTypeName) {
         throw new JsonotronInternalError(`Cannot upsert document with docType property '${doc.docType}' that does not match docTypeName '${docTypeName}'.`)
       }
 
-      await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, doc, reqVersion, options])
+      await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, doc, reqVersion, options], reqVersionExplicit)
     }
   }
 }

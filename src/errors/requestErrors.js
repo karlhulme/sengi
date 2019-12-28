@@ -13,6 +13,12 @@ class JsonotronActionForbiddenByPolicyError extends JsonotronRequestError {
   }
 }
 
+class JsonotronConflictOnSaveError extends JsonotronRequestError {
+  constructor () {
+    super('Document could not be updated as it was changed by another process during the operation.')
+  }
+}
+
 class JsonotronConstructorNotDefinedError extends JsonotronRequestError {
   constructor (docTypeName) {
     check.assert.string(docTypeName)
@@ -182,6 +188,7 @@ module.exports = {
 
   // specialised errors
   JsonotronActionForbiddenByPolicyError, // 403
+  JsonotronConflictOnSaveError, // 409
   JsonotronConstructorNotDefinedError,
   JsonotronConstructorParamsValidationError,
   JsonotronDocumentCustomValidationError,

@@ -2,6 +2,7 @@
 const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const { errorCodes } = require('../docStore')
 const {
+  JsonotronConflictOnSaveError,
   JsonotronDocumentNotFoundError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
@@ -212,7 +213,7 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
       favouriteColors: ['puse', 'gold']
     },
     docStoreOptions: { custom: 'prop' }
-  })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  })).rejects.toThrow(JsonotronConflictOnSaveError)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])

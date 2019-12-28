@@ -49,7 +49,7 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 
-    await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, combinedDocStoreOptions)
+    await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
   }
 }
 
