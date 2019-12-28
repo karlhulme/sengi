@@ -174,14 +174,6 @@ class JsonotronUnrecognisedOperationNameError extends JsonotronRequestError {
   }
 }
 
-class JsonotronUnrecognisedRoleTypeNameError extends JsonotronRequestError {
-  constructor (roleTypeName) {
-    check.assert.string(roleTypeName)
-    super(`A role type named '${roleTypeName}' is not defined.`)
-    this.roleTypeName = roleTypeName
-  }
-}
-
 module.exports = {
   // request error base
   JsonotronRequestError, // 400
@@ -204,6 +196,5 @@ module.exports = {
   JsonotronUnrecognisedDocTypeNameError,
   JsonotronUnrecognisedFieldNameError,
   JsonotronUnrecognisedFilterNameError,
-  JsonotronUnrecognisedOperationNameError,
-  JsonotronUnrecognisedRoleTypeNameError
+  JsonotronUnrecognisedOperationNameError
 }
