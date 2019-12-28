@@ -44,6 +44,10 @@ class JsonotronDocStoreUnrecognisedErrorCodeError extends JsonotronDocStoreError
 }
 
 module.exports = {
+  // doc store error base
+  JsonotronDocStoreError,
+
+  // specialised errors
   JsonotronDocStoreFailureError,
   JsonotronDocStoreInvalidResponseError,
   JsonotronDocStoreMissingFunctionError,

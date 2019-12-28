@@ -177,19 +177,23 @@ class JsonotronUnrecognisedRoleTypeNameError extends JsonotronRequestError {
 }
 
 module.exports = {
-  JsonotronActionForbiddenByPolicyError,
+  // request error base
+  JsonotronRequestError, // 400
+
+  // specialised errors
+  JsonotronActionForbiddenByPolicyError, // 403
   JsonotronConstructorNotDefinedError,
   JsonotronConstructorParamsValidationError,
   JsonotronDocumentCustomValidationError,
   JsonotronDocumentFieldsValidationError,
-  JsonotronDocumentNotFoundError,
+  JsonotronDocumentNotFoundError, // 404
   JsonotronFieldValueValidationError,
   JsonotronFilterParamsValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronInvalidMergePatchError,
   JsonotronMergePatchValidationError,
   JsonotronOperationParamsValidationError,
-  JsonotronRequiredVersionNotAvailableError,
+  JsonotronRequiredVersionNotAvailableError, // 412
   JsonotronUnrecognisedDocTypeNameError,
   JsonotronUnrecognisedFieldNameError,
   JsonotronUnrecognisedFilterNameError,

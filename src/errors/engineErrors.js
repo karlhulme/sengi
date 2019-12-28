@@ -108,6 +108,10 @@ class JsonotronRoleTypeValidationError extends JsonotronEngineError {
 }
 
 module.exports = {
+  // engine error base
+  JsonotronEngineError,
+
+  // specialised errors
   JsonotronCalculatedFieldFailedError,
   JsonotronConstructorFailedError,
   JsonotronDocTypeValidationError,
