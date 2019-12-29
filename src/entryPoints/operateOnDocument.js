@@ -50,7 +50,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
     updateSystemFieldsOnDocument(docType, doc, operationId)
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
-    await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), docStoreOptions)
+    await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
   }
 }
 
