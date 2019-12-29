@@ -33,7 +33,7 @@ const requestParameterValidators = {
   operationId: v => typeof v === 'string',
   operationName: v => typeof v === 'string',
   operationParams: v => typeof v === 'object',
-  reqVersion: v => typeof v === 'string',
+  reqVersion: v => typeof v === 'string' || typeof v === 'undefined',
   roleNames: v => Array.isArray(v)
 }
 
@@ -235,7 +235,7 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     replaceDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
     }
   }
