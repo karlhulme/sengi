@@ -4,6 +4,7 @@ const {
   createDocStoreOptions,
   ensureDocHasSystemFields,
   ensureDocWasFound,
+  ensureOperationName,
   ensureOperationMergePatchAvoidsSystemFields,
   executeOperation,
   executeValidator,
@@ -31,6 +32,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
     r => canOperate(r, docTypeName, operationName))
 
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
+  ensureOperationName(docType, operationName)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   const doc = await safeDocStore.fetch(docType.name, id, combinedDocStoreOptions)
 

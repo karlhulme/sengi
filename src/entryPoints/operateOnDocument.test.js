@@ -5,7 +5,8 @@ const {
   JsonotronConflictOnSaveError,
   JsonotronDocumentNotFoundError,
   JsonotronInsufficientPermissionsError,
-  JsonotronRequiredVersionNotAvailableError
+  JsonotronRequiredVersionNotAvailableError,
+  JsonotronUnrecognisedOperationNameError
 } = require('../errors')
 const operateOnDocument = require('./operateOnDocument')
 
@@ -267,4 +268,22 @@ test('Fail to invoke an operation if permissions insufficient.', async () => {
       favouriteColors: ['puse', 'gold']
     }
   })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+})
+
+test('Fail to operate on document using an unknown operation.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    fetch: async () => ({
+      doc: null
+    })
+  })
+
+  await expect(operateOnDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'car',
+    id: 'bd605c90-67c0-4125-a404-4fff3366d6ac',
+    operationId: 'a2c9bec0-ab03-4ded-bce6-d8a91f71e1d4',
+    operationName: 'unknownOperation',
+    operationParams: {}
+  })).rejects.toThrow(JsonotronUnrecognisedOperationNameError)
 })

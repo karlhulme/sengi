@@ -15,6 +15,7 @@ module.exports = {
   ensureDocTypesAreValid: require('./ensureDocTypesAreValid'),
   ensureDocWasFound: require('./ensureDocWasFound'),
   ensureMergePatchAvoidsSystemFields: require('./ensureMergePatchAvoidsSystemFields'),
+  ensureOperationName: require('./ensureOperationName'),
   ensureOperationMergePatchAvoidsSystemFields: require('./ensureOperationMergePatchAvoidsSystemFields'),
   evaluateFilter: require('./evaluateFilter'),
   executeConstructor: require('./executeConstructor'),
