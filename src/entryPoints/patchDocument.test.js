@@ -37,7 +37,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
       shortName: 'Maisory'
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
@@ -82,7 +82,7 @@ test('Patching a document for a second time should only call fetch on doc store.
       shortName: 'Maisory'
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: false })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
@@ -115,7 +115,7 @@ test('Patching a document using a required version should call fetch and upsert 
       shortName: 'Maisory'
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])

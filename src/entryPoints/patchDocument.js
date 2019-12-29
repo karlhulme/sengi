@@ -50,6 +50,9 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
+    return { isUpdated: true }
+  } else {
+    return { isUpdated: false }
   }
 }
 

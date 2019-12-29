@@ -38,7 +38,7 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
       favouriteColors: ['puse', 'gold']
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
@@ -85,7 +85,7 @@ test('Operate on document for second time should only call fetch on doc store.',
       favouriteColors: ['puse', 'gold']
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: false })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
@@ -119,7 +119,7 @@ test('Operate on document using a required version should call exists and upsert
       favouriteColors: ['puse', 'gold']
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
