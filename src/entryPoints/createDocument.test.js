@@ -21,7 +21,7 @@ test('Creating a document should call exists and then upsert on doc store.', asy
       askedAboutMarketing: true
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isNew: true })
 
   expect(testRequest.mockedDocStore.exists.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])
@@ -58,7 +58,7 @@ test('Creating a document for the second time should only call exists on doc sto
       askedAboutMarketing: true
     },
     docStoreOptions: { custom: 'prop' }
-  })).resolves.not.toThrow()
+  })).resolves.toEqual({ isNew: false })
 
   expect(testRequest.mockedDocStore.exists.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])

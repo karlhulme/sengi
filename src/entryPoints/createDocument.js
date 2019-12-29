@@ -38,6 +38,9 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docTypeName, doc, null, false, combinedDocStoreOptions)
+    return { isNew: true }
+  } else {
+    return { isNew: false }
   }
 }
 
