@@ -31,7 +31,7 @@ const docStoreWithErroringFunctions = {
 }
 
 const docStoreWithValidFunctions = {
-  deleteById: () => ({}),
+  deleteById: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_DELETED' }),
   exists: () => ({ found: true }),
   fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 'aaaa', docOps: [] } }),
   queryAll: () => ({ docs: [] }),
@@ -44,9 +44,7 @@ const docStoreWithFunctionsWithErrorReturns = {
   deleteById: () => null,
   exists: () => ({ errorCode: 'UNKNOWN_CODE' }),
   queryByIds: () => ({}),
-  upsert: () => ({ errorCode: 'DOC_STORE_REQ_VERSION_NOT_AVAILABLE' }),
-  upsertNew: () => ({ errorCode: 'DOC_STORE_DOCUMENT_WAS_CREATED' }),
-  upsertUpdated: () => ({ errorCode: 'DOC_STORE_DOCUMENT_WAS_UPDATED' })
+  upsert: () => ({ errorCode: 'DOC_STORE_REQ_VERSION_NOT_AVAILABLE' })
 }
 
 const docStoreWithUpsertNewDoc = {
@@ -55,6 +53,14 @@ const docStoreWithUpsertNewDoc = {
 
 const docStoreWithUpsertUpdatedDoc = {
   upsert: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_UPDATED' })
+}
+
+const docStoreWithDeleteByIdFound = {
+  deleteById: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_DELETED' })
+}
+
+const docStoreWithDeleteByIdNotFound = {
+  deleteById: () => ({ successCode: 'DOC_STORE_DOCUMENT_DID_NOT_EXIST' })
 }
 
 const docStoreWithMalformedExists = { exists: () => ({ missingFoundProp: true }) }
@@ -105,11 +111,18 @@ test('A doc store with error function responses will throw appropriate errors.',
   await expect(safeDocStore.upsert('test', { docType: 'test' }, '123', true)).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 })
 
-test('A doc store with success function responses will return success codes.', async () => {
+test('A doc store with upsert success function responses will return success codes.', async () => {
   const safeDocStoreNewDoc = wrapDocStore(docStoreWithUpsertNewDoc)
   await expect(safeDocStoreNewDoc.upsert('test', { docType: 'test' }, '123', true)).resolves.toEqual(true)
   const safeDocStoreUpdatedDoc = wrapDocStore(docStoreWithUpsertUpdatedDoc)
   await expect(safeDocStoreUpdatedDoc.upsert('test', { docType: 'test' }, '123', true)).resolves.toEqual(false)
+})
+
+test('A doc store with deleteById success function responses will return success codes.', async () => {
+  const safeDocStoreDeleteDoc = wrapDocStore(docStoreWithDeleteByIdFound)
+  await expect(safeDocStoreDeleteDoc.deleteById('test', '123')).resolves.toEqual(true)
+  const safeDocStoreDeleteMissingDoc = wrapDocStore(docStoreWithDeleteByIdNotFound)
+  await expect(safeDocStoreDeleteMissingDoc.deleteById('test', '123')).resolves.toEqual(false)
 })
 
 test('A doc store with an invalid response to the exists function will throw an error.', async () => {
@@ -147,7 +160,7 @@ test('A doc store with an invalid response to the queryAll function will throw a
 
 test('A doc store with valid functions will return the underlying function return value.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithValidFunctions)
-  await expect(safeDocStore.deleteById('test', '123')).resolves.not.toThrow()
+  await expect(safeDocStore.deleteById('test', '123')).resolves.toEqual(true)
   await expect(safeDocStore.exists('test', '123')).resolves.toEqual(true)
   await expect(safeDocStore.fetch('test', '123')).resolves.toEqual({ id: '123', docType: 'test', docVersion: 'aaaa', docOps: [] })
   await expect(safeDocStore.queryAll('test', ['id'])).resolves.not.toThrow()

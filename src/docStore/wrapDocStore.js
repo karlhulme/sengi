@@ -128,7 +128,8 @@ const wrapDocStore = (docStore) => {
 
   return {
     /**
-     * Delete a single document from the store using it's id.
+     * Returns true if a document with the given id was found and deleted
+     * from the document store.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
@@ -138,12 +139,13 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, id, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, id, options], false)
+      return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_DELETED
     },
 
     /**
      * Returns true if a document with the given id
-     * is in the datastore.
+     * is in the document store.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
@@ -163,7 +165,7 @@ const wrapDocStore = (docStore) => {
     },
 
     /**
-     * Fetch a single document using it's id.
+     * Fetch a single document with the given id from the document store.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
@@ -205,7 +207,7 @@ const wrapDocStore = (docStore) => {
     },
 
     /**
-     * Query for all documents of a specified type.
+     * Query the document store for all documents of a specified type.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Object} options A set of options supplied with the original request.
@@ -221,7 +223,8 @@ const wrapDocStore = (docStore) => {
     },
 
     /**
-     * Query for documents of a specified type that also match a filter.
+     * Query the document store for documents of a specified type
+     * that also match a filter.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Any} filterExpression A filter expression that resulted from invoking the fitler
@@ -240,7 +243,8 @@ const wrapDocStore = (docStore) => {
     },
 
     /**
-     * Query for documents of a specified type that also have one of the given ids.
+     * Query the document store for documents of a specified type
+     * that also have one of the given ids.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Any} ids An array of document ids.
@@ -258,7 +262,8 @@ const wrapDocStore = (docStore) => {
     },
 
     /**
-     * Store a single document in the store, overwriting an existing one if necessary.
+     * Store a single document in the document store, overwriting an
+     * existing document if necessary.
      * @param {String} docTypeName The name of a doc type.
      * @param {String} doc The document to store.
      * @param {String} reqVersion The document version required to complete the upsert
