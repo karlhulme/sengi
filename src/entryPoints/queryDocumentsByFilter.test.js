@@ -1,6 +1,9 @@
 /* eslint-env jest */
 const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const { JsonotronInsufficientPermissionsError } = require('../errors')
+const {
+  JsonotronUnrecognisedFilterNameError,
+  JsonotronInsufficientPermissionsError
+} = require('../errors')
 const queryDocumentsByFilter = require('./queryDocumentsByFilter')
 
 test('Query by document filter.', async () => {
@@ -81,6 +84,19 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
 
   expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
   expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['id', 'fullName']])
+})
+
+test('Fail to query by document filter if filter name not recognised.', async () => {
+  await expect(queryDocumentsByFilter({
+    ...createTestRequestWithMockedDocStore(),
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    fieldNames: ['id', 'fullName'],
+    filterName: 'byInvalid',
+    filterParams: {
+      postCode: 'BH23 4FG'
+    }
+  })).rejects.toThrow(JsonotronUnrecognisedFilterNameError)
 })
 
 test('Fail to query by document filter if permissions insufficient.', async () => {

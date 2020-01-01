@@ -4,6 +4,7 @@ const {
   applyDeclaredFieldDefaultsToDocument,
   createDocStoreOptions,
   determineFieldNamesForRetrieval,
+  ensureFilterName,
   evaluateFilter,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
@@ -28,6 +29,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
     r => canQuery(r, docTypeName, fieldNames))
 
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
+  ensureFilterName(docType, filterName)
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
   validatorCache.ensureDocTypeFilterParams(docTypeName, filterName, filterParams)
 
