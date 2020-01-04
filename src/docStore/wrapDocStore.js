@@ -131,15 +131,17 @@ const wrapDocStore = (docStore) => {
      * Returns true if a document with the given id was found and deleted
      * from the document store.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
      */
-    deleteById: async (docTypeName, id, options) => {
+    deleteById: async (docTypeName, docTypePluralName, id, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, id, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, docTypePluralName, id, options], false)
       return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_DELETED
     },
 
@@ -147,15 +149,17 @@ const wrapDocStore = (docStore) => {
      * Returns true if a document with the given id
      * is in the document store.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
      */
-    exists: async (docTypeName, id, options) => {
+    exists: async (docTypeName, docTypePluralName, id, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, id, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, docTypePluralName, id, options], false)
 
       if (typeof result.found !== 'boolean') {
         throw new JsonotronDocStoreInvalidResponseError('exists', 'Property \'found\' must be a boolean.')
@@ -167,15 +171,17 @@ const wrapDocStore = (docStore) => {
     /**
      * Fetch a single document with the given id from the document store.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} id The id of a document.
      * @param {Object} options A set of options supplied with the original request.
      */
-    fetch: async (docTypeName, id, options) => {
+    fetch: async (docTypeName, docTypePluralName, id, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, id, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, docTypePluralName, id, options], false)
 
       if (typeof result.doc !== 'object' || Array.isArray(result.doc)) {
         throw new JsonotronDocStoreInvalidResponseError('fetch', 'Property \'doc\' must be an object.')
@@ -209,15 +215,17 @@ const wrapDocStore = (docStore) => {
     /**
      * Query the document store for all documents of a specified type.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Object} options A set of options supplied with the original request.
      */
-    queryAll: async (docTypeName, fieldNames, options) => {
+    queryAll: async (docTypeName, docTypePluralName, fieldNames, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, fieldNames, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, docTypePluralName, fieldNames, options], false)
       ensureReturnedDocsArray('queryAll', result.docs, docTypeName)
       return result.docs
     },
@@ -226,18 +234,20 @@ const wrapDocStore = (docStore) => {
      * Query the document store for documents of a specified type
      * that also match a filter.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Any} filterExpression A filter expression that resulted from invoking the fitler
      * implementation on the doc type.
      * @param {Object} options A set of options supplied with the original request.
      */
-    queryByFilter: async (docTypeName, fieldNames, filterExpression, options) => {
+    queryByFilter: async (docTypeName, docTypePluralName, fieldNames, filterExpression, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.assigned(filterExpression)
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, fieldNames, filterExpression, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, docTypePluralName, fieldNames, filterExpression, options], false)
       ensureReturnedDocsArray('queryByFilter', result.docs, docTypeName)
       return result.docs
     },
@@ -246,17 +256,19 @@ const wrapDocStore = (docStore) => {
      * Query the document store for documents of a specified type
      * that also have one of the given ids.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Any} ids An array of document ids.
      * @param {Object} options A set of options supplied with the original request.
      */
-    queryByIds: async (docTypeName, fieldNames, ids, options) => {
+    queryByIds: async (docTypeName, docTypePluralName, fieldNames, ids, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.array.of.string(fieldNames)
       check.assert.array.of.string(ids)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, fieldNames, ids, options], false)
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, docTypePluralName, fieldNames, ids, options], false)
       ensureReturnedDocsArray('queryByIds', result.docs, docTypeName)
       return result.docs
     },
@@ -265,6 +277,7 @@ const wrapDocStore = (docStore) => {
      * Store a single document in the document store, overwriting an
      * existing document if necessary.
      * @param {String} docTypeName The name of a doc type.
+     * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} doc The document to store.
      * @param {String} reqVersion The document version required to complete the upsert
      * or null if any version is acceptable.
@@ -272,8 +285,9 @@ const wrapDocStore = (docStore) => {
      * by the client, or false if it was determined based on a previous fetch request.
      * @param {Object} options A set of options supplied with the original request.
      */
-    upsert: async (docTypeName, doc, reqVersion, reqVersionExplicit, options) => {
+    upsert: async (docTypeName, docTypePluralName, doc, reqVersion, reqVersionExplicit, options) => {
       check.assert.string(docTypeName)
+      check.assert.string(docTypePluralName)
       check.assert.object(doc)
       check.assert.maybe.string(reqVersion)
       check.assert.maybe.boolean(reqVersionExplicit)
@@ -283,7 +297,7 @@ const wrapDocStore = (docStore) => {
         throw new JsonotronInternalError(`Cannot upsert document with docType property '${doc.docType}' that does not match docTypeName '${docTypeName}'.`)
       }
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, doc, reqVersion, options], reqVersionExplicit)
+      const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, docTypePluralName, doc, reqVersion, options], reqVersionExplicit)
       return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_CREATED
     }
   }

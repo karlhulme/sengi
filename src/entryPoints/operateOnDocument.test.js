@@ -41,7 +41,7 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
   })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -56,7 +56,7 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Operate on document for second time should only call fetch on doc store.', async () => {
@@ -88,7 +88,7 @@ test('Operate on document for second time should only call fetch on doc store.',
   })).resolves.toEqual({ isUpdated: false })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Operate on document using a required version should call exists and upsert on doc store.', async () => {
@@ -122,7 +122,7 @@ test('Operate on document using a required version should call exists and upsert
   })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -136,7 +136,7 @@ test('Operate on document using a required version should call exists and upsert
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to operate on document when required version is not available.', async () => {
@@ -170,7 +170,7 @@ test('Fail to operate on document when required version is not available.', asyn
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -184,7 +184,7 @@ test('Fail to operate on document when required version is not available.', asyn
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to operate on document if it changes between fetch and upsert.', async () => {
@@ -217,7 +217,7 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
   })).rejects.toThrow(JsonotronConflictOnSaveError)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -231,7 +231,7 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to operate on document if it does not exist.', async () => {

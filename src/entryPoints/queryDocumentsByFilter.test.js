@@ -36,11 +36,12 @@ test('Query by document filter.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(4)
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(5)
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual(['id', 'fullName'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual({ custom: 'prop' })
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName'])
+  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
 })
 
 test('Query by document filter with onFieldsQueried delegate.', async () => {
@@ -76,11 +77,12 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(4)
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(5)
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual(['id', 'fullName'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual({ custom: 'prop' })
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName'])
+  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
 
   expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
   expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['id', 'fullName']])

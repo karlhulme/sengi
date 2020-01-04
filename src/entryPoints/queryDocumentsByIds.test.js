@@ -30,7 +30,7 @@ test('Query by document filter.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
 })
 
 test('Query by document filter with onFieldsQueried delegate.', async () => {
@@ -63,7 +63,7 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
 
   expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
   expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['id', 'fullName']])

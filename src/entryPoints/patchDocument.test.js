@@ -40,7 +40,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
   })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -54,7 +54,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Patching a document for a second time should only call fetch on doc store.', async () => {
@@ -85,7 +85,7 @@ test('Patching a document for a second time should only call fetch on doc store.
   })).resolves.toEqual({ isUpdated: false })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Patching a document using a required version should call fetch and upsert on doc store.', async () => {
@@ -118,7 +118,7 @@ test('Patching a document using a required version should call fetch and upsert 
   })).resolves.toEqual({ isUpdated: true })
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -131,7 +131,7 @@ test('Patching a document using a required version should call fetch and upsert 
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to patch document when required version is not available.', async () => {
@@ -164,7 +164,7 @@ test('Fail to patch document when required version is not available.', async () 
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -177,7 +177,7 @@ test('Fail to patch document when required version is not available.', async () 
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to patch document if it changes between fetch and upsert.', async () => {
@@ -210,7 +210,7 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -223,7 +223,7 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Reject a patch to a non-existent doc.', async () => {
@@ -279,8 +279,8 @@ test('Reject a patch to any field that is not explicitly allowed for patching.',
   await expect(fn()).rejects.toThrow(/pinCode/)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Reject a patch to a non-existent field.', async () => {
@@ -316,8 +316,8 @@ test('Reject a patch to a non-existent field.', async () => {
   await expect(fn()).rejects.toThrow(/madeup/)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Reject a patch with a field value that is invalid.', async () => {
@@ -353,8 +353,8 @@ test('Reject a patch with a field value that is invalid.', async () => {
   await expect(fn()).rejects.toThrow(/should be string/)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Reject a patch that would change a system field.', async () => {
@@ -390,8 +390,8 @@ test('Reject a patch that would change a system field.', async () => {
   await expect(fn()).rejects.toThrow(/id/)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Reject a patch that would leave the document in an invalid state.', async () => {
@@ -427,8 +427,8 @@ test('Reject a patch that would leave the document in an invalid state.', async 
   await expect(fn()).rejects.toThrow(/Unrecognised vehicle registration prefix/)
 
   expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['car', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['car', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['car', 'cars', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['car', 'cars', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Fail to patch a document if permissions insufficient.', async () => {

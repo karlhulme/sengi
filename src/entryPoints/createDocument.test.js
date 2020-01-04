@@ -24,7 +24,7 @@ test('Creating a document should call exists and then upsert on doc store.', asy
   })).resolves.toEqual({ isNew: true })
 
   expect(testRequest.mockedDocStore.exists.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])
 
   const resultDoc = {
     allowMarketing: 'yes',
@@ -38,7 +38,7 @@ test('Creating a document should call exists and then upsert on doc store.', asy
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', resultDoc, null, { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, null, { custom: 'prop' }])
 })
 
 test('Creating a document for the second time should only call exists on doc store.', async () => {
@@ -61,7 +61,7 @@ test('Creating a document for the second time should only call exists on doc sto
   })).resolves.toEqual({ isNew: false })
 
   expect(testRequest.mockedDocStore.exists.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', { custom: 'prop' }])
 })
 
 test('Fail to create document if permissions insufficient.', async () => {

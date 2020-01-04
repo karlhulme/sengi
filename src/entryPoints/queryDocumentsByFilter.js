@@ -36,7 +36,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
   const filterResult = evaluateFilter(docType, filterName, filterParams)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const docs = await safeDocStore.queryByFilter(docType.name, retrievalFieldNames, filterResult, combinedDocStoreOptions)
+  const docs = await safeDocStore.queryByFilter(docType.name, docType.pluralName, retrievalFieldNames, filterResult, combinedDocStoreOptions)
 
   if (onFieldsQueried) {
     await Promise.resolve(onFieldsQueried(docType.name, fieldNames, retrievalFieldNames))

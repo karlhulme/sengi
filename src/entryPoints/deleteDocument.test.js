@@ -16,7 +16,7 @@ test('Delete document by id should call delete on doc store.', async () => {
   })).resolves.toEqual({ isDeleted: true })
 
   expect(testRequest.mockedDocStore.deleteById.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.deleteById.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.deleteById.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Delete document by id should call delete on doc store even if document is not present.', async () => {
@@ -31,7 +31,7 @@ test('Delete document by id should call delete on doc store even if document is 
   })).resolves.toEqual({ isDeleted: false })
 
   expect(testRequest.mockedDocStore.deleteById.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.deleteById.mock.calls[0]).toEqual(['person', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.deleteById.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', { custom: 'prop' }])
 })
 
 test('Fail to delete document if permissions insufficient.', async () => {

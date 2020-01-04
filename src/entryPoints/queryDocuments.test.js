@@ -37,7 +37,7 @@ test('Query all document of a type in collection.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { custom: 'prop' }])
 })
 
 test('Query all document of a type in collection with an onFieldsQueried delegate.', async () => {
@@ -73,7 +73,7 @@ test('Query all document of a type in collection with an onFieldsQueried delegat
   })
 
   expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { custom: 'prop' }])
 
   expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
   expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id'], ['id']])
@@ -109,7 +109,7 @@ test('Query all documents of a type with declared, calculated and default fields
   })
 
   expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', ['id', 'shortName', 'allowMarketing', 'addressLines', 'postCode'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id', 'shortName', 'allowMarketing', 'addressLines', 'postCode'], { custom: 'prop' }])
 })
 
 test('Fail to query all documents of type if permissions insufficient.', async () => {

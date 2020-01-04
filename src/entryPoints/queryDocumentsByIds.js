@@ -29,7 +29,7 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const docs = await safeDocStore.queryByIds(docType.name, retrievalFieldNames, ids, combinedDocStoreOptions)
+  const docs = await safeDocStore.queryByIds(docType.name, docType.pluralName, retrievalFieldNames, ids, combinedDocStoreOptions)
 
   if (onFieldsQueried) {
     await Promise.resolve(onFieldsQueried(docType.name, fieldNames, retrievalFieldNames))

@@ -32,7 +32,7 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
 
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const doc = await safeDocStore.fetch(docType.name, id, combinedDocStoreOptions)
+  const doc = await safeDocStore.fetch(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   ensureDocWasFound(docType.name, id, doc)
   ensureDocHasSystemFields(doc)
@@ -49,7 +49,7 @@ const patchDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCach
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 
-    await safeDocStore.upsert(docTypeName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
+    await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
     return { isUpdated: true }
   } else {
     return { isUpdated: false }

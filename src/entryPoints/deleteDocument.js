@@ -24,7 +24,7 @@ const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   ensureCanDeleteDocuments(docType)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const isDeleted = await safeDocStore.deleteById(docTypeName, id, combinedDocStoreOptions)
+  const isDeleted = await safeDocStore.deleteById(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   return { isDeleted }
 }

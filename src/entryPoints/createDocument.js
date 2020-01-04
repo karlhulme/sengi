@@ -26,7 +26,7 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
 
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const alreadyExists = await safeDocStore.exists(docTypeName, id, combinedDocStoreOptions)
+  const alreadyExists = await safeDocStore.exists(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   if (!alreadyExists) {
     const docType = selectDocTypeFromArray(docTypes, docTypeName)
@@ -37,7 +37,7 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 
-    await safeDocStore.upsert(docTypeName, doc, null, false, combinedDocStoreOptions)
+    await safeDocStore.upsert(docType.name, docType.pluralName, doc, null, false, combinedDocStoreOptions)
     return { isNew: true }
   } else {
     return { isNew: false }
