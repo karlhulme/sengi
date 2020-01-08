@@ -12,7 +12,7 @@ It validates and actions input requests, by issuing instructions to query the un
 
 It mutates documents according to the defined mutators and patch policy, performs validation checks, and upserts modified documents back to the datastore.
 
-> This package is part of the [Jsonotron](https://www.jsonotron.io) system.
+> This package is part of the Jsonotron system.
 >
 > Jsonotron is...
 > * a small set of components for building a **NodeJS microservice**
@@ -20,9 +20,7 @@ It mutates documents according to the defined mutators and patch policy, perform
 > * stored in a schemaless/NoSQL **database**
 > * that have known, enforceable, and **evolving schemas**.
 >
-> **Visit https://www.jsonotron.io for details on how to get started.**
->
-> **Although for the moment, check out the documentation.md file to see what's been written so far!!**
+> **Visit https://karlhulme.github.io/jsonotron/ for details on how to get started.**
 
 ## Installation
 
