@@ -40,5 +40,8 @@
       }
     },
     "testEnvironment": "node"
+  },
+  "standard": {
+    "ignore": ["/docs/"]
   }
 }
