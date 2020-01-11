@@ -85,7 +85,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Query for the name of all customers:</p>
-      <pre><code class="language-bash">curl http://localhost:3000/docs/customers?fields=id,customerName</code></pre>
+      <pre><code class="language-bash">curl http://localhost:3000/data/customers?fields=id,customerName</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">Notice that the result only includes the requested fields.</p>
@@ -106,7 +106,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Query for the name and date of birth of a specific customer:</p>
-      <pre><code class="language-bash">curl http://localhost:3000/docs/customers/1f396d94-d6ca-4897-b8d2-e52d38cf83ee?fields=customerName,dateOfBirth</code></pre>
+      <pre><code class="language-bash">curl http://localhost:3000/data/customers/1f396d94-d6ca-4897-b8d2-e52d38cf83ee?fields=customerName,dateOfBirth</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">A single document is returned</p>
@@ -120,19 +120,19 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Post a new customer into the database:</p>
-      <pre><code class="language-bash">curl -X POST -d '{"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/docs/customers</code></pre>
+      <pre><code class="language-bash">curl -X POST -d '{"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/data/customers</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
       <pre><code class="language-bash">HTTP 201 Created
-location: docs/customers/5c815b68-b426-42b7-9695-59c5232e9029
+location: data/customers/5c815b68-b426-42b7-9695-59c5232e9029
 jsonotron-document-operation-type: create
       </code></pre>
   </section>
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Patch the date of birth of a specific customer:</p>
-      <pre><code class="language-bash">curl -X PATCH -d '{"dateOfBirth": "1999-12-27"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/docs/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
+      <pre><code class="language-bash">curl -X PATCH -d '{"dateOfBirth": "1999-12-27"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/data/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
@@ -264,7 +264,7 @@ runApp()
 </code></pre>
     <p class="mb">You can now query for all the customer documents.
       (The custom header tells Jsonotron which role to assume for the query.)</p>
-    <pre><code class="language-bash">curl -H 'jsonotron-rolenames: admin' http://localhost:3000/docs/customers</code></pre>
+    <pre><code class="language-bash">curl -H 'jsonotron-rolenames: admin' http://localhost:3000/data/customers</code></pre>
     <p class="mb">You can now improve the microservice by customising the docType
       definitions with more fields (including custom types), a constructor, filters, patching and update operations.</p>
   </section>
