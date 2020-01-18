@@ -1,5 +1,6 @@
 const check = require('check-types')
 const { docTypeSchema } = require('../schemas')
+const { createFieldTypeValueValidator } = require('../fieldTypes')
 const { JsonotronDocTypeValidationError } = require('../errors')
 const getSystemFields = require('./getSystemFields')
 
@@ -10,6 +11,8 @@ const getSystemFields = require('./getSystemFields')
  * @param {Object} docType A doc type.
  */
 const ensureDocTypeAgainstDocTypeSchema = (ajv, docType) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
   check.assert.string(docType.name)
 
   const docTypeSchemaValidator = ajv.compile(docTypeSchema)
@@ -27,6 +30,7 @@ const ensureDocTypeAgainstDocTypeSchema = (ajv, docType) => {
  * @param {Object} docType A doc type.
  */
 const getSystemAndDeclaredFields = docType => {
+  check.assert.object(docType)
   check.assert.object(docType.fields)
 
   return getSystemFields().concat(Object.keys(docType.fields))
@@ -38,6 +42,7 @@ const getSystemAndDeclaredFields = docType => {
  * @param {Object} docType A doc type.
  */
 const ensureDeclaredFieldNamesDontClashWithSystemFieldNames = docType => {
+  check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.object(docType.fields)
 
@@ -50,19 +55,127 @@ const ensureDeclaredFieldNamesDontClashWithSystemFieldNames = docType => {
 }
 
 /**
- * Raises an error if any of the declared fields are
- * marked as required and also supply a default value.
+ * Raises an error if the given doc type fields have any invalid field types.
+ * @param {Object} ajv A JSON schema validator.
  * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
  */
-const ensureDeclaredFieldsWithDefaultValuesAreNotMarkedAsRequired = docType => {
+const ensureDeclaredFieldTypesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
   check.assert.string(docType.name)
-  check.assert.object(docType.fields)
+  check.assert.array(fieldTypes)
+
+  // check fields
+  for (const fieldName in docType.fields) {
+    const field = docType.fields[fieldName]
+
+    if (fieldTypes.findIndex(ft => ft.name === field.type) === -1) {
+      throw new JsonotronDocTypeValidationError(docType.name,
+        `Field name '${fieldName}' declares an unrecognised type of '${field.type}'.`)
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type has any invalid default values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureDeclaredFieldDefaultsAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
-    if (field.isRequired && typeof field.default !== 'undefined') {
+
+    if (field.default) {
+      const validator = createFieldTypeValueValidator(ajv, fieldTypes, field.type)
+
+      if (!validator(field.default)) {
+        throw new JsonotronDocTypeValidationError(docType.name,
+          `Field name '${fieldName}' declares a default value '${JSON.stringify(field.default)}' ` +
+          `that does not conform to the ${field.type} type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type has any fields
+ * with invalid example values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureDeclaredFieldExamplesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  for (const fieldName in docType.fields) {
+    const field = docType.fields[fieldName]
+
+    const validator = createFieldTypeValueValidator(ajv, fieldTypes, field.type)
+
+    if (!validator(field.example)) {
       throw new JsonotronDocTypeValidationError(docType.name,
-        `Field '${fieldName}' cannot be marked as required and supply a default value.`)
+        `Field name '${fieldName}' declares an example value '${JSON.stringify(field.example)}' ` +
+        `that does not conform to the ${field.type} type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type calculated fields have any invalid field types.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureCalculatedFieldTypesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.calculatedFields) {
+    for (const calcFieldName in docType.calculatedFields) {
+      const calcField = docType.calculatedFields[calcFieldName]
+
+      if (fieldTypes.findIndex(ft => ft.name === calcField.type) === -1) {
+        throw new JsonotronDocTypeValidationError(docType.name,
+          `Calculated field '${calcFieldName}' declares an unrecognised type of '${calcField.type}'.`)
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type has any calculated fields
+ * with invalid example values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureCalculatedFieldExamplesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  for (const fieldName in docType.calculatedFields) {
+    const calcField = docType.calculatedFields[fieldName]
+
+    const validator = createFieldTypeValueValidator(ajv, fieldTypes, calcField.type)
+
+    if (!validator(calcField.example)) {
+      throw new JsonotronDocTypeValidationError(docType.name,
+        `Calculated field '${fieldName}' declares an example value '${JSON.stringify(calcField.example)}' ` +
+        `that does not conform to the '${calcField.type}' type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
     }
   }
 }
@@ -73,6 +186,7 @@ const ensureDeclaredFieldsWithDefaultValuesAreNotMarkedAsRequired = docType => {
  * @param {Object} docType A doc type.
  */
 const ensureCalculatedFieldInputsAreValid = docType => {
+  check.assert.object(docType)
   check.assert.string(docType.name)
 
   const systemAndDeclaredFieldNames = getSystemAndDeclaredFields(docType)
@@ -92,11 +206,125 @@ const ensureCalculatedFieldInputsAreValid = docType => {
 }
 
 /**
+ * Raises an error if the given doc type filter parameters have any invalid field types.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureFilterParameterTypesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.filters) {
+    for (const filterName in docType.filters) {
+      const filter = docType.filters[filterName]
+
+      for (const parameterName in filter.parameters) {
+        const parameter = filter.parameters[parameterName]
+
+        if (fieldTypes.findIndex(ft => ft.name === parameter.type) === -1) {
+          throw new JsonotronDocTypeValidationError(docType.name,
+            `Filter '${filterName}' parameter '${parameterName}' declares an unrecognised type of '${parameter.type}'.`)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type filter parameters have any invalid example values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureFilterParameterExamplesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.filters) {
+    for (const filterName in docType.filters) {
+      const filter = docType.filters[filterName]
+
+      for (const parameterName in filter.parameters) {
+        const parameter = filter.parameters[parameterName]
+        const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+
+        if (!validator(parameter.example)) {
+          throw new JsonotronDocTypeValidationError(docType.name,
+            `Filter '${filterName}' parameter '${parameterName}' declares an example value '${JSON.stringify(parameter.example)}' ` +
+            `that does not conform to the '${parameter.type}' type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type constructor parameters have any invalid field types.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureConstructorParameterTypesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.ctor) {
+    for (const parameterName in docType.ctor.parameters) {
+      const parameter = docType.ctor.parameters[parameterName]
+
+      if (parameter.type) {
+        if (fieldTypes.findIndex(ft => ft.name === parameter.type) === -1) {
+          throw new JsonotronDocTypeValidationError(docType.name,
+            `Constructor parameter '${parameterName}' declares an unrecognised type of '${parameter.type}'.`)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type constructor parameters have any invalid example values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureConstructorParameterExamplesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.ctor) {
+    for (const parameterName in docType.ctor.parameters) {
+      const parameter = docType.ctor.parameters[parameterName]
+
+      if (parameter.type) {
+        const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+
+        if (!validator(parameter.example)) {
+          throw new JsonotronDocTypeValidationError(docType.name,
+            `Constructor parameter '${parameterName}' declares an example value '${JSON.stringify(parameter.example)}' ` +
+            `that does not conform to the '${parameter.type}' type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
+        }
+      }
+    }
+  }
+}
+
+/**
  * Raises an error if any of the constructor parameters
  * that are designated as a lookup are not declared on the doc type.
  * @param {Object} docType A doc type.
  */
-const ensureConstructorInputsAreValid = docType => {
+const ensureConstructorParameterLookupsAreValid = docType => {
+  check.assert.object(docType)
   check.assert.string(docType.name)
 
   const systemAndDeclaredFieldNames = getSystemAndDeclaredFields(docType)
@@ -105,10 +333,73 @@ const ensureConstructorInputsAreValid = docType => {
     for (const ctorParameterName in docType.ctor.parameters) {
       const ctorParameter = docType.ctor.parameters[ctorParameterName]
 
-      if (ctorParameter.lookup) {
+      if (ctorParameter.lookup === 'field') {
         if (!systemAndDeclaredFieldNames.includes(ctorParameterName)) {
           throw new JsonotronDocTypeValidationError(docType.name,
             `Constructor parameter '${ctorParameterName}' is a lookup field but a matching declared field is missing.`)
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type operation parameters have any invalid field types.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureOperationParameterTypesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.operations) {
+    for (const operationName in docType.operations) {
+      const operation = docType.operations[operationName]
+
+      for (const parameterName in operation.parameters) {
+        const parameter = operation.parameters[parameterName]
+
+        if (parameter.type) {
+          if (fieldTypes.findIndex(ft => ft.name === parameter.type) === -1) {
+            throw new JsonotronDocTypeValidationError(docType.name,
+              `Operation '${operationName}' parameter '${parameterName}' declares an unrecognised type of '${parameter.type}'.`)
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Raises an error if the given doc type opertion parameters have any invalid example values.
+ * @param {Object} ajv A JSON schema validator.
+ * @param {Object} docType A doc type.
+ * @param {Array} fieldTypes An array of field types.
+ */
+const ensureOperationParameterExamplesAreValid = (ajv, docType, fieldTypes) => {
+  check.assert.object(ajv)
+  check.assert.object(docType)
+  check.assert.string(docType.name)
+  check.assert.array(fieldTypes)
+
+  if (docType.operations) {
+    for (const operationName in docType.operations) {
+      const operation = docType.operations[operationName]
+
+      for (const parameterName in operation.parameters) {
+        const parameter = operation.parameters[parameterName]
+
+        if (parameter.type) {
+          const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+
+          if (!validator(parameter.example)) {
+            throw new JsonotronDocTypeValidationError(docType.name,
+              `Operation '${operationName}' parameter '${parameterName}' declares an example value '${JSON.stringify(parameter.example)}' ` +
+              `that does not conform to the '${parameter.type}' type schema.\n${JSON.stringify(validator.errors, null, 2)}`)
+          }
         }
       }
     }
@@ -121,7 +412,8 @@ const ensureConstructorInputsAreValid = docType => {
  * that are designated as a lookup are not declared on the doc type.
  * @param {Object} docType A doc type.
  */
-const ensureOperationInputsAreValid = docType => {
+const ensureOperationParameterLookupsAreValid = docType => {
+  check.assert.object(docType)
   check.assert.string(docType.name)
 
   const systemAndDeclaredFieldNames = getSystemAndDeclaredFields(docType)
@@ -133,7 +425,7 @@ const ensureOperationInputsAreValid = docType => {
       for (const operationParameterName in operation.parameters) {
         const operationParameter = operation.parameters[operationParameterName]
 
-        if (operationParameter.lookup) {
+        if (operationParameter.lookup === 'field') {
           if (!systemAndDeclaredFieldNames.includes(operationParameterName)) {
             throw new JsonotronDocTypeValidationError(docType.name,
               `Operation '${operationName}' states parameter '${operationParameterName}' is a lookup field but a matching declared field is missing.`)
@@ -153,10 +445,20 @@ const ensureOperationInputsAreValid = docType => {
 const ensureDocTypeIsValid = (ajv, docType, fieldTypes) => {
   ensureDocTypeAgainstDocTypeSchema(ajv, docType)
   ensureDeclaredFieldNamesDontClashWithSystemFieldNames(docType)
+  ensureDeclaredFieldTypesAreValid(ajv, docType, fieldTypes)
+  ensureDeclaredFieldDefaultsAreValid(ajv, docType, fieldTypes)
+  ensureDeclaredFieldExamplesAreValid(ajv, docType, fieldTypes)
+  ensureCalculatedFieldTypesAreValid(ajv, docType, fieldTypes)
   ensureCalculatedFieldInputsAreValid(docType)
-  ensureConstructorInputsAreValid(docType)
-  ensureOperationInputsAreValid(docType)
-  ensureDeclaredFieldsWithDefaultValuesAreNotMarkedAsRequired(docType)
+  ensureCalculatedFieldExamplesAreValid(ajv, docType, fieldTypes)
+  ensureFilterParameterTypesAreValid(ajv, docType, fieldTypes)
+  ensureFilterParameterExamplesAreValid(ajv, docType, fieldTypes)
+  ensureConstructorParameterTypesAreValid(ajv, docType, fieldTypes)
+  ensureConstructorParameterExamplesAreValid(ajv, docType, fieldTypes)
+  ensureConstructorParameterLookupsAreValid(docType)
+  ensureOperationParameterTypesAreValid(ajv, docType, fieldTypes)
+  ensureOperationParameterExamplesAreValid(ajv, docType, fieldTypes)
+  ensureOperationParameterLookupsAreValid(docType)
 }
 
 /**

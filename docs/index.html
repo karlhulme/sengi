@@ -51,9 +51,9 @@
   /* A list of the fields that the JSON document can contain.
       Each field type is a reference to a JSON schema snippet. */
   fields: {
-    customerName: { type: 'mediumString', canUpdate: true, description: 'The name of a customer.' },
-    dateOfBirth: { type: 'date', canUpdate: true, description: 'A customers date of birth.' },
-    ordersPlaced: { type: 'positiveIntegerOrZero', description: 'The number of orders placed by this customer.'}
+    customerName: { type: 'mediumString', canUpdate: true, description: 'The name of a customer.', example: 'A Non' },
+    dateOfBirth: { type: 'date', canUpdate: true, description: 'A customers date of birth.', example: '2000-01-01' },
+    ordersPlaced: { type: 'positiveIntegerOrZero', description: 'The number of orders placed by this customer.', example: 4  }
   },
 
   /* A constructor allows you to initialise fields. 
@@ -236,8 +236,8 @@ const customerDocType = {
     canFetchWholeCollection: true
   },
   fields: {
-    customerName: { type: 'mediumString', description: 'The name of a customer.' },
-    dateOfBirth: { type: 'date', description: 'A customers date of birth.' }
+    customerName: { type: 'mediumString', description: 'The name of a customer.', example: 'A Non' },
+    dateOfBirth: { type: 'date', description: 'A customers date of birth.', example: '2000-01-01' }
   }
 }
 
@@ -307,16 +307,16 @@ runApp()
        'isArray' should be true if the property is an array of the named type.
        'default' should provide a default value that is used during selection if it's not populated.
        'cacheDurationInSeconds' can be used by upstream services, such as GraphQL */       
-    tenantId: { type: 'shortString', isRequired: true, description: 'The organisation that owns the record.' },
-    shortName: { type: 'shortString', isRequired: true, canUpdate: true, description: 'A short informal name, typically the person\'s first name.' },
-    fullName: { type: 'mediumString', isRequired: true, canUpdate: true, description: 'The person\'s full name.' },
-    dateOfBirth: { type: 'date', canUpdate: true, description: 'The date of birth.' },
-    addressLines: { type: 'longString', canUpdate: true, description: 'The current residential address with each line separated by a newline (\\n) character.' },
-    postCode: { type: 'shortString', canUpdate: true, description: 'A postal code.' },
-    pinCode: { type: 'positiveInteger', description: 'The code used for clocking in.' },
-    favouriteColors: { type: 'shortString', isArray: true, description: 'An array of color names.' },
-    allowMarketing: { type: 'yesNo', default: 'no', description: 'A value of \'yes\' indicates that the person is prepared to receive marketing or \'no\' if they are not.' },
-    heightInCms: { type: 'integer', default: 0, description: 'The height of the person in centimetres.' },
+    tenantId: { type: 'shortString', isRequired: true, description: 'The organisation that owns the record.', example: '1234' },
+    shortName: { type: 'shortString', isRequired: true, canUpdate: true, description: 'A short informal name, typically the person\'s first name.', example: 'Bob' },
+    fullName: { type: 'mediumString', isRequired: true, canUpdate: true, description: 'The person\'s full name.', example: 'Bob Brown' },
+    dateOfBirth: { type: 'date', canUpdate: true, description: 'The date of birth.', example: '2000-01-01' },
+    addressLines: { type: 'longString', canUpdate: true, description: 'The current residential address with each line separated by a newline (\\n) character.', example: '1 Buckingham Palace\nWindsor' },
+    postCode: { type: 'shortString', canUpdate: true, description: 'A postal code.', example: 'W10 9KL' },
+    pinCode: { type: 'positiveInteger', description: 'The code used for clocking in.', example: 1234 },
+    favouriteColors: { type: 'shortString', isArray: true, description: 'An array of color names.', example: 'red' },
+    allowMarketing: { type: 'yesNo', default: 'no', description: 'A value of \'yes\' indicates that the person is prepared to receive marketing or \'no\' if they are not.', example: 'yes' },
+    heightInCms: { type: 'integer', default: 0, description: 'The height of the person in centimetres.', example: 150 },
     ownedCarId: { ref: 'car', cacheDurationInSeconds: 60, description: 'The car owned by this person.' }
   },
 
@@ -357,7 +357,7 @@ runApp()
         These can follow the same rules as the main document fields or they can be
         specified as { lookup: 'field' }. */
       parameters: {
-        postCode: { type: 'string', isRequired: true, description: 'The post code to match.' }
+        postCode: { type: 'string', isRequired: true, description: 'The post code to match.', example: 'BH87 2KL' }
       },
 
       /* Returns any valid Javascript primitive which is then interpreted by the backing store.
@@ -376,7 +376,7 @@ runApp()
       shortName: { lookup: 'field', isRequired: true },
       fullName: { lookup: 'field', isRequired: true },
       dateOfBirth: { lookup: 'field', isRequired: true },
-      askedAboutMarketing: { type: 'boolean', isRequired: true, description: 'This is an additional field.' }
+      askedAboutMarketing: { type: 'boolean', isRequired: true, description: 'This is an additional field.', example: true }
     },
 
     /* A function that utilises the input fields to construct a new JSON document. */

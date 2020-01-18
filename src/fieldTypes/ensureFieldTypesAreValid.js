@@ -1,7 +1,7 @@
 const check = require('check-types')
 const { JsonotronFieldTypeValidationError } = require('../errors')
 const { fieldTypeSchema } = require('../schemas')
-const createJsonSchemaForFieldType = require('./createJsonSchemaForFieldType')
+const createFieldTypeValueValidator = require('./createFieldTypeValueValidator')
 
 /**
  * Raises an error if the field type fails to conform to the fieldTypeSchema.
@@ -16,27 +16,6 @@ const ensureFieldTypeAgainstFieldTypeSchema = (ajv, fieldType) => {
   if (!fieldTypeSchemaValidator(fieldType)) {
     throw new JsonotronFieldTypeValidationError(fieldType.name,
       `Unable to validate against fieldTypeSchema.\n${JSON.stringify(fieldTypeSchemaValidator.errors, null, 2)}`)
-  }
-}
-
-/**
- * Returns a validator function for the given field type.  The validator
- * function is created (compiled) by the given Ajv function by resolving
- * any required field types.  If the JSON is invalid it will fail to
- * compile and an error will be raised.
- * @param {Object} ajv A JSON schema validator.
- * @param {Array} fieldTypes An array of field types.
- * @param {Object} fieldType A field type.
- */
-const createFieldTypeValueValidator = (ajv, fieldTypes, fieldType) => {
-  check.assert.string(fieldType.name)
-
-  try {
-    const fieldValueSchema = createJsonSchemaForFieldType(fieldTypes, fieldType.name)
-    return ajv.compile(fieldValueSchema)
-  } catch (err) {
-    throw new JsonotronFieldTypeValidationError(fieldType.name,
-      `Unable to create field value validator for '${fieldType.name}'.\n${err.toString()}`)
   }
 }
 
@@ -89,7 +68,7 @@ const ensureFieldTypeIsValid = (ajv, fieldTypes, fieldType) => {
 
   ensureFieldTypeAgainstFieldTypeSchema(ajv, fieldType)
 
-  const fieldTypeValueValidator = createFieldTypeValueValidator(ajv, fieldTypes, fieldType)
+  const fieldTypeValueValidator = createFieldTypeValueValidator(ajv, fieldTypes, fieldType.name)
 
   if (Array.isArray(fieldType.examples)) {
     ensureExampleValuesAreValid(fieldType.name, fieldTypeValueValidator, fieldType.examples)
