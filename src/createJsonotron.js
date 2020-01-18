@@ -242,6 +242,15 @@ const createJsonotron = config => {
     replaceDocument: async req => {
       validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
+    },
+
+    /**
+     * Returns the name of a document type given the plural name.
+     * @param {String} docTypePluralName The plural name of a document type.
+     */
+    getDocTypeNameFromPluralName: docTypePluralName => {
+      const index = config.docTypes.findIndex(dt => dt.pluralName === docTypePluralName)
+      return index === -1 ? null : config.docTypes[index].name
     }
   }
 }

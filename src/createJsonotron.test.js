@@ -189,3 +189,17 @@ test('A Jsonotron call to replaceDocument will fail if required parameters are n
   await expect(jsonotron.replaceDocument(createRequestWith('doc', 123))).rejects.toThrow(/doc/)
   await expect(jsonotron.replaceDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
 })
+
+test('A Jsonotron can return the name of a document type given the plural name.', () => {
+  const docType = {
+    name: 'chair',
+    pluralName: 'chairs',
+    title: 'Chair',
+    pluralTitle: 'Chairs',
+    fields: {}
+  }
+
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [docType], roleTypes: [] })
+  expect(jsonotron.getDocTypeNameFromPluralName('chairs')).toEqual('chair')
+  expect(jsonotron.getDocTypeNameFromPluralName('sofas')).toEqual(null)
+})
