@@ -251,7 +251,12 @@ const runApp = () => {
 
   const docTypes = [customerDocType]
   const roleTypes = [adminRoleType]
-  const jsonotronExpress = createJsonotronExpress(memDocStore, docTypes, roleTypes, {})
+
+  const jsonotronExpress = createJsonotronExpress({
+    docStore: memDocStore,
+    docTypes,
+    roleTypes
+  })
 
   const app = express()
   app.use(bodyParser.json())

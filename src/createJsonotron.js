@@ -59,31 +59,36 @@ const validateRequestParameters = function (req, ...parameterNames) {
 
 /**
  * Create a new Jsonotron.
- * @param {Object} docStore A collection of functions for reading and writing JSON data.
- * @param {Array} docTypes An array of doc types.
- * @param {Array} roleTypes An array of role types.
- * @param {Object} [config] A configuration object.
- * @param {Array} config.customFieldTypes An array of custom field types.
+ * @param {Object} config A configuration object.
+ * @param {Object} config.docStore A collection of functions for reading and writing JSON data.
+ * @param {Array} config.docTypes An array of doc types.
+ * @param {Array} config.roleTypes An array of role types.
+ * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
+ * built-in field types.
+ * @param {Function} [config.onFieldsQueried] A function that is invoked whenever
+ * a query is executed.  The function will be passed an array of the fields
+ * queried.  This may be useful for determining when deprecated fields are no longer
+ * being used.
  */
-const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
-  if (typeof docStore !== 'object' || Array.isArray(docStore) || docStore === null) {
-    throw new TypeError('Constructor parameter \'docStore\' must be an object.')
-  }
-
-  if (!Array.isArray(docTypes)) {
-    throw new TypeError('Constructor parameter \'docTypes\' must be an array.')
-  }
-
-  if (!Array.isArray(roleTypes)) {
-    throw new TypeError('Constructor parameter \'roleTypes\' must be an array.')
-  }
-
+const createJsonotron = config => {
   if (typeof config !== 'object' || Array.isArray(config) || config === null) {
-    throw new TypeError('Constructor parameter \'config\' must be an object if supplied.')
+    throw new TypeError('Constructor parameter \'config\' must be an object.')
   }
 
-  if (typeof config.customFieldTypes !== 'undefined' && !Array.isArray(config.customFieldTypes)) {
-    throw new TypeError('Constructor parameter \'config.customFieldTypes\' must be an array.')
+  if (typeof config.docStore !== 'object' || Array.isArray(config.docStore) || config.docStore === null) {
+    throw new TypeError('Constructor parameter \'config.docStore\' must be an object.')
+  }
+
+  if (!Array.isArray(config.docTypes)) {
+    throw new TypeError('Constructor parameter \'config.docTypes\' must be an array.')
+  }
+
+  if (!Array.isArray(config.roleTypes)) {
+    throw new TypeError('Constructor parameter \'config.roleTypes\' must be an array.')
+  }
+
+  if (typeof config.fieldTypes !== 'undefined' && !Array.isArray(config.fieldTypes)) {
+    throw new TypeError('Constructor parameter \'config.fieldTypes\' must be an array.')
   }
 
   if (typeof config.onFieldsQueried !== 'undefined' && typeof config.onFieldsQueried !== 'function') {
@@ -91,32 +96,32 @@ const createJsonotron = (docStore, docTypes, roleTypes, config = {}) => {
   }
 
   // wrap the doc store so methods are safe to call
-  const safeDocStore = wrapDocStore(docStore)
+  const safeDocStore = wrapDocStore(config.docStore)
 
   // create a customised json validator with the jsonotron keywords and formats
   const ajv = createCustomisedAjv()
 
   // build the field types array (custom and built-in) and ensure they're all valid
-  const fieldTypes = combineCustomAndBuiltInFieldTypes(config.customFieldTypes || [], builtinFieldTypes)
-  ensureFieldTypesAreValid(ajv, fieldTypes)
+  const builtinAndCustomFieldTypes = combineCustomAndBuiltInFieldTypes(config.fieldTypes || [], builtinFieldTypes)
+  ensureFieldTypesAreValid(ajv, builtinAndCustomFieldTypes)
 
   // ensure all the doc types are valid
-  ensureDocTypesAreValid(ajv, docTypes, fieldTypes)
+  ensureDocTypesAreValid(ajv, config.docTypes, builtinAndCustomFieldTypes)
 
   // ensure all role types are valid
-  ensureRoleTypesAreValid(ajv, roleTypes, docTypes)
+  ensureRoleTypesAreValid(ajv, config.roleTypes, config.docTypes)
 
   // create a validator cache
-  const validatorCache = initValidatorCache(ajv, docTypes, fieldTypes)
+  const validatorCache = initValidatorCache(ajv, config.docTypes, builtinAndCustomFieldTypes)
 
   // create a function that builds an entry point parameter object by
   // combining the external request object with the internal data.
   const buildEntryPointParameterObject = req => {
     return {
       safeDocStore,
-      docTypes,
-      fieldTypes,
-      roleTypes,
+      docTypes: config.docTypes,
+      fieldTypes: builtinAndCustomFieldTypes,
+      roleTypes: config.roleTypes,
       validatorCache,
       onFieldsQueried: config.onFieldsQueried,
       ...req

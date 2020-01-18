@@ -33,23 +33,22 @@ const createRequestWith = (propertyName, propertyValue) => {
 }
 
 test('A Jsonotron can be created given valid inputs.', () => {
-  expect(() => createJsonotron({}, [], [])).not.toThrow()
-  expect(() => createJsonotron({}, [], [], {})).not.toThrow()
-  expect(() => createJsonotron({}, [], [], { customFieldTypes: [] })).not.toThrow()
-  expect(() => createJsonotron({}, [], [], { onFieldsQueried: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: [] })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onFieldsQueried: () => {} })).not.toThrow()
 })
 
 test('A Jsonotron can be created with invalid inputs or config.', () => {
-  expect(() => createJsonotron('invalid', [], [], {})).toThrow(/docStore/)
-  expect(() => createJsonotron({}, 'invalid', [], {})).toThrow(/docTypes/)
-  expect(() => createJsonotron({}, [], 'invalid', {})).toThrow(/roleTypes/)
-  expect(() => createJsonotron({}, [], [], 'invalid')).toThrow(/config/)
-  expect(() => createJsonotron({}, [], [], { customFieldTypes: 123 })).toThrow(/config.customFieldTypes/)
-  expect(() => createJsonotron({}, [], [], { onFieldsQueried: 123 })).toThrow(/config.onFieldsQueried/)
+  expect(() => createJsonotron('invalid')).toThrow(/config/)
+  expect(() => createJsonotron({ docStore: 'invalid', docTypes: [], roleTypes: [] })).toThrow(/docStore/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: 'invalid', roleTypes: [] })).toThrow(/docTypes/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: 'invalid' })).toThrow(/roleTypes/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: 123 })).toThrow(/config.fieldTypes/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onFieldsQueried: 123 })).toThrow(/config.onFieldsQueried/)
 })
 
 test('Reject a Jsonotron call without a request object.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.queryDocuments()).rejects.toThrow(/req/)
   await expect(jsonotron.queryDocuments(null)).rejects.toThrow(/req/)
   await expect(jsonotron.queryDocuments([])).rejects.toThrow(/req/)
@@ -57,7 +56,7 @@ test('Reject a Jsonotron call without a request object.', async () => {
 })
 
 test('A Jsonotron call with all the required inputs, but no roles, should only fail due to permissions.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.createDocument(createRequestWith('all_props_valid'))).rejects.toThrow(JsonotronInsufficientPermissionsError)
   await expect(jsonotron.createDocument(createRequestWith('docStoreOptions', undefined))).rejects.toThrow(JsonotronInsufficientPermissionsError)
 
@@ -84,7 +83,7 @@ test('A Jsonotron call with all the required inputs, but no roles, should only f
 })
 
 test('A Jsonotron call to createDocument will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.createDocument(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.createDocument(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.createDocument(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -97,7 +96,7 @@ test('A Jsonotron call to createDocument will fail if required parameters are no
 })
 
 test('A Jsonotron call to deleteDocument will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.deleteDocument(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.deleteDocument(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.deleteDocument(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -108,7 +107,7 @@ test('A Jsonotron call to deleteDocument will fail if required parameters are no
 })
 
 test('A Jsonotron call to operateOnDocument will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.operateOnDocument(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.operateOnDocument(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.operateOnDocument(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -126,7 +125,7 @@ test('A Jsonotron call to operateOnDocument will fail if required parameters are
 })
 
 test('A Jsonotron call to patchDocument will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.patchDocument(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.patchDocument(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.patchDocument(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -142,7 +141,7 @@ test('A Jsonotron call to patchDocument will fail if required parameters are not
 })
 
 test('A Jsonotron call to queryDocuments will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.queryDocuments(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocuments(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocuments(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -153,7 +152,7 @@ test('A Jsonotron call to queryDocuments will fail if required parameters are no
 })
 
 test('A Jsonotron call to queryDocumentsByFilter will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -168,7 +167,7 @@ test('A Jsonotron call to queryDocumentsByFilter will fail if required parameter
 })
 
 test('A Jsonotron call to queryDocumentsByIds will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)
@@ -181,7 +180,7 @@ test('A Jsonotron call to queryDocumentsByIds will fail if required parameters a
 })
 
 test('A Jsonotron call to replaceDocument will fail if required parameters are not provided.', async () => {
-  const jsonotron = createJsonotron({}, [], [])
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
   await expect(jsonotron.replaceDocument(createRequestWith('roleNames', undefined))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.replaceDocument(createRequestWith('roleNames', 123))).rejects.toThrow(/roleNames/)
   await expect(jsonotron.replaceDocument(createRequestWith('docTypeName', undefined))).rejects.toThrow(/docTypeName/)

@@ -32,7 +32,7 @@ npm install jsonotron --save
 
 > This package is used by Jsonotron service implementations, such as Jsonotron-express.  Unless you are creating a new public interface for Jsonotron then you probably don't want to use this package directly!
 
-To instantiate a Jsonotron engine you have to provide 3 or 4 parameters:
+Instantiate a Jsonotron engine with a configuration object:
 
 * **docStore** - An object that implements the Jsonotron document store interface.
 
@@ -40,15 +40,14 @@ To instantiate a Jsonotron engine you have to provide 3 or 4 parameters:
 
 * **roleTypes** - An array of Jsonotron role types.
 
-* **config** - An optional configuration object with the following properties:
-  * **config.customFieldTypes** - An array of Jsonotron field types.
+* **fieldTypes** - An array of Jsonotron field types that will be appended to the built-in field types.
+
+* **onFieldsQueried** - A function that is invoked whenever a query is executed.  The function will be passed an array of the fields queried.  This may be useful for determining when deprecated fields are no longer being used.
 
 ```javascript
 const { createJsonotron } = require('jsonotron')
 
 const docStore = { fetch: () => {}, queryAll: () => {}}
-const docTypes = []
-const roleTypes = []
 
-const jsonotron = createJsonotron(docStore, docTypes, roleTypes)
+const jsonotron = createJsonotron({ docStore, docTypes: [], roleTypes: [] })
 ```
