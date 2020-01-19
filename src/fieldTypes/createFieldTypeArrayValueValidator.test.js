@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const { createCustomisedAjv } = require('../jsonValidation')
-const createFieldTypeValueValidator = require('./createFieldTypeValueValidator')
+const createFieldTypeArrayValueValidator = require('./createFieldTypeArrayValueValidator')
 
 const createValidFieldType = () => ({
   name: 'candidateFieldType',
@@ -21,11 +21,11 @@ const createInvalidFieldType = () => ({
   }
 })
 
-test('Can create a field type value validator that correctly assesses validity.', () => {
+test('Can create a field type array value validator that correctly assesses validity.', () => {
   const ajv = createCustomisedAjv()
-  const validator = createFieldTypeValueValidator(ajv, [createValidFieldType()], 'candidateFieldType')
+  const validator = createFieldTypeArrayValueValidator(ajv, [createValidFieldType()], 'candidateFieldType')
 
-  expect(validator(123)).toEqual(true)
+  expect(validator([123, 321])).toEqual(true)
   expect(validator.errors).toEqual(null)
 
   expect(validator(-123)).toEqual(false)
@@ -40,11 +40,23 @@ test('Can create a field type value validator that correctly assesses validity.'
   expect(validator(['foo', 'bar'])).toEqual(false)
   expect(validator.errors).not.toEqual(null)
 
-  expect(validator(1)).toEqual(true)
+  expect(validator([-123])).toEqual(false)
+  expect(validator.errors).not.toEqual(null)
+
+  expect(validator(['123'])).toEqual(false)
+  expect(validator.errors).not.toEqual(null)
+
+  expect(validator([{ foo: 'bar' }])).toEqual(false)
+  expect(validator.errors).not.toEqual(null)
+
+  expect(validator(['foo', 'bar'])).toEqual(false)
+  expect(validator.errors).not.toEqual(null)
+
+  expect(validator([1])).toEqual(true)
   expect(validator.errors).toEqual(null)
 })
 
 test('Fail to create a field type value validator for a field with invalid schema.', () => {
   const ajv = createCustomisedAjv()
-  expect(() => createFieldTypeValueValidator(ajv, [createInvalidFieldType()], 'invalidFieldType')).toThrow(/Unable to create field value validator for 'invalidFieldType'/)
+  expect(() => createFieldTypeArrayValueValidator(ajv, [createInvalidFieldType()], 'invalidFieldType')).toThrow(/Unable to create field value validator for 'invalidFieldType'/)
 })

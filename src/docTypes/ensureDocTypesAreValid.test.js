@@ -10,7 +10,8 @@ const createSimpleValidDocType = () => ({
   pluralTitle: 'Simple Docs',
   fields: {
     propA: { type: 'integer', isRequired: true, canUpdate: true, description: 'Property A.', example: 10 },
-    propB: { type: 'float', description: 'Property B.', default: 1.2, example: 2.8 }
+    propB: { type: 'float', description: 'Property B.', default: 1.2, example: 2.8 },
+    propQ: { type: 'date', description: 'Property Q', isArray: true, example: ['2000-01-01'] }
   }
 })
 
@@ -33,13 +34,22 @@ const createComplexValidDocType = () => ({
       type: 'mediumString',
       example: 'foobar',
       value: doc => `${doc.propA || ''}${doc.propB || ''}`
+    },
+    propAwithB: {
+      description: 'An array of prop a and b.',
+      inputFields: ['propA', 'propB'],
+      type: 'mediumString',
+      isArray: true,
+      example: ['foo', 'bar'],
+      value: doc => [doc.propA, doc.propB]
     }
   },
   filters: {
     byDateOfBirth: {
       description: 'Fetch records where propA is equal to \'x\'.',
       parameters: {
-        x: { type: 'string', isRequired: true, description: 'The value to match.', example: 'aValue' }
+        x: { type: 'string', isRequired: true, description: 'The value to match.', example: 'aValue' },
+        y: { type: 'string', isArray: true, description: 'An array of values.', example: ['first', 'second'] }
       },
       implementation: input => `some_col = "${input.x}"`
     }
@@ -48,7 +58,8 @@ const createComplexValidDocType = () => ({
   ctor: {
     parameters: {
       propA: { lookup: 'field', isRequired: true },
-      c: { type: 'boolean', description: 'Additional prop used only for construction.', example: true }
+      c: { type: 'boolean', description: 'Additional prop used only for construction.', example: true },
+      d: { type: 'boolean', isArray: true, description: 'array of booleans.', example: [true, false] }
     },
     implementation: input => {
       return {
@@ -63,7 +74,8 @@ const createComplexValidDocType = () => ({
       description: 'Makes a change to property B.',
       parameters: {
         c: { type: 'string', isRequired: true, description: 'A value that affects the operation.', example: 'hello' },
-        propB: { lookup: 'field' }
+        propB: { lookup: 'field' },
+        propQ: { type: 'date', description: 'Property Q', isArray: true, example: ['2000-01-01'] }
       },
       implementation: (doc, input) => {
         return {

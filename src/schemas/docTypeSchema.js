@@ -62,6 +62,7 @@ module.exports = {
             }
           },
           type: { type: 'string', description: 'Type of the calculated field.' },
+          isArray: { type: 'boolean', description: 'True if this calculated field is an array.' },
           example: { type: ['string', 'number', 'boolean', 'object', 'array'], description: 'An example value of the calculated field.' },
           value: { customTypeOf: 'function' }
         },
@@ -88,6 +89,7 @@ module.exports = {
               additionalProperties: false,
               properties: {
                 type: { type: 'string', description: 'The field type of the filter parameter.' },
+                isArray: { type: 'boolean', description: 'True if this field is an array.' },
                 isRequired: { type: 'boolean', description: 'True if the parameter must be supplied.' },
                 description: { type: 'string', description: 'The description of the usage or purpose of the filter parameter.' },
                 example: { type: ['string', 'number', 'boolean', 'object', 'array'], description: 'An example value of the filter parameter.' }
@@ -116,6 +118,7 @@ module.exports = {
               additionalProperties: false,
               properties: {
                 type: { type: 'string', description: 'Type of the constructor parameter.' },
+                isArray: { type: 'boolean', description: 'True if this field is an array.' },
                 isRequired: { type: 'boolean', description: 'True if this parameter must be provided.' },
                 description: { type: 'string', description: 'The description of the constructor parameter.' },
                 example: { type: ['string', 'number', 'boolean', 'object', 'array'], description: 'An example value of the filter parameter.' }
@@ -157,6 +160,7 @@ module.exports = {
                 additionalProperties: false,
                 properties: {
                   type: { type: 'string', description: 'Type of the operation parameter.' },
+                  isArray: { type: 'boolean', description: 'True if this field is an array.' },
                   isRequired: { type: 'boolean', description: 'True if this parameter must be provided.' },
                   description: { type: 'string', description: 'The description of the operation parameter.' },
                   example: { type: ['string', 'number', 'boolean', 'object', 'array'], description: 'An example value of the filter parameter.' }

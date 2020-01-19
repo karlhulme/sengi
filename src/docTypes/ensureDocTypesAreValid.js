@@ -1,6 +1,9 @@
 const check = require('check-types')
 const { docTypeSchema } = require('../schemas')
-const { createFieldTypeValueValidator } = require('../fieldTypes')
+const {
+  createFieldTypeArrayValueValidator,
+  createFieldTypeValueValidator
+} = require('../fieldTypes')
 const { JsonotronDocTypeValidationError } = require('../errors')
 const getSystemFields = require('./getSystemFields')
 
@@ -120,7 +123,9 @@ const ensureDeclaredFieldExamplesAreValid = (ajv, docType, fieldTypes) => {
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
 
-    const validator = createFieldTypeValueValidator(ajv, fieldTypes, field.type)
+    const validator = field.isArray === true
+      ? createFieldTypeArrayValueValidator(ajv, fieldTypes, field.type)
+      : createFieldTypeValueValidator(ajv, fieldTypes, field.type)
 
     if (!validator(field.example)) {
       throw new JsonotronDocTypeValidationError(docType.name,
@@ -170,7 +175,9 @@ const ensureCalculatedFieldExamplesAreValid = (ajv, docType, fieldTypes) => {
   for (const fieldName in docType.calculatedFields) {
     const calcField = docType.calculatedFields[fieldName]
 
-    const validator = createFieldTypeValueValidator(ajv, fieldTypes, calcField.type)
+    const validator = calcField.isArray === true
+      ? createFieldTypeArrayValueValidator(ajv, fieldTypes, calcField.type)
+      : createFieldTypeValueValidator(ajv, fieldTypes, calcField.type)
 
     if (!validator(calcField.example)) {
       throw new JsonotronDocTypeValidationError(docType.name,
@@ -251,7 +258,10 @@ const ensureFilterParameterExamplesAreValid = (ajv, docType, fieldTypes) => {
 
       for (const parameterName in filter.parameters) {
         const parameter = filter.parameters[parameterName]
-        const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+
+        const validator = parameter.isArray === true
+          ? createFieldTypeArrayValueValidator(ajv, fieldTypes, parameter.type)
+          : createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
 
         if (!validator(parameter.example)) {
           throw new JsonotronDocTypeValidationError(docType.name,
@@ -306,7 +316,9 @@ const ensureConstructorParameterExamplesAreValid = (ajv, docType, fieldTypes) =>
       const parameter = docType.ctor.parameters[parameterName]
 
       if (parameter.type) {
-        const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+        const validator = parameter.isArray === true
+          ? createFieldTypeArrayValueValidator(ajv, fieldTypes, parameter.type)
+          : createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
 
         if (!validator(parameter.example)) {
           throw new JsonotronDocTypeValidationError(docType.name,
@@ -393,7 +405,9 @@ const ensureOperationParameterExamplesAreValid = (ajv, docType, fieldTypes) => {
         const parameter = operation.parameters[parameterName]
 
         if (parameter.type) {
-          const validator = createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
+          const validator = parameter.isArray === true
+            ? createFieldTypeArrayValueValidator(ajv, fieldTypes, parameter.type)
+            : createFieldTypeValueValidator(ajv, fieldTypes, parameter.type)
 
           if (!validator(parameter.example)) {
             throw new JsonotronDocTypeValidationError(docType.name,
