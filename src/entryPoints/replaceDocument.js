@@ -10,7 +10,7 @@ const {
   ensurePermission
 } = require('../roleTypes')
 
-const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, reqVersion, doc, docStoreOptions }) => {
+const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -19,6 +19,10 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   check.assert.string(docTypeName)
   check.assert.maybe.string(reqVersion)
   check.assert.object(doc)
+  check.assert.maybe.function(onPreSaveDoc)
+  check.assert.maybe.function(onCreateDoc)
+  check.assert.maybe.function(onUpdateDoc)
+  check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, 'replace', r => canReplace(r, docTypeName))
@@ -26,11 +30,23 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
+  if (onPreSaveDoc) {
+    await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch: null }))
+  }
+
   validatorCache.ensureDocTypeFields(docType.name, doc)
   executeValidator(docType, doc)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   const isNew = await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || null, Boolean(reqVersion), combinedDocStoreOptions)
+
+  if (onCreateDoc && isNew) {
+    await Promise.resolve(onCreateDoc({ roleNames, reqProps, docType, doc }))
+  }
+
+  if (onUpdateDoc && !isNew) {
+    await Promise.resolve(onUpdateDoc({ roleNames, reqProps, docType, doc }))
+  }
 
   return { isNew }
 }

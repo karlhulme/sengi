@@ -41,6 +41,48 @@ test('Creating a document should call exists and then upsert on doc store.', asy
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, null, { custom: 'prop' }])
 })
 
+test('Creating a document should raise callbacks.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    exists: async () => ({ found: false }),
+    upsert: async () => ({})
+  })
+
+  const onPreSaveDoc = jest.fn()
+  const onCreateDoc = jest.fn()
+
+  await expect(createDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+    docTypeName: 'person',
+    constructorParams: {
+      shortName: 'Donald',
+      fullName: 'Donald Fresh',
+      dateOfBirth: '2000-01-02',
+      askedAboutMarketing: true
+    },
+    reqProps: { foo: 'bar' },
+    onPreSaveDoc,
+    onCreateDoc,
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.toEqual({ isNew: true })
+
+  expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Donald', fullName: 'Donald Fresh', tenantId: 'companyA' }),
+    mergePatch: null
+  })
+
+  expect(onCreateDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Donald', fullName: 'Donald Fresh', tenantId: 'companyA' })
+  })
+})
+
 test('Creating a document for the second time should only call exists on doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     exists: async () => ({ found: true })

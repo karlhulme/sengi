@@ -57,6 +57,60 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
+test('Patching a document should raise callbacks.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    fetch: async () => ({
+      doc: {
+        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+        docType: 'person',
+        docVersion: 'aaaa',
+        docOps: [],
+        tenantId: 'dddd',
+        shortName: 'David',
+        fullName: 'David Doohickey',
+        unrecognisedProp: 'unrecognisdValue'
+      }
+    }),
+    upsert: async () => ({})
+  })
+
+  let preSaveDoc = null
+  const onPreSaveDoc = jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) })
+  const onUpdateDoc = jest.fn()
+
+  await expect(patchDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    mergePatch: {
+      shortName: 'Maisory'
+    },
+    onPreSaveDoc,
+    onUpdateDoc,
+    reqProps: { foo: 'bar' },
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.toEqual({ isUpdated: true })
+
+  expect(onPreSaveDoc.mock.calls[0][0]).toEqual(expect.objectContaining({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    mergePatch: {
+      shortName: 'Maisory'
+    }
+  }))
+  expect(preSaveDoc.shortName).toEqual('David')
+
+  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Maisory' })
+  })
+})
+
 test('Patching a document for a second time should only call fetch on doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     fetch: async () => ({

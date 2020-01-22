@@ -12,7 +12,7 @@ const {
   ensurePermission
 } = require('../roleTypes')
 
-const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, ids, onFieldsQueried, docStoreOptions }) => {
+const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, ids, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -20,6 +20,8 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
   check.assert.string(docTypeName)
   check.assert.array.of.string(fieldNames)
   check.assert.array.of.string(ids)
+  check.assert.maybe.function(onQueryDocs)
+  check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, `query(${fieldNames.join(',')})`,
@@ -31,8 +33,8 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   const docs = await safeDocStore.queryByIds(docType.name, docType.pluralName, retrievalFieldNames, ids, combinedDocStoreOptions)
 
-  if (onFieldsQueried) {
-    await Promise.resolve(onFieldsQueried(docType.name, fieldNames, retrievalFieldNames))
+  if (onQueryDocs) {
+    await Promise.resolve(onQueryDocs({ roleNames, reqProps, docType, fieldNames, retrievalFieldNames }))
   }
 
   docs.forEach(d => applyDeclaredFieldDefaultsToDocument(docType, d, retrievalFieldNames))

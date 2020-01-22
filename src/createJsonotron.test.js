@@ -35,16 +35,24 @@ const createRequestWith = (propertyName, propertyValue) => {
 test('A Jsonotron can be created given valid inputs.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: [] })).not.toThrow()
-  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onFieldsQueried: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onPreSaveDoc: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onQueryDocs: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onCreateDoc: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onUpdateDoc: () => {} })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onDeleteDoc: () => {} })).not.toThrow()
 })
 
-test('A Jsonotron can be created with invalid inputs or config.', () => {
+test('A Jsonotron cannot be created with invalid inputs or config.', () => {
   expect(() => createJsonotron('invalid')).toThrow(/config/)
   expect(() => createJsonotron({ docStore: 'invalid', docTypes: [], roleTypes: [] })).toThrow(/docStore/)
   expect(() => createJsonotron({ docStore: {}, docTypes: 'invalid', roleTypes: [] })).toThrow(/docTypes/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: 'invalid' })).toThrow(/roleTypes/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: 123 })).toThrow(/config.fieldTypes/)
-  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onFieldsQueried: 123 })).toThrow(/config.onFieldsQueried/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onPreSaveDoc: 123 })).toThrow(/config.onPreSaveDoc/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onQueryDocs: 123 })).toThrow(/config.onQueryDocs/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onCreateDoc: 123 })).toThrow(/config.onCreateDoc/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onUpdateDoc: 123 })).toThrow(/config.onUpdateDoc/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onDeleteDoc: 123 })).toThrow(/config.onDeleteDoc/)
 })
 
 test('Reject a Jsonotron call without a request object.', async () => {

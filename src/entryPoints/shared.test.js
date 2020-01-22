@@ -29,7 +29,8 @@ const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
     docTypes: testDocTypes,
     fieldTypes,
     validatorCache,
-    roleTypes: testRoleTypes
+    roleTypes: testRoleTypes,
+    reqProps: { userId: 'testUser' }
   }
 }
 
@@ -41,6 +42,7 @@ test('createTestRequestWithMockedDocStore creates a valid object.', async () => 
   expect(req).toHaveProperty('fieldTypes')
   expect(req).toHaveProperty('validatorCache')
   expect(req).toHaveProperty('roleTypes')
+  expect(req).toHaveProperty('reqProps')
 })
 
 module.exports = {

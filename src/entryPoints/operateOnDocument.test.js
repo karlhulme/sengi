@@ -59,6 +59,61 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
+test('Operate on document should raise callbacks', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    fetch: async () => ({
+      doc: {
+        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+        docType: 'person',
+        docVersion: 'aaaa',
+        docOps: [],
+        tenantId: 'dddd',
+        shortName: 'Mikey',
+        fullName: 'Mikey Manhattan',
+        unrecognisedProp: 'unrecognisedValue'
+      }
+    }),
+    upsert: async () => ({})
+  })
+
+  let preSaveDoc = null
+  const onPreSaveDoc = jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) })
+  const onUpdateDoc = jest.fn()
+
+  await expect(operateOnDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationName: 'replaceFavouriteColors',
+    operationParams: {
+      favouriteColors: ['puse', 'gold']
+    },
+    onPreSaveDoc,
+    onUpdateDoc,
+    reqProps: { foo: 'bar' },
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.toEqual({ isUpdated: true })
+
+  expect(onPreSaveDoc.mock.calls[0][0]).toEqual(expect.objectContaining({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    mergePatch: {
+      favouriteColors: ['silver', 'puse', 'gold']
+    }
+  }))
+  expect(preSaveDoc.favouriteColors).not.toBeDefined()
+
+  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ fullName: 'Mikey Manhattan', tenantId: 'dddd', favouriteColors: ['silver', 'puse', 'gold'] })
+  })
+})
+
 test('Operate on document for second time should only call fetch on doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     fetch: async () => ({

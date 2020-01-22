@@ -49,6 +49,51 @@ test('Replacing a document should call upsert on the doc store.', async () => {
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, null, { custom: 'prop' }])
 })
 
+test('Replacing a document raise callbacks.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    upsert: async () => ({})
+  })
+
+  const onPreSaveDoc = jest.fn()
+  const onUpdateDoc = jest.fn()
+
+  await expect(replaceDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    doc: {
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+      docType: 'person',
+      docOps: [],
+      docVersion: 'aaaa',
+      tenantId: 'companyA',
+      shortName: 'Francesco',
+      fullName: 'Francesco Speedio',
+      dateOfBirth: '2010-11-05',
+      favouriteColors: ['orange', 'purple']
+    },
+    reqProps: { foo: 'bar' },
+    onPreSaveDoc,
+    onUpdateDoc,
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.toEqual({ isNew: false })
+
+  expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' }),
+    mergePatch: null
+  })
+
+  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' })
+  })
+})
+
 test('Replacing a document with a required version should call upsert on the doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     upsert: async () => ({})
@@ -89,10 +134,13 @@ test('Replacing a document with a required version should call upsert on the doc
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
-test('Replacing a document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
+test('Replacing a non-existent document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_CREATED })
   })
+
+  const onPreSaveDoc = jest.fn()
+  const onCreateDoc = jest.fn()
 
   await expect(replaceDocument({
     ...testRequest,
@@ -110,6 +158,8 @@ test('Replacing a document with a version that contains additional unrecognised 
       favouriteColors: ['orange', 'purple'],
       unrecognisedProperty: 'unrecognisedValue'
     },
+    onPreSaveDoc,
+    onCreateDoc,
     reqVersion: 'aaaa',
     docStoreOptions: { custom: 'prop' }
   })).resolves.toEqual({ isNew: true })
@@ -126,6 +176,21 @@ test('Replacing a document with a version that contains additional unrecognised 
     favouriteColors: ['orange', 'purple'],
     unrecognisedProperty: 'unrecognisedValue'
   }
+
+  expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { userId: 'testUser' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' }),
+    mergePatch: null
+  })
+
+  expect(onCreateDoc.mock.calls[0][0]).toEqual({
+    roleNames: ['admin'],
+    reqProps: { userId: 'testUser' },
+    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
+    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' })
+  })
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])

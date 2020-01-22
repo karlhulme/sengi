@@ -24,7 +24,7 @@ test('Query all document of a type in collection.', async () => {
     roleNames: ['admin'],
     docTypeName: 'person',
     fieldNames: ['id'],
-    onFieldsQueried: null,
+    onQueryDocs: null,
     docStoreOptions: { custom: 'prop' }
   })
 
@@ -40,7 +40,7 @@ test('Query all document of a type in collection.', async () => {
   expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { custom: 'prop' }])
 })
 
-test('Query all document of a type in collection with an onFieldsQueried delegate.', async () => {
+test('Query all document of a type in collection with an onQueryDocs delegate.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     queryAll: async () => {
       return {
@@ -53,14 +53,14 @@ test('Query all document of a type in collection with an onFieldsQueried delegat
     }
   })
 
-  const onFieldsQueriedDelegate = jest.fn()
+  const onQueryDocsDelegate = jest.fn()
 
   const result = await queryDocuments({
     ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'person',
     fieldNames: ['id'],
-    onFieldsQueried: onFieldsQueriedDelegate,
+    onQueryDocs: onQueryDocsDelegate,
     docStoreOptions: { custom: 'prop' }
   })
 
@@ -75,8 +75,12 @@ test('Query all document of a type in collection with an onFieldsQueried delegat
   expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { custom: 'prop' }])
 
-  expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
-  expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id'], ['id']])
+  expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { userId: 'testUser' })
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id'])
 })
 
 test('Query all documents of a type with declared, calculated and default fields.', async () => {

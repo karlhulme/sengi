@@ -33,6 +33,7 @@ const requestParameterValidators = {
   operationId: v => typeof v === 'string',
   operationName: v => typeof v === 'string',
   operationParams: v => typeof v === 'object',
+  reqProps: v => typeof v === 'object' || typeof v === 'undefined',
   reqVersion: v => typeof v === 'string' || typeof v === 'undefined',
   roleNames: v => Array.isArray(v)
 }
@@ -65,10 +66,20 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Array} config.roleTypes An array of role types.
  * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
  * built-in field types.
- * @param {Function} [config.onFieldsQueried] A function that is invoked whenever
- * a query is executed.  The function will be passed an array of the fields
- * queried.  This may be useful for determining when deprecated fields are no longer
- * being used.
+ * @param {Function} [config.onPreSaveDoc] A function that is invoked just before a document is saved.
+ * The function is passed roleNames, reqProps, docType and doc properties.
+ * If the document is being updated (rather than created or replaced) then a mergePatch property
+ * will be also be passed to the function that describes the changes.
+ * Any change made to the doc property will be reflected in the document that is sent to the
+ * document store to be persisted.
+ * @param {Function} [config.onQueryDocs] A function that is invoked when a query is executed,
+ * passed an object with roleNames, reqProps, docType, fieldNames and retrievalFieldNames properties.
+ * @param {Function} [config.onCreateDoc] A function that is invoked when a document is created,
+ * passed an object with roleNames, reqProps, docType and doc properties.
+ * @param {Function} [config.onUpdateDoc] A function that is invoked when a document is updated,
+ * passed an object with roleNames, reqProps, docType and doc properties.
+ * @param {Function} [config.onDeleteDoc] A function that is invoked when a document is deleted,
+ * passed an object with roleNames, reqProps, docType and id properties.
  */
 const createJsonotron = config => {
   if (typeof config !== 'object' || Array.isArray(config) || config === null) {
@@ -91,8 +102,24 @@ const createJsonotron = config => {
     throw new TypeError('Constructor parameter \'config.fieldTypes\' must be an array.')
   }
 
-  if (typeof config.onFieldsQueried !== 'undefined' && typeof config.onFieldsQueried !== 'function') {
-    throw new TypeError('Constructor parameter \'config.onFieldsQueried\' must be function.')
+  if (typeof config.onPreSaveDoc !== 'undefined' && typeof config.onPreSaveDoc !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onPreSaveDoc\' must be a function.')
+  }
+
+  if (typeof config.onQueryDocs !== 'undefined' && typeof config.onQueryDocs !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onQueryDocs\' must be a function.')
+  }
+
+  if (typeof config.onCreateDoc !== 'undefined' && typeof config.onCreateDoc !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onCreateDoc\' must be a function.')
+  }
+
+  if (typeof config.onUpdateDoc !== 'undefined' && typeof config.onUpdateDoc !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onUpdateDoc\' must be a function.')
+  }
+
+  if (typeof config.onDeleteDoc !== 'undefined' && typeof config.onDeleteDoc !== 'function') {
+    throw new TypeError('Constructor parameter \'config.onDeleteDoc\' must be a function.')
   }
 
   // wrap the doc store so methods are safe to call
@@ -123,7 +150,11 @@ const createJsonotron = config => {
       fieldTypes: builtinAndCustomFieldTypes,
       roleTypes: config.roleTypes,
       validatorCache,
-      onFieldsQueried: config.onFieldsQueried,
+      onPreSaveDoc: config.onPreSaveDoc,
+      onQueryDocs: config.onQueryDocs,
+      onCreateDoc: config.onCreateDoc,
+      onUpdateDoc: config.onUpdateDoc,
+      onDeleteDoc: config.onDeleteDoc,
       ...req
     }
   }
@@ -136,10 +167,11 @@ const createJsonotron = config => {
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {String} req.id The id to be assigned to the newly created document.
      * @param {Object} req.constructorParams The parameters to be passed to the doc type constructor.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     createDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'constructorParams', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'constructorParams', 'reqProps', 'docStoreOptions')
       return createDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -149,10 +181,11 @@ const createJsonotron = config => {
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be deleted.
      * @param {String} req.id The id of the document to be deleted.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     deleteDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqProps', 'docStoreOptions')
       return deleteDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -166,10 +199,11 @@ const createJsonotron = config => {
      * @param {String} req.operationId The id of this operation request.
      * @param {String} req.operationName The name of an operation defined for the doc type.
      * @param {Object} req.operationParams The parameters to be passed to the operation.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     operateOnDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'operationName', 'operationParams', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'operationName', 'operationParams', 'reqProps', 'docStoreOptions')
       return operateOnDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -182,10 +216,11 @@ const createJsonotron = config => {
      * @param {String} req.reqVersion The version of the existing document if the operation is to be accepted.
      * @param {String} req.operationId The id of this operation request.
      * @param {Object} req.mergePatch An object that provides new values for specified keys in the document.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     patchDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'mergePatch', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'mergePatch', 'reqProps', 'docStoreOptions')
       return patchDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -195,10 +230,11 @@ const createJsonotron = config => {
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     queryDocuments: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'reqProps', 'docStoreOptions')
       return queryDocumentsInternal(buildEntryPointParameterObject(req))
     },
 
@@ -210,10 +246,11 @@ const createJsonotron = config => {
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
      * @param {String} req.filterName The name of a filter defined on the doc type.
      * @param {Object} req.filterParams The parameters to be passed to the filter.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     queryDocumentsByFilter: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'filterName', 'filterParams', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'filterName', 'filterParams', 'reqProps', 'docStoreOptions')
       return queryDocumentsByFilterInternal(buildEntryPointParameterObject(req))
     },
 
@@ -224,10 +261,11 @@ const createJsonotron = config => {
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
      * @param {Array} req.ids The ids of the documents to include in the response.
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     queryDocumentsByIds: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'ids', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'ids', 'reqProps', 'docStoreOptions')
       return queryDocumentsByIdsInternal(buildEntryPointParameterObject(req))
     },
 
@@ -237,10 +275,11 @@ const createJsonotron = config => {
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {Object} req.doc The replacement document that must include all system fields (id, docType and docOps).
+     * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     replaceDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'reqProps', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
     }
   }

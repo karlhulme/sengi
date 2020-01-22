@@ -33,7 +33,7 @@ test('Query by document filter.', async () => {
   expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
 })
 
-test('Query by document filter with onFieldsQueried delegate.', async () => {
+test('Query by document filter with onQueryDocs delegate.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     queryByIds: async () => {
       return {
@@ -44,7 +44,7 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
     }
   })
 
-  const onFieldsQueriedDelegate = jest.fn()
+  const onQueryDocsDelegate = jest.fn()
 
   const result = await queryDocumentsByIds({
     ...testRequest,
@@ -52,7 +52,7 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
     docTypeName: 'person',
     fieldNames: ['id', 'fullName'],
     ids: ['06151119-065a-4691-a7c8-2d84ec746ba9'],
-    onFieldsQueried: onFieldsQueriedDelegate,
+    onQueryDocs: onQueryDocsDelegate,
     docStoreOptions: { custom: 'prop' }
   })
 
@@ -65,8 +65,12 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
   expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
 
-  expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
-  expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['id', 'fullName']])
+  expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { userId: 'testUser' })
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id', 'fullName'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id', 'fullName'])
 })
 
 test('Fail to query by document ids if permissions insufficient.', async () => {

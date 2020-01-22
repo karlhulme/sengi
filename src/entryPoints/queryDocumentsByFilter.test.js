@@ -44,7 +44,7 @@ test('Query by document filter.', async () => {
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
 })
 
-test('Query by document filter with onFieldsQueried delegate.', async () => {
+test('Query by document filter with onQueryDocs delegate.', async () => {
   const testRequest = createTestRequestWithMockedDocStore({
     queryByFilter: async () => {
       return {
@@ -55,7 +55,7 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
     }
   })
 
-  const onFieldsQueriedDelegate = jest.fn()
+  const onQueryDocsDelegate = jest.fn()
 
   const result = await queryDocumentsByFilter({
     ...testRequest,
@@ -66,7 +66,7 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
     filterParams: {
       postCode: 'BH23 4FG'
     },
-    onFieldsQueried: onFieldsQueriedDelegate,
+    onQueryDocs: onQueryDocsDelegate,
     docStoreOptions: { custom: 'prop' }
   })
 
@@ -84,8 +84,12 @@ test('Query by document filter with onFieldsQueried delegate.', async () => {
   expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
 
-  expect(onFieldsQueriedDelegate.mock.calls.length).toEqual(1)
-  expect(onFieldsQueriedDelegate.mock.calls[0]).toEqual(['person', ['id', 'fullName'], ['id', 'fullName']])
+  expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { userId: 'testUser' })
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id', 'fullName'])
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id', 'fullName'])
 })
 
 test('Fail to query by document filter if filter name not recognised.', async () => {

@@ -14,7 +14,7 @@ const {
 } = require('../docTypes')
 const { canOperate, ensurePermission } = require('../roleTypes')
 
-const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, docStoreOptions }) => {
+const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -26,6 +26,9 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
   check.assert.string(operationId)
   check.assert.string(operationName)
   check.assert.maybe.object(operationParams)
+  check.assert.maybe.function(onPreSaveDoc)
+  check.assert.maybe.function(onUpdateDoc)
+  check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, `update.${operationName}`,
@@ -46,13 +49,23 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
 
     const mergePatch = executeOperation(docType, doc, operationName, operationParams)
 
+    if (onPreSaveDoc) {
+      await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch }))
+    }
+
     ensureOperationMergePatchAvoidsSystemFields(docType.name, operationName, mergePatch)
     applyMergePatch(doc, mergePatch)
-
     updateSystemFieldsOnDocument(docType, doc, operationId)
+
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
+
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
+
+    if (onUpdateDoc) {
+      await Promise.resolve(onUpdateDoc({ roleNames, reqProps, docType, doc }))
+    }
+
     return { isUpdated: true }
   } else {
     return { isUpdated: false }

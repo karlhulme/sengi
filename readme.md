@@ -42,7 +42,15 @@ Instantiate a Jsonotron engine with a configuration object:
 
 * **fieldTypes** - An array of Jsonotron field types that will be appended to the built-in field types.
 
-* **onFieldsQueried** - A function that is invoked whenever a query is executed.  The function will be passed an array of the fields queried.  This may be useful for determining when deprecated fields are no longer being used.
+* **onPreSaveDoc** - A function that is invoked just before a document is saved.  The function is passed roleNames, reqProps, docType and doc properties. If the document is being updated (rather than created or replaced) then a mergePatch property will be also be passed to the function that describes the changes. Any change made to the doc property or the mergePatch properties will be reflected in the document that is sent to the document store to be persisted.
+
+* **onQueryDocs** - A function that is invoked when a query is executed, passed an object with roleNames, reqProps, docType, fieldNames and retrievalFieldNames properties.
+
+* **onCreateDoc** - A function that is invoked when a document is created, passed an object with roleNames, reqProps, docType and doc properties.
+
+* **onUpdateDoc** - A function that is invoked when a document is updated, passed an object with roleNames, reqProps, docType and doc properties.
+
+* **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
 
 ```javascript
 const { createJsonotron } = require('jsonotron')

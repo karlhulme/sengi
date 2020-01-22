@@ -11,7 +11,7 @@ const {
   ensurePermission
 } = require('../roleTypes')
 
-const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, constructorParams, docStoreOptions }) => {
+const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -20,6 +20,9 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
   check.assert.string(docTypeName)
   check.assert.string(id)
   check.assert.maybe.object(constructorParams)
+  check.assert.maybe.function(onPreSaveDoc)
+  check.assert.maybe.function(onCreateDoc)
+  check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, 'create', r => canCreate(r, docTypeName))
@@ -34,10 +37,19 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     const doc = executeConstructor(docType, constructorParams, ctorParamsValidator)
     applySystemFieldValuesToNewDocument(docType, doc, id)
 
+    if (onPreSaveDoc) {
+      await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch: null }))
+    }
+
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, null, false, combinedDocStoreOptions)
+
+    if (onCreateDoc) {
+      await Promise.resolve(onCreateDoc({ roleNames, reqProps, docType, doc }))
+    }
+
     return { isNew: true }
   } else {
     return { isNew: false }
