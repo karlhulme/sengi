@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronCalculatedFieldFailedError } = require('../errors')
+const executeCalculatedField = require('./executeCalculatedField')
 const isCalculatedFieldName = require('./isCalculatedFieldName')
 
 /**
@@ -19,21 +19,7 @@ const applyCalculatedFieldValuesToDocument = (docType, doc, requiredFieldNames) 
 
   for (const fieldName of requiredFieldNames) {
     if (isCalculatedFieldName(docType, fieldName)) {
-      const docTypeCalculatedField = docType.calculatedFields[fieldName]
-
-      const input = {}
-
-      if (Array.isArray(docTypeCalculatedField.inputFields)) {
-        for (const inputFieldName of docTypeCalculatedField.inputFields) {
-          input[inputFieldName] = doc[inputFieldName]
-        }
-      }
-
-      try {
-        doc[fieldName] = docTypeCalculatedField.value(input)
-      } catch (err) {
-        throw new JsonotronCalculatedFieldFailedError(docType.name, fieldName, err)
-      }
+      doc[fieldName] = executeCalculatedField(docType, doc, fieldName)
     }
   }
 }

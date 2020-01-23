@@ -30,6 +30,14 @@ test('Creating a document should call exists and then upsert on doc store.', asy
     allowMarketing: 'yes',
     dateOfBirth: '2000-01-02',
     docOps: [],
+    docCalcs: {
+      displayName: {
+        value: 'Donald'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docType: 'person',
     fullName: 'Donald Fresh',
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',

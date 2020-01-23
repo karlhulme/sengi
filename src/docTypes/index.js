@@ -30,5 +30,6 @@ module.exports = {
   isOpIdInDocument: require('./isOpIdInDocument'),
   removeSurplusFieldsFromDocument: require('./removeSurplusFieldsFromDocument'),
   selectDocTypeFromArray: require('./selectDocTypeFromArray'),
-  updateSystemFieldsOnDocument: require('./updateSystemFieldsOnDocument')
+  updateDocCalcsOnDocument: require('./updateDocCalcsOnDocument'),
+  updateDocOpsOnDocument: require('./updateDocOpsOnDocument')
 }

@@ -46,6 +46,14 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Maisory'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
@@ -178,6 +186,14 @@ test('Patching a document using a required version should call fetch and upsert 
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Maisory'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
@@ -224,6 +240,14 @@ test('Fail to patch document when required version is not available.', async () 
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'bbbb',
+    docCalcs: {
+      displayName: {
+        value: 'Maisory'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
@@ -269,8 +293,16 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Maisory'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
+    docVersion: 'aaaa',
     tenantId: 'dddd',
     shortName: 'Maisory',
     fullName: 'David Doohickey'

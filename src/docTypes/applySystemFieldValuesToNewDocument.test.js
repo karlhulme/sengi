@@ -11,4 +11,5 @@ test('Apply common fields to a new doc.', () => {
   expect(doc).toHaveProperty('id', '123')
   expect(doc).toHaveProperty('docType', 'test')
   expect(doc).toHaveProperty('docOps', [])
+  expect(doc).toHaveProperty('docCalcs', {})
 })

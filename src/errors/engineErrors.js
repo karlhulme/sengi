@@ -20,6 +20,15 @@ class JsonotronCalculatedFieldFailedError extends JsonotronEngineError {
   }
 }
 
+class JsonotronCallbackError extends Error {
+  constructor (callbackName, innerErr) {
+    check.assert.instance(innerErr, Error)
+    super(`An error was thrown by the callback delegate for '${callbackName}'\n${innerErr.toString()}`)
+    this.callbackName = callbackName
+    this.innerErr = innerErr
+  }
+}
+
 class JsonotronConstructorFailedError extends JsonotronEngineError {
   constructor (docTypeName, innerErr) {
     check.assert.string(docTypeName)
@@ -113,6 +122,7 @@ module.exports = {
 
   // specialised errors
   JsonotronCalculatedFieldFailedError,
+  JsonotronCallbackError,
   JsonotronConstructorFailedError,
   JsonotronDocTypeValidationError,
   JsonotronFieldTypeResolutionError,

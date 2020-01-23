@@ -2,6 +2,7 @@ const check = require('check-types')
 const {
   applySystemFieldValuesToNewDocument,
   createDocStoreOptions,
+  updateDocCalcsOnDocument,
   executeConstructor,
   executeValidator,
   selectDocTypeFromArray
@@ -10,6 +11,7 @@ const {
   canCreate,
   ensurePermission
 } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -38,8 +40,10 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     applySystemFieldValuesToNewDocument(docType, doc, id)
 
     if (onPreSaveDoc) {
-      await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch: null }))
+      await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })
     }
+
+    updateDocCalcsOnDocument(docType, doc)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
@@ -47,7 +51,7 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, null, false, combinedDocStoreOptions)
 
     if (onCreateDoc) {
-      await Promise.resolve(onCreateDoc({ roleNames, reqProps, docType, doc }))
+      await invokeCallback('onCreateDoc', onCreateDoc, { roleNames, reqProps, docType, doc })
     }
 
     return { isNew: true }

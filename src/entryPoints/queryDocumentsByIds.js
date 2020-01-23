@@ -11,6 +11,7 @@ const {
   canQuery,
   ensurePermission
 } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, ids, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -34,7 +35,7 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
   const docs = await safeDocStore.queryByIds(docType.name, docType.pluralName, retrievalFieldNames, ids, combinedDocStoreOptions)
 
   if (onQueryDocs) {
-    await Promise.resolve(onQueryDocs({ roleNames, reqProps, docType, fieldNames, retrievalFieldNames }))
+    await invokeCallback('onQueryDocs', onQueryDocs, { roleNames, reqProps, docType, fieldNames, retrievalFieldNames })
   }
 
   docs.forEach(d => applyDeclaredFieldDefaultsToDocument(docType, d, retrievalFieldNames))

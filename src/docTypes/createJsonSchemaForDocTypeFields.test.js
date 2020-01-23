@@ -31,17 +31,19 @@ test('Build a JSON Schema for doc type fields.', () => {
       docType: { enum: ['map'], description: 'The type of the document.' },
       docVersion: { $ref: '#/definitions/docVersion', description: 'The version of the current iteration of the document (eTag).' },
       docOps: { type: 'array', items: { $ref: '#/definitions/docOpId' }, description: 'The id\'s of recent operations on the document.' },
+      docCalcs: { $ref: '#/definitions/docCalcs', description: 'The values of the calculated fields as determined on the last update.' },
       cost: { $ref: '#/definitions/money', description: 'The cost of the map.' },
       sizeInMetresSquares: { $ref: '#/definitions/integer', description: 'The size of the map.' },
       placesCount: { $ref: '#/definitions/integer', description: 'The number of places covered.' },
       list: { type: 'array', items: { $ref: '#/definitions/integer' }, description: 'A list of numbers.' },
       neighbouringMapId: { $ref: '#/definitions/docId', description: 'The id of a neighbouring map.' }
     },
-    required: ['id', 'docType', 'docOps', 'cost'],
+    required: ['id', 'docType', 'docOps', 'docCalcs', 'cost'],
     definitions: {
       currencyCode: getJsonSchemaFragmentForFieldName('currencyCode'),
       docId: getJsonSchemaFragmentForFieldName('docId'),
       docVersion: getJsonSchemaFragmentForFieldName('docVersion'),
+      docCalcs: getJsonSchemaFragmentForFieldName('docCalcs'),
       docOpId: getJsonSchemaFragmentForFieldName('docOpId'),
       integer: getJsonSchemaFragmentForFieldName('integer'),
       money: getJsonSchemaFragmentForFieldName('money')

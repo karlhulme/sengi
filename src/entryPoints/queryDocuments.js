@@ -12,6 +12,7 @@ const {
   canQuery,
   ensurePermission
 } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -38,7 +39,7 @@ const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   docs.forEach(d => removeSurplusFieldsFromDocument(d, fieldNames))
 
   if (onQueryDocs) {
-    await Promise.resolve(onQueryDocs({ roleNames, reqProps, docType, fieldNames, retrievalFieldNames }))
+    await invokeCallback('onQueryDocs', onQueryDocs, { roleNames, reqProps, docType, fieldNames, retrievalFieldNames })
   }
 
   return { docs }

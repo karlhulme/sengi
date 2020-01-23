@@ -1,15 +1,15 @@
 /* eslint-env jest */
-const updateSystemFieldsOnDocument = require('./updateSystemFieldsOnDocument')
+const updateDocOpsOnDocument = require('./updateDocOpsOnDocument')
 
-test('Apply common fields to an updated doc.', () => {
+test('Apply latest operation id to the doc ops.', () => {
   const doc = { docVersion: 'Version1', docOps: [] }
-  updateSystemFieldsOnDocument({}, doc, 'abc')
+  updateDocOpsOnDocument({}, doc, 'abc')
   expect(doc).toHaveProperty('docOps', ['abc'])
 })
 
-test('Apply common fields to an updated doc at the limit of doc ops.', () => {
+test('Apply latest operation id at the limit of doc ops.', () => {
   const docType = { policy: { maxOpsSize: 3 } }
   const doc = { docVersion: 'Version1', docOps: ['aaa', 'bbb', 'ccc'] }
-  updateSystemFieldsOnDocument(docType, doc, 'abc')
+  updateDocOpsOnDocument(docType, doc, 'abc')
   expect(doc).toHaveProperty('docOps', ['bbb', 'ccc', 'abc'])
 })

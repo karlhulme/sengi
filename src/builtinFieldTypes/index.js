@@ -5,6 +5,7 @@ module.exports = [
   require('./date'),
   require('./dateTimeLocal'),
   require('./dateTimeUtc'),
+  require('./docCalcs'),
   require('./docId'),
   require('./docOpId'),
   require('./docVersion'),

@@ -10,9 +10,11 @@ const {
   executeValidator,
   isOpIdInDocument,
   selectDocTypeFromArray,
-  updateSystemFieldsOnDocument
+  updateDocCalcsOnDocument,
+  updateDocOpsOnDocument
 } = require('../docTypes')
 const { canOperate, ensurePermission } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -50,12 +52,13 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
     const mergePatch = executeOperation(docType, doc, operationName, operationParams)
 
     if (onPreSaveDoc) {
-      await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch }))
+      await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch })
     }
 
     ensureOperationMergePatchAvoidsSystemFields(docType.name, operationName, mergePatch)
     applyMergePatch(doc, mergePatch)
-    updateSystemFieldsOnDocument(docType, doc, operationId)
+    updateDocOpsOnDocument(docType, doc, operationId)
+    updateDocCalcsOnDocument(docType, doc)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)
@@ -63,7 +66,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
 
     if (onUpdateDoc) {
-      await Promise.resolve(onUpdateDoc({ roleNames, reqProps, docType, doc }))
+      await invokeCallback('onUpdateDoc', onUpdateDoc, { roleNames, reqProps, docType, doc })
     }
 
     return { isUpdated: true }

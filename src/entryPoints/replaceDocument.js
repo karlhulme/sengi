@@ -2,13 +2,16 @@ const check = require('check-types')
 const {
   createDocStoreOptions,
   ensureCanReplaceDocuments,
+  ensureDocHasSystemFields,
   executeValidator,
-  selectDocTypeFromArray
+  selectDocTypeFromArray,
+  updateDocCalcsOnDocument
 } = require('../docTypes')
 const {
   canReplace,
   ensurePermission
 } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -30,9 +33,13 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
+  ensureDocHasSystemFields(doc)
+
   if (onPreSaveDoc) {
-    await Promise.resolve(onPreSaveDoc({ roleNames, reqProps, docType, doc, mergePatch: null }))
+    await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })
   }
+
+  updateDocCalcsOnDocument(docType, doc)
 
   validatorCache.ensureDocTypeFields(docType.name, doc)
   executeValidator(docType, doc)
@@ -41,11 +48,11 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   const isNew = await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || null, Boolean(reqVersion), combinedDocStoreOptions)
 
   if (onCreateDoc && isNew) {
-    await Promise.resolve(onCreateDoc({ roleNames, reqProps, docType, doc }))
+    await invokeCallback('onCreateDoc', onCreateDoc, { roleNames, reqProps, docType, doc })
   }
 
   if (onUpdateDoc && !isNew) {
-    await Promise.resolve(onUpdateDoc({ roleNames, reqProps, docType, doc }))
+    await invokeCallback('onUpdateDoc', onUpdateDoc, { roleNames, reqProps, docType, doc })
   }
 
   return { isNew }

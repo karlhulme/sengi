@@ -8,6 +8,7 @@ const {
   canDelete,
   ensurePermission
 } = require('../roleTypes')
+const invokeCallback = require('./invokeCallback')
 
 const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, id, onDeleteDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
@@ -29,7 +30,7 @@ const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   const isDeleted = await safeDocStore.deleteById(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   if (onDeleteDoc && isDeleted) {
-    await Promise.resolve(onDeleteDoc({ roleNames, reqProps, docType, id }))
+    await invokeCallback('onDeleteDoc', onDeleteDoc, { roleNames, reqProps, docType, id })
   }
 
   return { isDeleted }

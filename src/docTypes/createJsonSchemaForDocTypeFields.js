@@ -11,7 +11,7 @@ const getFieldTypeNameForDocTypeField = require('./getFieldTypeNameForDocTypeFie
 const getDirectlyReferencedFieldTypeNamesFromDocTypeFields = docType => {
   check.assert.object(docType.fields)
 
-  const directlyReferencedFieldTypeNames = ['docId', 'docVersion', 'docOpId']
+  const directlyReferencedFieldTypeNames = ['docId', 'docVersion', 'docCalcs', 'docOpId']
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -57,6 +57,8 @@ const createJsonSchemaArrayProperty = (field, fieldTypeName) => {
 
 /**
  * Builds the 'properties' section of a JSON schema for the given doc type.
+ * Note that while docVersion uses the docVersion type definition, it is not
+ * a required field.
  * @param {Object} docType A doc type.
  */
 const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
@@ -69,6 +71,7 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
   properties.docType = { enum: [docType.name], description: 'The type of the document.' }
   properties.docVersion = { $ref: '#/definitions/docVersion', description: 'The version of the current iteration of the document (eTag).' }
   properties.docOps = { type: 'array', items: { $ref: '#/definitions/docOpId' }, description: 'The id\'s of recent operations on the document.' }
+  properties.docCalcs = { $ref: '#/definitions/docCalcs', description: 'The values of the calculated fields as determined on the last update.' }
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -89,7 +92,7 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
 const createJsonSchemaRequiredSectionForDocTypeFields = docType => {
   check.assert.object(docType.fields)
 
-  const required = ['id', 'docType', 'docOps']
+  const required = ['id', 'docType', 'docOps', 'docCalcs']
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]

@@ -47,6 +47,14 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Mikey'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['db93acbc-bc8a-4cf0-a5c9-ffaafcb54028'],
     tenantId: 'dddd',
     shortName: 'Mikey',
@@ -183,6 +191,14 @@ test('Operate on document using a required version should call exists and upsert
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Mikey'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['db93acbc-bc8a-4cf0-a5c9-ffaafcb54028'],
     tenantId: 'dddd',
     shortName: 'Mikey',
@@ -231,6 +247,14 @@ test('Fail to operate on document when required version is not available.', asyn
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'bbbb',
+    docCalcs: {
+      displayName: {
+        value: 'Mikey'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['db93acbc-bc8a-4cf0-a5c9-ffaafcb54028'],
     tenantId: 'dddd',
     shortName: 'Mikey',
@@ -278,6 +302,14 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
+    docCalcs: {
+      displayName: {
+        value: 'Mikey'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: ['db93acbc-bc8a-4cf0-a5c9-ffaafcb54028'],
     tenantId: 'dddd',
     shortName: 'Mikey',

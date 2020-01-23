@@ -36,6 +36,14 @@ test('Replacing a document should call upsert on the doc store.', async () => {
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
+    docCalcs: {
+      displayName: {
+        value: 'Francesco'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: [],
     docVersion: 'aaaa',
     tenantId: 'companyA',
@@ -121,6 +129,14 @@ test('Replacing a document with a required version should call upsert on the doc
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
+    docCalcs: {
+      displayName: {
+        value: 'Francesco'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',
@@ -167,6 +183,14 @@ test('Replacing a non-existent document with a version that contains additional 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
+    docCalcs: {
+      displayName: {
+        value: 'Francesco'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',
@@ -223,6 +247,14 @@ test('Fail to replace a document with an unavailable required version.', async (
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
+    docCalcs: {
+      displayName: {
+        value: 'Francesco'
+      },
+      fullAddress: {
+        value: ''
+      }
+    },
     docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',

@@ -136,6 +136,16 @@ class JsonotronRequiredVersionNotAvailableError extends JsonotronRequestError {
   }
 }
 
+class JsonotronUnrecognisedCalculatedFieldNameError extends JsonotronRequestError {
+  constructor (docTypeName, calculatedFieldName) {
+    check.assert.string(docTypeName)
+    check.assert.string(calculatedFieldName)
+    super(`Document type '${docTypeName}' does not define a calculated field named '${calculatedFieldName}'.`)
+    this.docTypeName = docTypeName
+    this.calculatedFieldName = calculatedFieldName
+  }
+}
+
 class JsonotronUnrecognisedDocTypeNameError extends JsonotronRequestError {
   constructor (docTypeName) {
     check.assert.string(docTypeName)
@@ -193,6 +203,7 @@ module.exports = {
   JsonotronMergePatchValidationError,
   JsonotronOperationParamsValidationError,
   JsonotronRequiredVersionNotAvailableError, // 412
+  JsonotronUnrecognisedCalculatedFieldNameError,
   JsonotronUnrecognisedDocTypeNameError,
   JsonotronUnrecognisedFieldNameError,
   JsonotronUnrecognisedFilterNameError,
