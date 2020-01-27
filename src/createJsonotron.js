@@ -90,7 +90,7 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
  * built-in field types.
  * @param {Function} [config.dateTimeFunc] A function that returns a UTC date/time string in
- * YYYY-MM-DDTHH:mm:ssZ format.
+ * docDateTime format.
  * @param {Function} [config.onPreSaveDoc] A function that is invoked just before a document is saved.
  * The function is passed roleNames, reqProps, docType and doc properties.
  * If the document is being updated (rather than created or replaced) then a mergePatch property
