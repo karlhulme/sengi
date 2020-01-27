@@ -16,6 +16,10 @@ test('Apply common fields to a new doc.', () => {
     userIdentity: 'testUser',
     dateTime: 'now'
   })
+  expect(doc.sys).toHaveProperty('updated', {
+    userIdentity: 'testUser',
+    dateTime: 'now'
+  })
   expect(doc.sys).toHaveProperty('ops', [])
   expect(doc.sys).toHaveProperty('calcs', {})
 })

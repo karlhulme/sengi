@@ -92,7 +92,7 @@ class JsonotronOperationFailedError extends JsonotronEngineError {
     check.assert.instance(innerErr, Error)
     super(`Operation '${operationName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
     this.docTypeName = docTypeName
-    this.filterName = operationName
+    this.operationName = operationName
     this.innerErr = innerErr
   }
 }
@@ -103,7 +103,17 @@ class JsonotronOperationNonObjectResponseError extends JsonotronEngineError {
     check.assert.string(operationName)
     super(`Operation '${operationName}' on document type '${docTypeName}' failed to return an object.`)
     this.docTypeName = docTypeName
-    this.filterName = operationName
+    this.operationName = operationName
+  }
+}
+
+class JsonotronPreSaveFailedError extends JsonotronEngineError {
+  constructor (docTypeName, innerErr) {
+    check.assert.string(docTypeName)
+    check.assert.instance(innerErr, Error)
+    super(`Pre-save function on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+    this.docTypeName = docTypeName
+    this.innerErr = innerErr
   }
 }
 
@@ -131,5 +141,6 @@ module.exports = {
   JsonotronInvalidOperationMergePatchError,
   JsonotronOperationFailedError,
   JsonotronOperationNonObjectResponseError,
+  JsonotronPreSaveFailedError,
   JsonotronRoleTypeValidationError
 }

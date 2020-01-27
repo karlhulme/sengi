@@ -6,7 +6,7 @@ const {
 
 /**
  * Execute a doc type constructor.
- * @param {String} docType A doc type.
+ * @param {Object} docType A doc type.
  * @param {Object} constructorParams A parameter object to be passed to the constructor.
  */
 const executeConstructor = (docType, constructorParams) => {

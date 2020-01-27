@@ -22,6 +22,11 @@ module.exports = {
       value: data => `${data.manufacturer || ''} ${data.model || ''}`
     }
   },
+  preSave: doc => {
+    if (doc.originalOwner) {
+      delete doc.originalOwner
+    }
+  },
   validate: doc => {
     if (doc.registration && !doc.registration.startsWith('HG')) {
       throw new Error('Unrecognised vehicle registration prefix.')

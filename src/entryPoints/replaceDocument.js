@@ -1,9 +1,10 @@
 const check = require('check-types')
 const {
-  applyOriginToReplacedDocument,
+  applySystemFieldValuesToReplacedDocument,
   createDocStoreOptions,
   ensureCanReplaceDocuments,
   ensureDocHasSystemFields,
+  executePreSave,
   executeValidator,
   selectDocTypeFromArray,
   updateCalcsOnDocument
@@ -36,8 +37,10 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
-  applyOriginToReplacedDocument(doc, userIdentity, reqDateTime)
+  applySystemFieldValuesToReplacedDocument(doc, userIdentity, reqDateTime)
   ensureDocHasSystemFields(doc)
+
+  executePreSave(docType, doc)
 
   if (onPreSaveDoc) {
     await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })

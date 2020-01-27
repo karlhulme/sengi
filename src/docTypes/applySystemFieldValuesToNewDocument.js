@@ -24,6 +24,10 @@ const applySystemFieldValuesToNewDocument = (docType, doc, id, userIdentity, dat
       userIdentity,
       dateTime
     },
+    updated: {
+      userIdentity,
+      dateTime
+    },
     ops: [],
     calcs: {}
   }

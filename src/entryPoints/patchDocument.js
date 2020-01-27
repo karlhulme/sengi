@@ -1,15 +1,16 @@
 const check = require('check-types')
 const {
   applyMergePatch,
+  applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
   ensureDocHasSystemFields,
   ensureDocWasFound,
   ensureMergePatchAvoidsSystemFields,
+  executePreSave,
   executeValidator,
   isOpIdInDocument,
   selectDocTypeFromArray,
-  updateCalcsOnDocument,
-  updateOpsOnDocument
+  updateCalcsOnDocument
 } = require('../docTypes')
 const {
   canPatch,
@@ -49,13 +50,15 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
   if (!operationIdAlreadyExists) {
     validatorCache.ensureDocTypeMergePatch(docType.name, mergePatch)
 
+    executePreSave(docType, doc)
+
     if (onPreSaveDoc) {
       await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch })
     }
 
     ensureMergePatchAvoidsSystemFields(mergePatch)
     applyMergePatch(doc, mergePatch)
-    updateOpsOnDocument(docType, doc, operationId, userIdentity, reqDateTime)
+    applySystemFieldValuesToUpdatedDocument(docType, doc, operationId, userIdentity, reqDateTime, 'patch')
     updateCalcsOnDocument(docType, doc)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)

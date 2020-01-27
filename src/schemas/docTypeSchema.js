@@ -41,6 +41,10 @@ module.exports = {
       }
     },
 
+    /* A function (doc) that can perform cleanup adjustments on a document, such as removing
+       deprecated fields. */
+    preSave: { customTypeOf: 'function' },
+
     /* A function (doc) that raises an Error if the given doc does not contain valid field values.
        This function is used to perform validation where fields might depend upon each other. */
     validate: { customTypeOf: 'function' },

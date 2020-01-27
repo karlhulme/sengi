@@ -47,7 +47,17 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
     docType: 'person',
     docVersion: 'aaaa',
     sys: {
-      ops: [{ opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'operation',
+        operationName: 'replaceFavouriteColors'
+      }],
       calcs: {
         displayName: {
           value: 'Mikey'
@@ -75,7 +85,6 @@ test('Operate on document should raise callbacks', async () => {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'Mikey',
         fullName: 'Mikey Manhattan',
@@ -131,7 +140,13 @@ test('Operate on document for second time should only call fetch on doc store.',
         docType: 'person',
         docVersion: 'aaaa',
         sys: {
-          ops: [{ opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028', userIdentity: 'testUser', dateTime: '2000-01-01T12:00:00Z' }]
+          ops: [{
+            opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+            userIdentity: 'testUser',
+            dateTime: '2000-01-01T12:00:00Z',
+            style: 'operation',
+            operationName: 'replaceFavouriteColors'
+          }]
         },
         tenantId: 'dddd',
         shortName: 'Mikey',
@@ -194,7 +209,17 @@ test('Operate on document using a required version should call exists and upsert
     docType: 'person',
     docVersion: 'aaaa',
     sys: {
-      ops: [{ opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'operation',
+        operationName: 'replaceFavouriteColors'
+      }],
       calcs: {
         displayName: {
           value: 'Mikey'
@@ -251,7 +276,17 @@ test('Fail to operate on document when required version is not available.', asyn
     docType: 'person',
     docVersion: 'bbbb',
     sys: {
-      ops: [{ opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'operation',
+        operationName: 'replaceFavouriteColors'
+      }],
       calcs: {
         displayName: {
           value: 'Mikey'
@@ -310,7 +345,17 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
     docType: 'person',
     docVersion: 'aaaa',
     sys: {
-      ops: [{ opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'operation',
+        operationName: 'replaceFavouriteColors'
+      }],
       calcs: {
         displayName: {
           value: 'Mikey'

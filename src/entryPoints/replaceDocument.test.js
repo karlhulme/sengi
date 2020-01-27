@@ -40,6 +40,10 @@ test('Replacing a document should call upsert on the doc store.', async () => {
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
       ops: [],
       calcs: {
         displayName: {
@@ -137,6 +141,10 @@ test('Replacing a document with a required version should call upsert on the doc
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
       ops: [],
       calcs: {
         displayName: {
@@ -194,6 +202,10 @@ test('Replacing a non-existent document with a version that contains additional 
     sys: {
       origin: {
         style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      updated: {
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },
@@ -264,6 +276,10 @@ test('Fail to replace a document with an unavailable required version.', async (
     sys: {
       origin: {
         style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      updated: {
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },

@@ -56,22 +56,10 @@ const createJsonSchemaArrayProperty = (field, fieldTypeName) => {
 }
 
 /**
- * Builds the 'properties' section of a JSON schema for the given doc type.
- * Note that while docVersion uses the docVersion type definition, it is not
- * a required field.
- * @param {Object} docType A doc type.
+ * Create a JSON schema for the sys property.
  */
-const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
-  check.assert.string(docType.name)
-  check.assert.object(docType.fields)
-
-  const properties = {}
-
-  properties.id = { $ref: '#/definitions/docId', description: 'The id of the document.' }
-  properties.docType = { enum: [docType.name], description: 'The type of the document.' }
-  properties.docVersion = { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' }
-
-  properties.sys = {
+const createJsonSchemaForSysProperty = () => {
+  return {
     type: 'object',
     properties: {
       origin: {
@@ -85,6 +73,16 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
         },
         required: ['style', 'userIdentity', 'dateTime']
       },
+      updated: {
+        type: 'object',
+        description: 'An object that describes the last time the document was updated.',
+        additionalProperties: false,
+        properties: {
+          userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that last updated the document.' },
+          dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was last updated.' }
+        },
+        required: ['userIdentity', 'dateTime']
+      },
       ops: {
         type: 'array',
         items: {
@@ -93,10 +91,12 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
           properties: {
             opId: { $ref: '#/definitions/docOpId', description: 'The id of an operation.' },
             userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that initiated the operation.' },
-            dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' }
+            dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' },
+            style: { enum: ['patch', 'operation'], description: 'The style of the update, either \'patch\' or \'operation\'.' },
+            operationName: { type: 'string', description: 'The name of the operation, if style is \'operation\'' }
           },
           additionalProperties: false,
-          required: ['opId', 'userIdentity', 'dateTime']
+          required: ['opId', 'userIdentity', 'dateTime', 'style']
         },
         description: 'The id\'s of recent operations on the document.'
       },
@@ -115,6 +115,25 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
     },
     required: ['ops', 'calcs']
   }
+}
+
+/**
+ * Builds the 'properties' section of a JSON schema for the given doc type.
+ * Note that while docVersion uses the docVersion type definition, it is not
+ * a required field.
+ * @param {Object} docType A doc type.
+ */
+const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
+  check.assert.string(docType.name)
+  check.assert.object(docType.fields)
+
+  const properties = {}
+
+  properties.id = { $ref: '#/definitions/docId', description: 'The id of the document.' }
+  properties.docType = { enum: [docType.name], description: 'The type of the document.' }
+  properties.docVersion = { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' }
+
+  properties.sys = createJsonSchemaForSysProperty()
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -149,11 +168,11 @@ const createJsonSchemaRequiredSectionForDocTypeFields = docType => {
 }
 
 /**
- * Creates a JSON Schema for the given doc type.
+ * Creates a JSON Schema for docs of the given doc type.
  * @param {Object} docType A doc type.
  * @param {Array} fieldTypes An array of field types.
  */
-const createJsonSchemaForDocTypeFields = (docType, fieldTypes) => {
+const createJsonSchemaForDoc = (docType, fieldTypes) => {
   check.assert.object(docType)
   check.assert.string(docType.title)
   check.assert.array.of.object(fieldTypes)
@@ -176,4 +195,4 @@ const createJsonSchemaForDocTypeFields = (docType, fieldTypes) => {
   }
 }
 
-module.exports = createJsonSchemaForDocTypeFields
+module.exports = createJsonSchemaForDoc

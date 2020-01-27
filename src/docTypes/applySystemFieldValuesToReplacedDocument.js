@@ -1,12 +1,12 @@
 const check = require('check-types')
 
 /**
- * Appends an origin to the given document.
+ * Appends an origin and updated property to the given document.
  * @param {Object} doc A doc.
  * @param {String} userIdentity The identity of a user.
  * @param {String} dateTime A date time string that conforms to the UtcDateTime type.
  */
-const applyOriginToReplaceDocument = (doc, userIdentity, dateTime) => {
+const applySystemFieldValuesToReplacedDocument = (doc, userIdentity, dateTime) => {
   check.assert.object(doc)
   check.assert.string(userIdentity)
   check.assert.string(dateTime)
@@ -22,6 +22,11 @@ const applyOriginToReplaceDocument = (doc, userIdentity, dateTime) => {
       dateTime
     }
   }
+
+  doc.sys.updated = {
+    userIdentity,
+    dateTime
+  }
 }
 
-module.exports = applyOriginToReplaceDocument
+module.exports = applySystemFieldValuesToReplacedDocument

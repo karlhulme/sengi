@@ -47,7 +47,16 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     docType: 'person',
     docVersion: 'aaaa',
     sys: {
-      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'patch'
+      }],
       calcs: {
         displayName: {
           value: 'Maisory'
@@ -74,7 +83,6 @@ test('Patching a document should raise callbacks.', async () => {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey',
@@ -129,7 +137,7 @@ test('Patching a document for a second time should only call fetch on doc store.
         docType: 'person',
         docVersion: 'aaaa',
         sys: {
-          ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2000-01-01T13:12:00Z' }]
+          ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2000-01-01T13:12:00Z', style: 'patch' }]
         },
         tenantId: 'dddd',
         shortName: 'David',
@@ -190,7 +198,16 @@ test('Patching a document using a required version should call fetch and upsert 
     docType: 'person',
     docVersion: 'aaaa',
     sys: {
-      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'patch'
+      }],
       calcs: {
         displayName: {
           value: 'Maisory'
@@ -207,6 +224,70 @@ test('Patching a document using a required version should call fetch and upsert 
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
   expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
+})
+
+test('Patching a document should invoke the pre-save function.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    fetch: async () => ({
+      doc: {
+        id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
+        docType: 'car',
+        docVersion: 'aaaa',
+        sys: {},
+        originalOwner: 'David',
+        manufacturer: 'Volkswagon',
+        model: 'Polo',
+        registration: 'HG53 8AB',
+        unrecognisedProp: 'unrecognisdValue'
+      }
+    }),
+    upsert: async () => ({})
+  })
+
+  await expect(patchDocument({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'car',
+    id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
+    operationId: '46463f8b-c858-4b28-9c51-a675d7b74830',
+    mergePatch: {
+      model: 'Golf'
+    },
+    docStoreOptions: { custom: 'prop' }
+  })).resolves.toEqual({ isUpdated: true })
+
+  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['car', 'cars', 'c06bd029-1bde-437f-82fe-fe4018f6d030', { custom: 'prop' }])
+
+  const resultDoc = {
+    id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
+    docType: 'car',
+    docVersion: 'aaaa',
+    sys: {
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: '46463f8b-c858-4b28-9c51-a675d7b74830',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'patch'
+      }],
+      calcs: {
+        displayName: {
+          value: 'Volkswagon Golf'
+        }
+      }
+    },
+    manufacturer: 'Volkswagon',
+    model: 'Golf',
+    registration: 'HG53 8AB',
+    unrecognisedProp: 'unrecognisdValue'
+  }
+
+  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['car', 'cars', resultDoc, 'aaaa', { custom: 'prop' }])
 })
 
 test('Fail to patch document when required version is not available.', async () => {
@@ -249,7 +330,16 @@ test('Fail to patch document when required version is not available.', async () 
     docType: 'person',
     docVersion: 'bbbb',
     sys: {
-      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'patch'
+      }],
       calcs: {
         displayName: {
           value: 'Maisory'
@@ -303,7 +393,16 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     sys: {
-      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      updated: {
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
+      },
+      ops: [{
+        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z',
+        style: 'patch'
+      }],
       calcs: {
         displayName: {
           value: 'Maisory'
@@ -350,7 +449,6 @@ test('Reject a patch to any field that is not explicitly allowed for patching.',
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -387,7 +485,6 @@ test('Reject a patch to a non-existent field.', async () => {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -424,7 +521,6 @@ test('Reject a patch with a field value that is invalid.', async () => {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -461,7 +557,6 @@ test('Reject a patch that would change a system field.', async () => {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -498,7 +593,6 @@ test('Reject a patch that would leave the document in an invalid state.', async 
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'car',
         docVersion: 'aaaa',
-        docOps: [],
         manufacturer: 'Ford',
         model: 'T',
         registration: 'HG12 5GH'

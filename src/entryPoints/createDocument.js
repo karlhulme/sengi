@@ -4,6 +4,7 @@ const {
   createDocStoreOptions,
   updateCalcsOnDocument,
   executeConstructor,
+  executePreSave,
   executeValidator,
   selectDocTypeFromArray
 } = require('../docTypes')
@@ -40,6 +41,8 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
     const ctorParamsValidator = validatorCache.getDocTypeConstructorParamsValidator(docType.name)
     const doc = executeConstructor(docType, constructorParams, ctorParamsValidator)
     applySystemFieldValuesToNewDocument(docType, doc, id, userIdentity, reqDateTime)
+
+    executePreSave(docType, doc)
 
     if (onPreSaveDoc) {
       await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })

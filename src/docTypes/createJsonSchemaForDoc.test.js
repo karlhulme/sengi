@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const builtinFieldTypes = require('../builtinFieldTypes')
 const { getJsonSchemaFragmentForFieldType } = require('../fieldTypes')
-const createJsonSchemaForDocTypeFields = require('./createJsonSchemaForDocTypeFields')
+const createJsonSchemaForDoc = require('./createJsonSchemaForDoc')
 
 const docType = {
   name: 'map',
@@ -21,7 +21,7 @@ const getJsonSchemaFragmentForFieldName = fieldTypeName => {
 }
 
 test('Build a JSON Schema for doc type fields.', () => {
-  expect(createJsonSchemaForDocTypeFields(docType, builtinFieldTypes)).toEqual({
+  expect(createJsonSchemaForDoc(docType, builtinFieldTypes)).toEqual({
     title: 'Map JSON Schema',
     $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',
@@ -44,6 +44,16 @@ test('Build a JSON Schema for doc type fields.', () => {
             },
             required: ['style', 'userIdentity', 'dateTime']
           },
+          updated: {
+            type: 'object',
+            description: 'An object that describes the last time the document was updated.',
+            additionalProperties: false,
+            properties: {
+              userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that last updated the document.' },
+              dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was last updated.' }
+            },
+            required: ['userIdentity', 'dateTime']
+          },
           ops: {
             type: 'array',
             items: {
@@ -52,10 +62,12 @@ test('Build a JSON Schema for doc type fields.', () => {
               properties: {
                 opId: { $ref: '#/definitions/docOpId', description: 'The id of an operation.' },
                 userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that initiated the operation.' },
-                dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' }
+                dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' },
+                style: { enum: ['patch', 'operation'], description: 'The style of the update, either \'patch\' or \'operation\'.' },
+                operationName: { type: 'string', description: 'The name of the operation, if style is \'operation\'' }
               },
               additionalProperties: false,
-              required: ['opId', 'userIdentity', 'dateTime']
+              required: ['opId', 'userIdentity', 'dateTime', 'style']
             },
             description: 'The id\'s of recent operations on the document.'
           },

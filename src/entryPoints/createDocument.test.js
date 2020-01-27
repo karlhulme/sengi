@@ -31,6 +31,7 @@ test('Creating a document should call exists and then upsert on doc store.', asy
     dateOfBirth: '2000-01-02',
     sys: {
       origin: { style: 'new', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
+      updated: { userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
       ops: [],
       calcs: {
         displayName: {

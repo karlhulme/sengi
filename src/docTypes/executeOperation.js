@@ -25,7 +25,7 @@ const callOperationImplementation = (docTypeName, operationName, implementation,
 /**
  * Execute a doc type operation that may alter the given document and
  * will return the result of the operation.
- * @param {String} docType A doc type.
+ * @param {Object} docType A doc type.
  * @param {Object} doc A document that may be amended by the operation.
  * @param {String} operationName The name of an operation.
  * @param {Object} operationParams A parameter object to be passed to the operation.

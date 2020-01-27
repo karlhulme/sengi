@@ -2,10 +2,11 @@ module.exports = {
   applyMergePatch: require('./applyMergePatch'),
   applyCalculatedFieldValuesToDocument: require('./applyCalculatedFieldValuesToDocument'),
   applyDeclaredFieldDefaultsToDocument: require('./applyDeclaredFieldDefaultsToDocument'),
-  applyOriginToReplacedDocument: require('./applyOriginToReplacedDocument'),
   applySystemFieldValuesToNewDocument: require('./applySystemFieldValuesToNewDocument'),
+  applySystemFieldValuesToReplacedDocument: require('./applySystemFieldValuesToReplacedDocument'),
+  applySystemFieldValuesToUpdatedDocument: require('./applySystemFieldValuesToUpdatedDocument'),
   createDocStoreOptions: require('./createDocStoreOptions'),
-  createJsonSchemaForDocTypeFields: require('./createJsonSchemaForDocTypeFields'),
+  createJsonSchemaForDoc: require('./createJsonSchemaForDoc'),
   createJsonSchemaForDocTypeFunctionParameters: require('./createJsonSchemaForDocTypeFunctionParameters'),
   createJsonSchemaForDocTypeMergePatch: require('./createJsonSchemaForDocTypeMergePatch'),
   determineFieldNamesForRetrieval: require('./determineFieldNamesForRetrieval'),
@@ -22,6 +23,7 @@ module.exports = {
   evaluateFilter: require('./evaluateFilter'),
   executeConstructor: require('./executeConstructor'),
   executeOperation: require('./executeOperation'),
+  executePreSave: require('./executePreSave'),
   executeValidator: require('./executeValidator'),
   getConstructorParameters: require('./getConstructorParameters'),
   getFilterNames: require('./getFilterNames'),
@@ -31,6 +33,5 @@ module.exports = {
   isOpIdInDocument: require('./isOpIdInDocument'),
   removeSurplusFieldsFromDocument: require('./removeSurplusFieldsFromDocument'),
   selectDocTypeFromArray: require('./selectDocTypeFromArray'),
-  updateCalcsOnDocument: require('./updateCalcsOnDocument'),
-  updateOpsOnDocument: require('./updateOpsOnDocument')
+  updateCalcsOnDocument: require('./updateCalcsOnDocument')
 }

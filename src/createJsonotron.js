@@ -311,7 +311,7 @@ const createJsonotron = config => {
      * @param {String} req.userIdentity The identity of a user.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
-     * @param {Object} req.doc The replacement document that must include all system fields (id, docType and docOps).
+     * @param {Object} req.doc The replacement document that must include the system fields id and docType.
      * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
