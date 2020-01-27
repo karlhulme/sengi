@@ -8,10 +8,11 @@ const check = require('check-types')
  */
 const isOpIdInDocument = (doc, opId) => {
   check.assert.object(doc)
-  check.assert.array.of.string(doc.docOps)
+  check.assert.object(doc.sys)
+  check.assert.array.of.object(doc.sys.ops)
   check.assert.string(opId)
 
-  return doc.docOps.includes(opId)
+  return doc.sys.ops.findIndex(op => op.opId === opId) > -1
 }
 
 module.exports = isOpIdInDocument

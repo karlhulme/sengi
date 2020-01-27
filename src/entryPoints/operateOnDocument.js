@@ -10,13 +10,14 @@ const {
   executeValidator,
   isOpIdInDocument,
   selectDocTypeFromArray,
-  updateDocCalcsOnDocument,
-  updateDocOpsOnDocument
+  updateCalcsOnDocument,
+  updateOpsOnDocument
 } = require('../docTypes')
 const { canOperate, ensurePermission } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
+const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+  check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -31,6 +32,7 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
   check.assert.maybe.function(onPreSaveDoc)
   check.assert.maybe.function(onUpdateDoc)
   check.assert.maybe.object(reqProps)
+  check.assert.string(reqDateTime)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, `update.${operationName}`,
@@ -57,8 +59,8 @@ const operateOnDocument = async ({ roleNames, roleTypes, safeDocStore, validator
 
     ensureOperationMergePatchAvoidsSystemFields(docType.name, operationName, mergePatch)
     applyMergePatch(doc, mergePatch)
-    updateDocOpsOnDocument(docType, doc, operationId)
-    updateDocCalcsOnDocument(docType, doc)
+    updateOpsOnDocument(docType, doc, operationId, userIdentity, reqDateTime)
+    updateCalcsOnDocument(docType, doc)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)

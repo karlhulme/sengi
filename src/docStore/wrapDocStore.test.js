@@ -33,7 +33,7 @@ const docStoreWithErroringFunctions = {
 const docStoreWithValidFunctions = {
   deleteById: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_DELETED' }),
   exists: () => ({ found: true }),
-  fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 'aaaa', docOps: [] } }),
+  fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 'aaaa' } }),
   queryAll: () => ({ docs: [] }),
   queryByFilter: () => ({ docs: [] }),
   queryByIds: () => ({ docs: [] }),
@@ -66,17 +66,15 @@ const docStoreWithDeleteByIdNotFound = {
 const docStoreWithMalformedExists = { exists: () => ({ missingFoundProp: true }) }
 
 const docStoreWithMalformedFetch = { fetch: () => ({ doc: 'not an object' }) }
-const docStoreWithMalformedDocId = { fetch: () => ({ doc: { docType: 'test', docVersion: 'aaaa', docOps: [] } }) }
-const docStoreWithWrongDocId = { fetch: () => ({ doc: { id: '456', docType: 'test', docVersion: 'aaaa', docOps: [] } }) }
-const docStoreWithMalformedDocType = { fetch: () => ({ doc: { id: '123', docType: 'somethingWrong', docVersion: 'aaaa', docOps: [] } }) }
-const docStoreWithMalformedDocVersion = { fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 111, docOps: [] } }) }
-const docStoreWithMalformedDocOps = { fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 'aaaa', docOps: 'notAnArray' } }) }
+const docStoreWithMalformedDocId = { fetch: () => ({ doc: { docType: 'test', docVersion: 'aaaa' } }) }
+const docStoreWithWrongDocId = { fetch: () => ({ doc: { id: '456', docType: 'test', docVersion: 'aaaa' } }) }
+const docStoreWithMalformedDocType = { fetch: () => ({ doc: { id: '123', docType: 'somethingWrong', docVersion: 'aaaa' } }) }
+const docStoreWithMalformedDocVersion = { fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 111 } }) }
 
 const docStoreWithMalformedQueryAll = { queryAll: () => ({ docs: 'not an array' }) }
-const docStoreWithMalformedDocsId = { queryAll: () => ({ docs: [{ id: 123, docType: 'test', docVersion: 'aaaa', docOps: [] }] }) }
-const docStoreWithMalformedDocsType = { queryAll: () => ({ docs: [{ id: '123', docType: 'somethingWrong', docVersion: 'aaaa', docOps: [] }] }) }
-const docStoreWithMalformedDocsVersion = { queryAll: () => ({ docs: [{ id: '123', docType: 'test', docVersion: 111, docOps: [] }] }) }
-const docStoreWithMalformedDocsOps = { queryAll: () => ({ docs: [{ id: '123', docType: 'test', docVersion: 'aaaa', docOps: 'notAnArray' }] }) }
+const docStoreWithMalformedDocsId = { queryAll: () => ({ docs: [{ id: 123, docType: 'test', docVersion: 'aaaa' }] }) }
+const docStoreWithMalformedDocsType = { queryAll: () => ({ docs: [{ id: '123', docType: 'somethingWrong', docVersion: 'aaaa' }] }) }
+const docStoreWithMalformedDocsVersion = { queryAll: () => ({ docs: [{ id: '123', docType: 'test', docVersion: 111 }] }) }
 
 test('A doc store without functions will throw missing function errors.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithoutFunctions)
@@ -141,28 +139,24 @@ test('A doc store with an invalid response to the fetch function will throw an e
   await expect(storeDocType.fetch('test', 'tests', '123')).rejects.toThrow(/a 'docType' property of the expected type 'test'/)
   const storeDocVersion = wrapDocStore(docStoreWithMalformedDocVersion)
   await expect(storeDocVersion.fetch('test', 'tests', '123')).rejects.toThrow(/a 'docVersion' string property/)
-  const storeDocOps = wrapDocStore(docStoreWithMalformedDocOps)
-  await expect(storeDocOps.fetch('test', 'tests', '123')).rejects.toThrow(/a 'docOps' array property/)
 })
 
 test('A doc store with an invalid response to the queryAll function will throw an error.', async () => {
   const storeQueryAll = wrapDocStore(docStoreWithMalformedQueryAll)
-  await expect(storeQueryAll.queryAll('test', 'tests', ['id', 'docType', 'docVersion', 'docOps'])).rejects.toThrow(/Property 'docs' must be an array/)
+  await expect(storeQueryAll.queryAll('test', 'tests', ['id', 'docType', 'docVersion'])).rejects.toThrow(/Property 'docs' must be an array/)
   const storeId = wrapDocStore(docStoreWithMalformedDocsId)
-  await expect(storeId.queryAll('test', 'tests', ['id', 'docType', 'docVersion', 'docOps'])).rejects.toThrow(/doc property 'id' must be a string/)
+  await expect(storeId.queryAll('test', 'tests', ['id', 'docType', 'docVersion'])).rejects.toThrow(/doc property 'id' must be a string/)
   const storeDocType = wrapDocStore(docStoreWithMalformedDocsType)
-  await expect(storeDocType.queryAll('test', 'tests', ['id', 'docType', 'docVersion', 'docOps'])).rejects.toThrow(/doc property 'docType' must match requested type 'test'/)
+  await expect(storeDocType.queryAll('test', 'tests', ['id', 'docType', 'docVersion'])).rejects.toThrow(/doc property 'docType' must match requested type 'test'/)
   const storeDocVersion = wrapDocStore(docStoreWithMalformedDocsVersion)
-  await expect(storeDocVersion.queryAll('test', 'tests', ['id', 'docType', 'docVersion', 'docOps'])).rejects.toThrow(/doc property 'docVersion' must be a string/)
-  const storeDocOps = wrapDocStore(docStoreWithMalformedDocsOps)
-  await expect(storeDocOps.queryAll('test', 'tests', ['id', 'docType', 'docVersion', 'docOps'])).rejects.toThrow(/doc property 'docOps' must be an array/)
+  await expect(storeDocVersion.queryAll('test', 'tests', ['id', 'docType', 'docVersion'])).rejects.toThrow(/doc property 'docVersion' must be a string/)
 })
 
 test('A doc store with valid functions will return the underlying function return value.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithValidFunctions)
   await expect(safeDocStore.deleteById('test', 'tests', '123')).resolves.toEqual(true)
   await expect(safeDocStore.exists('test', 'tests', '123')).resolves.toEqual(true)
-  await expect(safeDocStore.fetch('test', 'tests', '123')).resolves.toEqual({ id: '123', docType: 'test', docVersion: 'aaaa', docOps: [] })
+  await expect(safeDocStore.fetch('test', 'tests', '123')).resolves.toEqual({ id: '123', docType: 'test', docVersion: 'aaaa' })
   await expect(safeDocStore.queryAll('test', 'tests', ['id'])).resolves.not.toThrow()
   await expect(safeDocStore.queryByFilter('test', 'tests', ['id'], 'A and B')).resolves.not.toThrow()
   await expect(safeDocStore.queryByIds('test', 'tests', ['id'], ['123', '234'])).resolves.not.toThrow()

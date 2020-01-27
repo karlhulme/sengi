@@ -2,7 +2,7 @@ const check = require('check-types')
 const {
   applySystemFieldValuesToNewDocument,
   createDocStoreOptions,
-  updateDocCalcsOnDocument,
+  updateCalcsOnDocument,
   executeConstructor,
   executeValidator,
   selectDocTypeFromArray
@@ -13,7 +13,8 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, docStoreOptions }) => {
+const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+  check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -25,6 +26,7 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
   check.assert.maybe.function(onPreSaveDoc)
   check.assert.maybe.function(onCreateDoc)
   check.assert.maybe.object(reqProps)
+  check.assert.string(reqDateTime)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, 'create', r => canCreate(r, docTypeName))
@@ -37,13 +39,13 @@ const createDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCac
     const docType = selectDocTypeFromArray(docTypes, docTypeName)
     const ctorParamsValidator = validatorCache.getDocTypeConstructorParamsValidator(docType.name)
     const doc = executeConstructor(docType, constructorParams, ctorParamsValidator)
-    applySystemFieldValuesToNewDocument(docType, doc, id)
+    applySystemFieldValuesToNewDocument(docType, doc, id, userIdentity, reqDateTime)
 
     if (onPreSaveDoc) {
       await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })
     }
 
-    updateDocCalcsOnDocument(docType, doc)
+    updateCalcsOnDocument(docType, doc)
 
     validatorCache.ensureDocTypeFields(docType.name, doc)
     executeValidator(docType, doc)

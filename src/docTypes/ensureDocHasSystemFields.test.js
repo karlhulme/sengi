@@ -2,25 +2,29 @@
 const ensureDocHasSystemFields = require('./ensureDocHasSystemFields')
 
 test('Accept a document that has all the system fields.', () => {
-  expect(() => ensureDocHasSystemFields({ id: 'aaa', docType: 'bbb', docOps: [] })).not.toThrow()
+  expect(() => ensureDocHasSystemFields({ id: 'aaa', docType: 'bbb' })).not.toThrow()
 })
 
 test('Reject a document that is missing an id field.', () => {
-  expect(() => ensureDocHasSystemFields({ docType: 'bbb', docOps: [] })).toThrow(/id/)
+  expect(() => ensureDocHasSystemFields({ docType: 'bbb' })).toThrow(/id/)
 })
 
 test('Reject a document that is missing an id field.', () => {
-  expect(() => ensureDocHasSystemFields({ id: 'aaa', docOps: [] })).toThrow(/docType/)
+  expect(() => ensureDocHasSystemFields({ id: 'aaa' })).toThrow(/docType/)
 })
 
-test('Append a docOps system property to a document to make it valid.', () => {
-  const doc = { id: 'aaa', docType: 'bbb', docCalcs: {} }
+test('Append a missing sys object to make it valid.', () => {
+  const doc = { id: 'aaa', docType: 'bbb' }
   expect(() => ensureDocHasSystemFields(doc)).not.toThrow()
-  expect(doc).toHaveProperty('docOps', [])
+  expect(doc).toHaveProperty('sys')
+  expect(doc.sys).toHaveProperty('ops', [])
+  expect(doc.sys).toHaveProperty('calcs', {})
 })
 
-test('Append a docCalcs system property to a document to make it valid.', () => {
-  const doc = { id: 'aaa', docType: 'bbb', docOps: [] }
+test('Fix an invalid sys object to make it valid.', () => {
+  const doc = { id: 'aaa', docType: 'bbb', sys: 'invalid' }
   expect(() => ensureDocHasSystemFields(doc)).not.toThrow()
-  expect(doc).toHaveProperty('docCalcs', {})
+  expect(doc).toHaveProperty('sys')
+  expect(doc.sys).toHaveProperty('ops', [])
+  expect(doc.sys).toHaveProperty('calcs', {})
 })

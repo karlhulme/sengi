@@ -18,7 +18,8 @@ const createRequestWith = (propertyName, propertyValue) => {
     operationName: 'performAction',
     operationParams: { propA: 'valueA' },
     reqVersion: 'abcd',
-    roleNames: ['admin']
+    roleNames: ['admin'],
+    userIdentity: 'testUser'
   }
 
   if (typeof req[propertyName] !== 'undefined') {
@@ -35,6 +36,7 @@ const createRequestWith = (propertyName, propertyValue) => {
 test('A Jsonotron can be created given valid inputs.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: [] })).not.toThrow()
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], dateTimeFunc: () => '2000-01-01T12:00:00Z' })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onPreSaveDoc: () => {} })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onQueryDocs: () => {} })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onCreateDoc: () => {} })).not.toThrow()
@@ -48,6 +50,7 @@ test('A Jsonotron cannot be created with invalid inputs or config.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: 'invalid', roleTypes: [] })).toThrow(/docTypes/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: 'invalid' })).toThrow(/roleTypes/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: 123 })).toThrow(/config.fieldTypes/)
+  expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], dateTimeFunc: 123 })).toThrow(/config.dateTimeFunc/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onPreSaveDoc: 123 })).toThrow(/config.onPreSaveDoc/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onQueryDocs: 123 })).toThrow(/config.onQueryDocs/)
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onCreateDoc: 123 })).toThrow(/config.onCreateDoc/)

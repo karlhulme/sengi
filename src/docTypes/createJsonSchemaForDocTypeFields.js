@@ -11,7 +11,7 @@ const getFieldTypeNameForDocTypeField = require('./getFieldTypeNameForDocTypeFie
 const getDirectlyReferencedFieldTypeNamesFromDocTypeFields = docType => {
   check.assert.object(docType.fields)
 
-  const directlyReferencedFieldTypeNames = ['docId', 'docVersion', 'docCalcs', 'docOpId']
+  const directlyReferencedFieldTypeNames = ['docDateTime', 'docId', 'docOpId', 'docUserIdentity', 'docVersion']
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -69,9 +69,52 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
 
   properties.id = { $ref: '#/definitions/docId', description: 'The id of the document.' }
   properties.docType = { enum: [docType.name], description: 'The type of the document.' }
-  properties.docVersion = { $ref: '#/definitions/docVersion', description: 'The version of the current iteration of the document (eTag).' }
-  properties.docOps = { type: 'array', items: { $ref: '#/definitions/docOpId' }, description: 'The id\'s of recent operations on the document.' }
-  properties.docCalcs = { $ref: '#/definitions/docCalcs', description: 'The values of the calculated fields as determined on the last update.' }
+  properties.docVersion = { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' }
+
+  properties.sys = {
+    type: 'object',
+    properties: {
+      origin: {
+        type: 'object',
+        description: 'An object that describes the creation of the document.',
+        additionalProperties: false,
+        properties: {
+          style: { enum: ['new', 'replace'] },
+          userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that created the document.' },
+          dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was created.' }
+        },
+        required: ['style', 'userIdentity', 'dateTime']
+      },
+      ops: {
+        type: 'array',
+        items: {
+          type: 'object',
+          description: 'An object that describes an operation.',
+          properties: {
+            opId: { $ref: '#/definitions/docOpId', description: 'The id of an operation.' },
+            userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that initiated the operation.' },
+            dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' }
+          },
+          additionalProperties: false,
+          required: ['opId', 'userIdentity', 'dateTime']
+        },
+        description: 'The id\'s of recent operations on the document.'
+      },
+      calcs: {
+        type: 'object',
+        description: 'An object that contains calculated field values as determined at the last update.',
+        additionalProperties: {
+          type: 'object',
+          description: 'Represents a single calculated field.',
+          additionalProperties: false,
+          properties: {
+            value: { description: 'The last known value of the calculated field.' }
+          }
+        }
+      }
+    },
+    required: ['ops', 'calcs']
+  }
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -92,7 +135,7 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
 const createJsonSchemaRequiredSectionForDocTypeFields = docType => {
   check.assert.object(docType.fields)
 
-  const required = ['id', 'docType', 'docOps', 'docCalcs']
+  const required = ['id', 'docType', 'sys']
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]

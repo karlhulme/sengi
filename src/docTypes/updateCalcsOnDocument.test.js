@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const updateDocCalcsOnDocument = require('./updateDocCalcsOnDocument')
+const updateCalcsOnDocument = require('./updateCalcsOnDocument')
 
 const docType = {
   name: 'test',
@@ -12,9 +12,9 @@ const docType = {
 }
 
 test('Calculated fields are added to the docCalcs section of the doc.', () => {
-  const doc = { propA: 'hello', propB: 'world', docCalcs: {} }
-  updateDocCalcsOnDocument(docType, doc)
-  expect(doc.docCalcs).toEqual({
+  const doc = { propA: 'hello', propB: 'world', sys: { calcs: {} } }
+  updateCalcsOnDocument(docType, doc)
+  expect(doc.sys.calcs).toEqual({
     combined: {
       value: 'hello world'
     }
@@ -22,7 +22,7 @@ test('Calculated fields are added to the docCalcs section of the doc.', () => {
 })
 
 test('Redundant calculated fields are removed to the docCalcs section of the doc.', () => {
-  const doc = { propA: 'hello', propB: 'world', docCalcs: { oldCalc: 'abc' } }
-  updateDocCalcsOnDocument(docType, doc)
-  expect(doc.docCalcs).not.toHaveProperty('oldCalc')
+  const doc = { propA: 'hello', propB: 'world', sys: { calcs: { oldCalc: 'abc' } } }
+  updateCalcsOnDocument(docType, doc)
+  expect(doc.sys.calcs).not.toHaveProperty('oldCalc')
 })

@@ -3,9 +3,10 @@ const { JsonotronInternalError } = require('../errors')
 
 /**
  * Raises an error if the given document is missing an id or a docType.
- * If the document does not have a docOps property it will be added.
- * If the document does not have a docCalcs property it will be added.
- * Note that a docVersion is not a required property.
+ * If the document does not have a sys.ops property it will be added.
+ * If the document does not have a sys.calcs property it will be added.
+ * Note that a docVersion is not a required property and sys.origin will
+ * not be created.
  * @param {Object} doc A document.
  */
 const ensureDocHasSystemFields = doc => {
@@ -19,12 +20,16 @@ const ensureDocHasSystemFields = doc => {
     throw new JsonotronInternalError('Document is missing system property \'docType\'.')
   }
 
-  if (!Array.isArray(doc.docOps)) {
-    doc.docOps = []
+  if (typeof doc.sys !== 'object' || doc.sys === null || Array.isArray(doc.sys)) {
+    doc.sys = {}
   }
 
-  if (typeof doc.docCalcs !== 'object' || Array.isArray(doc.docCalcs) || doc.docCalcs === null) {
-    doc.docCalcs = {}
+  if (!Array.isArray(doc.sys.ops)) {
+    doc.sys.ops = []
+  }
+
+  if (typeof doc.sys.calcs !== 'object' || Array.isArray(doc.sys.calcs) || doc.sys.calcs === null) {
+    doc.sys.calcs = {}
   }
 }
 

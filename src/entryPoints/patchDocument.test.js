@@ -17,7 +17,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
+        sys: {},
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey',
@@ -46,15 +46,17 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
-    docCalcs: {
-      displayName: {
-        value: 'Maisory'
-      },
-      fullAddress: {
-        value: ''
+    sys: {
+      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      calcs: {
+        displayName: {
+          value: 'Maisory'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
     fullName: 'David Doohickey',
@@ -126,7 +128,9 @@ test('Patching a document for a second time should only call fetch on doc store.
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
+        sys: {
+          ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2000-01-01T13:12:00Z' }]
+        },
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -157,7 +161,6 @@ test('Patching a document using a required version should call fetch and upsert 
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -186,15 +189,17 @@ test('Patching a document using a required version should call fetch and upsert 
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
-    docCalcs: {
-      displayName: {
-        value: 'Maisory'
-      },
-      fullAddress: {
-        value: ''
+    sys: {
+      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      calcs: {
+        displayName: {
+          value: 'Maisory'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
     fullName: 'David Doohickey'
@@ -211,7 +216,10 @@ test('Fail to patch document when required version is not available.', async () 
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'bbbb',
-        docOps: [],
+        sys: {
+          ops: [],
+          calcs: {}
+        },
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -240,15 +248,17 @@ test('Fail to patch document when required version is not available.', async () 
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'bbbb',
-    docCalcs: {
-      displayName: {
-        value: 'Maisory'
-      },
-      fullAddress: {
-        value: ''
+    sys: {
+      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      calcs: {
+        displayName: {
+          value: 'Maisory'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     tenantId: 'dddd',
     shortName: 'Maisory',
     fullName: 'David Doohickey'
@@ -265,7 +275,6 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        docOps: [],
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey'
@@ -293,15 +302,17 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docCalcs: {
-      displayName: {
-        value: 'Maisory'
-      },
-      fullAddress: {
-        value: ''
+    sys: {
+      ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' }],
+      calcs: {
+        displayName: {
+          value: 'Maisory'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: ['3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
     docVersion: 'aaaa',
     tenantId: 'dddd',
     shortName: 'Maisory',

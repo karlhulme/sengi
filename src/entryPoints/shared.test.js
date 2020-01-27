@@ -30,7 +30,9 @@ const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
     fieldTypes,
     validatorCache,
     roleTypes: testRoleTypes,
-    reqProps: { userId: 'testUser' }
+    userIdentity: 'testUser',
+    reqProps: { meta: 'data' },
+    reqDateTime: '2020-01-01T14:22:03Z'
   }
 }
 

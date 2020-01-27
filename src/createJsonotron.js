@@ -1,3 +1,4 @@
+const moment = require('moment')
 const builtinFieldTypes = require('./builtinFieldTypes')
 const { wrapDocStore } = require('./docStore')
 const { createCustomisedAjv, initValidatorCache } = require('./jsonValidation')
@@ -35,7 +36,29 @@ const requestParameterValidators = {
   operationParams: v => typeof v === 'object',
   reqProps: v => typeof v === 'object' || typeof v === 'undefined',
   reqVersion: v => typeof v === 'string' || typeof v === 'undefined',
-  roleNames: v => Array.isArray(v)
+  roleNames: v => Array.isArray(v),
+  userIdentity: v => typeof v === 'string'
+}
+
+/**
+ * Uses the moment library to create a string in the DateTime UTC format.
+ */
+const momentDateTimeFunc = () => {
+  return moment().format('YYYY-MM-DD[T]HH:mm:ss[Z]')
+}
+
+/**
+ * Choose a function for producing date time UTC strings.  This will either
+ * the given function (if supplied) or a function built around the moment library.
+ * @param {Function} [dateTimeFunc] A function that returns a string
+ * with the current date and time using the built-in date time UTC format.
+ */
+const chooseDateTimeFunction = dateTimeFunc => {
+  if (typeof dateTimeFunc === 'function') {
+    return dateTimeFunc
+  } else {
+    return momentDateTimeFunc
+  }
 }
 
 /**
@@ -66,6 +89,8 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Array} config.roleTypes An array of role types.
  * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
  * built-in field types.
+ * @param {Function} [config.dateTimeFunc] A function that returns a UTC date/time string in
+ * YYYY-MM-DDTHH:mm:ssZ format.
  * @param {Function} [config.onPreSaveDoc] A function that is invoked just before a document is saved.
  * The function is passed roleNames, reqProps, docType and doc properties.
  * If the document is being updated (rather than created or replaced) then a mergePatch property
@@ -100,6 +125,10 @@ const createJsonotron = config => {
 
   if (typeof config.fieldTypes !== 'undefined' && !Array.isArray(config.fieldTypes)) {
     throw new TypeError('Constructor parameter \'config.fieldTypes\' must be an array.')
+  }
+
+  if (typeof config.dateTimeFunc !== 'undefined' && typeof config.dateTimeFunc !== 'function') {
+    throw new TypeError('Constructor parameter \'config.dateTimeFunc\' must be a function.')
   }
 
   if (typeof config.onPreSaveDoc !== 'undefined' && typeof config.onPreSaveDoc !== 'function') {
@@ -141,6 +170,9 @@ const createJsonotron = config => {
   // create a validator cache
   const validatorCache = initValidatorCache(ajv, config.docTypes, builtinAndCustomFieldTypes)
 
+  // choose a function for generating UTC date/time strings.
+  const dateTimeFunc = chooseDateTimeFunction(config.dateTimeFunc)
+
   // create a function that builds an entry point parameter object by
   // combining the external request object with the internal data.
   const buildEntryPointParameterObject = req => {
@@ -150,6 +182,7 @@ const createJsonotron = config => {
       fieldTypes: builtinAndCustomFieldTypes,
       roleTypes: config.roleTypes,
       validatorCache,
+      reqDateTime: dateTimeFunc(),
       onPreSaveDoc: config.onPreSaveDoc,
       onQueryDocs: config.onQueryDocs,
       onCreateDoc: config.onCreateDoc,
@@ -163,6 +196,7 @@ const createJsonotron = config => {
     /**
      * Create a new document.
      * @param {Object} req A request.
+     * @param {String} req.userIdentity The identity of a user.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {String} req.id The id to be assigned to the newly created document.
@@ -171,7 +205,7 @@ const createJsonotron = config => {
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     createDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'constructorParams', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'id', 'constructorParams', 'reqProps', 'docStoreOptions')
       return createDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -192,6 +226,7 @@ const createJsonotron = config => {
     /**
      * Invoke an operation on a document.
      * @param {Object} req A request.
+     * @param {String} req.userIdentity The identity of a user.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {String} req.id The id of a document.
@@ -203,13 +238,14 @@ const createJsonotron = config => {
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     operateOnDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'operationName', 'operationParams', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'operationName', 'operationParams', 'reqProps', 'docStoreOptions')
       return operateOnDocumentInternal(buildEntryPointParameterObject(req))
     },
 
     /**
      * Patch a document.
      * @param {Object} req A request.
+     * @param {String} req.userIdentity The identity of a user.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {String} req.id The id of the document to update.
@@ -220,7 +256,7 @@ const createJsonotron = config => {
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     patchDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'mergePatch', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'id', 'reqVersion', 'operationId', 'mergePatch', 'reqProps', 'docStoreOptions')
       return patchDocumentInternal(buildEntryPointParameterObject(req))
     },
 
@@ -272,6 +308,7 @@ const createJsonotron = config => {
     /**
      * Create a new document.
      * @param {Object} req A request.
+     * @param {String} req.userIdentity The identity of a user.
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {Object} req.doc The replacement document that must include all system fields (id, docType and docOps).
@@ -279,7 +316,7 @@ const createJsonotron = config => {
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     replaceDocument: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'reqProps', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
     }
   }

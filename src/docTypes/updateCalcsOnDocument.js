@@ -3,26 +3,27 @@ const getCalculatedFieldNames = require('./getCalculatedFieldNames')
 const executeCalculatedField = require('./executeCalculatedField')
 
 /**
- * Update the doc calcs object on the given document by re-evaluating
+ * Update the system calcs object on the given document by re-evaluating
  * the calculated fields.
  * @param {Object} docType A document type.
  * @param {Object} doc A doc.
  * @param {String} opId An id of the operation that caused the update of the document.
  */
-const updateDocCalcsOnDocument = (docType, doc) => {
+const updateCalcsOnDocument = (docType, doc) => {
   check.assert.object(docType)
   check.assert.object(doc)
-  check.assert.object(doc.docCalcs)
+  check.assert.object(doc.sys)
+  check.assert.object(doc.sys.calcs)
 
   const calculatedFieldNames = getCalculatedFieldNames(docType)
 
-  doc.docCalcs = {}
+  doc.sys.calcs = {}
 
   for (const calculatedFieldName of calculatedFieldNames) {
-    doc.docCalcs[calculatedFieldName] = {
+    doc.sys.calcs[calculatedFieldName] = {
       value: executeCalculatedField(docType, doc, calculatedFieldName)
     }
   }
 }
 
-module.exports = updateDocCalcsOnDocument
+module.exports = updateCalcsOnDocument

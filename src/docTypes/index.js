@@ -2,6 +2,7 @@ module.exports = {
   applyMergePatch: require('./applyMergePatch'),
   applyCalculatedFieldValuesToDocument: require('./applyCalculatedFieldValuesToDocument'),
   applyDeclaredFieldDefaultsToDocument: require('./applyDeclaredFieldDefaultsToDocument'),
+  applyOriginToReplacedDocument: require('./applyOriginToReplacedDocument'),
   applySystemFieldValuesToNewDocument: require('./applySystemFieldValuesToNewDocument'),
   createDocStoreOptions: require('./createDocStoreOptions'),
   createJsonSchemaForDocTypeFields: require('./createJsonSchemaForDocTypeFields'),
@@ -30,6 +31,6 @@ module.exports = {
   isOpIdInDocument: require('./isOpIdInDocument'),
   removeSurplusFieldsFromDocument: require('./removeSurplusFieldsFromDocument'),
   selectDocTypeFromArray: require('./selectDocTypeFromArray'),
-  updateDocCalcsOnDocument: require('./updateDocCalcsOnDocument'),
-  updateDocOpsOnDocument: require('./updateDocOpsOnDocument')
+  updateCalcsOnDocument: require('./updateCalcsOnDocument'),
+  updateOpsOnDocument: require('./updateOpsOnDocument')
 }

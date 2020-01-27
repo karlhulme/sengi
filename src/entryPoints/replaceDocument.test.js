@@ -22,8 +22,6 @@ test('Replacing a document should call upsert on the doc store.', async () => {
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
-      docVersion: 'aaaa',
       tenantId: 'companyA',
       shortName: 'Francesco',
       fullName: 'Francesco Speedio',
@@ -36,16 +34,22 @@ test('Replacing a document should call upsert on the doc store.', async () => {
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docCalcs: {
-      displayName: {
-        value: 'Francesco'
+    sys: {
+      origin: {
+        style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
       },
-      fullAddress: {
-        value: ''
+      ops: [],
+      calcs: {
+        displayName: {
+          value: 'Francesco'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: [],
-    docVersion: 'aaaa',
     tenantId: 'companyA',
     shortName: 'Francesco',
     fullName: 'Francesco Speedio',
@@ -72,7 +76,6 @@ test('Replacing a document raise callbacks.', async () => {
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'aaaa',
       tenantId: 'companyA',
       shortName: 'Francesco',
@@ -114,7 +117,6 @@ test('Replacing a document with a required version should call upsert on the doc
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
       shortName: 'Francesco',
@@ -129,15 +131,22 @@ test('Replacing a document with a required version should call upsert on the doc
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docCalcs: {
-      displayName: {
-        value: 'Francesco'
+    sys: {
+      origin: {
+        style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
       },
-      fullAddress: {
-        value: ''
+      ops: [],
+      calcs: {
+        displayName: {
+          value: 'Francesco'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',
     shortName: 'Francesco',
@@ -165,7 +174,6 @@ test('Replacing a non-existent document with a version that contains additional 
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
       shortName: 'Francesco',
@@ -183,15 +191,22 @@ test('Replacing a non-existent document with a version that contains additional 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docCalcs: {
-      displayName: {
-        value: 'Francesco'
+    sys: {
+      origin: {
+        style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
       },
-      fullAddress: {
-        value: ''
+      ops: [],
+      calcs: {
+        displayName: {
+          value: 'Francesco'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',
     shortName: 'Francesco',
@@ -203,7 +218,7 @@ test('Replacing a non-existent document with a version that contains additional 
 
   expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
     roleNames: ['admin'],
-    reqProps: { userId: 'testUser' },
+    reqProps: { meta: 'data' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' }),
     mergePatch: null
@@ -211,7 +226,7 @@ test('Replacing a non-existent document with a version that contains additional 
 
   expect(onCreateDoc.mock.calls[0][0]).toEqual({
     roleNames: ['admin'],
-    reqProps: { userId: 'testUser' },
+    reqProps: { meta: 'data' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' })
   })
@@ -232,7 +247,6 @@ test('Fail to replace a document with an unavailable required version.', async (
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
       shortName: 'Francesco',
@@ -247,15 +261,22 @@ test('Fail to replace a document with an unavailable required version.', async (
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
-    docCalcs: {
-      displayName: {
-        value: 'Francesco'
+    sys: {
+      origin: {
+        style: 'replace',
+        userIdentity: 'testUser',
+        dateTime: '2020-01-01T14:22:03Z'
       },
-      fullAddress: {
-        value: ''
+      ops: [],
+      calcs: {
+        displayName: {
+          value: 'Francesco'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
-    docOps: [],
     docVersion: 'bbbb',
     tenantId: 'companyA',
     shortName: 'Francesco',
@@ -278,7 +299,6 @@ test('Fail to replace a document if it does not conform to the doc type schema.'
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
       shortNamePropertyRequiredButMissing: 'Francesco',
@@ -301,7 +321,6 @@ test('Fail to replace a document if it fails custom validation.', async () => {
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       docVersion: 'bbbb',
       tenantId: 'companyA',
       shortName: 'Francesco',
@@ -324,7 +343,6 @@ test('Fail to replace a document if permissions insufficient.', async () => {
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'person',
-      docOps: [],
       tenantId: 'companyA',
       shortName: 'Francesco',
       fullName: 'Francesco Speedio',
@@ -344,7 +362,6 @@ test('Fail to replace a document if disallowed by doc type policy.', async () =>
     doc: {
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       docType: 'car',
-      docOps: [],
       docVersion: 'aaaa',
       manufacturer: 'Honda',
       model: 'Accord',

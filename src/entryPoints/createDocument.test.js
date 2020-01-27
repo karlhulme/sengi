@@ -29,13 +29,16 @@ test('Creating a document should call exists and then upsert on doc store.', asy
   const resultDoc = {
     allowMarketing: 'yes',
     dateOfBirth: '2000-01-02',
-    docOps: [],
-    docCalcs: {
-      displayName: {
-        value: 'Donald'
-      },
-      fullAddress: {
-        value: ''
+    sys: {
+      origin: { style: 'new', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
+      ops: [],
+      calcs: {
+        displayName: {
+          value: 'Donald'
+        },
+        fullAddress: {
+          value: ''
+        }
       }
     },
     docType: 'person',

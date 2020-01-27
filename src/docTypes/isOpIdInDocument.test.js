@@ -2,7 +2,12 @@
 const isOpIdInDocument = require('./isOpIdInDocument')
 
 const doc = {
-  docOps: ['aaa', 'bbb']
+  sys: {
+    ops: [
+      { opId: 'aaa', userIdentity: 'testUser', dateTime: 'then' },
+      { opId: 'bbb', userIdentity: 'testUser', dateTime: 'now' }
+    ]
+  }
 }
 
 test('Recognise existing op ids on a document.', () => {

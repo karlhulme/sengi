@@ -77,7 +77,7 @@ test('Query all document of a type in collection with an onQueryDocs delegate.',
 
   expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { userId: 'testUser' })
+  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { meta: 'data' })
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id'])
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id'])

@@ -39,7 +39,8 @@ const ensureDocStoreResult = (functionName, result, reqVersionExplicit) => {
 
 /**
  * Raises an error if the given docs property is not an array or
- * the types of the system fields are not valid.
+ * the any of the individual documents do not have an id, docType or
+ * docVersion.
  * @param {String} functionName The name of a function that was called.
  * @param {Array} docs An array of docs returned by the invoked function.
  * @param {String} docTypeName The expected doc type of the returned docs.
@@ -56,10 +57,6 @@ const ensureReturnedDocsArray = (functionName, docs, docTypeName) => {
 
     if (typeof doc.docType !== 'undefined' && doc.docType !== docTypeName) {
       throw new JsonotronDocStoreInvalidResponseError(functionName, `When returned, doc property 'docType' must match requested type '${docTypeName}'`)
-    }
-
-    if (typeof doc.docOps !== 'undefined' && !Array.isArray(doc.docOps)) {
-      throw new JsonotronDocStoreInvalidResponseError(functionName, 'When returned, doc property \'docOps\' must be an array.')
     }
 
     if (typeof doc.docVersion !== 'undefined' && typeof doc.docVersion !== 'string') {
@@ -198,10 +195,6 @@ const wrapDocStore = (docStore) => {
 
         if (result.doc.docType !== docTypeName) {
           throw new JsonotronDocStoreInvalidResponseError('fetch', `Returned document must have a 'docType' property of the expected type '${docTypeName}'.`)
-        }
-
-        if (!Array.isArray(result.doc.docOps)) {
-          throw new JsonotronDocStoreInvalidResponseError('fetch', 'Returned document must have a \'docOps\' array property.')
         }
 
         if (typeof result.doc.docVersion !== 'string') {

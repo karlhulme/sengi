@@ -21,7 +21,7 @@ test('Identify system fields for retrieval.', () => {
   expect(determineFieldNamesForRetrieval(docType, ['id'])).toEqual(['id'])
   expect(determineFieldNamesForRetrieval(docType, ['id', 'id'])).toEqual(['id'])
   expect(determineFieldNamesForRetrieval(docType, ['docType'])).toEqual(['docType'])
-  expect(determineFieldNamesForRetrieval(docType, ['id', 'docOps'])).toEqual(['id', 'docOps'])
+  expect(determineFieldNamesForRetrieval(docType, ['id', 'sys'])).toEqual(['id', 'sys'])
 })
 
 test('Identify declared fields for retrieval.', () => {

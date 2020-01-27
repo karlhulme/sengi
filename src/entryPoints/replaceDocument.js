@@ -1,11 +1,12 @@
 const check = require('check-types')
 const {
+  applyOriginToReplacedDocument,
   createDocStoreOptions,
   ensureCanReplaceDocuments,
   ensureDocHasSystemFields,
   executeValidator,
   selectDocTypeFromArray,
-  updateDocCalcsOnDocument
+  updateCalcsOnDocument
 } = require('../docTypes')
 const {
   canReplace,
@@ -13,7 +14,8 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, docStoreOptions }) => {
+const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+  check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -26,6 +28,7 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   check.assert.maybe.function(onCreateDoc)
   check.assert.maybe.function(onUpdateDoc)
   check.assert.maybe.object(reqProps)
+  check.assert.string(reqDateTime)
   check.assert.maybe.object(docStoreOptions)
 
   ensurePermission(roleNames, roleTypes, docTypeName, 'replace', r => canReplace(r, docTypeName))
@@ -33,13 +36,14 @@ const replaceDocument = async ({ roleNames, roleTypes, safeDocStore, validatorCa
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
+  applyOriginToReplacedDocument(doc, userIdentity, reqDateTime)
   ensureDocHasSystemFields(doc)
 
   if (onPreSaveDoc) {
     await invokeCallback('onPreSaveDoc', onPreSaveDoc, { roleNames, reqProps, docType, doc, mergePatch: null })
   }
 
-  updateDocCalcsOnDocument(docType, doc)
+  updateCalcsOnDocument(docType, doc)
 
   validatorCache.ensureDocTypeFields(docType.name, doc)
   executeValidator(docType, doc)
