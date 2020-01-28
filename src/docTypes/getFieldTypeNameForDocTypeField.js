@@ -8,7 +8,7 @@ const getFieldTypeNameForDocTypeField = field => {
   if (typeof field.type === 'string') {
     return field.type
   } else if (typeof field.ref === 'string') {
-    return 'docId'
+    return 'sysId'
   } else {
     throw new JsonotronInternalError('Field does not specify a type or a reference.')
   }

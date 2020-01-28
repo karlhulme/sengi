@@ -11,7 +11,7 @@ const getFieldTypeNameForDocTypeField = require('./getFieldTypeNameForDocTypeFie
 const getDirectlyReferencedFieldTypeNamesFromDocTypeFields = docType => {
   check.assert.object(docType.fields)
 
-  const directlyReferencedFieldTypeNames = ['docDateTime', 'docId', 'docOpId', 'docUserIdentity', 'docVersion']
+  const directlyReferencedFieldTypeNames = ['sysDateTime', 'sysId', 'sysOpId', 'sysUserIdentity', 'sysVersion']
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
@@ -68,8 +68,8 @@ const createJsonSchemaForSysProperty = () => {
         additionalProperties: false,
         properties: {
           style: { enum: ['new', 'replace'] },
-          userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that created the document.' },
-          dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was created.' }
+          userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that created the document.' },
+          dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was created.' }
         },
         required: ['style', 'userIdentity', 'dateTime']
       },
@@ -78,8 +78,8 @@ const createJsonSchemaForSysProperty = () => {
         description: 'An object that describes the last time the document was updated.',
         additionalProperties: false,
         properties: {
-          userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that last updated the document.' },
-          dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was last updated.' }
+          userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that last updated the document.' },
+          dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was last updated.' }
         },
         required: ['userIdentity', 'dateTime']
       },
@@ -89,9 +89,9 @@ const createJsonSchemaForSysProperty = () => {
           type: 'object',
           description: 'An object that describes an operation.',
           properties: {
-            opId: { $ref: '#/definitions/docOpId', description: 'The id of an operation.' },
-            userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that initiated the operation.' },
-            dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' },
+            opId: { $ref: '#/definitions/sysOpId', description: 'The id of an operation.' },
+            userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that initiated the operation.' },
+            dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the operation took place.' },
             style: { enum: ['patch', 'operation'], description: 'The style of the update, either \'patch\' or \'operation\'.' },
             operationName: { type: 'string', description: 'The name of the operation, if style is \'operation\'' }
           },
@@ -129,7 +129,7 @@ const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
 
   const properties = {}
 
-  properties.id = { $ref: '#/definitions/docId', description: 'The id of the document.' }
+  properties.id = { $ref: '#/definitions/sysId', description: 'The id of the document.' }
   properties.docType = { enum: [docType.name], description: 'The type of the document.' }
   properties.docVersion = { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' }
 

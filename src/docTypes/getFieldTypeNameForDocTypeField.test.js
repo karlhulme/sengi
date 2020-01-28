@@ -14,7 +14,7 @@ test('Get field type for doc type declared fields.', () => {
 })
 
 test('Get field type for doc type ref fields.', () => {
-  expect(getFieldTypeNameForDocTypeField(docType.fields.link)).toEqual('docId')
+  expect(getFieldTypeNameForDocTypeField(docType.fields.link)).toEqual('sysId')
 })
 
 test('Fail to get the field type for a field with neither type nor ref.', () => {

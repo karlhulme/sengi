@@ -27,7 +27,7 @@ test('Build a JSON Schema for doc type fields.', () => {
     type: 'object',
     additionalProperties: true,
     properties: {
-      id: { $ref: '#/definitions/docId', description: 'The id of the document.' },
+      id: { $ref: '#/definitions/sysId', description: 'The id of the document.' },
       docType: { enum: ['map'], description: 'The type of the document.' },
       docVersion: { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' },
       sys: {
@@ -39,8 +39,8 @@ test('Build a JSON Schema for doc type fields.', () => {
             additionalProperties: false,
             properties: {
               style: { enum: ['new', 'replace'] },
-              userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that created the document.' },
-              dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was created.' }
+              userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that created the document.' },
+              dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was created.' }
             },
             required: ['style', 'userIdentity', 'dateTime']
           },
@@ -49,8 +49,8 @@ test('Build a JSON Schema for doc type fields.', () => {
             description: 'An object that describes the last time the document was updated.',
             additionalProperties: false,
             properties: {
-              userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that last updated the document.' },
-              dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the document was last updated.' }
+              userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that last updated the document.' },
+              dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was last updated.' }
             },
             required: ['userIdentity', 'dateTime']
           },
@@ -60,9 +60,9 @@ test('Build a JSON Schema for doc type fields.', () => {
               type: 'object',
               description: 'An object that describes an operation.',
               properties: {
-                opId: { $ref: '#/definitions/docOpId', description: 'The id of an operation.' },
-                userIdentity: { $ref: '#/definitions/docUserIdentity', description: 'The identity of the user that initiated the operation.' },
-                dateTime: { $ref: '#/definitions/docDateTime', description: 'The moment that the operation took place.' },
+                opId: { $ref: '#/definitions/sysOpId', description: 'The id of an operation.' },
+                userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that initiated the operation.' },
+                dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the operation took place.' },
                 style: { enum: ['patch', 'operation'], description: 'The style of the update, either \'patch\' or \'operation\'.' },
                 operationName: { type: 'string', description: 'The name of the operation, if style is \'operation\'' }
               },
@@ -90,16 +90,16 @@ test('Build a JSON Schema for doc type fields.', () => {
       sizeInMetresSquares: { $ref: '#/definitions/integer', description: 'The size of the map.' },
       placesCount: { $ref: '#/definitions/integer', description: 'The number of places covered.' },
       list: { type: 'array', items: { $ref: '#/definitions/integer' }, description: 'A list of numbers.' },
-      neighbouringMapId: { $ref: '#/definitions/docId', description: 'The id of a neighbouring map.' }
+      neighbouringMapId: { $ref: '#/definitions/sysId', description: 'The id of a neighbouring map.' }
     },
     required: ['id', 'docType', 'sys', 'cost'],
     definitions: {
       currencyCode: getJsonSchemaFragmentForFieldName('currencyCode'),
-      docDateTime: getJsonSchemaFragmentForFieldName('docDateTime'),
-      docId: getJsonSchemaFragmentForFieldName('docId'),
-      docUserIdentity: getJsonSchemaFragmentForFieldName('docUserIdentity'),
-      docVersion: getJsonSchemaFragmentForFieldName('docVersion'),
-      docOpId: getJsonSchemaFragmentForFieldName('docOpId'),
+      sysDateTime: getJsonSchemaFragmentForFieldName('sysDateTime'),
+      sysId: getJsonSchemaFragmentForFieldName('sysId'),
+      sysUserIdentity: getJsonSchemaFragmentForFieldName('sysUserIdentity'),
+      sysVersion: getJsonSchemaFragmentForFieldName('sysVersion'),
+      sysOpId: getJsonSchemaFragmentForFieldName('sysOpId'),
       integer: getJsonSchemaFragmentForFieldName('integer'),
       money: getJsonSchemaFragmentForFieldName('money')
     }

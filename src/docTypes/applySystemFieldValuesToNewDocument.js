@@ -4,7 +4,7 @@ const check = require('check-types')
  * Appends the system fields id, docType and the sys object to the given document.
  * @param {Object} docType A doc type.
  * @param {Object} doc A doc.
- * @param {String} id A new id that conforms to the docId field type.
+ * @param {String} id A new id that conforms to the sysId field type.
  * @param {String} userIdentity The identity of a user.
  * @param {String} dateTime A date time string that conforms to the UtcDateTime type.
  */

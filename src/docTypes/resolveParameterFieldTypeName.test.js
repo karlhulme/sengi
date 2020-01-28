@@ -19,5 +19,5 @@ test('Resolve parameter types that reference doc type field declarations.', () =
 })
 
 test('Resolve parameter types that reference other documents in a lookup.', () => {
-  expect(resolveParameterFieldTypeName(docType, 'propC', { lookup: 'field' })).toEqual('docId')
+  expect(resolveParameterFieldTypeName(docType, 'propC', { lookup: 'field' })).toEqual('sysId')
 })

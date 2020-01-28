@@ -1,6 +1,6 @@
 module.exports = {
-  name: 'docVersion',
-  title: 'Document Version',
+  name: 'sysVersion',
+  title: 'System Version',
   description: 'A code that uniquely identifies an instance of a document.',
   examples: ['abcd'],
   invalidExamples: [123, null, true, {}, []],

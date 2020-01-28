@@ -29,7 +29,7 @@ test('Build an Update JSON Schema for doc type fields.', () => {
     additionalProperties: false,
     properties: {
       cost: { $ref: '#/definitions/money', description: 'The cost of the map.' },
-      neighbouringMapId: { $ref: '#/definitions/docId', description: 'The id of a neighbouring map.' },
+      neighbouringMapId: { $ref: '#/definitions/sysId', description: 'The id of a neighbouring map.' },
       vendors: {
         type: 'array',
         description: 'A list of vendors.',
@@ -40,7 +40,7 @@ test('Build an Update JSON Schema for doc type fields.', () => {
     },
     definitions: {
       currencyCode: getJsonSchemaFragmentForFieldName('currencyCode'),
-      docId: getJsonSchemaFragmentForFieldName('docId'),
+      sysId: getJsonSchemaFragmentForFieldName('sysId'),
       integer: getJsonSchemaFragmentForFieldName('integer'),
       money: getJsonSchemaFragmentForFieldName('money'),
       string: getJsonSchemaFragmentForFieldName('string')

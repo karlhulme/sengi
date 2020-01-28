@@ -40,14 +40,14 @@ test('Build a JSON Schema for doc type function parameter.', () => {
     properties: {
       cost: { $ref: '#/definitions/money', description: 'Approx cost.' },
       maxSize: { $ref: '#/definitions/integer', description: 'Max size.' },
-      neighbouringMapId: { $ref: '#/definitions/docId', description: 'The id of a neighbouring map.' },
+      neighbouringMapId: { $ref: '#/definitions/sysId', description: 'The id of a neighbouring map.' },
       listOfNumbers: { type: 'array', items: { $ref: '#/definitions/integer' }, description: 'A list of numbers.' },
       baseList: { type: 'array', items: { $ref: '#/definitions/integer' }, description: 'Base list of numbers.' }
     },
     required: ['cost', 'neighbouringMapId'],
     definitions: {
       currencyCode: getJsonSchemaFragmentForFieldName('currencyCode'),
-      docId: getJsonSchemaFragmentForFieldName('docId'),
+      sysId: getJsonSchemaFragmentForFieldName('sysId'),
       integer: getJsonSchemaFragmentForFieldName('integer'),
       money: getJsonSchemaFragmentForFieldName('money')
     }
