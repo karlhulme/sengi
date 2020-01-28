@@ -5,6 +5,7 @@ const {
   createDocStoreOptions,
   determineFieldNamesForRetrieval,
   ensureCanFetchWholeCollection,
+  getDeprecationsForRetrievalFieldNames,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
 } = require('../docTypes')
@@ -31,6 +32,7 @@ const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   ensureCanFetchWholeCollection(docType)
 
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
+  const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   const docs = await safeDocStore.queryAll(docType.name, docType.pluralName, retrievalFieldNames, combinedDocStoreOptions)
 
@@ -42,7 +44,7 @@ const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
     await invokeCallback('onQueryDocs', onQueryDocs, { roleNames, reqProps, docType, fieldNames, retrievalFieldNames })
   }
 
-  return { docs }
+  return { deprecations, docs }
 }
 
 module.exports = queryDocuments

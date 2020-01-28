@@ -26,6 +26,7 @@ module.exports = {
   executePreSave: require('./executePreSave'),
   executeValidator: require('./executeValidator'),
   getConstructorParameters: require('./getConstructorParameters'),
+  getDeprecationsForRetrievalFieldNames: require('./getDeprecationsForRetrievalFieldNames'),
   getFilterNames: require('./getFilterNames'),
   getFilterParameters: require('./getFilterParameters'),
   getOperationNames: require('./getOperationNames'),

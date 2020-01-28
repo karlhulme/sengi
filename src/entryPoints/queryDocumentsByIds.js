@@ -4,6 +4,7 @@ const {
   applyDeclaredFieldDefaultsToDocument,
   createDocStoreOptions,
   determineFieldNamesForRetrieval,
+  getDeprecationsForRetrievalFieldNames,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
 } = require('../docTypes')
@@ -30,6 +31,7 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
 
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
+  const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
   const docs = await safeDocStore.queryByIds(docType.name, docType.pluralName, retrievalFieldNames, ids, combinedDocStoreOptions)
@@ -42,7 +44,7 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
   docs.forEach(d => applyCalculatedFieldValuesToDocument(docType, d, fieldNames))
   docs.forEach(d => removeSurplusFieldsFromDocument(d, fieldNames))
 
-  return { docs }
+  return { deprecations, docs }
 }
 
 module.exports = queryDocumentsByIds

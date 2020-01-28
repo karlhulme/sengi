@@ -22,7 +22,8 @@ module.exports = {
     favouriteColors: { type: 'shortString', isArray: true, description: 'An array of color names.', example: ['red'] },
     allowMarketing: { type: 'yesNo', default: 'no', description: 'A value of \'yes\' indicates that the person is prepared to receive marketing or \'no\' if they are not.', example: 'yes' },
     heightInCms: { type: 'integer', default: 0, description: 'The height of the person in centimetres.', example: 150 },
-    ownedCarId: { ref: 'car', cacheDurationInSeconds: 60, description: 'The car owned by this person.' }
+    ownedCarId: { ref: 'car', cacheDurationInSeconds: 60, description: 'The car owned by this person.' },
+    age: { type: 'integer', description: 'The age of a person', deprecation: 'Use date of birth instead.' }
   },
   validate: doc => {
     if ((doc.addressLines || '').includes('castle')) {

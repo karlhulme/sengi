@@ -6,6 +6,7 @@ const {
   determineFieldNamesForRetrieval,
   ensureFilterName,
   evaluateFilter,
+  getDeprecationsForRetrievalFieldNames,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
 } = require('../docTypes')
@@ -34,6 +35,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureFilterName(docType, filterName)
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
+  const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
   validatorCache.ensureDocTypeFilterParams(docTypeName, filterName, filterParams)
 
   const filterResult = evaluateFilter(docType, filterName, filterParams)
@@ -49,7 +51,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
   docs.forEach(d => applyCalculatedFieldValuesToDocument(docType, d, fieldNames))
   docs.forEach(d => removeSurplusFieldsFromDocument(d, fieldNames))
 
-  return { docs }
+  return { deprecations, docs }
 }
 
 module.exports = queryDocumentsByFilter

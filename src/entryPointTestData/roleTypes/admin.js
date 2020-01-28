@@ -6,7 +6,7 @@ module.exports = {
         fieldsTreatment: 'whitelist',
         fields: [
           'id', 'shortName', 'fullName', 'dateOfBirth', 'addressLines',
-          'postCode', 'favouriteColors', 'allowMarketing', 'fullAddress'
+          'postCode', 'favouriteColors', 'allowMarketing', 'fullAddress', 'age'
         ]
       },
       update: { patch: true, operations: ['replaceFavouriteColors', 'attemptToChangeId'] },

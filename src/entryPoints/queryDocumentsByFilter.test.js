@@ -11,7 +11,7 @@ test('Query by document filter.', async () => {
     queryByFilter: async () => {
       return {
         docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
+          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }
         ]
       }
     }
@@ -21,7 +21,7 @@ test('Query by document filter.', async () => {
     ...testRequest,
     roleNames: ['admin'],
     docTypeName: 'person',
-    fieldNames: ['id', 'fullName'],
+    fieldNames: ['id', 'fullName', 'age'],
     filterName: 'byPostCode',
     filterParams: {
       postCode: 'BH23 4FG'
@@ -30,8 +30,13 @@ test('Query by document filter.', async () => {
   })
 
   expect(result).toEqual({
+    deprecations: {
+      age: {
+        reason: 'Use date of birth instead.'
+      }
+    },
     docs: [
-      { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
+      { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }
     ]
   })
 
@@ -39,7 +44,7 @@ test('Query by document filter.', async () => {
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(5)
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName'])
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName', 'age'])
   expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
 })
@@ -71,6 +76,7 @@ test('Query by document filter with onQueryDocs delegate.', async () => {
   })
 
   expect(result).toEqual({
+    deprecations: {},
     docs: [
       { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
     ]
