@@ -15,13 +15,15 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, onQueryDocs, reqProps, docStoreOptions }) => {
+const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
   check.assert.array.of.object(docTypes)
   check.assert.string(docTypeName)
   check.assert.array.of.string(fieldNames)
+  check.assert.maybe.number(limit)
+  check.assert.maybe.number(offset)
   check.assert.maybe.function(onQueryDocs)
   check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
@@ -34,7 +36,7 @@ const queryDocuments = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
   const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const docs = await safeDocStore.queryAll(docType.name, docType.pluralName, retrievalFieldNames, combinedDocStoreOptions)
+  const docs = await safeDocStore.queryAll(docType.name, docType.pluralName, retrievalFieldNames, limit, offset, combinedDocStoreOptions)
 
   docs.forEach(d => applyDeclaredFieldDefaultsToDocument(docType, d, retrievalFieldNames))
   docs.forEach(d => applyCalculatedFieldValuesToDocument(docType, d, fieldNames))

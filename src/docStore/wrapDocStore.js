@@ -216,15 +216,21 @@ const wrapDocStore = (docStore) => {
      * @param {String} docTypeName The name of a doc type.
      * @param {String} docTypePluralName The plural name of a doc type.
      * @param {String} fieldNames An array of field names to include in the response.
+     * @param {Number} limit The maximum number of documents to retrieve.
+     * @param {Number} offset The number of documents to skip.
      * @param {Object} options A set of options supplied with the original request.
      */
-    queryAll: async (docTypeName, docTypePluralName, fieldNames, options) => {
+    queryAll: async (docTypeName, docTypePluralName, fieldNames, limit, offset, options) => {
       check.assert.string(docTypeName)
       check.assert.string(docTypePluralName)
       check.assert.array.of.string(fieldNames)
+      check.assert.maybe.number(limit)
+      check.assert.maybe.number(offset)
       check.assert.maybe.object(options)
 
       const props = {}
+      if (limit) { props.limit = limit }
+      if (offset) { props.offset = offset }
 
       const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, docTypePluralName, fieldNames, props, options], false)
       ensureReturnedDocsArray('queryAll', result.docs, docTypeName)
@@ -239,16 +245,22 @@ const wrapDocStore = (docStore) => {
      * @param {String} fieldNames An array of field names to include in the response.
      * @param {Any} filterExpression A filter expression that resulted from invoking the fitler
      * implementation on the doc type.
+     * @param {Number} limit The maximum number of documents to retrieve.
+     * @param {Number} offset The number of documents to skip.
      * @param {Object} options A set of options supplied with the original request.
      */
-    queryByFilter: async (docTypeName, docTypePluralName, fieldNames, filterExpression, options) => {
+    queryByFilter: async (docTypeName, docTypePluralName, fieldNames, filterExpression, limit, offset, options) => {
       check.assert.string(docTypeName)
       check.assert.string(docTypePluralName)
-      check.assert.assigned(filterExpression)
       check.assert.array.of.string(fieldNames)
+      check.assert.assigned(filterExpression)
+      check.assert.maybe.number(limit)
+      check.assert.maybe.number(offset)
       check.assert.maybe.object(options)
 
       const props = {}
+      if (limit) { props.limit = limit }
+      if (offset) { props.offset = offset }
 
       const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, docTypePluralName, fieldNames, filterExpression, props, options], false)
       ensureReturnedDocsArray('queryByFilter', result.docs, docTypeName)
@@ -303,10 +315,7 @@ const wrapDocStore = (docStore) => {
       }
 
       const props = {}
-
-      if (reqVersion) {
-        props.reqVersion = reqVersion
-      }
+      if (reqVersion) { props.reqVersion = reqVersion }
 
       const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, docTypePluralName, doc, props, options], reqVersionExplicit)
       return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_CREATED

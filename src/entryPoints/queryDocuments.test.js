@@ -123,6 +123,41 @@ test('Query all documents of a type with declared, calculated and default fields
   expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id', 'shortName', 'allowMarketing', 'addressLines', 'postCode', 'age'], {}, { custom: 'prop' }])
 })
 
+test('Query all documents with paging.', async () => {
+  const testRequest = createTestRequestWithMockedDocStore({
+    queryAll: async () => {
+      return {
+        docs: [
+          { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0' }
+        ]
+      }
+    }
+  })
+
+  await queryDocuments({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    fieldNames: ['id'],
+    limit: 1,
+    docStoreOptions: { custom: 'prop' }
+  })
+
+  await queryDocuments({
+    ...testRequest,
+    roleNames: ['admin'],
+    docTypeName: 'person',
+    fieldNames: ['id'],
+    limit: 1,
+    offset: 1,
+    docStoreOptions: { custom: 'prop' }
+  })
+
+  expect(testRequest.mockedDocStore.queryAll.mock.calls.length).toEqual(2)
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { limit: 1 }, { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryAll.mock.calls[1]).toEqual(['person', 'persons', ['id'], { limit: 1, offset: 1 }, { custom: 'prop' }])
+})
+
 test('Fail to query all documents of type if permissions insufficient.', async () => {
   const testRequest = createTestRequestWithMockedDocStore()
 

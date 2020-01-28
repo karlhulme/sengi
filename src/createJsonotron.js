@@ -30,7 +30,9 @@ const requestParameterValidators = {
   filterParams: v => typeof v === 'object',
   id: v => typeof v === 'string',
   ids: v => Array.isArray(v),
+  limit: v => typeof v === 'number' || typeof v === 'undefined',
   mergePatch: v => typeof v === 'object',
+  offset: v => typeof v === 'number' || typeof v === 'undefined',
   operationId: v => typeof v === 'string',
   operationName: v => typeof v === 'string',
   operationParams: v => typeof v === 'object',
@@ -266,11 +268,13 @@ const createJsonotron = config => {
      * @param {Array} req.roleNames An array of role names, indicating the roles held by the account making the request.
      * @param {String} req.docTypeName The name of the document type to be created.
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
+     * @param {Number} [req.limit] The maximum number of documents to return.
+     * @param {Number} [req.offset] The number of documents to skip.
      * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     queryDocuments: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'limit', 'offset', 'reqProps', 'docStoreOptions')
       return queryDocumentsInternal(buildEntryPointParameterObject(req))
     },
 
@@ -282,11 +286,13 @@ const createJsonotron = config => {
      * @param {Array} req.fieldNames The field names to include in the response for each queried document.
      * @param {String} req.filterName The name of a filter defined on the doc type.
      * @param {Object} req.filterParams The parameters to be passed to the filter.
+     * @param {Number} [req.limit] The maximum number of documents to return.
+     * @param {Number} [req.offset] The number of documents to skip.
      * @param {Object} [req.reqProps] A property bag of request properties that is passed to the event handlers.
      * @param {Object} [req.docStoreOptions] A property bag of doc store options that is passed to the underlying document store.
      */
     queryDocumentsByFilter: async req => {
-      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'filterName', 'filterParams', 'reqProps', 'docStoreOptions')
+      validateRequestParameters(req, 'roleNames', 'docTypeName', 'fieldNames', 'filterName', 'filterParams', 'limit', 'offset', 'reqProps', 'docStoreOptions')
       return queryDocumentsByFilterInternal(buildEntryPointParameterObject(req))
     },
 

@@ -16,7 +16,7 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, fieldNames, filterName, filterParams, onQueryDocs, reqProps, docStoreOptions }) => {
+const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, fieldNames, filterName, filterParams, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -25,6 +25,8 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
   check.assert.string(docTypeName)
   check.assert.string(filterName)
   check.assert.maybe.object(filterParams)
+  check.assert.maybe.number(limit)
+  check.assert.maybe.number(offset)
   check.assert.maybe.function(onQueryDocs)
   check.assert.maybe.object(reqProps)
   check.assert.maybe.object(docStoreOptions)
@@ -41,7 +43,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, vali
   const filterResult = evaluateFilter(docType, filterName, filterParams)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
-  const docs = await safeDocStore.queryByFilter(docType.name, docType.pluralName, retrievalFieldNames, filterResult, combinedDocStoreOptions)
+  const docs = await safeDocStore.queryByFilter(docType.name, docType.pluralName, retrievalFieldNames, filterResult, limit, offset, combinedDocStoreOptions)
 
   if (onQueryDocs) {
     await invokeCallback('onQueryDocs', onQueryDocs, { roleNames, reqProps, docType, fieldNames, retrievalFieldNames })
