@@ -62,7 +62,7 @@ test('Replacing a document should call upsert on the doc store.', async () => {
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, null, { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
 test('Replacing a document raise callbacks.', async () => {
@@ -164,7 +164,7 @@ test('Replacing a document with a required version should call upsert on the doc
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Replacing a non-existent document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
@@ -244,7 +244,7 @@ test('Replacing a non-existent document with a version that contains additional 
   })
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to replace a document with an unavailable required version.', async () => {
@@ -302,7 +302,7 @@ test('Fail to replace a document with an unavailable required version.', async (
   }
 
   expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, 'aaaa', { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to replace a document if it does not conform to the doc type schema.', async () => {

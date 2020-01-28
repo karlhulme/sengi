@@ -35,7 +35,7 @@ test('Query by document filter.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], {}, { custom: 'prop' }])
 })
 
 test('Query by document filter with onQueryDocs delegate.', async () => {
@@ -69,7 +69,7 @@ test('Query by document filter with onQueryDocs delegate.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], { custom: 'prop' }])
+  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], {}, { custom: 'prop' }])
 
   expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])

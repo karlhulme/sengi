@@ -37,8 +37,7 @@ const applySystemFieldValuesToUpdatedDocument = (docType, doc, opId, userIdentit
     opId,
     userIdentity,
     dateTime,
-    style,
-    operationName
+    style
   }
 
   if (style === 'operation' && operationName) {

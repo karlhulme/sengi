@@ -41,12 +41,13 @@ test('Query by document filter.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(5)
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(6)
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName', 'age'])
   expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({})
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][5]).toEqual({ custom: 'prop' })
 })
 
 test('Query by document filter with onQueryDocs delegate.', async () => {
@@ -83,12 +84,13 @@ test('Query by document filter with onQueryDocs delegate.', async () => {
   })
 
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(5)
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(6)
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
   expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName'])
   expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ custom: 'prop' })
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({})
+  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][5]).toEqual({ custom: 'prop' })
 
   expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
   expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])

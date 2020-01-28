@@ -138,7 +138,9 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, docTypePluralName, id, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'deleteById', [docTypeName, docTypePluralName, id, props, options], false)
       return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_DELETED
     },
 
@@ -156,7 +158,9 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, docTypePluralName, id, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, docTypePluralName, id, props, options], false)
 
       if (typeof result.found !== 'boolean') {
         throw new JsonotronDocStoreInvalidResponseError('exists', 'Property \'found\' must be a boolean.')
@@ -178,7 +182,9 @@ const wrapDocStore = (docStore) => {
       check.assert.string(id)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, docTypePluralName, id, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, docTypePluralName, id, props, options], false)
 
       if (typeof result.doc !== 'object' || Array.isArray(result.doc)) {
         throw new JsonotronDocStoreInvalidResponseError('fetch', 'Property \'doc\' must be an object.')
@@ -218,7 +224,9 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, docTypePluralName, fieldNames, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, docTypePluralName, fieldNames, props, options], false)
       ensureReturnedDocsArray('queryAll', result.docs, docTypeName)
       return result.docs
     },
@@ -240,7 +248,9 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(fieldNames)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, docTypePluralName, fieldNames, filterExpression, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, docTypePluralName, fieldNames, filterExpression, props, options], false)
       ensureReturnedDocsArray('queryByFilter', result.docs, docTypeName)
       return result.docs
     },
@@ -261,7 +271,9 @@ const wrapDocStore = (docStore) => {
       check.assert.array.of.string(ids)
       check.assert.maybe.object(options)
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, docTypePluralName, fieldNames, ids, options], false)
+      const props = {}
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'queryByIds', [docTypeName, docTypePluralName, fieldNames, ids, props, options], false)
       ensureReturnedDocsArray('queryByIds', result.docs, docTypeName)
       return result.docs
     },
@@ -290,7 +302,13 @@ const wrapDocStore = (docStore) => {
         throw new JsonotronInternalError(`Cannot upsert document with docType property '${doc.docType}' that does not match docTypeName '${docTypeName}'.`)
       }
 
-      const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, docTypePluralName, doc, reqVersion, options], reqVersionExplicit)
+      const props = {}
+
+      if (reqVersion) {
+        props.reqVersion = reqVersion
+      }
+
+      const result = await safeExecuteDocStoreFunction(docStore, 'upsert', [docTypeName, docTypePluralName, doc, props, options], reqVersionExplicit)
       return result.successCode === successCodes.DOC_STORE_DOCUMENT_WAS_CREATED
     }
   }
