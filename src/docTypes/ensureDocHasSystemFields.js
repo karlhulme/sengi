@@ -28,6 +28,14 @@ const ensureDocHasSystemFields = doc => {
     doc.sys.ops = []
   }
 
+  for (let i = doc.sys.ops.length - 1; i >= 0; i--) {
+    const candidateOp = doc.sys.ops[i]
+
+    if (typeof candidateOp !== 'object' || candidateOp === null || Array.isArray(candidateOp)) {
+      doc.sys.ops.splice(i, 1)
+    }
+  }
+
   if (typeof doc.sys.calcs !== 'object' || Array.isArray(doc.sys.calcs) || doc.sys.calcs === null) {
     doc.sys.calcs = {}
   }

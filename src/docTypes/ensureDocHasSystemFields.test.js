@@ -21,10 +21,18 @@ test('Append a missing sys object to make it valid.', () => {
   expect(doc.sys).toHaveProperty('calcs', {})
 })
 
-test('Fix an invalid sys object to make it valid.', () => {
+test('Fix an invalid sys object root to make it valid.', () => {
   const doc = { id: 'aaa', docType: 'bbb', sys: 'invalid' }
   expect(() => ensureDocHasSystemFields(doc)).not.toThrow()
   expect(doc).toHaveProperty('sys')
   expect(doc.sys).toHaveProperty('ops', [])
+  expect(doc.sys).toHaveProperty('calcs', {})
+})
+
+test('Fix an invalid sys object with invalid ops entries to make it valid.', () => {
+  const doc = { id: 'aaa', docType: 'bbb', sys: { ops: ['a', 'b', { opId: '123' }] } }
+  expect(() => ensureDocHasSystemFields(doc)).not.toThrow()
+  expect(doc).toHaveProperty('sys')
+  expect(doc.sys).toHaveProperty('ops', [{ opId: '123' }])
   expect(doc.sys).toHaveProperty('calcs', {})
 })
