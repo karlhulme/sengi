@@ -17,6 +17,7 @@ const createRequestWith = (propertyName, propertyValue) => {
     operationId: 'opId_string',
     operationName: 'performAction',
     operationParams: { propA: 'valueA' },
+    reqProps: { custom: 'value' },
     reqVersion: 'abcd',
     roleNames: ['admin'],
     userIdentity: 'testUser'
@@ -104,6 +105,7 @@ test('A Jsonotron call to createDocument will fail if required parameters are no
   await expect(jsonotron.createDocument(createRequestWith('constructorParams', undefined))).rejects.toThrow(/constructorParams/)
   await expect(jsonotron.createDocument(createRequestWith('constructorParams', 123))).rejects.toThrow(/constructorParams/)
   await expect(jsonotron.createDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.createDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to deleteDocument will fail if required parameters are not provided.', async () => {
@@ -115,6 +117,7 @@ test('A Jsonotron call to deleteDocument will fail if required parameters are no
   await expect(jsonotron.deleteDocument(createRequestWith('id', undefined))).rejects.toThrow(/id/)
   await expect(jsonotron.deleteDocument(createRequestWith('id', 123))).rejects.toThrow(/id/)
   await expect(jsonotron.deleteDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.deleteDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to operateOnDocument will fail if required parameters are not provided.', async () => {
@@ -133,6 +136,7 @@ test('A Jsonotron call to operateOnDocument will fail if required parameters are
   await expect(jsonotron.operateOnDocument(createRequestWith('operationParams', undefined))).rejects.toThrow(/operationParams/)
   await expect(jsonotron.operateOnDocument(createRequestWith('operationParams', 123))).rejects.toThrow(/operationParams/)
   await expect(jsonotron.operateOnDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.operateOnDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to patchDocument will fail if required parameters are not provided.', async () => {
@@ -149,6 +153,7 @@ test('A Jsonotron call to patchDocument will fail if required parameters are not
   await expect(jsonotron.patchDocument(createRequestWith('mergePatch', undefined))).rejects.toThrow(/mergePatch/)
   await expect(jsonotron.patchDocument(createRequestWith('mergePatch', 123))).rejects.toThrow(/mergePatch/)
   await expect(jsonotron.patchDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.patchDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to queryDocuments will fail if required parameters are not provided.', async () => {
@@ -160,6 +165,7 @@ test('A Jsonotron call to queryDocuments will fail if required parameters are no
   await expect(jsonotron.queryDocuments(createRequestWith('fieldNames', undefined))).rejects.toThrow(/fieldNames/)
   await expect(jsonotron.queryDocuments(createRequestWith('fieldNames', 123))).rejects.toThrow(/fieldNames/)
   await expect(jsonotron.queryDocuments(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.queryDocuments(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to queryDocumentsByFilter will fail if required parameters are not provided.', async () => {
@@ -175,6 +181,7 @@ test('A Jsonotron call to queryDocumentsByFilter will fail if required parameter
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('filterParams', undefined))).rejects.toThrow(/filterParams/)
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('filterParams', 123))).rejects.toThrow(/filterParams/)
   await expect(jsonotron.queryDocumentsByFilter(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.queryDocumentsByFilter(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to queryDocumentsByIds will fail if required parameters are not provided.', async () => {
@@ -188,6 +195,7 @@ test('A Jsonotron call to queryDocumentsByIds will fail if required parameters a
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('ids', undefined))).rejects.toThrow(/ids/)
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('ids', 123))).rejects.toThrow(/ids/)
   await expect(jsonotron.queryDocumentsByIds(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.queryDocumentsByIds(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
 
 test('A Jsonotron call to replaceDocument will fail if required parameters are not provided.', async () => {
@@ -199,4 +207,5 @@ test('A Jsonotron call to replaceDocument will fail if required parameters are n
   await expect(jsonotron.replaceDocument(createRequestWith('doc', undefined))).rejects.toThrow(/doc/)
   await expect(jsonotron.replaceDocument(createRequestWith('doc', 123))).rejects.toThrow(/doc/)
   await expect(jsonotron.replaceDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
+  await expect(jsonotron.replaceDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
 })
