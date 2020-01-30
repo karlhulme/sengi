@@ -85,7 +85,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Query for the name of all customers:</p>
-      <pre><code class="language-bash">curl http://localhost:3000/data/customers?fields=id,customerName</code></pre>
+      <pre><code class="language-bash">curl -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' http://localhost:3000/data/customers?fields=id,customerName</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">Notice that the result only includes the requested fields.</p>
@@ -106,7 +106,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Query for the name and date of birth of a specific customer:</p>
-      <pre><code class="language-bash">curl http://localhost:3000/data/customers/1f396d94-d6ca-4897-b8d2-e52d38cf83ee?fields=customerName,dateOfBirth</code></pre>
+      <pre><code class="language-bash">curl -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' http://localhost:3000/data/customers/1f396d94-d6ca-4897-b8d2-e52d38cf83ee?fields=customerName,dateOfBirth</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">A single document is returned</p>
@@ -120,7 +120,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Post a new customer into the database:</p>
-      <pre><code class="language-bash">curl -X POST -d '{"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' -H 'Content-Type: application/json' http://localhost:3000/data/customers</code></pre>
+      <pre><code class="language-bash">curl -X POST -d '{constructorParams: {"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' http://localhost:3000/data/customers</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
@@ -132,7 +132,7 @@ jsonotron-document-operation-type: create
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Patch the date of birth of a specific customer:</p>
-      <pre><code class="language-bash">curl -X PATCH -d '{"dateOfBirth": "1999-12-27"}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' -H 'Content-Type: application/json' http://localhost:3000/data/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
+      <pre><code class="language-bash">curl -X PATCH -d '{mergePatch: {"dateOfBirth": "1999-12-27"}}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' http://localhost:3000/data/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
