@@ -120,7 +120,7 @@
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Post a new customer into the database:</p>
-      <pre><code class="language-bash">curl -X POST -d '{"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/data/customers</code></pre>
+      <pre><code class="language-bash">curl -X POST -d '{"customerName": "Charlie Call", "dateOfBirth": "1999-12-25"}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' -H 'Content-Type: application/json' http://localhost:3000/data/customers</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
@@ -132,7 +132,7 @@ jsonotron-document-operation-type: create
   <section class="flex">
     <div class="flex-item-medium">
       <p class="mb">Patch the date of birth of a specific customer:</p>
-      <pre><code class="language-bash">curl -X PATCH -d '{"dateOfBirth": "1999-12-27"}' -H 'jsonotron-rolenames: admin' -H 'Content-Type: application/json' http://localhost:3000/data/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
+      <pre><code class="language-bash">curl -X PATCH -d '{"dateOfBirth": "1999-12-27"}' -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' -H 'Content-Type: application/json' http://localhost:3000/data/customers/5c815b68-b426-42b7-9695-59c5232e9029</code></pre>
     </div>
     <div class="flex-item-medium">
       <p class="mb">No data is returned so check the HTTP headers.</p>
@@ -269,7 +269,7 @@ runApp()
 </code></pre>
     <p class="mb">You can now query for all the customer documents.
       (The custom header tells Jsonotron which role to assume for the query.)</p>
-    <pre><code class="language-bash">curl -H 'jsonotron-rolenames: admin' http://localhost:3000/data/customers</code></pre>
+    <pre><code class="language-bash">curl -H 'x-jsonotron-rolenames: admin' -H 'x-user-id: testUser' http://localhost:3000/data/customers</code></pre>
     <p class="mb">You can now improve the microservice by customising the docType
       definitions with more fields (including custom types), a constructor, filters, patching and update operations.</p>
   </section>
