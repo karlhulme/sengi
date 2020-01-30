@@ -28,30 +28,32 @@ const getDirectlyReferencedFieldTypeNamesFromDocTypeFields = docType => {
 
 /**
  * Create a non-array property node for a json schema.
- * @param {Object} field A field.
+ * @param {Object} docTypeField A field defined on a doc type.
  * @param {String} fieldTypeName The name of a field type.
  */
-const createJsonSchemaNonArrayProperty = (field, fieldTypeName) => {
-  check.assert.string(field.description)
+const createJsonSchemaNonArrayProperty = (docTypeField, fieldTypeName) => {
+  check.assert.object(docTypeField)
+  check.assert.string(docTypeField.description)
 
   return {
     $ref: `#/definitions/${fieldTypeName}`,
-    description: field.description
+    description: docTypeField.description
   }
 }
 
 /**
  * Create an array property node for a json schema.
- * @param {Object} field A field.
+ * @param {Object} docTypeField A field defined on a doc type.
  * @param {String} fieldTypeName The name of a field type.
  */
-const createJsonSchemaArrayProperty = (field, fieldTypeName) => {
-  check.assert.string(field.description)
+const createJsonSchemaArrayProperty = (docTypeField, fieldTypeName) => {
+  check.assert.object(docTypeField)
+  check.assert.string(docTypeField.description)
 
   return {
     type: 'array',
     items: { $ref: `#/definitions/${fieldTypeName}` },
-    description: field.description
+    description: docTypeField.description
   }
 }
 
@@ -172,7 +174,7 @@ const createJsonSchemaRequiredSectionForDocTypeFields = docType => {
  * @param {Object} docType A doc type.
  * @param {Array} fieldTypes An array of field types.
  */
-const createJsonSchemaForDoc = (docType, fieldTypes) => {
+const createJsonSchemaForDocTypeInstance = (docType, fieldTypes) => {
   check.assert.object(docType)
   check.assert.string(docType.title)
   check.assert.array.of.object(fieldTypes)
@@ -195,4 +197,4 @@ const createJsonSchemaForDoc = (docType, fieldTypes) => {
   }
 }
 
-module.exports = createJsonSchemaForDoc
+module.exports = createJsonSchemaForDocTypeInstance

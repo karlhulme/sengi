@@ -1,7 +1,7 @@
 /* eslint-env jest */
 const builtinFieldTypes = require('../builtinFieldTypes')
 const { getJsonSchemaFragmentForFieldType } = require('../fieldTypes')
-const createJsonSchemaForDoc = require('./createJsonSchemaForDoc')
+const createJsonSchemaForDocTypeInstance = require('./createJsonSchemaForDocTypeInstance')
 
 const docType = {
   name: 'map',
@@ -21,7 +21,7 @@ const getJsonSchemaFragmentForFieldName = fieldTypeName => {
 }
 
 test('Build a JSON Schema for doc type fields.', () => {
-  expect(createJsonSchemaForDoc(docType, builtinFieldTypes)).toEqual({
+  expect(createJsonSchemaForDocTypeInstance(docType, builtinFieldTypes)).toEqual({
     title: 'Map JSON Schema',
     $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',

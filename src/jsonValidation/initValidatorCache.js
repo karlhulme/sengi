@@ -1,6 +1,6 @@
 const check = require('check-types')
 const {
-  createJsonSchemaForDoc,
+  createJsonSchemaForDocTypeInstance,
   createJsonSchemaForDocTypeFunctionParameters,
   createJsonSchemaForDocTypeMergePatch,
   getConstructorParameters,
@@ -26,7 +26,7 @@ const initValidatorCache = (ajv, docTypes, fieldTypes) => {
     check.assert.string(docType.name)
 
     // fields
-    const docSchema = createJsonSchemaForDoc(docType, fieldTypes)
+    const docSchema = createJsonSchemaForDocTypeInstance(docType, fieldTypes)
     const fieldsValidator = ajv.compile(docSchema)
     validatorCache.addDocTypeFieldsValidator(docType.name, fieldsValidator)
 

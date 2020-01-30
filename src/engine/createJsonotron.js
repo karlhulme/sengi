@@ -1,20 +1,18 @@
 const moment = require('moment')
-const builtinFieldTypes = require('./builtinFieldTypes')
-const { wrapDocStore } = require('./docStore')
-const { createCustomisedAjv, initValidatorCache } = require('./jsonValidation')
-const { combineCustomAndBuiltInFieldTypes, ensureFieldTypesAreValid } = require('./fieldTypes')
-const { ensureDocTypesAreValid } = require('./docTypes')
-const { ensureRoleTypesAreValid } = require('./roleTypes')
-const {
-  createDocument: createDocumentInternal,
-  deleteDocument: deleteDocumentInternal,
-  operateOnDocument: operateOnDocumentInternal,
-  patchDocument: patchDocumentInternal,
-  queryDocuments: queryDocumentsInternal,
-  queryDocumentsByIds: queryDocumentsByIdsInternal,
-  queryDocumentsByFilter: queryDocumentsByFilterInternal,
-  replaceDocument: replaceDocumentInternal
-} = require('./entryPoints')
+const builtinFieldTypes = require('../builtinFieldTypes')
+const { wrapDocStore } = require('../docStore')
+const { createCustomisedAjv, initValidatorCache } = require('../jsonValidation')
+const { combineCustomAndBuiltInFieldTypes, ensureFieldTypesAreValid } = require('../fieldTypes')
+const { ensureDocTypesAreValid } = require('../docTypes')
+const { ensureRoleTypesAreValid } = require('../roleTypes')
+const createDocumentInternal = require('./createDocument')
+const deleteDocumentInternal = require('./deleteDocument')
+const operateOnDocumentInternal = require('./operateOnDocument')
+const patchDocumentInternal = require('./patchDocument')
+const queryDocumentsInternal = require('./queryDocuments')
+const queryDocumentsByIdsInternal = require('./queryDocumentsByIds')
+const queryDocumentsByFilterInternal = require('./queryDocumentsByFilter')
+const replaceDocumentInternal = require('./replaceDocument')
 
 /**
  * Each key of this object is a validator for a parameter of an external request object.

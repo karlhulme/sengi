@@ -1,4 +1,4 @@
 module.exports = {
-  createJsonotron: require('./src/createJsonotron'),
+  createJsonotron: require('./src/engine/createJsonotron'),
   errors: require('./src/errors')
 }

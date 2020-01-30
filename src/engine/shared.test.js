@@ -1,8 +1,8 @@
 /* eslint-env jest */
 const builtinFieldTypes = require('../builtinFieldTypes')
-const testDocTypes = require('../entryPointTestData/docTypes')
-const testFieldTypes = require('../entryPointTestData/fieldTypes')
-const testRoleTypes = require('../entryPointTestData/roleTypes')
+const testDocTypes = require('../testData/docTypes')
+const testFieldTypes = require('../testData/fieldTypes')
+const testRoleTypes = require('../testData/roleTypes')
 const { initValidatorCache, createCustomisedAjv } = require('../jsonValidation')
 const { wrapDocStore } = require('../docStore')
 const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
