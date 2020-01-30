@@ -30,9 +30,20 @@ test('Fix an invalid sys object root to make it valid.', () => {
 })
 
 test('Fix an invalid sys object with invalid ops entries to make it valid.', () => {
-  const doc = { id: 'aaa', docType: 'bbb', sys: { ops: ['a', 'b', { opId: '123' }] } }
+  const doc = {
+    id: 'aaa',
+    docType: 'bbb',
+    sys: {
+      ops: [
+        'a',
+        'b',
+        { opId: '123' },
+        { opId: '321', userIdentity: 'testUser', dateTime: 'now', style: 'patch' }
+      ]
+    }
+  }
   expect(() => ensureDocHasSystemFields(doc)).not.toThrow()
   expect(doc).toHaveProperty('sys')
-  expect(doc.sys).toHaveProperty('ops', [{ opId: '123' }])
+  expect(doc.sys).toHaveProperty('ops', [{ opId: '321', userIdentity: 'testUser', dateTime: 'now', style: 'patch' }])
   expect(doc.sys).toHaveProperty('calcs', {})
 })

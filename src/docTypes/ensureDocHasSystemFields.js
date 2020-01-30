@@ -31,7 +31,14 @@ const ensureDocHasSystemFields = doc => {
   for (let i = doc.sys.ops.length - 1; i >= 0; i--) {
     const candidateOp = doc.sys.ops[i]
 
-    if (typeof candidateOp !== 'object' || candidateOp === null || Array.isArray(candidateOp)) {
+    const isCandidateOpValid =
+      (typeof candidateOp === 'object' && candidateOp !== null && !Array.isArray(candidateOp)) &&
+      typeof candidateOp.opId === 'string' &&
+      typeof candidateOp.userIdentity === 'string' &&
+      typeof candidateOp.dateTime === 'string' &&
+      typeof candidateOp.style === 'string'
+
+    if (!isCandidateOpValid) {
       doc.sys.ops.splice(i, 1)
     }
   }
