@@ -1,13 +1,12 @@
 const check = require('check-types')
 const {
+  createJsonSchemaForDocTypeConstructorParameters,
+  createJsonSchemaForDocTypeFilterParameters,
   createJsonSchemaForDocTypeInstance,
-  createJsonSchemaForDocTypeFunctionParameters,
   createJsonSchemaForDocTypeMergePatch,
-  getConstructorParameters,
+  createJsonSchemaForDocTypeOperationParameters,
   getFilterNames,
-  getFilterParameters,
-  getOperationNames,
-  getOperationParameters
+  getOperationNames
 } = require('../docTypes')
 const ValidatorCache = require('./validatorCache')
 
@@ -31,23 +30,20 @@ const initValidatorCache = (ajv, docTypes, fieldTypes) => {
     validatorCache.addDocTypeFieldsValidator(docType.name, fieldsValidator)
 
     // constructors
-    const constructorParameters = getConstructorParameters(docType)
-    const constructorSchema = createJsonSchemaForDocTypeFunctionParameters(docType, 'Constructor', constructorParameters, fieldTypes)
+    const constructorSchema = createJsonSchemaForDocTypeConstructorParameters(docType, fieldTypes)
     const constructorValidator = ajv.compile(constructorSchema)
     validatorCache.addDocTypeConstructorParamsValidator(docType.name, constructorValidator)
 
     // filters
     for (const filterName of getFilterNames(docType)) {
-      const filterParameters = getFilterParameters(docType, filterName)
-      const filterSchema = createJsonSchemaForDocTypeFunctionParameters(docType, 'Filter ' + filterName, filterParameters, fieldTypes)
+      const filterSchema = createJsonSchemaForDocTypeFilterParameters(docType, filterName, fieldTypes)
       const filterValidator = ajv.compile(filterSchema)
       validatorCache.addDocTypeFilterParamsValidator(docType.name, filterName, filterValidator)
     }
 
     // operations
     for (const operationName of getOperationNames(docType)) {
-      const operationParameters = getOperationParameters(docType, operationName)
-      const operationSchema = createJsonSchemaForDocTypeFunctionParameters(docType, 'Operation ' + operationName, operationParameters, fieldTypes)
+      const operationSchema = createJsonSchemaForDocTypeOperationParameters(docType, operationName, fieldTypes)
       const operationValidator = ajv.compile(operationSchema)
       validatorCache.addDocTypeOperationParamsValidator(docType.name, operationName, operationValidator)
     }

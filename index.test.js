@@ -6,7 +6,11 @@ test('A createJsonotron function is exported from the module.', () => {
 })
 
 test('Functions for building json schemas are exported from the module.', () => {
+  expect(mdl).toHaveProperty('createJsonSchemaForDocTypeConstructorParameters')
+  expect(mdl).toHaveProperty('createJsonSchemaForDocTypeFilterParameters')
   expect(mdl).toHaveProperty('createJsonSchemaForDocTypeInstance')
+  expect(mdl).toHaveProperty('createJsonSchemaForDocTypeMergePatch')
+  expect(mdl).toHaveProperty('createJsonSchemaForDocTypeOperationParameters')
 })
 
 test('An errors object is exported from the module.', () => {
