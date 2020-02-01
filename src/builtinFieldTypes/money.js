@@ -9,14 +9,15 @@ module.exports = {
     { amount: 1125, scaler: 2.5, currency: 'GBP' },
     { amount: 1125, scaler: 2, currency: 'invalid_currency_code' }
   ],
-  jsonSchema: {
+  jsonSchema: definitionsPath => ({
     type: 'object',
+    additionalProperties: false,
     properties: {
-      amount: { $ref: '#/definitions/integer' },
-      scaler: { $ref: '#/definitions/integer' },
-      currency: { $ref: '#/definitions/currencyCode' }
+      amount: { $ref: `${definitionsPath}integer` },
+      scaler: { $ref: `${definitionsPath}integer` },
+      currency: { $ref: `${definitionsPath}currencyCode` }
     },
     required: ['amount', 'scaler', 'currency']
-  },
+  }),
   referencedFieldTypes: ['integer', 'currencyCode']
 }

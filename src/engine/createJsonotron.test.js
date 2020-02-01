@@ -34,7 +34,7 @@ const createRequestWith = (propertyName, propertyValue) => {
   return req
 }
 
-const createCandidateDocTypesForSchemaGen = () => ([{
+const createCandidateDocTypes = () => ([{
   name: 'candidate',
   pluralName: 'candidates',
   title: 'Candidate',
@@ -59,6 +59,11 @@ const createCandidateDocTypesForSchemaGen = () => ([{
   }
 }])
 
+const createCandidateRoleTypes = () => ([{
+  name: 'admin',
+  docPermissions: true
+}])
+
 test('A Jsonotron can be created given valid inputs.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: [] })).not.toThrow()
@@ -68,6 +73,21 @@ test('A Jsonotron can be created given valid inputs.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onCreateDoc: () => {} })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onUpdateDoc: () => {} })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], onDeleteDoc: () => {} })).not.toThrow()
+})
+
+test('A Jsonotron can be queried for document types.', () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
+  expect(jsonotron.getDocTypeNames()).toEqual(['candidate'])
+})
+
+test('A Jsonotron can be queried for field types.', () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
+  expect(jsonotron.getFieldTypeNames()).toEqual(expect.arrayContaining(['integer', 'money', 'paymentCardNo', 'uuid']))
+})
+
+test('A Jsonotron can be queried for field types.', () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: createCandidateRoleTypes() })
+  expect(jsonotron.getRoleTypeNames()).toEqual(['admin'])
 })
 
 test('A Jsonotron cannot be created with invalid inputs or config.', () => {
@@ -236,7 +256,7 @@ test('A Jsonotron call to replaceDocument will fail if required parameters are n
 })
 
 test('A Jsonotron engine can create a JSON schema for the constructor of document type.', async () => {
-  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
   expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters()).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters({})).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters({ docTypeName: 123 })).toThrow(TypeError)
@@ -262,7 +282,7 @@ test('A Jsonotron engine can create a JSON schema for the constructor of documen
 })
 
 test('A Jsonotron engine can create a JSON schema for the parameters of a filter of a document type.', async () => {
-  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
   expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters()).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({})).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 123, filterName: 'byProp' })).toThrow(TypeError)
@@ -288,7 +308,7 @@ test('A Jsonotron engine can create a JSON schema for the parameters of a filter
 })
 
 test('A Jsonotron engine can create a JSON schema for document type instance.', async () => {
-  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
   expect(() => jsonotron.createJsonSchemaForDocTypeInstance()).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeInstance({})).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeInstance({ docTypeName: 123 })).toThrow(TypeError)
@@ -312,7 +332,7 @@ test('A Jsonotron engine can create a JSON schema for document type instance.', 
 })
 
 test('A Jsonotron engine can create a JSON schema for a merge patch of document type.', async () => {
-  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
   expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch()).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch({})).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch({ docTypeName: 123 })).toThrow(TypeError)
@@ -334,7 +354,7 @@ test('A Jsonotron engine can create a JSON schema for a merge patch of document 
 })
 
 test('A Jsonotron engine can create a JSON schema for the parameters of an operation of a document type.', async () => {
-  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
   expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters()).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({})).toThrow(TypeError)
   expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 123, operationName: 'doSomething' })).toThrow(TypeError)
@@ -352,6 +372,30 @@ test('A Jsonotron engine can create a JSON schema for the parameters of an opera
   })
   expect(jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 'candidate', operationName: 'doSomething', fragment: true, externalDefs: '#/components/schemas/' })).toEqual({
     title: 'Candidate "Operation doSomething" JSON Schema',
+    type: 'object',
+    additionalProperties: false,
+    properties: expect.anything(),
+    required: expect.anything()
+  })
+})
+
+test('A Jsonotron engine can create a JSON schema for a field type.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForFieldType()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForFieldType({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForFieldType({ fieldTypeName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForFieldType({ fieldTypeName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForFieldType({ fieldTypeName: 'money' })).toEqual({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Money JSON Schema',
+    type: 'object',
+    additionalProperties: false,
+    properties: expect.anything(),
+    required: expect.anything(),
+    definitions: expect.anything()
+  })
+  expect(jsonotron.createJsonSchemaForFieldType({ fieldTypeName: 'money', fragment: true, externalDefs: '#/components/schemas/' })).toEqual({
+    title: 'Money JSON Schema',
     type: 'object',
     additionalProperties: false,
     properties: expect.anything(),

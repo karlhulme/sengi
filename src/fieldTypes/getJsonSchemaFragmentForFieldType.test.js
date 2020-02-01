@@ -17,6 +17,13 @@ const schemaBackedFieldType = {
   }
 }
 
+const schemaFunctionBackedFieldType = {
+  name: 'schemaFunctionBackedFieldType',
+  jsonSchema: definitionsPath => ({
+    $ref: `${definitionsPath}customType`
+  })
+}
+
 const invalidFieldType = {
   name: 'invalidFieldType'
 }
@@ -27,6 +34,11 @@ test('Get JSON schema of an enum field type.', () => {
 
 test('Get JSON schema of a schema-backed field type.', () => {
   expect(getJsonSchemaFragmentForFieldType(schemaBackedFieldType)).toEqual({ type: 'string' })
+})
+
+test('Get JSON schema of a schema-function-backed field type.', () => {
+  expect(getJsonSchemaFragmentForFieldType(schemaFunctionBackedFieldType)).toEqual({ $ref: '#/definitions/customType' })
+  expect(getJsonSchemaFragmentForFieldType(schemaFunctionBackedFieldType, '#/comps/')).toEqual({ $ref: '#/comps/customType' })
 })
 
 test('Get JSON schema of an invalid field type.', () => {

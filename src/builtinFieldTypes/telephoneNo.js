@@ -9,13 +9,14 @@ module.exports = {
     { isd: 44, number: '1234567' },
     { isd: '44', number: 1234567 }
   ],
-  jsonSchema: {
+  jsonSchema: definitionsPath => ({
     type: 'object',
+    additionalProperties: false,
     properties: {
-      isd: { $ref: '#/definitions/callingCode' },
-      number: { $ref: '#/definitions/shortString' }
+      isd: { $ref: `${definitionsPath}callingCode` },
+      number: { $ref: `${definitionsPath}shortString` }
     },
     required: ['isd', 'number']
-  },
+  }),
   referencedFieldTypes: ['callingCode', 'shortString']
 }

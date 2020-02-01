@@ -19,7 +19,7 @@ module.exports = {
           description: 'An array of invalid examples values for the field.'
         },
         jsonSchema: {
-          type: 'object',
+          customTypeOf: ['object', 'function'],
           additionalProperties: true,
           description: 'A JSON schema that governs values for this field type.'
         },

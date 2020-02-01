@@ -2,7 +2,11 @@ const moment = require('moment')
 const builtinFieldTypes = require('../builtinFieldTypes')
 const { wrapDocStore } = require('../docStore')
 const { createCustomisedAjv, initValidatorCache } = require('../jsonValidation')
-const { combineCustomAndBuiltInFieldTypes, ensureFieldTypesAreValid } = require('../fieldTypes')
+const {
+  combineCustomAndBuiltInFieldTypes,
+  createJsonSchemaForFieldType,
+  ensureFieldTypesAreValid
+} = require('../fieldTypes')
 const {
   createJsonSchemaForDocTypeConstructorParameters: createJsonSchemaForDocTypeConstructorParametersInternal,
   createJsonSchemaForDocTypeFilterParameters: createJsonSchemaForDocTypeFilterParametersInternal,
@@ -32,6 +36,7 @@ const requestParameterValidators = {
   docTypeName: v => typeof v === 'string',
   externalDefs: v => typeof v === 'string' || typeof v === 'undefined' || v === null,
   fieldNames: v => Array.isArray(v),
+  fieldTypeName: v => typeof v === 'string',
   filterName: v => typeof v === 'string',
   filterParams: v => typeof v === 'object' && v !== null && !Array.isArray(v),
   fragment: v => typeof v === 'boolean' || typeof v === 'undefined' || v === null,
@@ -104,6 +109,23 @@ const getDocType = (docTypes, docTypeName) => {
     return docType
   } else {
     throw new Error(`Document type with name '${docTypeName}' was not found.`)
+  }
+}
+
+/**
+ * Returns the field type with the given name.
+ * If the given fieldTypeName is not found in the array then
+ * an error is thrown.
+ * @param {Array} fieldTypes An array of field types.
+ * @param {String} fieldTypeName The name of a field type.
+ */
+const getFieldType = (fieldTypes, fieldTypeName) => {
+  const fieldType = fieldTypes.find(dt => dt.name === fieldTypeName)
+
+  if (fieldType) {
+    return fieldType
+  } else {
+    throw new Error(`Field type with name '${fieldTypeName}' was not found.`)
   }
 }
 
@@ -219,6 +241,33 @@ const createJsonotron = config => {
   }
 
   return {
+    /***********************************************
+    *                                              *
+    *                  Get Methods                 *
+    *                                              *
+    \***********************************************/
+
+    /**
+     * Returns an array of document type names.
+     */
+    getDocTypeNames: () => {
+      return config.docTypes.map(docType => docType.name)
+    },
+
+    /**
+     * Returns an array of field type names.
+     */
+    getFieldTypeNames: () => {
+      return builtinAndCustomFieldTypes.map(fieldType => fieldType.name)
+    },
+
+    /**
+     * Returns an array of role type names.
+     */
+    getRoleTypeNames: () => {
+      return config.roleTypes.map(roleType => roleType.name)
+    },
+
     /***********************************************
     *                                              *
     *            Async Document Methods            *
@@ -432,6 +481,20 @@ const createJsonotron = config => {
       validateRequestParameters(req, 'docTypeName', 'operationName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
       return createJsonSchemaForDocTypeOperationParametersInternal(docType, req.operationName, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
+    },
+
+    /**
+     * Create a JSON schema for a field type.
+     * @param {Object} req A request.
+     * @param {String} req.fieldTypeName The name of a field type.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
+     */
+    createJsonSchemaForFieldType: req => {
+      validateRequestParameters(req, 'fieldTypeName', 'fragment', 'externalDefs')
+      const fieldType = getFieldType(builtinAndCustomFieldTypes, req.fieldTypeName)
+      return createJsonSchemaForFieldType(builtinAndCustomFieldTypes, fieldType.name, req.fragment, req.externalDefs)
     }
   }
 }

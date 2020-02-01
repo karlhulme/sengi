@@ -13,14 +13,15 @@ module.exports = {
     { dateTime: '2010-02-04T05:30:12+0:00', timeZone: 'Europe/London', captured: 1563119540628 },
     { dateTime: '2010-02-04T05:30:12Z', timeZone: 'Europe/London', captured: 1563119540628 }
   ],
-  jsonSchema: {
+  jsonSchema: definitionsPath => ({
     type: 'object',
+    additionalProperties: false,
     properties: {
       dateTime: { type: 'string', format: 'custom-local-date-time' },
-      timeZone: { $ref: '#/definitions/timeZone' },
-      captured: { $ref: '#/definitions/timestamp' }
+      timeZone: { $ref: `${definitionsPath}timeZone` },
+      captured: { $ref: `${definitionsPath}timestamp` }
     },
     required: ['dateTime', 'timeZone', 'captured']
-  },
+  }),
   referencedFieldTypes: ['timeZone', 'timestamp']
 }

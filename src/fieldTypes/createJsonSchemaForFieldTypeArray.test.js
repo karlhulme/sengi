@@ -5,14 +5,14 @@ const { JsonotronFieldTypeResolutionError } = require('../errors')
 const fieldTypes = [{
   name: 'example',
   title: 'Example',
-  jsonSchema: {
+  jsonSchema: definitionsPath => ({
     type: 'object',
     properties: {
-      first: { $ref: '#/definitions/integer' },
-      second: { $ref: '#/definitions/integer' }
+      first: { $ref: `${definitionsPath}integer` },
+      second: { $ref: `${definitionsPath}integer` }
     },
     required: ['first', 'second']
-  },
+  }),
   referencedFieldTypes: ['integer']
 }, {
   name: 'integer',
@@ -59,6 +59,21 @@ test('Build a JSON Schema for a field with referenced field types.', () => {
     },
     definitions: {
       integer: { type: 'number' }
+    }
+  })
+})
+
+test('Build a JSON Schema for a field with referenced field types to be used as a fragment with external schemas.', () => {
+  expect(createJsonSchemaForFieldTypeArray(fieldTypes, 'example', true, '#/components/schemas/')).toEqual({
+    title: 'Example Array JSON Schema',
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        first: { $ref: '#/components/schemas/integer' },
+        second: { $ref: '#/components/schemas/integer' }
+      },
+      required: ['first', 'second']
     }
   })
 })
