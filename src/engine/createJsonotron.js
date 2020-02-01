@@ -3,7 +3,14 @@ const builtinFieldTypes = require('../builtinFieldTypes')
 const { wrapDocStore } = require('../docStore')
 const { createCustomisedAjv, initValidatorCache } = require('../jsonValidation')
 const { combineCustomAndBuiltInFieldTypes, ensureFieldTypesAreValid } = require('../fieldTypes')
-const { ensureDocTypesAreValid } = require('../docTypes')
+const {
+  createJsonSchemaForDocTypeConstructorParameters: createJsonSchemaForDocTypeConstructorParametersInternal,
+  createJsonSchemaForDocTypeFilterParameters: createJsonSchemaForDocTypeFilterParametersInternal,
+  createJsonSchemaForDocTypeInstance: createJsonSchemaForDocTypeInstanceInternal,
+  createJsonSchemaForDocTypeMergePatch: createJsonSchemaForDocTypeMergePatchInternal,
+  createJsonSchemaForDocTypeOperationParameters: createJsonSchemaForDocTypeOperationParametersInternal,
+  ensureDocTypesAreValid
+} = require('../docTypes')
 const { ensureRoleTypesAreValid } = require('../roleTypes')
 const createDocumentInternal = require('./createDocument')
 const deleteDocumentInternal = require('./deleteDocument')
@@ -78,6 +85,23 @@ const validateRequestParameters = function (req, ...parameterNames) {
     if (!validator(req[parameterName])) {
       throw new TypeError(`Input parameter '${parameterName}' with value '${JSON.stringify(req[parameterName])}' is not valid.`)
     }
+  }
+}
+
+/**
+ * Returns the document type with the given name.
+ * If the given docTypeName is not found in the array then
+ * an error is thrown.
+ * @param {Array} docTypes An array of document types.
+ * @param {String} docTypeName The name of a document type.
+ */
+const getDocType = (docTypes, docTypeName) => {
+  const docType = docTypes.find(dt => dt.name === docTypeName)
+
+  if (docType) {
+    return docType
+  } else {
+    throw new Error(`Document type with name '${docTypeName}' was not found.`)
   }
 }
 
@@ -193,6 +217,12 @@ const createJsonotron = config => {
   }
 
   return {
+    /***********************************************
+    *                                              *
+    *            Async Document Methods            *
+    *                                              *
+    \***********************************************/
+
     /**
      * Create a new document.
      * @param {Object} req A request.
@@ -322,6 +352,69 @@ const createJsonotron = config => {
     replaceDocument: async req => {
       validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'reqProps', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
+    },
+
+    /***********************************************
+    *                                              *
+    *                Schema Methods                *
+    *                                              *
+    \***********************************************/
+
+    /**
+     * Create a JSON schema for the constructor parameters of a document type.
+     * @param {Objec} req A request.
+     * @param {String} req.docTypeName The name of a document type.
+     */
+    createJsonSchemaForDocTypeConstructorParameters: req => {
+      validateRequestParameters(req, 'docTypeName')
+      const docType = getDocType(config.docTypes, req.docTypeName)
+      return createJsonSchemaForDocTypeConstructorParametersInternal(docType, builtinAndCustomFieldTypes)
+    },
+
+    /**
+     * Create a JSON schema for the filter parameters of a document type filter.
+     * @param {Objec} req A request.
+     * @param {String} req.docTypeName The name of a document type.
+     * @param {String} req.filterName The name of a filter.
+     */
+    createJsonSchemaForDocTypeFilterParameters: req => {
+      validateRequestParameters(req, 'docTypeName', 'filterName')
+      const docType = getDocType(config.docTypes, req.docTypeName)
+      return createJsonSchemaForDocTypeFilterParametersInternal(docType, req.filterName, builtinAndCustomFieldTypes)
+    },
+
+    /**
+     * Create a JSON schema for a document type instance.
+     * @param {Objec} req A request.
+     * @param {String} req.docTypeName The name of a document type.
+     */
+    createJsonSchemaForDocTypeInstance: req => {
+      validateRequestParameters(req, 'docTypeName')
+      const docType = getDocType(config.docTypes, req.docTypeName)
+      return createJsonSchemaForDocTypeInstanceInternal(docType, builtinAndCustomFieldTypes)
+    },
+
+    /**
+     * Create a JSON schema for a merge patch of a document type.
+     * @param {Objec} req A request.
+     * @param {String} req.docTypeName The name of a document type.
+     */
+    createJsonSchemaForDocTypeMergePatch: req => {
+      validateRequestParameters(req, 'docTypeName')
+      const docType = getDocType(config.docTypes, req.docTypeName)
+      return createJsonSchemaForDocTypeMergePatchInternal(docType, builtinAndCustomFieldTypes)
+    },
+
+    /**
+     * Create a JSON schema for the operation parameters of a document type operation.
+     * @param {Objec} req A request.
+     * @param {String} req.docTypeName The name of a document type.
+     * @param {String} req.operationName The name of an operation.
+     */
+    createJsonSchemaForDocTypeOperationParameters: req => {
+      validateRequestParameters(req, 'docTypeName', 'operationName')
+      const docType = getDocType(config.docTypes, req.docTypeName)
+      return createJsonSchemaForDocTypeOperationParametersInternal(docType, req.operationName, builtinAndCustomFieldTypes)
     }
   }
 }

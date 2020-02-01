@@ -34,6 +34,31 @@ const createRequestWith = (propertyName, propertyValue) => {
   return req
 }
 
+const createCandidateDocTypesForSchemaGen = () => ([{
+  name: 'candidate',
+  pluralName: 'candidates',
+  title: 'Candidate',
+  pluralTitle: 'Candidates',
+  fields: {
+    propA: { type: 'string', description: 'A property.', example: 'abc' }
+  },
+  filters: {
+    byProp: {
+      description: 'Filter by prop',
+      parameters: {},
+      implementation: () => {}
+    }
+  },
+  operations: {
+    doSomething: {
+      title: 'Do Something',
+      description: 'Do a thing',
+      parameters: {},
+      implementation: () => {}
+    }
+  }
+}])
+
 test('A Jsonotron can be created given valid inputs.', () => {
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [] })).not.toThrow()
   expect(() => createJsonotron({ docStore: {}, docTypes: [], roleTypes: [], fieldTypes: [] })).not.toThrow()
@@ -208,4 +233,68 @@ test('A Jsonotron call to replaceDocument will fail if required parameters are n
   await expect(jsonotron.replaceDocument(createRequestWith('doc', 123))).rejects.toThrow(/doc/)
   await expect(jsonotron.replaceDocument(createRequestWith('docStoreOptions', 123))).rejects.toThrow(/docStoreOptions/)
   await expect(jsonotron.replaceDocument(createRequestWith('reqProps', 123))).rejects.toThrow(/reqProps/)
+})
+
+test('A Jsonotron engine can create a JSON schema for the constructor of document type.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters({ docTypeName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeConstructorParameters({ docTypeName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForDocTypeConstructorParameters({ docTypeName: 'candidate' })).toEqual(expect.objectContaining({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Candidate "Constructor" JSON Schema'
+  }))
+})
+
+test('A Jsonotron engine can create a JSON schema for the parameters of a filter of a document type.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 123, filterName: 'byProp' })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 'candidate', filterName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 'invalid', filterName: 'byProp' })).toThrow(Error)
+  expect(() => jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 'candidate', filterName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForDocTypeFilterParameters({ docTypeName: 'candidate', filterName: 'byProp' })).toEqual(expect.objectContaining({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Candidate "Filter byProp" JSON Schema'
+  }))
+})
+
+test('A Jsonotron engine can create a JSON schema for document type instance.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForDocTypeInstance()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeInstance({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeInstance({ docTypeName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeInstance({ docTypeName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForDocTypeInstance({ docTypeName: 'candidate' })).toEqual(expect.objectContaining({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Candidate JSON Schema'
+  }))
+})
+
+test('A Jsonotron engine can create a JSON schema for a merge patch of document type.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch({ docTypeName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeMergePatch({ docTypeName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForDocTypeMergePatch({ docTypeName: 'candidate' })).toEqual(expect.objectContaining({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Candidate "Merge Patch" JSON Schema'
+  }))
+})
+
+test('A Jsonotron engine can create a JSON schema for the parameters of an operation of a document type.', async () => {
+  const jsonotron = createJsonotron({ docStore: {}, docTypes: createCandidateDocTypesForSchemaGen(), roleTypes: [] })
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters()).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({})).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 123, operationName: 'doSomething' })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 'candidate', operationName: 123 })).toThrow(TypeError)
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 'invalid', operationName: 'doSomething' })).toThrow(Error)
+  expect(() => jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 'candidate', operationName: 'invalid' })).toThrow(Error)
+  expect(jsonotron.createJsonSchemaForDocTypeOperationParameters({ docTypeName: 'candidate', operationName: 'doSomething' })).toEqual(expect.objectContaining({
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Candidate "Operation doSomething" JSON Schema'
+  }))
 })
