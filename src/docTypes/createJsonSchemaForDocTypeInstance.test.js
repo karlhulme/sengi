@@ -38,7 +38,7 @@ test('Build a JSON Schema for doc type fields.', () => {
             description: 'An object that describes the creation of the document.',
             additionalProperties: false,
             properties: {
-              style: { enum: ['new', 'replace'] },
+              style: { enum: ['new', 'replace'], description: 'A value of \'new\' if the document was created using the constructor, otherwise \'replace\'.' },
               userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that created the document.' },
               dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was created.' }
             },
