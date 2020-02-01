@@ -30,9 +30,11 @@ const requestParameterValidators = {
   doc: v => typeof v === 'object' && v !== null && !Array.isArray(v),
   docStoreOptions: v => (typeof v === 'object' && !Array.isArray(v)) || typeof v === 'undefined',
   docTypeName: v => typeof v === 'string',
+  externalDefs: v => typeof v === 'string' || typeof v === 'undefined' || v === null,
   fieldNames: v => Array.isArray(v),
   filterName: v => typeof v === 'string',
   filterParams: v => typeof v === 'object' && v !== null && !Array.isArray(v),
+  fragment: v => typeof v === 'boolean' || typeof v === 'undefined' || v === null,
   id: v => typeof v === 'string',
   ids: v => Array.isArray(v),
   limit: v => typeof v === 'number' || typeof v === 'undefined',
@@ -362,59 +364,74 @@ const createJsonotron = config => {
 
     /**
      * Create a JSON schema for the constructor parameters of a document type.
-     * @param {Objec} req A request.
+     * @param {Object} req A request.
      * @param {String} req.docTypeName The name of a document type.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
      */
     createJsonSchemaForDocTypeConstructorParameters: req => {
-      validateRequestParameters(req, 'docTypeName')
+      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeConstructorParametersInternal(docType, builtinAndCustomFieldTypes)
+      return createJsonSchemaForDocTypeConstructorParametersInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
     },
 
     /**
      * Create a JSON schema for the filter parameters of a document type filter.
-     * @param {Objec} req A request.
+     * @param {Object} req A request.
      * @param {String} req.docTypeName The name of a document type.
      * @param {String} req.filterName The name of a filter.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
      */
     createJsonSchemaForDocTypeFilterParameters: req => {
-      validateRequestParameters(req, 'docTypeName', 'filterName')
+      validateRequestParameters(req, 'docTypeName', 'filterName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeFilterParametersInternal(docType, req.filterName, builtinAndCustomFieldTypes)
+      return createJsonSchemaForDocTypeFilterParametersInternal(docType, req.filterName, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
     },
 
     /**
      * Create a JSON schema for a document type instance.
-     * @param {Objec} req A request.
+     * @param {Object} req A request.
      * @param {String} req.docTypeName The name of a document type.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
      */
     createJsonSchemaForDocTypeInstance: req => {
-      validateRequestParameters(req, 'docTypeName')
+      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeInstanceInternal(docType, builtinAndCustomFieldTypes)
+      return createJsonSchemaForDocTypeInstanceInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
     },
 
     /**
      * Create a JSON schema for a merge patch of a document type.
-     * @param {Objec} req A request.
+     * @param {Object} req A request.
      * @param {String} req.docTypeName The name of a document type.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
      */
     createJsonSchemaForDocTypeMergePatch: req => {
-      validateRequestParameters(req, 'docTypeName')
+      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeMergePatchInternal(docType, builtinAndCustomFieldTypes)
+      return createJsonSchemaForDocTypeMergePatchInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
     },
 
     /**
      * Create a JSON schema for the operation parameters of a document type operation.
-     * @param {Objec} req A request.
+     * @param {Object} req A request.
      * @param {String} req.docTypeName The name of a document type.
      * @param {String} req.operationName The name of an operation.
+     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
+     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
+     * the definitions property will omitted from the result.
      */
     createJsonSchemaForDocTypeOperationParameters: req => {
-      validateRequestParameters(req, 'docTypeName', 'operationName')
+      validateRequestParameters(req, 'docTypeName', 'operationName', 'fragment', 'externalDefs')
       const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeOperationParametersInternal(docType, req.operationName, builtinAndCustomFieldTypes)
+      return createJsonSchemaForDocTypeOperationParametersInternal(docType, req.operationName, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
     }
   }
 }

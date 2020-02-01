@@ -47,3 +47,22 @@ test('Build an Update JSON Schema for doc type fields.', () => {
     }
   })
 })
+
+test('Build an Update JSON Schema for doc type fields to be used as a fragment with external schemas.', () => {
+  expect(createJsonSchemaForDocTypeMergePatch(docType, builtinFieldTypes, true, '#/components/schemas/')).toEqual({
+    title: 'Map "Merge Patch" JSON Schema',
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      cost: { $ref: '#/components/schemas/money', description: 'The cost of the map.' },
+      neighbouringMapId: { $ref: '#/components/schemas/sysId', description: 'The id of a neighbouring map.' },
+      vendors: {
+        type: 'array',
+        description: 'A list of vendors.',
+        items: {
+          $ref: '#/components/schemas/string'
+        }
+      }
+    }
+  })
+})

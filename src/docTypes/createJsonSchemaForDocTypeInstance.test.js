@@ -105,3 +105,23 @@ test('Build a JSON Schema for doc type fields.', () => {
     }
   })
 })
+
+test('Build a JSON Schema for doc type fields to be used as a fragment with external schemas.', () => {
+  expect(createJsonSchemaForDocTypeInstance(docType, builtinFieldTypes, true, '#/components/schemas/')).toEqual({
+    title: 'Map JSON Schema',
+    type: 'object',
+    additionalProperties: true,
+    properties: {
+      id: { $ref: '#/components/schemas/sysId', description: 'The id of the document.' },
+      docType: { enum: ['map'], description: 'The type of the document.' },
+      docVersion: { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' },
+      sys: expect.anything(),
+      cost: { $ref: '#/components/schemas/money', description: 'The cost of the map.' },
+      sizeInMetresSquares: { $ref: '#/components/schemas/integer', description: 'The size of the map.' },
+      placesCount: { $ref: '#/components/schemas/integer', description: 'The number of places covered.' },
+      list: { type: 'array', items: { $ref: '#/components/schemas/integer' }, description: 'A list of numbers.' },
+      neighbouringMapId: { $ref: '#/components/schemas/sysId', description: 'The id of a neighbouring map.' }
+    },
+    required: ['id', 'docType', 'sys', 'cost']
+  })
+})

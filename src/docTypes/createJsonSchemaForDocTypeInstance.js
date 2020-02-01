@@ -1,6 +1,8 @@
 const check = require('check-types')
 const { getReferencedFieldTypeNames } = require('../fieldTypes')
+const createJsonSchemaForDocTypeFieldArrayProperty = require('./createJsonSchemaForDocTypeFieldArrayProperty')
 const createJsonSchemaDefinitionsSection = require('./createJsonSchemaDefinitionsSection')
+const createJsonSchemaForDocTypeFieldNonArrayProperty = require('./createJsonSchemaForDocTypeFieldNonArrayProperty')
 const getFieldTypeNameForDocTypeField = require('./getFieldTypeNameForDocTypeField')
 
 /**
@@ -27,40 +29,10 @@ const getDirectlyReferencedFieldTypeNamesFromDocTypeFields = docType => {
 }
 
 /**
- * Create a non-array property node for a json schema.
- * @param {Object} docTypeField A field defined on a doc type.
- * @param {String} fieldTypeName The name of a field type.
- */
-const createJsonSchemaNonArrayProperty = (docTypeField, fieldTypeName) => {
-  check.assert.object(docTypeField)
-  check.assert.string(docTypeField.description)
-
-  return {
-    $ref: `#/definitions/${fieldTypeName}`,
-    description: docTypeField.description
-  }
-}
-
-/**
- * Create an array property node for a json schema.
- * @param {Object} docTypeField A field defined on a doc type.
- * @param {String} fieldTypeName The name of a field type.
- */
-const createJsonSchemaArrayProperty = (docTypeField, fieldTypeName) => {
-  check.assert.object(docTypeField)
-  check.assert.string(docTypeField.description)
-
-  return {
-    type: 'array',
-    items: { $ref: `#/definitions/${fieldTypeName}` },
-    description: docTypeField.description
-  }
-}
-
-/**
  * Create a JSON schema for the sys property.
+ * @param {String} definitionsPath The path to the field definitions.
  */
-const createJsonSchemaForSysProperty = () => {
+const createJsonSchemaForSysProperty = definitionsPath => {
   return {
     type: 'object',
     properties: {
@@ -70,8 +42,8 @@ const createJsonSchemaForSysProperty = () => {
         additionalProperties: false,
         properties: {
           style: { enum: ['new', 'replace'], description: 'A value of \'new\' if the document was created using the constructor, otherwise \'replace\'.' },
-          userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that created the document.' },
-          dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was created.' }
+          userIdentity: { $ref: `${definitionsPath}sysUserIdentity`, description: 'The identity of the user that created the document.' },
+          dateTime: { $ref: `${definitionsPath}sysDateTime`, description: 'The moment that the document was created.' }
         },
         required: ['style', 'userIdentity', 'dateTime']
       },
@@ -80,8 +52,8 @@ const createJsonSchemaForSysProperty = () => {
         description: 'An object that describes the last time the document was updated.',
         additionalProperties: false,
         properties: {
-          userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that last updated the document.' },
-          dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the document was last updated.' }
+          userIdentity: { $ref: `${definitionsPath}sysUserIdentity`, description: 'The identity of the user that last updated the document.' },
+          dateTime: { $ref: `${definitionsPath}sysDateTime`, description: 'The moment that the document was last updated.' }
         },
         required: ['userIdentity', 'dateTime']
       },
@@ -91,9 +63,9 @@ const createJsonSchemaForSysProperty = () => {
           type: 'object',
           description: 'An object that describes an operation.',
           properties: {
-            opId: { $ref: '#/definitions/sysOpId', description: 'The id of an operation.' },
-            userIdentity: { $ref: '#/definitions/sysUserIdentity', description: 'The identity of the user that initiated the operation.' },
-            dateTime: { $ref: '#/definitions/sysDateTime', description: 'The moment that the operation took place.' },
+            opId: { $ref: `${definitionsPath}sysOpId`, description: 'The id of an operation.' },
+            userIdentity: { $ref: `${definitionsPath}sysUserIdentity`, description: 'The identity of the user that initiated the operation.' },
+            dateTime: { $ref: `${definitionsPath}sysDateTime`, description: 'The moment that the operation took place.' },
             style: { enum: ['patch', 'operation'], description: 'The style of the update, either \'patch\' or \'operation\'.' },
             operationName: { type: 'string', description: 'The name of the operation, if style is \'operation\'' }
           },
@@ -124,26 +96,27 @@ const createJsonSchemaForSysProperty = () => {
  * Note that while docVersion uses the docVersion type definition, it is not
  * a required field.
  * @param {Object} docType A doc type.
+ * @param {String} definitionsPath The path to the field definitions.
  */
-const createJsonSchemaPropertiesSectionForDocTypeFields = docType => {
+const createJsonSchemaPropertiesSectionForDocTypeFields = (docType, definitionsPath) => {
   check.assert.string(docType.name)
   check.assert.object(docType.fields)
 
   const properties = {}
 
-  properties.id = { $ref: '#/definitions/sysId', description: 'The id of the document.' }
+  properties.id = { $ref: `${definitionsPath}sysId`, description: 'The id of the document.' }
   properties.docType = { enum: [docType.name], description: 'The type of the document.' }
   properties.docVersion = { description: 'The version of the current iteration of the document (eTag) that is re-generated on save.' }
 
-  properties.sys = createJsonSchemaForSysProperty()
+  properties.sys = createJsonSchemaForSysProperty(definitionsPath)
 
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
     const fieldTypeName = getFieldTypeNameForDocTypeField(field)
 
     properties[fieldName] = field.isArray
-      ? createJsonSchemaArrayProperty(field, fieldTypeName)
-      : createJsonSchemaNonArrayProperty(field, fieldTypeName)
+      ? createJsonSchemaForDocTypeFieldArrayProperty(field, fieldTypeName, definitionsPath)
+      : createJsonSchemaForDocTypeFieldNonArrayProperty(field, fieldTypeName, definitionsPath)
   }
 
   return properties
@@ -173,28 +146,40 @@ const createJsonSchemaRequiredSectionForDocTypeFields = docType => {
  * Creates a JSON Schema for docs of the given doc type.
  * @param {Object} docType A doc type.
  * @param {Array} fieldTypes An array of field types.
+ * @param {Boolean} [fragment] True if the $schema property should be omitted from the result.
+ * @param {String} [externalDefs] A path to external definitions.  If supplied, then
+ * the definitions property will omitted from the result.
  */
-const createJsonSchemaForDocTypeInstance = (docType, fieldTypes) => {
+const createJsonSchemaForDocTypeInstance = (docType, fieldTypes, fragment, externalDefs) => {
   check.assert.object(docType)
   check.assert.string(docType.title)
   check.assert.array.of.object(fieldTypes)
 
-  const directlyReferencedFieldTypeNames = getDirectlyReferencedFieldTypeNamesFromDocTypeFields(docType)
-  const referencedFieldTypeNames = getReferencedFieldTypeNames(fieldTypes, directlyReferencedFieldTypeNames)
+  const definitionsInternalPath = '#/definitions/'
+  const definitionsPath = typeof externalDefs === 'string' && externalDefs.length > 0 ? externalDefs : definitionsInternalPath
 
-  const properties = createJsonSchemaPropertiesSectionForDocTypeFields(docType)
+  const properties = createJsonSchemaPropertiesSectionForDocTypeFields(docType, definitionsPath)
   const required = createJsonSchemaRequiredSectionForDocTypeFields(docType)
-  const definitions = createJsonSchemaDefinitionsSection(fieldTypes, referencedFieldTypeNames)
 
-  return {
+  const schema = {
     title: `${docType.title} JSON Schema`,
-    $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',
     additionalProperties: true,
     properties,
-    required,
-    definitions
+    required
   }
+
+  if (!fragment) {
+    schema.$schema = 'http://json-schema.org/draft-07/schema#'
+  }
+
+  if (definitionsPath === definitionsInternalPath) {
+    const directlyReferencedFieldTypeNames = getDirectlyReferencedFieldTypeNamesFromDocTypeFields(docType)
+    const referencedFieldTypeNames = getReferencedFieldTypeNames(fieldTypes, directlyReferencedFieldTypeNames)
+    schema.definitions = createJsonSchemaDefinitionsSection(fieldTypes, referencedFieldTypeNames)
+  }
+
+  return schema
 }
 
 module.exports = createJsonSchemaForDocTypeInstance

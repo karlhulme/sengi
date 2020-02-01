@@ -1,6 +1,8 @@
 const check = require('check-types')
 const { getReferencedFieldTypeNames } = require('../fieldTypes')
+const createJsonSchemaForDocTypeFieldArrayProperty = require('./createJsonSchemaForDocTypeFieldArrayProperty')
 const createJsonSchemaDefinitionsSection = require('./createJsonSchemaDefinitionsSection')
+const createJsonSchemaForDocTypeFieldNonArrayProperty = require('./createJsonSchemaForDocTypeFieldNonArrayProperty')
 const getFieldTypeNameForDocTypeField = require('./getFieldTypeNameForDocTypeField')
 
 /**
@@ -29,39 +31,11 @@ const getDirectlyReferencedFieldTypeNamesFromDocTypeUpdateFields = docType => {
 }
 
 /**
- * Create a non-array property node for a json schema.
- * @param {Object} field A field.
- * @param {String} fieldTypeName The name of a field type.
- */
-const createJsonSchemaNonArrayProperty = (field, fieldTypeName) => {
-  check.assert.string(field.description)
-
-  return {
-    $ref: `#/definitions/${fieldTypeName}`,
-    description: field.description
-  }
-}
-
-/**
- * Create an array property node for a json schema.
- * @param {Object} field A field.
- * @param {String} fieldTypeName The name of a field type.
- */
-const createJsonSchemaArrayProperty = (field, fieldTypeName) => {
-  check.assert.string(field.description)
-
-  return {
-    type: 'array',
-    items: { $ref: `#/definitions/${fieldTypeName}` },
-    description: field.description
-  }
-}
-
-/**
  * Builds the 'properties' section of an Update JSON schema for the given doc type.
  * @param {Object} docType A doc type.
+ * @param {String} definitionsPath The path to the field definitions.
  */
-const createJsonSchemaPropertiesSectionForDocTypeUpdateFields = docType => {
+const createJsonSchemaPropertiesSectionForDocTypeUpdateFields = (docType, definitionsPath) => {
   check.assert.object(docType.fields)
 
   const properties = {}
@@ -73,8 +47,8 @@ const createJsonSchemaPropertiesSectionForDocTypeUpdateFields = docType => {
       const fieldTypeName = getFieldTypeNameForDocTypeField(field)
 
       properties[fieldName] = field.isArray
-        ? createJsonSchemaArrayProperty(field, fieldTypeName)
-        : createJsonSchemaNonArrayProperty(field, fieldTypeName)
+        ? createJsonSchemaForDocTypeFieldArrayProperty(field, fieldTypeName, definitionsPath)
+        : createJsonSchemaForDocTypeFieldNonArrayProperty(field, fieldTypeName, definitionsPath)
     }
   }
 
@@ -85,26 +59,38 @@ const createJsonSchemaPropertiesSectionForDocTypeUpdateFields = docType => {
  * Creates a JSON Schema for merge patches for the given doc type.
  * @param {Object} docType A doc type.
  * @param {Array} fieldTypes An array of field types.
+ * @param {Boolean} [fragment] True if the $schema property should be omitted from the result.
+ * @param {String} [externalDefs] A path to external definitions.  If supplied, then
+ * the definitions property will omitted from the result.
  */
-const createJsonSchemaForDocTypeMergePatch = (docType, fieldTypes) => {
+const createJsonSchemaForDocTypeMergePatch = (docType, fieldTypes, fragment, externalDefs) => {
   check.assert.object(docType)
   check.assert.string(docType.title)
   check.assert.array.of.object(fieldTypes)
 
-  const directlyReferencedFieldTypeNames = getDirectlyReferencedFieldTypeNamesFromDocTypeUpdateFields(docType)
-  const referencedFieldTypeNames = getReferencedFieldTypeNames(fieldTypes, directlyReferencedFieldTypeNames)
+  const definitionsInternalPath = '#/definitions/'
+  const definitionsPath = typeof externalDefs === 'string' && externalDefs.length > 0 ? externalDefs : definitionsInternalPath
 
-  const properties = createJsonSchemaPropertiesSectionForDocTypeUpdateFields(docType)
-  const definitions = createJsonSchemaDefinitionsSection(fieldTypes, referencedFieldTypeNames)
+  const properties = createJsonSchemaPropertiesSectionForDocTypeUpdateFields(docType, definitionsPath)
 
-  return {
+  const schema = {
     title: `${docType.title} "Merge Patch" JSON Schema`,
-    $schema: 'http://json-schema.org/draft-07/schema#',
     type: 'object',
     additionalProperties: false,
-    properties,
-    definitions
+    properties
   }
+
+  if (!fragment) {
+    schema.$schema = 'http://json-schema.org/draft-07/schema#'
+  }
+
+  if (definitionsPath === definitionsInternalPath) {
+    const directlyReferencedFieldTypeNames = getDirectlyReferencedFieldTypeNamesFromDocTypeUpdateFields(docType)
+    const referencedFieldTypeNames = getReferencedFieldTypeNames(fieldTypes, directlyReferencedFieldTypeNames)
+    schema.definitions = createJsonSchemaDefinitionsSection(fieldTypes, referencedFieldTypeNames)
+  }
+
+  return schema
 }
 
 module.exports = createJsonSchemaForDocTypeMergePatch
