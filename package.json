@@ -18,9 +18,9 @@
   },
   "homepage": "https://github.com/karlhulme/jsonotron#readme",
   "devDependencies": {
-    "acorn": "^7.1.0",
-    "jest": "^24.9.0",
-    "standard": "^14.3.1"
+    "acorn": "^7.1.1",
+    "jest": "^25.1.0",
+    "standard": "^14.3.3"
   },
   "dependencies": {
     "ajv": "^6.10.2",
