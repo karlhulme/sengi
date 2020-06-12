@@ -1,6 +1,6 @@
 # Jsonotron
 
-![](https://github.com/karlhulme/jsonotron/workflows/CI/badge.svg)
+![](https://github.com/karlhulme/jsonotron/workflows/CD/badge.svg)
 [![npm](https://img.shields.io/npm/v/jsonotron.svg)](https://www.npmjs.com/package/jsonotron)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
