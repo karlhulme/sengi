@@ -10,7 +10,7 @@ const {
 } = require('jsonotron-validation')
 const { initValidatorCache } = require('../validatorCache')
 const { wrapDocStore } = require('../docStore')
-const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
+const { combineCustomAndBuiltInFieldTypes, combineCustomAndBuiltinFormatValidators } = require('../fieldTypes')
 const {
   createJsonSchemaForDocTypeConstructorParameters: createJsonSchemaForDocTypeConstructorParametersInternal,
   createJsonSchemaForDocTypeFilterParameters: createJsonSchemaForDocTypeFilterParametersInternal,
@@ -177,6 +177,10 @@ const createJsonotron = config => {
     throw new TypeError('Constructor parameter \'config.fieldTypes\' must be an array.')
   }
 
+  if (typeof config.formatValidators !== 'undefined' && !Array.isArray(config.formatValidators)) {
+    throw new TypeError('Constructor parameter \'config.formatValidators\' must be an array.')
+  }
+
   if (typeof config.dateTimeFunc !== 'undefined' && typeof config.dateTimeFunc !== 'function') {
     throw new TypeError('Constructor parameter \'config.dateTimeFunc\' must be a function.')
   }
@@ -204,8 +208,11 @@ const createJsonotron = config => {
   // wrap the doc store so methods are safe to call
   const safeDocStore = wrapDocStore(config.docStore)
 
+  // build the format validators array (custom and built-in)
+  const builtinAndCustomFormatValidators = combineCustomAndBuiltinFormatValidators(config.formatValidators || [], builtinFormatValidators)
+
   // create a customised json validator with the jsonotron keywords and formats
-  const ajv = createCustomisedAjv(builtinFormatValidators)
+  const ajv = createCustomisedAjv(builtinAndCustomFormatValidators)
 
   // build the field types array (custom and built-in) and ensure they're all valid
   const builtinAndCustomFieldTypes = combineCustomAndBuiltInFieldTypes(config.fieldTypes || [], builtinFieldTypes)

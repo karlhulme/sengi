@@ -7,7 +7,7 @@ const {
   JsonotronMergePatchValidationError,
   JsonotronOperationParamsValidationError
 } = require('jsonotron-errors')
-const ValidatorCache = require('./validatorCache')
+const ValidatorCache = require('./ValidatorCache')
 
 test('Validator cache can store, retrieve and execute field type value validators.', () => {
   const validatorCache = new ValidatorCache()

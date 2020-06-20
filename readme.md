@@ -42,6 +42,8 @@ Instantiate a Jsonotron engine with a configuration object:
 
 * **fieldTypes** - An array of Jsonotron field types that will be appended to the built-in field types.
 
+* **formatValidators** - An array of format validators that will be appended to the built-in format validators.
+
 * **dateTimeFunc** - A function that returns a UTC date/time string in docDateTime format.
 
 * **onPreSaveDoc** - A function that is invoked just before a document is saved.  The function is passed roleNames, reqProps, docType and doc properties. If the document is being updated (rather than created or replaced) then a mergePatch property will be also be passed to the function that describes the changes. Any change made to the doc property or the mergePatch properties will be reflected in the document that is sent to the document store to be persisted.

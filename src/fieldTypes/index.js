@@ -1,3 +1,4 @@
 module.exports = {
-  combineCustomAndBuiltInFieldTypes: require('./combineCustomAndBuiltInFieldTypes')
+  combineCustomAndBuiltInFieldTypes: require('./combineCustomAndBuiltInFieldTypes'),
+  combineCustomAndBuiltinFormatValidators: require('./combineCustomAndBuiltinFormatValidators')
 }
