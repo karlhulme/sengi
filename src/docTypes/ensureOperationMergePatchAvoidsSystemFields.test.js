@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const ensureOperationMergePatchAvoidsSystemFields = require('./ensureOperationMergePatchAvoidsSystemFields')
-const { JsonotronInvalidOperationMergePatchError } = require('../errors')
+const { JsonotronInvalidOperationMergePatchError } = require('jsonotron-errors')
 
 test('Accept operation patches that contain declared fields.', () => {
   expect(() => ensureOperationMergePatchAvoidsSystemFields('test', 'doSomething', { fieldA: 'hello', fieldB: 123 })).not.toThrow()

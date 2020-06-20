@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronUnrecognisedFieldNameError } = require('../errors')
+const { JsonotronUnrecognisedFieldNameError } = require('jsonotron-errors')
 const isSystemFieldName = require('./isSystemFieldName')
 const isDeclaredFieldName = require('./isDeclaredFieldName')
 const isCalculatedFieldName = require('./isCalculatedFieldName')

@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronInsufficientPermissionsError } = require('../errors')
+const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
 const hasPermission = require('./hasPermission')
 
 /**

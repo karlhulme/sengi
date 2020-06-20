@@ -1,4 +1,4 @@
-const { JsonotronInternalError } = require('../errors')
+const { JsonotronInternalError } = require('jsonotron-errors')
 
 /**
  * Returns the name of the field type for the given field.

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronInsufficientPermissionsError } = require('../errors')
+const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
 const createJsonotron = require('./createJsonotron')
 
 const createRequestWith = (propertyName, propertyValue) => {

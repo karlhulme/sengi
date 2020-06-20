@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronPreSaveFailedError } = require('../errors')
+const { JsonotronPreSaveFailedError } = require('jsonotron-errors')
 
 /**
  * Execute a doc type pre-save function.

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronUnrecognisedFieldNameError } = require('../errors')
+const { JsonotronUnrecognisedFieldNameError } = require('jsonotron-errors')
 const determineFieldNamesForRetrieval = require('./determineFieldNamesForRetrieval')
 
 const docType = {

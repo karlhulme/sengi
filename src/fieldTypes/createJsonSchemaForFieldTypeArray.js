@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronFieldTypeResolutionError } = require('../errors')
+const { JsonotronFieldTypeResolutionError } = require('jsonotron-errors')
 const getJsonSchemaFragmentForFieldType = require('./getJsonSchemaFragmentForFieldType')
 const getReferencedFieldTypeNames = require('./getReferencedFieldTypeNames')
 

@@ -2,7 +2,7 @@
 const {
   JsonotronCalculatedFieldFailedError,
   JsonotronUnrecognisedCalculatedFieldNameError
-} = require('../errors')
+} = require('jsonotron-errors')
 const executeCalculatedField = require('./executeCalculatedField')
 
 const docType = {

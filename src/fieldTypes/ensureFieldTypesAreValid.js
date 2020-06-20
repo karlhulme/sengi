@@ -1,6 +1,6 @@
 const check = require('check-types')
-const { JsonotronFieldTypeValidationError } = require('../errors')
-const { fieldTypeSchema } = require('../schemas')
+const { JsonotronFieldTypeValidationError } = require('jsonotron-errors')
+const { fieldTypeSchema } = require('jsonotron-schemas')
 const createFieldTypeValueValidator = require('./createFieldTypeValueValidator')
 
 /**

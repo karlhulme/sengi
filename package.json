@@ -26,6 +26,9 @@
     "ajv": "^6.10.2",
     "check-types": "^10.1.2",
     "fast-json-patch": "^2.1.0",
+    "jsonotron-errors": "^0.2.1",
+    "jsonotron-fields": "0.0.4",
+    "jsonotron-schemas": "^0.1.7",
     "luhn": "^2.4.0",
     "moment": "^2.24.0"
   },

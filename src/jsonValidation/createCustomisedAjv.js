@@ -16,9 +16,9 @@ const createCustomisedAjv = () => {
     ownProperties: true
   })
 
-  ajv.addFormat('custom-utc-date-time', { validate: utcDateTimeValidator })
-  ajv.addFormat('custom-local-date-time', { validate: localDateTimeValidator })
-  ajv.addFormat('custom-luhn-algorithm', { validate: luhnValidator })
+  ajv.addFormat('jsonotron-utc-date-time', { validate: utcDateTimeValidator })
+  ajv.addFormat('jsonotron-local-date-time', { validate: localDateTimeValidator })
+  ajv.addFormat('jsonotron-luhn-algorithm', { validate: luhnValidator })
 
   ajv.addKeyword('customTypeOf', { compile: typeOfValidatorGenerator })
 

@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const { JsonotronInsufficientPermissionsError } = require('../errors')
+const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
 const { successCodes } = require('../docStore')
 const deleteDocument = require('./deleteDocument')
 

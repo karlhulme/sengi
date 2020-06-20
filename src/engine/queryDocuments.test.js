@@ -3,7 +3,7 @@ const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronActionForbiddenByPolicyError,
   JsonotronInsufficientPermissionsError
-} = require('../errors')
+} = require('jsonotron-errors')
 const queryDocuments = require('./queryDocuments')
 
 test('Query all document of a type in collection.', async () => {

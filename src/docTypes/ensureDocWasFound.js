@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronDocumentNotFoundError } = require('../errors')
+const { JsonotronDocumentNotFoundError } = require('jsonotron-errors')
 
 /**
  * Raises an error if the given doc is not an object.

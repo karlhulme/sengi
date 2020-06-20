@@ -7,7 +7,7 @@ const {
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError,
   JsonotronUnrecognisedOperationNameError
-} = require('../errors')
+} = require('jsonotron-errors')
 const operateOnDocument = require('./operateOnDocument')
 
 test('Operate on document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones)..', async () => {

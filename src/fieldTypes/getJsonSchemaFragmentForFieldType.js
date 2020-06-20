@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronInternalError } = require('../errors')
+const { JsonotronInternalError } = require('jsonotron-errors')
 
 /**
  * Returns the JSON schema fragment of the given field type.

@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const createJsonSchemaForFieldType = require('./createJsonSchemaForFieldType')
-const { JsonotronFieldTypeResolutionError } = require('../errors')
+const { JsonotronFieldTypeResolutionError } = require('jsonotron-errors')
 
 const fieldTypes = [{
   name: 'example',

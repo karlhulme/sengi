@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronFieldTypeResolutionError } = require('../errors')
+const { JsonotronFieldTypeResolutionError } = require('jsonotron-errors')
 
 /**
  * Return an array that contains the names of all the field types identified

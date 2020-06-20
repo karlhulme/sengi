@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronFieldTypeResolutionError } = require('../errors')
+const { JsonotronFieldTypeResolutionError } = require('jsonotron-errors')
 const getReferencedFieldTypeNames = require('./getReferencedFieldTypeNames')
 
 const fieldTypes = [{

@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronInternalError } = require('../errors')
+const { JsonotronInternalError } = require('jsonotron-errors')
 
 /**
  * Raises an error if the given document is missing an id or a docType.

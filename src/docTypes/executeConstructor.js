@@ -2,7 +2,7 @@ const check = require('check-types')
 const {
   JsonotronConstructorFailedError,
   JsonotronConstructorNotDefinedError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Execute a doc type constructor.

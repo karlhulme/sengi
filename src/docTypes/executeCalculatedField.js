@@ -2,7 +2,7 @@ const check = require('check-types')
 const {
   JsonotronCalculatedFieldFailedError,
   JsonotronUnrecognisedCalculatedFieldNameError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Executes the calculated field value function using the inputs taken

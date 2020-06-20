@@ -3,7 +3,7 @@ const evaluateFilter = require('./evaluateFilter')
 const {
   JsonotronUnrecognisedFilterNameError,
   JsonotronFilterFailedError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 const docType = {
   name: 'example',

@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const ensureFilterName = require('./ensureFilterName')
-const { JsonotronUnrecognisedFilterNameError } = require('../errors')
+const { JsonotronUnrecognisedFilterNameError } = require('jsonotron-errors')
 
 const docType = {
   name: 'testDocType',

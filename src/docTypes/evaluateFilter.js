@@ -2,7 +2,7 @@ const check = require('check-types')
 const {
   JsonotronUnrecognisedFilterNameError,
   JsonotronFilterFailedError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Evaluate a doc type filter.

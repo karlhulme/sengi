@@ -7,7 +7,7 @@ const {
   JsonotronInternalError,
   JsonotronMergePatchValidationError,
   JsonotronOperationParamsValidationError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Provides functions for storing and retrieving validators.

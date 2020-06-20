@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const builtinFieldTypes = require('../builtinFieldTypes')
+const { builtinFieldTypes } = require('jsonotron-fields')
 const testDocTypes = require('../testData/docTypes')
 const testFieldTypes = require('../testData/fieldTypes')
 const testRoleTypes = require('../testData/roleTypes')

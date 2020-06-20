@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronInternalError } = require('../errors')
+const { JsonotronInternalError } = require('jsonotron-errors')
 
 /**
  * Returns true if the requested field names can be honoured.

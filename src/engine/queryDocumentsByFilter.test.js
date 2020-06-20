@@ -3,7 +3,7 @@ const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronUnrecognisedFilterNameError,
   JsonotronInsufficientPermissionsError
-} = require('../errors')
+} = require('jsonotron-errors')
 const queryDocumentsByFilter = require('./queryDocumentsByFilter')
 
 test('Query by document filter.', async () => {

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronInternalError } = require('../errors')
+const { JsonotronInternalError } = require('jsonotron-errors')
 const getFilterParameters = require('./getFilterParameters')
 
 const docType = {

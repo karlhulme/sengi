@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronCallbackError } = require('../errors')
+const { JsonotronCallbackError } = require('jsonotron-errors')
 
 /**
  * Invokes the given function with the given parameters.  If the

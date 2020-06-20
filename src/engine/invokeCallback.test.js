@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronCallbackError } = require('../errors')
+const { JsonotronCallbackError } = require('jsonotron-errors')
 const invokeCallback = require('./invokeCallback')
 
 test('A callback should be invoked with the given parameters.', async () => {

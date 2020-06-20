@@ -1,7 +1,7 @@
 /* eslint-env jest */
-const builtinFieldTypes = require('../builtinFieldTypes')
+const { builtinFieldTypes } = require('jsonotron-fields')
 const { createCustomisedAjv } = require('../jsonValidation')
-const { JsonotronFieldTypeValidationError } = require('../errors')
+const { JsonotronFieldTypeValidationError } = require('jsonotron-errors')
 const ensureFieldTypesAreValid = require('./ensureFieldTypesAreValid')
 
 const createValidFieldType = () => ({

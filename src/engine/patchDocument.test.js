@@ -6,7 +6,7 @@ const {
   JsonotronMergePatchValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
-} = require('../errors')
+} = require('jsonotron-errors')
 const { errorCodes } = require('../docStore')
 const patchDocument = require('./patchDocument')
 

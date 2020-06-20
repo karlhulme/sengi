@@ -1,5 +1,5 @@
 const getOperationNames = require('./getOperationNames')
-const { JsonotronUnrecognisedOperationNameError } = require('../errors')
+const { JsonotronUnrecognisedOperationNameError } = require('jsonotron-errors')
 
 /**
  * Ensure that the given operation name is an operation defined

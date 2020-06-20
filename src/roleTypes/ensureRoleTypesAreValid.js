@@ -1,6 +1,6 @@
 const check = require('check-types')
-const { JsonotronRoleTypeValidationError } = require('../errors')
-const { roleTypeSchema } = require('../schemas')
+const { JsonotronRoleTypeValidationError } = require('jsonotron-errors')
+const { roleTypeSchema } = require('jsonotron-schemas')
 
 /**
  * Raises an error if the role type fails to conform to the roleTypeSchema.

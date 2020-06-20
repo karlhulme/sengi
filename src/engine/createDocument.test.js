@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const { JsonotronInsufficientPermissionsError } = require('../errors')
+const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
 const createDocument = require('./createDocument')
 
 test('Creating a document should call exists and then upsert on doc store.', async () => {

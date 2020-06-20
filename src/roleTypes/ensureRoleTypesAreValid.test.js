@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const { createCustomisedAjv } = require('../jsonValidation')
-const { JsonotronRoleTypeValidationError } = require('../errors')
+const { JsonotronRoleTypeValidationError } = require('jsonotron-errors')
 const ensureRoleTypesAreValid = require('./ensureRoleTypesAreValid')
 
 const createValidRoleType = () => ({

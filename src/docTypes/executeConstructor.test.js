@@ -2,7 +2,7 @@
 const {
   JsonotronConstructorFailedError,
   JsonotronConstructorNotDefinedError
-} = require('../errors')
+} = require('jsonotron-errors')
 const executeConstructor = require('./executeConstructor')
 
 const docType = {

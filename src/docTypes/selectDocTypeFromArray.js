@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronUnrecognisedDocTypeNameError } = require('../errors')
+const { JsonotronUnrecognisedDocTypeNameError } = require('jsonotron-errors')
 
 /**
  * Selects the doc type with the given name from the given docTypes array.

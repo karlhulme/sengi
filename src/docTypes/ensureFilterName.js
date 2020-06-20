@@ -1,5 +1,5 @@
 const getFilterNames = require('./getFilterNames')
-const { JsonotronUnrecognisedFilterNameError } = require('../errors')
+const { JsonotronUnrecognisedFilterNameError } = require('jsonotron-errors')
 
 /**
  * Ensure that the given filter name is a filter defined

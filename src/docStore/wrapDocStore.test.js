@@ -8,7 +8,7 @@ const {
   JsonotronDocStoreUnrecognisedErrorCodeError,
   JsonotronInternalError,
   JsonotronRequiredVersionNotAvailableError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 const docStoreWithoutFunctions = {
   deleteById: null,

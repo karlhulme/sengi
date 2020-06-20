@@ -9,7 +9,7 @@ const {
   JsonotronDocStoreMissingFunctionError,
   JsonotronDocStoreUnrecognisedErrorCodeError,
   JsonotronRequiredVersionNotAvailableError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Raises an appropriate error if the given doc store result

@@ -4,7 +4,7 @@ const {
   JsonotronOperationFailedError,
   JsonotronOperationNonObjectResponseError,
   JsonotronUnrecognisedOperationNameError
-} = require('../errors')
+} = require('jsonotron-errors')
 const executeOperation = require('./executeOperation')
 
 const docType = {

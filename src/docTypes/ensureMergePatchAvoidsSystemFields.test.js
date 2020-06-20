@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronInvalidMergePatchError } = require('../errors')
+const { JsonotronInvalidMergePatchError } = require('jsonotron-errors')
 const ensureMergePatchAvoidsSystemFields = require('./ensureMergePatchAvoidsSystemFields')
 
 test('Accept patches that contain declared fields.', () => {

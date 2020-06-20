@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronInvalidOperationMergePatchError } = require('../errors')
+const { JsonotronInvalidOperationMergePatchError } = require('jsonotron-errors')
 const isSystemFieldName = require('./isSystemFieldName')
 
 /**

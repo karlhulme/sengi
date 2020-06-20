@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const executeValidator = require('./executeValidator')
-const { JsonotronDocumentCustomValidationError } = require('../errors')
+const { JsonotronDocumentCustomValidationError } = require('jsonotron-errors')
 
 const docTypeWithNoValidate = {
   name: 'testDocType2'

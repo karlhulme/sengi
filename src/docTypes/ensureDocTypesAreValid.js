@@ -1,10 +1,10 @@
 const check = require('check-types')
-const { docTypeSchema } = require('../schemas')
+const { docTypeSchema } = require('jsonotron-schemas')
 const {
   createFieldTypeArrayValueValidator,
   createFieldTypeValueValidator
 } = require('../fieldTypes')
-const { JsonotronDocTypeValidationError } = require('../errors')
+const { JsonotronDocTypeValidationError } = require('jsonotron-errors')
 const getSystemFields = require('./getSystemFields')
 
 /**

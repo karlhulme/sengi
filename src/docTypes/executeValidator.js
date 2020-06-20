@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronDocumentCustomValidationError } = require('../errors')
+const { JsonotronDocumentCustomValidationError } = require('jsonotron-errors')
 
 /**
  * Executes the validator function on the given doc type if

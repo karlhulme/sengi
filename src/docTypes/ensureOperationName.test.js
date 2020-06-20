@@ -1,6 +1,6 @@
 /* eslint-env jest */
 const ensureOperationName = require('./ensureOperationName')
-const { JsonotronUnrecognisedOperationNameError } = require('../errors')
+const { JsonotronUnrecognisedOperationNameError } = require('jsonotron-errors')
 
 const docType = {
   name: 'testDocType',

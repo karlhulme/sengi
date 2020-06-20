@@ -4,7 +4,7 @@ const {
   JsonotronOperationFailedError,
   JsonotronOperationNonObjectResponseError,
   JsonotronUnrecognisedOperationNameError
-} = require('../errors')
+} = require('jsonotron-errors')
 
 /**
  * Call operation implementation and wrap any errors raised.

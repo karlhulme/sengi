@@ -1,5 +1,5 @@
 const moment = require('moment')
-const builtinFieldTypes = require('../builtinFieldTypes')
+const { builtinFieldTypes } = require('jsonotron-fields')
 const { wrapDocStore } = require('../docStore')
 const { createCustomisedAjv, initValidatorCache } = require('../jsonValidation')
 const {

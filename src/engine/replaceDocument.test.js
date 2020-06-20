@@ -6,7 +6,7 @@ const {
   JsonotronDocumentFieldsValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
-} = require('../errors')
+} = require('jsonotron-errors')
 const { errorCodes, successCodes } = require('../docStore')
 const replaceDocument = require('./replaceDocument')
 

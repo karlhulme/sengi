@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { JsonotronUnrecognisedDocTypeNameError } = require('../errors')
+const { JsonotronUnrecognisedDocTypeNameError } = require('jsonotron-errors')
 const selectDocTypeFromArray = require('./selectDocTypeFromArray')
 
 const docTypes = [

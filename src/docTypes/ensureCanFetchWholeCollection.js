@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { JsonotronActionForbiddenByPolicyError } = require('../errors')
+const { JsonotronActionForbiddenByPolicyError } = require('jsonotron-errors')
 
 /**
  * Raises an error if the doc type policy does not allow
