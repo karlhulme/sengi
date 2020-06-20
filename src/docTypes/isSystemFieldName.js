@@ -1,5 +1,5 @@
 const check = require('check-types')
-const getSystemFields = require('./getSystemFields')
+const { getSystemFields } = require('jsonotron-validation')
 
 /**
  * Returns true if the given field name is a system

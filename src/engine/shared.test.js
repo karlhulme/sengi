@@ -1,9 +1,11 @@
 /* eslint-env jest */
-const { builtinFieldTypes } = require('jsonotron-fields')
+const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
+const { createCustomisedAjv } = require('jsonotron-validation')
 const testDocTypes = require('../testData/docTypes')
 const testFieldTypes = require('../testData/fieldTypes')
 const testRoleTypes = require('../testData/roleTypes')
-const { initValidatorCache, createCustomisedAjv } = require('../jsonValidation')
+const { initValidatorCache } = require('../validatorCache')
 const { wrapDocStore } = require('../docStore')
 const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
 
@@ -17,7 +19,7 @@ const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
 const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
   const fieldTypes = combineCustomAndBuiltInFieldTypes(builtinFieldTypes, testFieldTypes)
 
-  const ajv = createCustomisedAjv()
+  const ajv = createCustomisedAjv(builtinFormatValidators)
   const validatorCache = initValidatorCache(ajv, testDocTypes, fieldTypes)
 
   const docStore = Object.keys(mockedDocStoreTemplate || {})

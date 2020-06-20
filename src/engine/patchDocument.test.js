@@ -1,5 +1,4 @@
 /* eslint-env jest */
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronDocumentCustomValidationError,
   JsonotronDocumentNotFoundError,
@@ -7,7 +6,8 @@ const {
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
 } = require('jsonotron-errors')
-const { errorCodes } = require('../docStore')
+const { errorCodes } = require('jsonotron-consts')
+const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const patchDocument = require('./patchDocument')
 
 test('Patching a document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones).', async () => {

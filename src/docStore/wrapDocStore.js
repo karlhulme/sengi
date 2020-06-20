@@ -1,6 +1,5 @@
 const check = require('check-types')
-const errorCodes = require('./errorCodes')
-const successCodes = require('./successCodes')
+const { errorCodes, successCodes } = require('jsonotron-consts')
 const {
   JsonotronConflictOnSaveError,
   JsonotronInternalError,

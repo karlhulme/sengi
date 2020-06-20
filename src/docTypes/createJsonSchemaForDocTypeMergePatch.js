@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { getReferencedFieldTypeNames } = require('../fieldTypes')
+const { getReferencedFieldTypeNames } = require('jsonotron-validation')
 const createJsonSchemaForDocTypeFieldArrayProperty = require('./createJsonSchemaForDocTypeFieldArrayProperty')
 const createJsonSchemaDefinitionsSection = require('./createJsonSchemaDefinitionsSection')
 const createJsonSchemaForDocTypeFieldNonArrayProperty = require('./createJsonSchemaForDocTypeFieldNonArrayProperty')

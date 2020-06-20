@@ -1,5 +1,4 @@
 /* eslint-env jest */
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronActionForbiddenByPolicyError,
   JsonotronDocumentCustomValidationError,
@@ -7,7 +6,8 @@ const {
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
 } = require('jsonotron-errors')
-const { errorCodes, successCodes } = require('../docStore')
+const { errorCodes, successCodes } = require('jsonotron-consts')
+const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const replaceDocument = require('./replaceDocument')
 
 test('Replacing a document should call upsert on the doc store.', async () => {

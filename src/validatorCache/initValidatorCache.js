@@ -8,7 +8,7 @@ const {
   getFilterNames,
   getOperationNames
 } = require('../docTypes')
-const ValidatorCache = require('./validatorCache')
+const ValidatorCache = require('./ValidatorCache')
 
 /**
  * Initialises a validator cache with functions for checking the

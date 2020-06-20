@@ -1,21 +1,23 @@
 const moment = require('moment')
-const { builtinFieldTypes } = require('jsonotron-fields')
-const { wrapDocStore } = require('../docStore')
-const { createCustomisedAjv, initValidatorCache } = require('../jsonValidation')
+const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
 const {
-  combineCustomAndBuiltInFieldTypes,
+  createCustomisedAjv,
   createJsonSchemaForFieldType,
-  ensureFieldTypesAreValid
-} = require('../fieldTypes')
+  ensureFieldTypesAreValid,
+  ensureDocTypesAreValid,
+  ensureRoleTypesAreValid
+} = require('jsonotron-validation')
+const { initValidatorCache } = require('../validatorCache')
+const { wrapDocStore } = require('../docStore')
+const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
 const {
   createJsonSchemaForDocTypeConstructorParameters: createJsonSchemaForDocTypeConstructorParametersInternal,
   createJsonSchemaForDocTypeFilterParameters: createJsonSchemaForDocTypeFilterParametersInternal,
   createJsonSchemaForDocTypeInstance: createJsonSchemaForDocTypeInstanceInternal,
   createJsonSchemaForDocTypeMergePatch: createJsonSchemaForDocTypeMergePatchInternal,
-  createJsonSchemaForDocTypeOperationParameters: createJsonSchemaForDocTypeOperationParametersInternal,
-  ensureDocTypesAreValid
+  createJsonSchemaForDocTypeOperationParameters: createJsonSchemaForDocTypeOperationParametersInternal
 } = require('../docTypes')
-const { ensureRoleTypesAreValid } = require('../roleTypes')
 const createDocumentInternal = require('./createDocument')
 const deleteDocumentInternal = require('./deleteDocument')
 const operateOnDocumentInternal = require('./operateOnDocument')
@@ -203,7 +205,7 @@ const createJsonotron = config => {
   const safeDocStore = wrapDocStore(config.docStore)
 
   // create a customised json validator with the jsonotron keywords and formats
-  const ajv = createCustomisedAjv()
+  const ajv = createCustomisedAjv(builtinFormatValidators)
 
   // build the field types array (custom and built-in) and ensure they're all valid
   const builtinAndCustomFieldTypes = combineCustomAndBuiltInFieldTypes(config.fieldTypes || [], builtinFieldTypes)

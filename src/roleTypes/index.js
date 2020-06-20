@@ -5,6 +5,5 @@ module.exports = {
   canPatch: require('./canPatch'),
   canQuery: require('./canQuery'),
   canReplace: require('./canReplace'),
-  ensurePermission: require('./ensurePermission'),
-  ensureRoleTypesAreValid: require('./ensureRoleTypesAreValid')
+  ensurePermission: require('./ensurePermission')
 }

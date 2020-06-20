@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { getReferencedFieldTypeNames } = require('../fieldTypes')
+const { getReferencedFieldTypeNames } = require('jsonotron-validation')
 const createJsonSchemaDefinitionsSection = require('./createJsonSchemaDefinitionsSection')
 const resolveParameterFieldDescription = require('./resolveParameterFieldDescription')
 const resolveParameterFieldIsArray = require('./resolveParameterFieldIsArray')

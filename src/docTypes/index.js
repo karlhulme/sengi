@@ -16,7 +16,6 @@ module.exports = {
   ensureCanFetchWholeCollection: require('./ensureCanFetchWholeCollection'),
   ensureCanReplaceDocuments: require('./ensureCanReplaceDocuments'),
   ensureDocHasSystemFields: require('./ensureDocHasSystemFields'),
-  ensureDocTypesAreValid: require('./ensureDocTypesAreValid'),
   ensureDocWasFound: require('./ensureDocWasFound'),
   ensureFilterName: require('./ensureFilterName'),
   ensureMergePatchAvoidsSystemFields: require('./ensureMergePatchAvoidsSystemFields'),

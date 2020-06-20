@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { builtinFieldTypes } = require('jsonotron-fields')
-const { getJsonSchemaFragmentForFieldType } = require('../fieldTypes')
+const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { getJsonSchemaFragmentForFieldType } = require('jsonotron-validation')
 const createJsonSchemaForDocTypeInstance = require('./createJsonSchemaForDocTypeInstance')
 
 const docType = {

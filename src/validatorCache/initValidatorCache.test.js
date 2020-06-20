@@ -1,6 +1,7 @@
 /* eslint-env jest */
-const { builtinFieldTypes } = require('jsonotron-fields')
-const createCustomisedAjv = require('./createCustomisedAjv')
+const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
+const { createCustomisedAjv } = require('jsonotron-validation')
 const initValidatorCache = require('./initValidatorCache')
 
 const createValidDocType = () => ({
@@ -62,7 +63,7 @@ const createValidDocType = () => ({
 })
 
 test('Initialised validator cache has field type value validators defined.', () => {
-  const validatorCache = initValidatorCache(createCustomisedAjv(), [createValidDocType()], builtinFieldTypes)
+  const validatorCache = initValidatorCache(createCustomisedAjv(builtinFormatValidators), [createValidDocType()], builtinFieldTypes)
 
   expect(validatorCache).toBeDefined()
 

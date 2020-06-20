@@ -1,6 +1,6 @@
 /* eslint-env jest */
+const { errorCodes } = require('jsonotron-consts')
 const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const { errorCodes } = require('../docStore')
 const {
   JsonotronConflictOnSaveError,
   JsonotronDocumentNotFoundError,
