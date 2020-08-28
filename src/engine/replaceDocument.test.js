@@ -7,372 +7,201 @@ const {
   JsonotronRequiredVersionNotAvailableError
 } = require('jsonotron-errors')
 const { errorCodes, successCodes } = require('jsonotron-consts')
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const replaceDocument = require('./replaceDocument')
+const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+
+const createNewDocument = () => ({
+  id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+  docType: 'person',
+  tenantId: 'companyA',
+  shortName: 'Francesco',
+  fullName: 'Francesco Speedio',
+  dateOfBirth: '2010-11-05',
+  favouriteColors: ['orange', 'purple']
+})
+
+const createExpectedDocHeader = () => ({
+  origin: {
+    style: 'replace',
+    userIdentity: 'testUser',
+    dateTime: '2020-01-01T14:22:03Z'
+  },
+  updated: {
+    userIdentity: 'testUser',
+    dateTime: '2020-01-01T14:22:03Z'
+  },
+  ops: [],
+  calcs: {
+    displayName: {
+      value: 'Francesco'
+    },
+    fullAddress: {
+      value: ''
+    }
+  }
+})
 
 test('Replacing a document should call upsert on the doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    upsert: async () => ({})
+  const jsonotron = createJsonotronWithMockStore({
+    upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
   })
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple']
-    },
-    docStoreOptions: { custom: 'prop' }
+    doc: createNewDocument()
   })).resolves.toEqual({ isNew: false })
 
   const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    sys: {
-      origin: {
-        style: 'replace',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [],
-      calcs: {
-        displayName: {
-          value: 'Francesco'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'companyA',
-    shortName: 'Francesco',
-    fullName: 'Francesco Speedio',
-    dateOfBirth: '2010-11-05',
-    favouriteColors: ['orange', 'purple']
+    ...createNewDocument(),
+    docHeader: createExpectedDocHeader()
   }
 
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
-test('Replacing a document raise callbacks.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    upsert: async () => ({})
+test('Replacing a document should raise the onPreSaveDoc and onUpdateDoc delegates.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
+  }, {
+    onPreSaveDoc: jest.fn(),
+    onUpdateDoc: jest.fn()
   })
 
-  const onPreSaveDoc = jest.fn()
-  const onUpdateDoc = jest.fn()
-
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'aaaa',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple']
-    },
-    reqProps: { foo: 'bar' },
-    onPreSaveDoc,
-    onUpdateDoc,
-    docStoreOptions: { custom: 'prop' }
+    doc: createNewDocument()
   })).resolves.toEqual({ isNew: false })
 
-  expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' }),
     mergePatch: null
-  })
+  }])
 
-  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' })
-  })
+  }])
 })
 
-test('Replacing a document with a required version should call upsert on the doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    upsert: async () => ({})
+test('Replacing a document with a required version should cause the required version to be passed to the doc store.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
   })
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'bbbb',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple']
-    },
-    reqVersion: 'aaaa',
-    docStoreOptions: { custom: 'prop' }
+    doc: createNewDocument(),
+    reqVersion: 'aaaa'
   })).resolves.toEqual({ isNew: false })
 
   const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    sys: {
-      origin: {
-        style: 'replace',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [],
-      calcs: {
-        displayName: {
-          value: 'Francesco'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    docVersion: 'bbbb',
-    tenantId: 'companyA',
-    shortName: 'Francesco',
-    fullName: 'Francesco Speedio',
-    dateOfBirth: '2010-11-05',
-    favouriteColors: ['orange', 'purple']
+    ...createNewDocument(),
+    docHeader: createExpectedDocHeader()
   }
 
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
-test('Replacing a non-existent document with a version that contains additional unrecognised fields should still call upsert on the doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
+test('Replacing a non-existent document and retaining unrecognised fields and raising onCreateDoc delegate.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_CREATED })
+  }, {
+    onCreateDoc: jest.fn()
   })
 
-  const onPreSaveDoc = jest.fn()
-  const onCreateDoc = jest.fn()
-
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'bbbb',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple'],
+      ...createNewDocument(),
       unrecognisedProperty: 'unrecognisedValue'
-    },
-    onPreSaveDoc,
-    onCreateDoc,
-    reqVersion: 'aaaa',
-    docStoreOptions: { custom: 'prop' }
+    }
   })).resolves.toEqual({ isNew: true })
 
   const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    sys: {
-      origin: {
-        style: 'replace',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [],
-      calcs: {
-        displayName: {
-          value: 'Francesco'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    docVersion: 'bbbb',
-    tenantId: 'companyA',
-    shortName: 'Francesco',
-    fullName: 'Francesco Speedio',
-    dateOfBirth: '2010-11-05',
-    favouriteColors: ['orange', 'purple'],
+    ...createNewDocument(),
+    docHeader: createExpectedDocHeader(),
     unrecognisedProperty: 'unrecognisedValue'
   }
 
-  expect(onPreSaveDoc.mock.calls[0][0]).toEqual({
+  expect(jsonotron._test.config.onCreateDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onCreateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
-    reqProps: { meta: 'data' },
+    reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
-    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' }),
-    mergePatch: null
-  })
+    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', unrecognisedProperty: 'unrecognisedValue' })
+  }])
 
-  expect(onCreateDoc.mock.calls[0][0]).toEqual({
-    roleNames: ['admin'],
-    reqProps: { meta: 'data' },
-    docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
-    doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', tenantId: 'companyA' })
-  })
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
 test('Fail to replace a document with an unavailable required version.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
+  const jsonotron = createJsonotronWithMockStore({
     upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
   })
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
+    doc: createNewDocument(),
     docTypeName: 'person',
-    doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'bbbb',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple']
-    },
-    reqVersion: 'aaaa',
-    docStoreOptions: { custom: 'prop' }
+    reqVersion: 'aaaa'
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    sys: {
-      origin: {
-        style: 'replace',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [],
-      calcs: {
-        displayName: {
-          value: 'Francesco'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    docVersion: 'bbbb',
-    tenantId: 'companyA',
-    shortName: 'Francesco',
-    fullName: 'Francesco Speedio',
-    dateOfBirth: '2010-11-05',
-    favouriteColors: ['orange', 'purple']
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to replace a document if it does not conform to the doc type schema.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'bbbb',
-      tenantId: 'companyA',
-      shortNamePropertyRequiredButMissing: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple'],
-      madeupProperty: 'madeupValue'
-    },
-    docStoreOptions: { custom: 'prop' }
+      ...createNewDocument(),
+      tenantId: 505 // rather than a string
+    }
   })).rejects.toThrow(JsonotronDocumentFieldsValidationError)
 })
 
 test('Fail to replace a document if it fails custom validation.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      docVersion: 'bbbb',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple'],
-      addressLines: 'i live in a castle'
-    },
-    docStoreOptions: { custom: 'prop' }
+      ...createNewDocument(),
+      addressLines: 'i live in a castle' // address lines containing 'castle' are rejected
+    }
   })).rejects.toThrow(JsonotronDocumentCustomValidationError)
 })
 
 test('Fail to replace a document if permissions insufficient.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(replaceDocument({
-    ...testRequest,
-    roleNames: ['invalid'],
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    doc: {
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      docType: 'person',
-      tenantId: 'companyA',
-      shortName: 'Francesco',
-      fullName: 'Francesco Speedio',
-      dateOfBirth: '2010-11-05',
-      favouriteColors: ['orange', 'purple']
-    }
+    doc: createNewDocument(),
+    roleNames: ['none']
   })).rejects.toThrow(JsonotronInsufficientPermissionsError)
 })
 
 test('Fail to replace a document if disallowed by doc type policy.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(replaceDocument({
-    ...testRequest,
+  await expect(jsonotron.replaceDocument({
+    ...defaultRequestProps,
     roleNames: ['admin'],
     docTypeName: 'car',
     doc: {
@@ -382,7 +211,6 @@ test('Fail to replace a document if disallowed by doc type policy.', async () =>
       manufacturer: 'Honda',
       model: 'Accord',
       registration: 'HG67 8HJ'
-    },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).rejects.toThrow(JsonotronActionForbiddenByPolicyError)
 })

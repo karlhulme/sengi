@@ -1,23 +1,16 @@
 const moment = require('moment')
-const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { builtinEnumTypes, builtinFieldTypes } = require('jsonotron-builtin-field-types')
 const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
 const {
   createCustomisedAjv,
-  createJsonSchemaForFieldType,
-  ensureFieldTypesAreValid,
-  ensureDocTypesAreValid,
-  ensureRoleTypesAreValid
+  ensureEnumType,
+  ensureFieldTypes,
+  ensureDocTypes,
+  ensureRoleType
 } = require('jsonotron-validation')
 const { initValidatorCache } = require('../validatorCache')
 const { wrapDocStore } = require('../docStore')
-const { combineCustomAndBuiltInFieldTypes, combineCustomAndBuiltinFormatValidators } = require('../fieldTypes')
-const {
-  createJsonSchemaForDocTypeConstructorParameters: createJsonSchemaForDocTypeConstructorParametersInternal,
-  createJsonSchemaForDocTypeFilterParameters: createJsonSchemaForDocTypeFilterParametersInternal,
-  createJsonSchemaForDocTypeInstance: createJsonSchemaForDocTypeInstanceInternal,
-  createJsonSchemaForDocTypeMergePatch: createJsonSchemaForDocTypeMergePatchInternal,
-  createJsonSchemaForDocTypeOperationParameters: createJsonSchemaForDocTypeOperationParametersInternal
-} = require('../docTypes')
+const combineCustomAndBuiltInTypes = require('./combineCustomAndBuiltInTypes')
 const createDocumentInternal = require('./createDocument')
 const deleteDocumentInternal = require('./deleteDocument')
 const operateOnDocumentInternal = require('./operateOnDocument')
@@ -36,12 +29,9 @@ const requestParameterValidators = {
   doc: v => typeof v === 'object' && v !== null && !Array.isArray(v),
   docStoreOptions: v => (typeof v === 'object' && !Array.isArray(v)) || typeof v === 'undefined',
   docTypeName: v => typeof v === 'string',
-  externalDefs: v => typeof v === 'string' || typeof v === 'undefined' || v === null,
   fieldNames: v => Array.isArray(v),
-  fieldTypeName: v => typeof v === 'string',
   filterName: v => typeof v === 'string',
   filterParams: v => typeof v === 'object' && v !== null && !Array.isArray(v),
-  fragment: v => typeof v === 'boolean' || typeof v === 'undefined' || v === null,
   id: v => typeof v === 'string',
   ids: v => Array.isArray(v),
   limit: v => typeof v === 'number' || typeof v === 'undefined',
@@ -98,47 +88,17 @@ const validateRequestParameters = function (req, ...parameterNames) {
 }
 
 /**
- * Returns the document type with the given name.
- * If the given docTypeName is not found in the array then
- * an error is thrown.
- * @param {Array} docTypes An array of document types.
- * @param {String} docTypeName The name of a document type.
- */
-const getDocType = (docTypes, docTypeName) => {
-  const docType = docTypes.find(dt => dt.name === docTypeName)
-
-  if (docType) {
-    return docType
-  } else {
-    throw new Error(`Document type with name '${docTypeName}' was not found.`)
-  }
-}
-
-/**
- * Returns the field type with the given name.
- * If the given fieldTypeName is not found in the array then
- * an error is thrown.
- * @param {Array} fieldTypes An array of field types.
- * @param {String} fieldTypeName The name of a field type.
- */
-const getFieldType = (fieldTypes, fieldTypeName) => {
-  const fieldType = fieldTypes.find(dt => dt.name === fieldTypeName)
-
-  if (fieldType) {
-    return fieldType
-  } else {
-    throw new Error(`Field type with name '${fieldTypeName}' was not found.`)
-  }
-}
-
-/**
  * Create a new Jsonotron.
  * @param {Object} config A configuration object.
  * @param {Object} config.docStore A collection of functions for reading and writing JSON data.
  * @param {Array} config.docTypes An array of doc types.
  * @param {Array} config.roleTypes An array of role types.
+ * @param {Array} [config.enumTypes] An array of enum types that will be combined with the
+ * built-in field types.
  * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
  * built-in field types.
+ * @param {Array} [config.formatValidators] An array of format validators that will be combined with the
+ * built-in format validators.
  * @param {Function} [config.dateTimeFunc] A function that returns a UTC date/time string in
  * sysDateTime format.
  * @param {Function} [config.onPreSaveDoc] A function that is invoked just before a document is saved.
@@ -171,6 +131,10 @@ const createJsonotron = config => {
 
   if (!Array.isArray(config.roleTypes)) {
     throw new TypeError('Constructor parameter \'config.roleTypes\' must be an array.')
+  }
+
+  if (typeof config.enumTypes !== 'undefined' && !Array.isArray(config.enumTypes)) {
+    throw new TypeError('Constructor parameter \'config.enumTypes\' must be an array.')
   }
 
   if (typeof config.fieldTypes !== 'undefined' && !Array.isArray(config.fieldTypes)) {
@@ -209,23 +173,27 @@ const createJsonotron = config => {
   const safeDocStore = wrapDocStore(config.docStore)
 
   // build the format validators array (custom and built-in)
-  const builtinAndCustomFormatValidators = combineCustomAndBuiltinFormatValidators(config.formatValidators || [], builtinFormatValidators)
+  const builtinAndCustomFormatValidators = combineCustomAndBuiltInTypes(config.formatValidators || [], builtinFormatValidators)
 
   // create a customised json validator with the jsonotron keywords and formats
   const ajv = createCustomisedAjv(builtinAndCustomFormatValidators)
 
+  // build the enum types array (custom and built-in) and ensure they're all valid
+  const builtinAndCustomEnumTypes = combineCustomAndBuiltInTypes(config.enumTypes || [], builtinEnumTypes)
+  builtinAndCustomEnumTypes.forEach(enumType => ensureEnumType(ajv, enumType, false))
+
   // build the field types array (custom and built-in) and ensure they're all valid
-  const builtinAndCustomFieldTypes = combineCustomAndBuiltInFieldTypes(config.fieldTypes || [], builtinFieldTypes)
-  ensureFieldTypesAreValid(ajv, builtinAndCustomFieldTypes)
+  const builtinAndCustomFieldTypes = combineCustomAndBuiltInTypes(config.fieldTypes || [], builtinFieldTypes)
+  ensureFieldTypes(ajv, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes, false)
 
   // ensure all the doc types are valid
-  ensureDocTypesAreValid(ajv, config.docTypes, builtinAndCustomFieldTypes)
+  ensureDocTypes(ajv, config.docTypes, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes, false)
 
   // ensure all role types are valid
-  ensureRoleTypesAreValid(ajv, config.roleTypes, config.docTypes)
+  config.roleTypes.forEach(roleType => ensureRoleType(ajv, roleType, false))
 
   // create a validator cache
-  const validatorCache = initValidatorCache(ajv, config.docTypes, builtinAndCustomFieldTypes)
+  const validatorCache = initValidatorCache(ajv, config.docTypes, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes)
 
   // choose a function for generating UTC date/time strings.
   const dateTimeFunc = chooseDateTimeFunction(config.dateTimeFunc)
@@ -236,6 +204,7 @@ const createJsonotron = config => {
     return {
       safeDocStore,
       docTypes: config.docTypes,
+      enumTypes: builtinAndCustomEnumTypes,
       fieldTypes: builtinAndCustomFieldTypes,
       roleTypes: config.roleTypes,
       validatorCache,
@@ -261,6 +230,13 @@ const createJsonotron = config => {
      */
     getDocTypeNames: () => {
       return config.docTypes.map(docType => docType.name)
+    },
+
+    /**
+     * Returns an array of enum type names.
+     */
+    getEnumTypeNames: () => {
+      return builtinAndCustomEnumTypes.map(enumType => enumType.name)
     },
 
     /**
@@ -412,98 +388,6 @@ const createJsonotron = config => {
     replaceDocument: async req => {
       validateRequestParameters(req, 'userIdentity', 'roleNames', 'docTypeName', 'doc', 'reqVersion', 'reqProps', 'docStoreOptions')
       return replaceDocumentInternal(buildEntryPointParameterObject(req))
-    },
-
-    /***********************************************
-    *                                              *
-    *                Schema Methods                *
-    *                                              *
-    \***********************************************/
-
-    /**
-     * Create a JSON schema for the constructor parameters of a document type.
-     * @param {Object} req A request.
-     * @param {String} req.docTypeName The name of a document type.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForDocTypeConstructorParameters: req => {
-      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
-      const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeConstructorParametersInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
-    },
-
-    /**
-     * Create a JSON schema for the filter parameters of a document type filter.
-     * @param {Object} req A request.
-     * @param {String} req.docTypeName The name of a document type.
-     * @param {String} req.filterName The name of a filter.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForDocTypeFilterParameters: req => {
-      validateRequestParameters(req, 'docTypeName', 'filterName', 'fragment', 'externalDefs')
-      const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeFilterParametersInternal(docType, req.filterName, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
-    },
-
-    /**
-     * Create a JSON schema for a document type instance.
-     * @param {Object} req A request.
-     * @param {String} req.docTypeName The name of a document type.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForDocTypeInstance: req => {
-      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
-      const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeInstanceInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
-    },
-
-    /**
-     * Create a JSON schema for a merge patch of a document type.
-     * @param {Object} req A request.
-     * @param {String} req.docTypeName The name of a document type.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForDocTypeMergePatch: req => {
-      validateRequestParameters(req, 'docTypeName', 'fragment', 'externalDefs')
-      const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeMergePatchInternal(docType, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
-    },
-
-    /**
-     * Create a JSON schema for the operation parameters of a document type operation.
-     * @param {Object} req A request.
-     * @param {String} req.docTypeName The name of a document type.
-     * @param {String} req.operationName The name of an operation.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForDocTypeOperationParameters: req => {
-      validateRequestParameters(req, 'docTypeName', 'operationName', 'fragment', 'externalDefs')
-      const docType = getDocType(config.docTypes, req.docTypeName)
-      return createJsonSchemaForDocTypeOperationParametersInternal(docType, req.operationName, builtinAndCustomFieldTypes, req.fragment, req.externalDefs)
-    },
-
-    /**
-     * Create a JSON schema for a field type.
-     * @param {Object} req A request.
-     * @param {String} req.fieldTypeName The name of a field type.
-     * @param {Boolean} [req.fragment] True if the $schema property should be omitted from the result.
-     * @param {String} [req.externalDefs] A path to external definitions.  If supplied, then
-     * the definitions property will omitted from the result.
-     */
-    createJsonSchemaForFieldType: req => {
-      validateRequestParameters(req, 'fieldTypeName', 'fragment', 'externalDefs')
-      const fieldType = getFieldType(builtinAndCustomFieldTypes, req.fieldTypeName)
-      return createJsonSchemaForFieldType(builtinAndCustomFieldTypes, fieldType.name, req.fragment, req.externalDefs)
     }
   }
 }

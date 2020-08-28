@@ -1,54 +1,61 @@
 /* eslint-env jest */
-const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
-const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
-const { createCustomisedAjv } = require('jsonotron-validation')
 const testDocTypes = require('../testData/docTypes')
+const testEnumTypes = require('../testData/enumTypes')
 const testFieldTypes = require('../testData/fieldTypes')
 const testRoleTypes = require('../testData/roleTypes')
-const { initValidatorCache } = require('../validatorCache')
-const { wrapDocStore } = require('../docStore')
-const { combineCustomAndBuiltInFieldTypes } = require('../fieldTypes')
+const createJsonotron = require('./createJsonotron')
 
 /**
- * Creates an object with the common properties required
- * to execute a request but without a document store backing.
+ * Creates a jsonotron object with a mocked doc store based on the
+ * given functions.
  * @param {Object} mockedDocStoreTemplate An object where each key represents
  * a mocked method that should be monitored by the test runtime, and each
  * value represents the implementation of that method.
+ * @param {Object} funcs A block of functions that can be invoked by
+ * jsonotron to signal events have taken place.
  */
-const createTestRequestWithMockedDocStore = mockedDocStoreTemplate => {
-  const fieldTypes = combineCustomAndBuiltInFieldTypes(builtinFieldTypes, testFieldTypes)
-
-  const ajv = createCustomisedAjv(builtinFormatValidators)
-  const validatorCache = initValidatorCache(ajv, testDocTypes, fieldTypes)
-
+const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
   const docStore = Object.keys(mockedDocStoreTemplate || {})
     .reduce((agg, key) => ({ ...agg, [key]: jest.fn(mockedDocStoreTemplate[key]) }), {})
 
-  return {
-    mockedDocStore: docStore,
-    safeDocStore: wrapDocStore(docStore),
+  const config = {
+    docStore,
+    enumTypes: testEnumTypes,
+    fieldTypes: testFieldTypes,
     docTypes: testDocTypes,
-    fieldTypes,
-    validatorCache,
     roleTypes: testRoleTypes,
-    userIdentity: 'testUser',
-    reqProps: { meta: 'data' },
-    reqDateTime: '2020-01-01T14:22:03Z'
+    dateTimeFunc: () => '2020-01-01T14:22:03Z'
   }
+
+  if (funcs) {
+    if (funcs.onPreSaveDoc) { config.onPreSaveDoc = funcs.onPreSaveDoc }
+    if (funcs.onQueryDocs) { config.onQueryDocs = funcs.onQueryDocs }
+    if (funcs.onCreateDoc) { config.onCreateDoc = funcs.onCreateDoc }
+    if (funcs.onUpdateDoc) { config.onUpdateDoc = funcs.onUpdateDoc }
+    if (funcs.onDeleteDoc) { config.onDeleteDoc = funcs.onDeleteDoc }
+  }
+
+  const jsonotron = createJsonotron(config)
+
+  jsonotron._test = { config, docStore }
+
+  return jsonotron
 }
 
-test('createTestRequestWithMockedDocStore creates a valid object.', async () => {
-  const req = createTestRequestWithMockedDocStore({ example: () => {} })
-  expect(req).toHaveProperty('mockedDocStore')
-  expect(req).toHaveProperty('safeDocStore')
-  expect(req).toHaveProperty('docTypes')
-  expect(req).toHaveProperty('fieldTypes')
-  expect(req).toHaveProperty('validatorCache')
-  expect(req).toHaveProperty('roleTypes')
-  expect(req).toHaveProperty('reqProps')
+const defaultRequestProps = {
+  userIdentity: 'testUser',
+  roleNames: ['admin'],
+  reqProps: { foo: 'bar' },
+  docStoreOptions: { custom: 'prop' }
+}
+
+test('createJsonotronWithMockStore creates a valid jsonotron object.', async () => {
+  const jsonotron = createJsonotronWithMockStore({})
+  expect(jsonotron._test).toHaveProperty('config')
+  expect(jsonotron._test).toHaveProperty('docStore')
 })
 
 module.exports = {
-  createTestRequestWithMockedDocStore
+  createJsonotronWithMockStore,
+  defaultRequestProps
 }

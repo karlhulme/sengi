@@ -10,10 +10,6 @@ const docType = {
   }
 }
 
-const docTypeWithNoOperations = {
-  name: 'testDocType'
-}
-
 test('Accept recognised operation names.', () => {
   expect(() => ensureOperationName(docType, 'doSomethingA')).not.toThrow()
   expect(() => ensureOperationName(docType, 'doSomethingB')).not.toThrow()
@@ -21,5 +17,4 @@ test('Accept recognised operation names.', () => {
 
 test('Reject unrecognised operation names.', () => {
   expect(() => ensureOperationName(docType, 'invalidOpName')).toThrow(JsonotronUnrecognisedOperationNameError)
-  expect(() => ensureOperationName(docTypeWithNoOperations, 'invalidOpName')).toThrow(JsonotronUnrecognisedOperationNameError)
 })

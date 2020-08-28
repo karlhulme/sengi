@@ -1,5 +1,4 @@
 const check = require('check-types')
-const getCalculatedFieldNames = require('./getCalculatedFieldNames')
 const executeCalculatedField = require('./executeCalculatedField')
 
 /**
@@ -12,15 +11,12 @@ const executeCalculatedField = require('./executeCalculatedField')
 const updateCalcsOnDocument = (docType, doc) => {
   check.assert.object(docType)
   check.assert.object(doc)
-  check.assert.object(doc.sys)
-  check.assert.object(doc.sys.calcs)
+  check.assert.object(doc.docHeader)
 
-  const calculatedFieldNames = getCalculatedFieldNames(docType)
+  doc.docHeader.calcs = {}
 
-  doc.sys.calcs = {}
-
-  for (const calculatedFieldName of calculatedFieldNames) {
-    doc.sys.calcs[calculatedFieldName] = {
+  for (const calculatedFieldName in docType.calculatedFields) {
+    doc.docHeader.calcs[calculatedFieldName] = {
       value: executeCalculatedField(docType, doc, calculatedFieldName)
     }
   }

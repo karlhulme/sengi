@@ -1,12 +1,12 @@
 const check = require('check-types')
 
 /**
- * Combines the given field type arrays, keeping the custom definition
+ * Combines the given type arrays, keeping the custom definition
  * where there is a name-clash with the built-in definition.
- * @param {Array} custom An array of custom field types.
- * @param {Array} builtin An array of the built-in field types.
+ * @param {Array} custom An array of custom types that have a name property.
+ * @param {Array} builtin An array of the built-in types that have a name property.
  */
-const combineCustomAndBuiltInFieldTypes = (custom, builtin) => {
+const combineCustomAndBuiltInTypes = (custom, builtin) => {
   check.assert.array.of.object(custom)
   check.assert.array.of.object(builtin)
 
@@ -23,4 +23,4 @@ const combineCustomAndBuiltInFieldTypes = (custom, builtin) => {
   return result
 }
 
-module.exports = combineCustomAndBuiltInFieldTypes
+module.exports = combineCustomAndBuiltInTypes

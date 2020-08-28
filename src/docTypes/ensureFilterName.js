@@ -1,4 +1,4 @@
-const getFilterNames = require('./getFilterNames')
+const check = require('check-types')
 const { JsonotronUnrecognisedFilterNameError } = require('jsonotron-errors')
 
 /**
@@ -8,9 +8,11 @@ const { JsonotronUnrecognisedFilterNameError } = require('jsonotron-errors')
  * @param {String} filterName The name of a filter.
  */
 const ensureFilterName = (docType, filterName) => {
-  const filterNames = getFilterNames(docType)
+  check.assert.object(docType)
+  check.assert.object(docType.filters)
+  check.assert.string(filterName)
 
-  if (!filterNames.includes(filterName)) {
+  if (!docType.filters[filterName]) {
     throw new JsonotronUnrecognisedFilterNameError(docType.name, filterName)
   }
 }

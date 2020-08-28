@@ -2,12 +2,29 @@
 const {
   JsonotronConstructorParamsValidationError,
   JsonotronDocumentFieldsValidationError,
+  JsonotronEnumValueValidationError,
   JsonotronFieldValueValidationError,
   JsonotronFilterParamsValidationError,
   JsonotronMergePatchValidationError,
   JsonotronOperationParamsValidationError
 } = require('jsonotron-errors')
 const ValidatorCache = require('./ValidatorCache')
+
+test('Validator cache can store, retrieve and execute enum type value validators.', () => {
+  const validatorCache = new ValidatorCache()
+
+  expect(() => validatorCache.getEnumTypeValueValidator('madeup')).toThrow()
+  expect(validatorCache.enumTypeValueValidatorExists('fieldA')).toEqual(false)
+
+  const validator = b => b
+  validator.errors = ['errors_here']
+
+  validatorCache.addEnumTypeValueValidator('fieldA', validator)
+  expect(validatorCache.enumTypeValueValidatorExists('fieldA')).toEqual(true)
+  expect(validatorCache.getEnumTypeValueValidator('fieldA')).toEqual(validator)
+  expect(() => validatorCache.ensureEnumTypeValue('fieldA', true)).not.toThrow()
+  expect(() => validatorCache.ensureEnumTypeValue('fieldA', false)).toThrow(JsonotronEnumValueValidationError)
+})
 
 test('Validator cache can store, retrieve and execute field type value validators.', () => {
   const validatorCache = new ValidatorCache()
@@ -28,17 +45,17 @@ test('Validator cache can store, retrieve and execute field type value validator
 test('Validator cache can store, retrieve and execute doc type field validators.', () => {
   const validatorCache = new ValidatorCache()
 
-  expect(() => validatorCache.getDocTypeFieldsValidator('madeup')).toThrow()
-  expect(validatorCache.docTypeFieldsValidatorExists('docA')).toEqual(false)
+  expect(() => validatorCache.getDocTypeInstanceValidator('madeup')).toThrow()
+  expect(validatorCache.docTypeInstanceValidatorExists('docA')).toEqual(false)
 
   const validator = doc => doc.value
   validator.errors = ['errors_here']
 
-  validatorCache.addDocTypeFieldsValidator('docA', validator)
-  expect(validatorCache.docTypeFieldsValidatorExists('docA')).toEqual(true)
-  expect(validatorCache.getDocTypeFieldsValidator('docA')).toEqual(validator)
-  expect(() => validatorCache.ensureDocTypeFields('docA', { value: true })).not.toThrow()
-  expect(() => validatorCache.ensureDocTypeFields('docA', { value: false })).toThrow(JsonotronDocumentFieldsValidationError)
+  validatorCache.addDocTypeInstanceValidator('docA', validator)
+  expect(validatorCache.docTypeInstanceValidatorExists('docA')).toEqual(true)
+  expect(validatorCache.getDocTypeInstanceValidator('docA')).toEqual(validator)
+  expect(() => validatorCache.ensureDocTypeInstance('docA', { value: true })).not.toThrow()
+  expect(() => validatorCache.ensureDocTypeInstance('docA', { value: false })).toThrow(JsonotronDocumentFieldsValidationError)
 })
 
 test('Validator cache can store, retrieve and execute doc type filter param validators.', () => {

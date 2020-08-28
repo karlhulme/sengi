@@ -10,10 +10,6 @@ const docType = {
   }
 }
 
-const docTypeWithNoFilters = {
-  name: 'testDocType'
-}
-
 test('Accept recognised filter names.', () => {
   expect(() => ensureFilterName(docType, 'byA')).not.toThrow()
   expect(() => ensureFilterName(docType, 'byB')).not.toThrow()
@@ -21,5 +17,4 @@ test('Accept recognised filter names.', () => {
 
 test('Reject unrecognised filter names.', () => {
   expect(() => ensureFilterName(docType, 'byInvalid')).toThrow(JsonotronUnrecognisedFilterNameError)
-  expect(() => ensureFilterName(docTypeWithNoFilters, 'byInvalid')).toThrow(JsonotronUnrecognisedFilterNameError)
 })

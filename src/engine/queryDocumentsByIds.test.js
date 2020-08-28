@@ -1,32 +1,21 @@
 /* eslint-env jest */
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
+const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
 const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
-const queryDocumentsByIds = require('./queryDocumentsByIds')
 
-test('Query by document filter.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    queryByIds: async () => {
-      return {
-        docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 25 }
-        ]
-      }
-    }
+test('Query by document ids.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    queryByIds: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 25 }] })
   })
 
-  const result = await queryDocumentsByIds({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.queryDocumentsByIds({
+    ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id', 'fullName', 'age'],
-    ids: ['06151119-065a-4691-a7c8-2d84ec746ba9'],
-    docStoreOptions: { custom: 'prop' }
-  })
-
-  expect(result).toEqual({
+    ids: ['06151119-065a-4691-a7c8-2d84ec746ba9']
+  })).resolves.toEqual({
     deprecations: {
       age: {
-        reason: 'Use date of birth instead.'
+        reason: 'This field has been deprecated.'
       }
     },
     docs: [
@@ -34,55 +23,40 @@ test('Query by document filter.', async () => {
     ]
   })
 
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.queryByIds.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], {}, { custom: 'prop' }])
 })
 
-test('Query by document filter with onQueryDocs delegate.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    queryByIds: async () => {
-      return {
-        docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
-        ]
-      }
-    }
+test('Query by document ids using a onQueryDocs delegate.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    queryByIds: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 25 }] })
+  }, {
+    onQueryDocs: jest.fn()
   })
 
-  const onQueryDocsDelegate = jest.fn()
-
-  const result = await queryDocumentsByIds({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.queryDocumentsByIds({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    fieldNames: ['id', 'fullName'],
-    ids: ['06151119-065a-4691-a7c8-2d84ec746ba9'],
-    onQueryDocs: onQueryDocsDelegate,
-    docStoreOptions: { custom: 'prop' }
-  })
+    fieldNames: ['id', 'fullName', 'age'],
+    ids: ['06151119-065a-4691-a7c8-2d84ec746ba9']
+  })).resolves.toBeDefined()
 
-  expect(result).toEqual({
-    deprecations: {},
-    docs: [
-      { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
-    ]
-  })
-
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByIds.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName'], ['06151119-065a-4691-a7c8-2d84ec746ba9'], {}, { custom: 'prop' }])
-
-  expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { meta: 'data' })
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id', 'fullName'])
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id', 'fullName'])
+  expect(jsonotron._test.config.onQueryDocs.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onQueryDocs.mock.calls[0]).toEqual([{
+    roleNames: ['admin'],
+    reqProps: { foo: 'bar' },
+    docType: expect.anything(),
+    fieldNames: ['id', 'fullName', 'age'],
+    retrievalFieldNames: ['id', 'fullName', 'age']
+  }])
 })
 
 test('Fail to query by document ids if permissions insufficient.', async () => {
-  await expect(queryDocumentsByIds({
-    ...createTestRequestWithMockedDocStore(),
-    roleNames: ['invalid'],
+  const jsonotron = createJsonotronWithMockStore()
+
+  await expect(jsonotron.queryDocumentsByIds({
+    ...defaultRequestProps,
+    roleNames: ['none'],
     docTypeName: 'person',
     fieldNames: ['id', 'fullName'],
     ids: ['c75321e5-5c8a-49f8-a525-f0f472fb5fa0', '9070692f-b12c-4bbc-9888-5704fe5bc480']

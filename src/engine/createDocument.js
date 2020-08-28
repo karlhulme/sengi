@@ -1,11 +1,15 @@
 const check = require('check-types')
 const {
-  applySystemFieldValuesToNewDocument,
+  addSystemFieldValuesToNewDocument,
+  applyMergePatch,
   createDocStoreOptions,
   updateCalcsOnDocument,
+  ensureMergePatchAvoidsSystemFields,
   executeConstructor,
   executePreSave,
   executeValidator,
+  extractConstructorDeclaredParams,
+  extractConstructorMergeParams,
   selectDocTypeFromArray
 } = require('../docTypes')
 const {
@@ -37,10 +41,16 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
   const alreadyExists = await safeDocStore.exists(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   if (!alreadyExists) {
-    const docType = selectDocTypeFromArray(docTypes, docTypeName)
-    const ctorParamsValidator = validatorCache.getDocTypeConstructorParamsValidator(docType.name)
-    const doc = executeConstructor(docType, constructorParams, ctorParamsValidator)
-    applySystemFieldValuesToNewDocument(docType, doc, id, userIdentity, reqDateTime)
+    const ctorDeclaredParams = extractConstructorDeclaredParams(docType, constructorParams)
+    validatorCache.ensureDocTypeConstructorParams(docType.name, ctorDeclaredParams)
+    const doc = executeConstructor(docType, ctorDeclaredParams)
+
+    const ctorMergeParams = extractConstructorMergeParams(docType, constructorParams)
+    validatorCache.ensureDocTypeMergePatch(docType.name, ctorMergeParams)
+    ensureMergePatchAvoidsSystemFields(ctorMergeParams)
+    applyMergePatch(doc, ctorMergeParams)
+
+    addSystemFieldValuesToNewDocument(docType, doc, id, userIdentity, reqDateTime)
 
     executePreSave(docType, doc)
 
@@ -50,7 +60,7 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
 
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeFields(docType.name, doc)
+    validatorCache.ensureDocTypeInstance(docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, null, false, combinedDocStoreOptions)

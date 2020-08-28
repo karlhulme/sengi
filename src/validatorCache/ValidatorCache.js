@@ -2,6 +2,7 @@ const check = require('check-types')
 const {
   JsonotronConstructorParamsValidationError,
   JsonotronDocumentFieldsValidationError,
+  JsonotronEnumValueValidationError,
   JsonotronFieldValueValidationError,
   JsonotronFilterParamsValidationError,
   JsonotronInternalError,
@@ -34,8 +35,9 @@ class ValidatorCache {
      * They are parameterised to accept whatever values are needed to
      * make the cache key unique.
      */
+    const buildEnumTypeValueValidatorKey = enumTypeName => `enumType.value.${enumTypeName}`
     const buildFieldTypeValueValidatorKey = fieldTypeName => `fieldType.value.${fieldTypeName}`
-    const buildDocTypeFieldsValidatorKey = docTypeName => `docType.fields.${docTypeName}`
+    const buildDocTypeInstanceValidatorKey = docTypeName => `docType.instance.${docTypeName}`
     const buildDocTypeFilterParamsValidatorKey = (docTypeName, filterName) => `docType.filter.${docTypeName}.${filterName}`
     const buildDocTypeConstructorParamsValidatorKey = docTypeName => `docType.constructor.${docTypeName}`
     const buildDocTypeOperationParamsValidatorKey = (docTypeName, operationName) => `docType.operation.${docTypeName}.${operationName}`
@@ -46,6 +48,15 @@ class ValidatorCache {
      *     Functions below determine if a validator is in the cache.    *
      *                                                                  *
      *******************************************************************/
+
+    /**
+     * Returns true if a validator exists, otherwise false.
+     * @param {String} enumTypeName The name of a enum type.
+     */
+    this.enumTypeValueValidatorExists = enumTypeName => {
+      check.assert.string(enumTypeName)
+      return typeof validators[buildEnumTypeValueValidatorKey(enumTypeName)] === 'function'
+    }
 
     /**
      * Returns true if a validator exists, otherwise false.
@@ -60,9 +71,9 @@ class ValidatorCache {
      * Returns true if a validator exists, otherwise false.
      * @param {String} docTypeName The name of a doc type.
      */
-    this.docTypeFieldsValidatorExists = docTypeName => {
+    this.docTypeInstanceValidatorExists = docTypeName => {
       check.assert.string(docTypeName)
-      return typeof validators[buildDocTypeFieldsValidatorKey(docTypeName)] === 'function'
+      return typeof validators[buildDocTypeInstanceValidatorKey(docTypeName)] === 'function'
     }
 
     /**
@@ -113,6 +124,17 @@ class ValidatorCache {
 
     /**
      * Adds the given validator to the cache.
+     * @param {String} enumTypeName The name of an enum type.
+     * @param {Function} validator A validator function.
+     */
+    this.addEnumTypeValueValidator = (enumTypeName, validator) => {
+      check.assert.string(enumTypeName)
+      check.assert.function(validator)
+      validators[buildEnumTypeValueValidatorKey(enumTypeName)] = validator
+    }
+
+    /**
+     * Adds the given validator to the cache.
      * @param {String} fieldTypeName The name of a field type.
      * @param {Function} validator A validator function.
      */
@@ -127,10 +149,10 @@ class ValidatorCache {
      * @param {String} docTypeName The name of a doc type.
      * @param {Function} validator A validator function.
      */
-    this.addDocTypeFieldsValidator = (docTypeName, validator) => {
+    this.addDocTypeInstanceValidator = (docTypeName, validator) => {
       check.assert.string(docTypeName)
       check.assert.function(validator)
-      validators[buildDocTypeFieldsValidatorKey(docTypeName)] = validator
+      validators[buildDocTypeInstanceValidatorKey(docTypeName)] = validator
     }
 
     /**
@@ -191,6 +213,15 @@ class ValidatorCache {
      * Returns a validator function from the cache.  If a
      * validator function is not found then an error is raised.
      */
+    this.getEnumTypeValueValidator = enumTypeName => {
+      check.assert.string(enumTypeName)
+      return ensureFunction(validators[buildEnumTypeValueValidatorKey(enumTypeName)])
+    }
+
+    /**
+     * Returns a validator function from the cache.  If a
+     * validator function is not found then an error is raised.
+     */
     this.getFieldTypeValueValidator = fieldTypeName => {
       check.assert.string(fieldTypeName)
       return ensureFunction(validators[buildFieldTypeValueValidatorKey(fieldTypeName)])
@@ -201,9 +232,9 @@ class ValidatorCache {
      * validator function is not found then an error is raised.
      * @param {String} docTypeName The name of a doc type.
      */
-    this.getDocTypeFieldsValidator = docTypeName => {
+    this.getDocTypeInstanceValidator = docTypeName => {
       check.assert.string(docTypeName)
-      return ensureFunction(validators[buildDocTypeFieldsValidatorKey(docTypeName)])
+      return ensureFunction(validators[buildDocTypeInstanceValidatorKey(docTypeName)])
     }
 
     /**
@@ -257,6 +288,19 @@ class ValidatorCache {
      *******************************************************************/
 
     /**
+     * Raises an error if the given enum value is not a valid
+     * instance of the given enum type name.
+     */
+    this.ensureEnumTypeValue = (enumTypeName, enumValue) => {
+      check.assert.string(enumTypeName)
+      const validator = ensureFunction(validators[buildEnumTypeValueValidatorKey(enumTypeName)])
+
+      if (!validator(enumValue)) {
+        throw new JsonotronEnumValueValidationError(enumTypeName, validator.errors)
+      }
+    }
+
+    /**
      * Raises an error if the given field value is not a valid
      * instance of the given field type name.
      */
@@ -274,10 +318,10 @@ class ValidatorCache {
      * instance of the given doc type name.
      * @param {String} docTypeName The name of a doc type.
      */
-    this.ensureDocTypeFields = (docTypeName, fields) => {
+    this.ensureDocTypeInstance = (docTypeName, fields) => {
       check.assert.string(docTypeName)
       check.assert.object(fields)
-      const validator = ensureFunction(validators[buildDocTypeFieldsValidatorKey(docTypeName)])
+      const validator = ensureFunction(validators[buildDocTypeInstanceValidatorKey(docTypeName)])
 
       if (!validator(fields)) {
         throw new JsonotronDocumentFieldsValidationError(docTypeName, validator.errors)

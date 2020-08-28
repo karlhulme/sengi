@@ -1,57 +1,81 @@
 /* eslint-env jest */
 const {
+  JsonotronConflictOnSaveError,
   JsonotronDocumentCustomValidationError,
   JsonotronDocumentNotFoundError,
+  JsonotronInvalidMergePatchError,
   JsonotronMergePatchValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
 } = require('jsonotron-errors')
-const { errorCodes } = require('jsonotron-consts')
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const patchDocument = require('./patchDocument')
+const { errorCodes, successCodes } = require('jsonotron-consts')
+const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
 
-test('Patching a document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones).', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
+const createJsonotronForTest = (upsertResponse, funcs) => {
+  return createJsonotronWithMockStore({
     fetch: async () => ({
       doc: {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
-        sys: {},
+        docHeader: {
+          origin: { style: 'new', userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
+          updated: { userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
+          ops: [{
+            opId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
+            userIdentity: 'testUser',
+            dateTime: '2020-03-04T12:00:00Z',
+            style: 'patch'
+          }],
+          calcs: {}
+        },
         tenantId: 'dddd',
         shortName: 'David',
         fullName: 'David Doohickey',
-        unrecognisedProp: 'unrecognisdValue'
+        unrecognisedProp: 'unrecognisedValue',
+        pinCode: 3333
       }
     }),
-    upsert: async () => ({})
-  })
+    upsert: async () => upsertResponse || ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
+  }, funcs)
+}
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+test('Patching a document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones).', async () => {
+  const jsonotron = createJsonotronForTest()
+
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
-    sys: {
+    docHeader: {
+      origin: {
+        style: 'new',
+        userIdentity: 'testUser',
+        dateTime: '2019-01-01T14:22:03Z'
+      },
       updated: {
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },
       ops: [{
+        opId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
+        userIdentity: 'testUser',
+        dateTime: '2020-03-04T12:00:00Z',
+        style: 'patch'
+      }, {
         opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z',
@@ -69,565 +93,235 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     tenantId: 'dddd',
     shortName: 'Maisory',
     fullName: 'David Doohickey',
-    unrecognisedProp: 'unrecognisdValue'
+    unrecognisedProp: 'unrecognisedValue',
+    pinCode: 3333
   }
 
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
-test('Patching a document should raise callbacks.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey',
-        unrecognisedProp: 'unrecognisdValue'
-      }
-    }),
-    upsert: async () => ({})
+test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegates.', async () => {
+  let preSaveDoc = null
+
+  const jsonotron = createJsonotronForTest(null, {
+    onPreSaveDoc: jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) }),
+    onUpdateDoc: jest.fn()
   })
 
-  let preSaveDoc = null
-  const onPreSaveDoc = jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) })
-  const onUpdateDoc = jest.fn()
-
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    onPreSaveDoc,
-    onUpdateDoc,
-    reqProps: { foo: 'bar' },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(onPreSaveDoc.mock.calls[0][0]).toEqual(expect.objectContaining({
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     mergePatch: {
       shortName: 'Maisory'
     }
-  }))
+  })])
+
   expect(preSaveDoc.shortName).toEqual('David')
 
-  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Maisory' })
-  })
+  }])
 })
 
 test('Patching a document for a second time should only call fetch on doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        sys: {
-          ops: [{ opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7', userIdentity: 'testUser', dateTime: '2000-01-01T13:12:00Z', style: 'patch' }]
-        },
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    operationId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).resolves.toEqual({ isUpdated: false })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(0)
 })
 
-test('Patching a document using a required version should call fetch and upsert on doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    }),
-    upsert: async () => ({})
-  })
+test('Patching a document using a required version should cause the required version to be passed to the doc store.', async () => {
+  const jsonotron = createJsonotronForTest()
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    docVersion: 'aaaa',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'patch'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Maisory'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'dddd',
-    shortName: 'Maisory',
-    fullName: 'David Doohickey'
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
-})
-
-test('Patching a document should invoke the pre-save function.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
-        docType: 'car',
-        docVersion: 'aaaa',
-        sys: {},
-        originalOwner: 'David',
-        manufacturer: 'Volkswagon',
-        model: 'Polo',
-        registration: 'HG53 8AB',
-        unrecognisedProp: 'unrecognisdValue'
-      }
-    }),
-    upsert: async () => ({})
-  })
-
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
-    docTypeName: 'car',
-    id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
-    operationId: '46463f8b-c858-4b28-9c51-a675d7b74830',
-    mergePatch: {
-      model: 'Golf'
-    },
-    docStoreOptions: { custom: 'prop' }
-  })).resolves.toEqual({ isUpdated: true })
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['car', 'cars', 'c06bd029-1bde-437f-82fe-fe4018f6d030', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: 'c06bd029-1bde-437f-82fe-fe4018f6d030',
-    docType: 'car',
-    docVersion: 'aaaa',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: '46463f8b-c858-4b28-9c51-a675d7b74830',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'patch'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Volkswagon Golf'
-        }
-      }
-    },
-    manufacturer: 'Volkswagon',
-    model: 'Golf',
-    registration: 'HG53 8AB',
-    unrecognisedProp: 'unrecognisdValue'
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['car', 'cars', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to patch document when required version is not available.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'bbbb',
-        sys: {
-          ops: [],
-          calcs: {}
-        },
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    }),
-    upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
-  })
+  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
     },
-    docStoreOptions: { custom: 'prop' }
+    reqVersion: 'aaaa' // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is specified then versionNotAvailable error is raised
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    docVersion: 'bbbb',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'patch'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Maisory'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'dddd',
-    shortName: 'Maisory',
-    fullName: 'David Doohickey'
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to patch document if it changes between fetch and upsert.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    }),
-    upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
-  })
+  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    reqVersion: 'aaaa',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    docStoreOptions: { custom: 'prop' }
-  })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'patch'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Maisory'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    docVersion: 'aaaa',
-    tenantId: 'dddd',
-    shortName: 'Maisory',
-    fullName: 'David Doohickey'
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+    }
+    // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is NOT specified then conflictOnSave error is raised
+  })).rejects.toThrow(JsonotronConflictOnSaveError)
 })
 
 test('Reject a patch to a non-existent doc.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: null
-    })
+  const jsonotron = createJsonotronWithMockStore({
+    fetch: async () => ({ doc: null })
   })
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-aaaaaaaaaaaa',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     mergePatch: {
       shortName: 'Maisory'
-    },
-    docStoreOptions: { custom: 'prop' }
+    }
   })).rejects.toThrow(JsonotronDocumentNotFoundError)
 })
 
 test('Reject a patch to any field that is not explicitly allowed for patching.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
   const fn = () => {
-    return patchDocument({
-      ...testRequest,
-      roleNames: ['admin'],
+    return jsonotron.patchDocument({
+      ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         pinCode: 4444
-      },
-      docStoreOptions: { custom: 'prop' }
-    })
-  }
-
-  await expect(fn()).rejects.toThrow(JsonotronMergePatchValidationError)
-  await expect(fn()).rejects.toThrow(/pinCode/)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-})
-
-test('Reject a patch to a non-existent field.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
       }
     })
-  })
-
-  const fn = () => {
-    return patchDocument({
-      ...testRequest,
-      roleNames: ['admin'],
-      docTypeName: 'person',
-      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
-        madeup: 'value'
-      },
-      docStoreOptions: { custom: 'prop' }
-    })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronMergePatchValidationError)
-  await expect(fn()).rejects.toThrow(/madeup/)
+  await expect(fn()).rejects.toThrow(JsonotronInvalidMergePatchError)
+  await expect(fn()).rejects.toThrow(/pinCode/)
+})
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+test('Accept a patch to an unrecognised field although it has no effect.', async () => {
+  const jsonotron = createJsonotronForTest()
+
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
+    docTypeName: 'person',
+    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+    operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+    mergePatch: {
+      madeup: 'value'
+    }
+  })).resolves.toEqual({ isUpdated: true })
 })
 
 test('Reject a patch with a field value that is invalid.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
   const fn = () => {
-    return patchDocument({
-      ...testRequest,
-      roleNames: ['admin'],
+    return jsonotron.patchDocument({
+      ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         shortName: 123
-      },
-      docStoreOptions: { custom: 'prop' }
+      }
     })
   }
 
   await expect(fn()).rejects.toThrow(JsonotronMergePatchValidationError)
   await expect(fn()).rejects.toThrow(/should be string/)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 })
 
 test('Reject a patch that would change a system field.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'David',
-        fullName: 'David Doohickey'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
   const fn = () => {
-    return patchDocument({
-      ...testRequest,
-      roleNames: ['admin'],
+    return jsonotron.patchDocument({
+      ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
         id: 'aaaaaaaa-065a-4691-a7c8-2d84ec746ba9'
-      },
-      docStoreOptions: { custom: 'prop' }
+      }
     })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronMergePatchValidationError)
+  await expect(fn()).rejects.toThrow(JsonotronInvalidMergePatchError)
   await expect(fn()).rejects.toThrow(/id/)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 })
 
 test('Reject a patch that would leave the document in an invalid state.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'car',
-        docVersion: 'aaaa',
-        manufacturer: 'Ford',
-        model: 'T',
-        registration: 'HG12 5GH'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
   const fn = () => {
-    return patchDocument({
-      ...testRequest,
-      roleNames: ['admin'],
-      docTypeName: 'car',
+    return jsonotron.patchDocument({
+      ...defaultRequestProps,
+      docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       mergePatch: {
-        registration: 'AB78 9KL'
-      },
-      docStoreOptions: { custom: 'prop' }
+        addressLines: 'I live in a castle - which is not allowed'
+      }
     })
   }
 
   await expect(fn()).rejects.toThrow(JsonotronDocumentCustomValidationError)
-  await expect(fn()).rejects.toThrow(/Unrecognised vehicle registration prefix/)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(2)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['car', 'cars', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-  expect(testRequest.mockedDocStore.fetch.mock.calls[1]).toEqual(['car', 'cars', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  await expect(fn()).rejects.toThrow(/No castle dwellers allowed/)
 })
 
 test('Fail to patch a document if permissions insufficient.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronForTest()
 
-  await expect(patchDocument({
-    ...testRequest,
-    roleNames: ['invalid'],
+  await expect(jsonotron.patchDocument({
+    ...defaultRequestProps,
+    roleNames: ['none'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',

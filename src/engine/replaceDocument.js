@@ -1,9 +1,8 @@
 const check = require('check-types')
 const {
-  applySystemFieldValuesToReplacedDocument,
   createDocStoreOptions,
   ensureCanReplaceDocuments,
-  ensureDocHasSystemFields,
+  ensureSystemFields,
   executePreSave,
   executeValidator,
   selectDocTypeFromArray,
@@ -37,8 +36,7 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
-  applySystemFieldValuesToReplacedDocument(doc, userIdentity, reqDateTime)
-  ensureDocHasSystemFields(doc)
+  ensureSystemFields(doc, 'replace', userIdentity, reqDateTime)
 
   executePreSave(docType, doc)
 
@@ -48,7 +46,7 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
 
   updateCalcsOnDocument(docType, doc)
 
-  validatorCache.ensureDocTypeFields(docType.name, doc)
+  validatorCache.ensureDocTypeInstance(docType.name, doc)
   executeValidator(docType, doc)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)

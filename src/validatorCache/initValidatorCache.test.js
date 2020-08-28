@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const { builtinFieldTypes } = require('jsonotron-builtin-field-types')
+const { builtinEnumTypes, builtinFieldTypes } = require('jsonotron-builtin-field-types')
 const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
 const { createCustomisedAjv } = require('jsonotron-validation')
 const initValidatorCache = require('./initValidatorCache')
@@ -13,21 +13,19 @@ const createValidDocType = () => ({
     canFetchWholeCollection: true
   },
   fields: {
-    propA: { type: 'shortString', isRequired: true, canUpdate: true, description: 'Property A.' },
-    propB: { type: 'mediumString', description: 'Property B.' }
+    propA: { type: 'shortString', isRequired: true, canUpdate: true },
+    propB: { type: 'mediumString' }
   },
   calculatedFields: {
     propAandB: {
-      description: 'The combination of prop a and b.',
       inputFields: ['propA', 'propB'],
       value: doc => `${doc.propA || ''}${doc.propB || ''}`
     }
   },
   filters: {
     byDateOfBirth: {
-      description: 'Fetch records where propA is equal to \'x\'.',
       parameters: {
-        x: { type: 'string', isRequired: true, description: 'The value to match.' }
+        x: { type: 'string', isRequired: true }
       },
       implementation: input => `some_col = "${input.x}"`
     }
@@ -35,8 +33,7 @@ const createValidDocType = () => ({
   validate: doc => null,
   ctor: {
     parameters: {
-      propA: { lookup: 'field', isRequired: true },
-      c: { type: 'boolean', description: 'Additional prop used only for construction.' }
+      c: { type: 'boolean' }
     },
     implementation: input => {
       return {
@@ -47,11 +44,9 @@ const createValidDocType = () => ({
   },
   operations: {
     changePropB: {
-      title: 'Change Property B',
-      description: 'Makes a change to property B.',
       parameters: {
-        c: { type: 'string', isRequired: true, description: 'A value that affects the operation.' },
-        propB: { lookup: 'field' }
+        c: { type: 'string', isRequired: true },
+        newPropB: { type: 'mediumString' }
       },
       implementation: (doc, input) => {
         return {
@@ -62,19 +57,14 @@ const createValidDocType = () => ({
   }
 })
 
-test('Initialised validator cache has field type value validators defined.', () => {
-  const validatorCache = initValidatorCache(createCustomisedAjv(builtinFormatValidators), [createValidDocType()], builtinFieldTypes)
+test('Initialised validator cache has validators defined for all elements of the doc type.', () => {
+  const validatorCache = initValidatorCache(createCustomisedAjv(builtinFormatValidators), [createValidDocType()], builtinFieldTypes, builtinEnumTypes)
 
   expect(validatorCache).toBeDefined()
 
-  expect(validatorCache.fieldTypeValueValidatorExists('shortString'))
-  expect(validatorCache.fieldTypeValueValidatorExists('integer'))
-  expect(validatorCache.fieldTypeValueValidatorExists('paymentCardNo'))
-  expect(validatorCache.fieldTypeValueValidatorExists('timeZone'))
-
-  expect(validatorCache.docTypeConstructorParamsValidatorExists('candidateDoc'))
-  expect(validatorCache.docTypeFieldsValidatorExists('candidateDoc'))
-  expect(validatorCache.docTypeFilterParamsValidatorExists('candidateDoc', 'byDateOfBirth'))
-  expect(validatorCache.docTypeMergePatchValidatorExists('candidateDoc'))
-  expect(validatorCache.docTypeOperationParamsValidatorExists('candidateDoc', 'changePropB'))
+  expect(validatorCache.docTypeInstanceValidatorExists('candidateDoc')).toEqual(true)
+  expect(validatorCache.docTypeConstructorParamsValidatorExists('candidateDoc')).toEqual(true)
+  expect(validatorCache.docTypeFilterParamsValidatorExists('candidateDoc', 'byDateOfBirth')).toEqual(true)
+  expect(validatorCache.docTypeMergePatchValidatorExists('candidateDoc')).toEqual(true)
+  expect(validatorCache.docTypeOperationParamsValidatorExists('candidateDoc', 'changePropB')).toEqual(true)
 })

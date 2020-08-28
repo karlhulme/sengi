@@ -3,7 +3,7 @@ const {
   applyMergePatch,
   applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
-  ensureDocHasSystemFields,
+  ensureSystemFields,
   ensureDocWasFound,
   ensureOperationName,
   ensureOperationMergePatchAvoidsSystemFields,
@@ -45,7 +45,7 @@ const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocSt
   const doc = await safeDocStore.fetch(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   ensureDocWasFound(docType.name, id, doc)
-  ensureDocHasSystemFields(doc)
+  ensureSystemFields(doc, 'new', userIdentity, reqDateTime)
 
   const opIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
@@ -65,7 +65,7 @@ const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocSt
     applySystemFieldValuesToUpdatedDocument(docType, doc, operationId, userIdentity, reqDateTime, 'operation', operationName)
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeFields(docType.name, doc)
+    validatorCache.ensureDocTypeInstance(docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)

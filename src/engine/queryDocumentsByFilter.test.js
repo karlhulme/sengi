@@ -1,38 +1,26 @@
 /* eslint-env jest */
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
-const {
-  JsonotronUnrecognisedFilterNameError,
-  JsonotronInsufficientPermissionsError
-} = require('jsonotron-errors')
-const queryDocumentsByFilter = require('./queryDocumentsByFilter')
+const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+const { JsonotronUnrecognisedFilterNameError, JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
 
-test('Query by document filter.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    queryByFilter: async () => {
-      return {
-        docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }
-        ]
-      }
-    }
+test('Query by document filter with support for paging.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    queryByFilter: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }] })
   })
 
-  const result = await queryDocumentsByFilter({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.queryDocumentsByFilter({
+    ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id', 'fullName', 'age'],
     filterName: 'byPostCode',
     filterParams: {
       postCode: 'BH23 4FG'
     },
-    docStoreOptions: { custom: 'prop' }
-  })
-
-  expect(result).toEqual({
+    limit: 1,
+    offset: 2
+  })).resolves.toEqual({
     deprecations: {
       age: {
-        reason: 'Use date of birth instead.'
+        reason: 'This field has been deprecated.'
       }
     },
     docs: [
@@ -40,142 +28,60 @@ test('Query by document filter.', async () => {
     ]
   })
 
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(6)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName', 'age'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({})
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][5]).toEqual({ custom: 'prop' })
+  expect(jsonotron._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), { limit: 1, offset: 2 }, { custom: 'prop' }])
 })
 
-test('Query by document filter with onQueryDocs delegate.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    queryByFilter: async () => {
-      return {
-        docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
-        ]
-      }
+test('Query by document filter with onQueryDocs delegate and without paging.', async () => {
+  const jsonotron = createJsonotronWithMockStore({
+    queryByFilter: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }] })
+  }, {
+    onQueryDocs: jest.fn()
+  })
+
+  await expect(jsonotron.queryDocumentsByFilter({
+    ...defaultRequestProps,
+    docTypeName: 'person',
+    fieldNames: ['id', 'fullName', 'age'],
+    filterName: 'byPostCode',
+    filterParams: {
+      postCode: 'BH23 4FG'
     }
-  })
+  })).resolves.toBeDefined()
 
-  const onQueryDocsDelegate = jest.fn()
+  expect(jsonotron._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), {}, { custom: 'prop' }])
 
-  const result = await queryDocumentsByFilter({
-    ...testRequest,
+  expect(jsonotron._test.config.onQueryDocs.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onQueryDocs.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
-    docTypeName: 'person',
-    fieldNames: ['id', 'fullName'],
-    filterName: 'byPostCode',
-    filterParams: {
-      postCode: 'BH23 4FG'
-    },
-    onQueryDocs: onQueryDocsDelegate,
-    docStoreOptions: { custom: 'prop' }
-  })
-
-  expect(result).toEqual({
-    deprecations: {},
-    docs: [
-      { id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion' }
-    ]
-  })
-
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(6)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id', 'fullName'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({})
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][5]).toEqual({ custom: 'prop' })
-
-  expect(onQueryDocsDelegate.mock.calls.length).toEqual(1)
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('roleNames', ['admin'])
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('reqProps', { meta: 'data' })
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('docType')
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('fieldNames', ['id', 'fullName'])
-  expect(onQueryDocsDelegate.mock.calls[0][0]).toHaveProperty('retrievalFieldNames', ['id', 'fullName'])
-})
-
-test('Query by document filter with support for paging.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    queryByFilter: async () => {
-      return {
-        docs: [
-          { id: '06151119-065a-4691-a7c8-2d84ec746ba9' }
-        ]
-      }
-    }
-  })
-
-  await queryDocumentsByFilter({
-    ...testRequest,
-    roleNames: ['admin'],
-    docTypeName: 'person',
-    fieldNames: ['id'],
-    filterName: 'byPostCode',
-    filterParams: {
-      postCode: 'BH23 4FG'
-    },
-    limit: 1,
-    docStoreOptions: { custom: 'prop' }
-  })
-
-  await queryDocumentsByFilter({
-    ...testRequest,
-    roleNames: ['admin'],
-    docTypeName: 'person',
-    fieldNames: ['id'],
-    filterName: 'byPostCode',
-    filterParams: {
-      postCode: 'BH23 4FG'
-    },
-    limit: 2,
-    offset: 3,
-    docStoreOptions: { custom: 'prop' }
-  })
-
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls.length).toEqual(2)
-
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0].length).toEqual(6)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][1]).toEqual('persons')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][2]).toEqual(['id'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][4]).toEqual({ limit: 1 })
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[0][5]).toEqual({ custom: 'prop' })
-
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1].length).toEqual(6)
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1][0]).toEqual('person')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1][1]).toEqual('persons')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1][2]).toEqual(['id'])
-  expect(typeof testRequest.mockedDocStore.queryByFilter.mock.calls[0][3]).toEqual('function')
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1][4]).toEqual({ limit: 2, offset: 3 })
-  expect(testRequest.mockedDocStore.queryByFilter.mock.calls[1][5]).toEqual({ custom: 'prop' })
+    reqProps: { foo: 'bar' },
+    docType: expect.anything(),
+    fieldNames: ['id', 'fullName', 'age'],
+    retrievalFieldNames: ['id', 'fullName', 'age']
+  }])
 })
 
 test('Fail to query by document filter if filter name not recognised.', async () => {
-  await expect(queryDocumentsByFilter({
-    ...createTestRequestWithMockedDocStore(),
-    roleNames: ['admin'],
+  const jsonotron = createJsonotronWithMockStore()
+
+  await expect(jsonotron.queryDocumentsByFilter({
+    ...defaultRequestProps,
     docTypeName: 'person',
-    fieldNames: ['id', 'fullName'],
+    fieldNames: ['id'],
     filterName: 'byInvalid',
-    filterParams: {
-      postCode: 'BH23 4FG'
-    }
+    filterParams: {}
   })).rejects.toThrow(JsonotronUnrecognisedFilterNameError)
 })
 
 test('Fail to query by document filter if permissions insufficient.', async () => {
-  await expect(queryDocumentsByFilter({
-    ...createTestRequestWithMockedDocStore(),
-    roleNames: ['invalid'],
+  const jsonotron = createJsonotronWithMockStore()
+
+  await expect(jsonotron.queryDocumentsByFilter({
+    ...defaultRequestProps,
+    roleNames: ['none'],
     docTypeName: 'person',
-    fieldNames: ['id', 'fullName'],
+    fieldNames: ['id'],
     filterName: 'byPostCode',
     filterParams: {
       postCode: 'BH23 4FG'

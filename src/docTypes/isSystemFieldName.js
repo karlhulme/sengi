@@ -1,5 +1,5 @@
 const check = require('check-types')
-const { getSystemFields } = require('jsonotron-validation')
+const { getSystemFieldNames } = require('jsonotron-validation')
 
 /**
  * Returns true if the given field name is a system
@@ -10,7 +10,7 @@ const { getSystemFields } = require('jsonotron-validation')
 const isSystemFieldName = fieldName => {
   check.assert.string(fieldName)
 
-  return getSystemFields().includes(fieldName)
+  return getSystemFieldNames().includes(fieldName)
 }
 
 module.exports = isSystemFieldName

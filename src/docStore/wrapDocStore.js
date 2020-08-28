@@ -228,8 +228,8 @@ const wrapDocStore = (docStore) => {
       check.assert.maybe.object(options)
 
       const props = {}
-      if (limit) { props.limit = limit }
-      if (offset) { props.offset = offset }
+      if (typeof limit === 'number') { props.limit = limit }
+      if (typeof offset === 'number') { props.offset = offset }
 
       const result = await safeExecuteDocStoreFunction(docStore, 'queryAll', [docTypeName, docTypePluralName, fieldNames, props, options], false)
       ensureReturnedDocsArray('queryAll', result.docs, docTypeName)
@@ -258,8 +258,8 @@ const wrapDocStore = (docStore) => {
       check.assert.maybe.object(options)
 
       const props = {}
-      if (limit) { props.limit = limit }
-      if (offset) { props.offset = offset }
+      if (typeof limit === 'number') { props.limit = limit }
+      if (typeof offset === 'number') { props.offset = offset }
 
       const result = await safeExecuteDocStoreFunction(docStore, 'queryByFilter', [docTypeName, docTypePluralName, fieldNames, filterExpression, props, options], false)
       ensureReturnedDocsArray('queryByFilter', result.docs, docTypeName)

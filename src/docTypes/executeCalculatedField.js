@@ -13,6 +13,7 @@ const {
  */
 const executeCalculatedField = (docType, doc, calculatedFieldName) => {
   check.assert.object(docType)
+  check.assert.object(docType.calculatedFields)
   check.assert.object(doc)
   check.assert.string(calculatedFieldName)
 

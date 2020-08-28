@@ -1,6 +1,4 @@
 /* eslint-env jest */
-const { errorCodes } = require('jsonotron-consts')
-const { createTestRequestWithMockedDocStore } = require('./shared.test')
 const {
   JsonotronConflictOnSaveError,
   JsonotronDocumentNotFoundError,
@@ -8,64 +6,83 @@ const {
   JsonotronRequiredVersionNotAvailableError,
   JsonotronUnrecognisedOperationNameError
 } = require('jsonotron-errors')
-const operateOnDocument = require('./operateOnDocument')
+const { errorCodes, successCodes } = require('jsonotron-consts')
+const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
 
-test('Operate on document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones)..', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
+const createJsonotronForTest = (upsertResponse, funcs) => {
+  return createJsonotronWithMockStore({
     fetch: async () => ({
       doc: {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
         docType: 'person',
         docVersion: 'aaaa',
+        docHeader: {
+          origin: { style: 'new', userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
+          updated: { userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
+          ops: [{
+            opId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
+            userIdentity: 'testUser',
+            dateTime: '2020-03-04T12:00:00Z',
+            style: 'operation',
+            operationName: 'replaceFavouriteColors'
+          }],
+          calcs: {}
+        },
         tenantId: 'dddd',
         shortName: 'Mikey',
         fullName: 'Mikey Manhattan',
         unrecognisedProp: 'unrecognisedValue'
       }
     }),
-    upsert: async () => ({})
-  })
+    upsert: async () => upsertResponse || ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
+  }, funcs)
+}
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+test('Operate on document should call fetch and upsert on doc store while retaining existing properties, including unrecognised ones.', async () => {
+  const jsonotron = createJsonotronForTest()
+
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
-    },
-    docStoreOptions: { custom: 'prop' }
+      newFavouriteColors: ['puse', 'gold']
+    }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'person',
     docVersion: 'aaaa',
-    sys: {
+    docHeader: {
+      origin: {
+        style: 'new',
+        userIdentity: 'testUser',
+        dateTime: '2019-01-01T14:22:03Z'
+      },
       updated: {
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z'
       },
       ops: [{
+        opId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
+        userIdentity: 'testUser',
+        dateTime: '2020-03-04T12:00:00Z',
+        style: 'operation',
+        operationName: 'replaceFavouriteColors'
+      }, {
         opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
         userIdentity: 'testUser',
         dateTime: '2020-01-01T14:22:03Z',
         style: 'operation',
         operationName: 'replaceFavouriteColors'
       }],
-      calcs: {
-        displayName: {
-          value: 'Mikey'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
+      calcs: { displayName: { value: 'Mikey' }, fullAddress: { value: '' } }
     },
     tenantId: 'dddd',
     shortName: 'Mikey',
@@ -74,353 +91,161 @@ test('Operate on document should call fetch and upsert on doc store, retaining e
     unrecognisedProp: 'unrecognisedValue'
   }
 
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
-test('Operate on document should raise callbacks', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'Mikey',
-        fullName: 'Mikey Manhattan',
-        unrecognisedProp: 'unrecognisedValue'
-      }
-    }),
-    upsert: async () => ({})
-  })
-
+test('Operate on document should raise callbacks.', async () => {
   let preSaveDoc = null
-  const onPreSaveDoc = jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) })
-  const onUpdateDoc = jest.fn()
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  const jsonotron = createJsonotronForTest(
+    null, {
+      onPreSaveDoc: jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) }),
+      onUpdateDoc: jest.fn()
+    }
+  )
+
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
-    },
-    onPreSaveDoc,
-    onUpdateDoc,
-    reqProps: { foo: 'bar' },
-    docStoreOptions: { custom: 'prop' }
+      newFavouriteColors: ['puse', 'gold']
+    }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(onPreSaveDoc.mock.calls[0][0]).toEqual(expect.objectContaining({
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     mergePatch: {
       favouriteColors: ['silver', 'puse', 'gold']
     }
-  }))
+  })])
+
   expect(preSaveDoc.favouriteColors).not.toBeDefined()
 
-  expect(onUpdateDoc.mock.calls[0][0]).toEqual({
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ fullName: 'Mikey Manhattan', tenantId: 'dddd', favouriteColors: ['silver', 'puse', 'gold'] })
-  })
+  }])
 })
 
 test('Operate on document for second time should only call fetch on doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        sys: {
-          ops: [{
-            opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-            userIdentity: 'testUser',
-            dateTime: '2000-01-01T12:00:00Z',
-            style: 'operation',
-            operationName: 'replaceFavouriteColors'
-          }]
-        },
-        tenantId: 'dddd',
-        shortName: 'Mikey',
-        fullName: 'Mikey Manhattan'
-      }
-    })
-  })
+  const jsonotron = createJsonotronForTest()
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+    operationId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
-    },
-    docStoreOptions: { custom: 'prop' }
+      newFavouriteColors: ['puse', 'gold']
+    }
   })).resolves.toEqual({ isUpdated: false })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(0)
 })
 
-test('Operate on document using a required version should call exists and upsert on doc store.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'Mikey',
-        fullName: 'Mikey Manhattan'
-      }
-    }),
-    upsert: async () => ({})
-  })
+test('Operate on document using a required version should cause required version to be passed to doc store.', async () => {
+  const jsonotron = createJsonotronForTest()
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-    reqVersion: 'aaaa',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
+      newFavouriteColors: ['puse', 'gold']
     },
-    docStoreOptions: { custom: 'prop' }
+    reqVersion: 'aaaa'
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    docVersion: 'aaaa',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'operation',
-        operationName: 'replaceFavouriteColors'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Mikey'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'dddd',
-    shortName: 'Mikey',
-    fullName: 'Mikey Manhattan',
-    favouriteColors: ['silver', 'puse', 'gold']
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to operate on document when required version is not available.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        docVersion: 'bbbb',
-        tenantId: 'dddd',
-        shortName: 'Mikey',
-        fullName: 'Mikey Manhattan'
-      }
-    }),
-    upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
-  })
+  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-    reqVersion: 'aaaa',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
+      newFavouriteColors: ['puse', 'gold']
     },
-    docStoreOptions: { custom: 'prop' }
+    reqVersion: 'bbbb' // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is specified then versionNotAvailable error is raised
   })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    docVersion: 'bbbb',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'operation',
-        operationName: 'replaceFavouriteColors'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Mikey'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'dddd',
-    shortName: 'Mikey',
-    fullName: 'Mikey Manhattan',
-    favouriteColors: ['silver', 'puse', 'gold']
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to operate on document if it changes between fetch and upsert.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: {
-        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-        docType: 'person',
-        sys: {
-          ops: []
-        },
-        docVersion: 'aaaa',
-        tenantId: 'dddd',
-        shortName: 'Mikey',
-        fullName: 'Mikey Manhattan'
-      }
-    }),
-    upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
-  })
+  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
-    },
-    docStoreOptions: { custom: 'prop' }
+      newFavouriteColors: ['puse', 'gold']
+    }
+    // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is NOT specified then conflictOnSave error is raised
   })).rejects.toThrow(JsonotronConflictOnSaveError)
-
-  expect(testRequest.mockedDocStore.fetch.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
-
-  const resultDoc = {
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
-    docType: 'person',
-    docVersion: 'aaaa',
-    sys: {
-      updated: {
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z'
-      },
-      ops: [{
-        opId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
-        userIdentity: 'testUser',
-        dateTime: '2020-01-01T14:22:03Z',
-        style: 'operation',
-        operationName: 'replaceFavouriteColors'
-      }],
-      calcs: {
-        displayName: {
-          value: 'Mikey'
-        },
-        fullAddress: {
-          value: ''
-        }
-      }
-    },
-    tenantId: 'dddd',
-    shortName: 'Mikey',
-    fullName: 'Mikey Manhattan',
-    favouriteColors: ['silver', 'puse', 'gold']
-  }
-
-  expect(testRequest.mockedDocStore.upsert.mock.calls.length).toEqual(1)
-  expect(testRequest.mockedDocStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to operate on document if it does not exist.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: null
-    })
+  const jsonotron = createJsonotronWithMockStore({
+    fetch: async () => ({ doc: null })
   })
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-888888888888',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
+      newFavouriteColors: ['puse', 'gold']
     }
   })).rejects.toThrow(JsonotronDocumentNotFoundError)
 })
 
 test('Fail to invoke an operation if permissions insufficient.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore()
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['invalid'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
+    roleNames: ['none'],
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
     operationName: 'replaceFavouriteColors',
     operationParams: {
-      favouriteColors: ['puse', 'gold']
+      newFavouriteColors: ['puse', 'gold']
     }
   })).rejects.toThrow(JsonotronInsufficientPermissionsError)
 })
 
 test('Fail to operate on document using an unknown operation.', async () => {
-  const testRequest = createTestRequestWithMockedDocStore({
-    fetch: async () => ({
-      doc: null
-    })
-  })
+  const jsonotron = createJsonotronWithMockStore()
 
-  await expect(operateOnDocument({
-    ...testRequest,
-    roleNames: ['admin'],
+  await expect(jsonotron.operateOnDocument({
+    ...defaultRequestProps,
     docTypeName: 'car',
     id: 'bd605c90-67c0-4125-a404-4fff3366d6ac',
     operationId: 'a2c9bec0-ab03-4ded-bce6-d8a91f71e1d4',

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const combineCustomAndBuiltInFieldTypes = require('./combineCustomAndBuiltInFieldTypes')
+const combineCustomAndBuiltInTypes = require('./combineCustomAndBuiltInTypes')
 
 test('Custom types can override built-in types.', () => {
   const builtin = [
@@ -14,7 +14,7 @@ test('Custom types can override built-in types.', () => {
     { name: 'E', detail: 'eeeeee' }
   ]
 
-  expect(combineCustomAndBuiltInFieldTypes(custom, builtin)).toEqual([
+  expect(combineCustomAndBuiltInTypes(custom, builtin)).toEqual([
     { name: 'A', detail: 'aaaaaa' },
     { name: 'D', detail: 'dddddd' },
     { name: 'E', detail: 'eeeeee' },

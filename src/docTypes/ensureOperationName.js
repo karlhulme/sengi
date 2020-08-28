@@ -1,4 +1,4 @@
-const getOperationNames = require('./getOperationNames')
+const check = require('check-types')
 const { JsonotronUnrecognisedOperationNameError } = require('jsonotron-errors')
 
 /**
@@ -8,9 +8,11 @@ const { JsonotronUnrecognisedOperationNameError } = require('jsonotron-errors')
  * @param {String} operationName The name of an operation.
  */
 const ensureOperationName = (docType, operationName) => {
-  const operationNames = getOperationNames(docType)
+  check.assert.object(docType)
+  check.assert.object(docType.operations)
+  check.assert.string(operationName)
 
-  if (!operationNames.includes(operationName)) {
+  if (!docType.operations[operationName]) {
     throw new JsonotronUnrecognisedOperationNameError(docType.name, operationName)
   }
 }

@@ -3,7 +3,8 @@ const {
   applyMergePatch,
   applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
-  ensureDocHasSystemFields,
+  createMergePatchForUpdateableFields,
+  ensureSystemFields,
   ensureDocWasFound,
   ensureMergePatchAvoidsSystemFields,
   executePreSave,
@@ -43,7 +44,7 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
   const doc = await safeDocStore.fetch(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   ensureDocWasFound(docType.name, id, doc)
-  ensureDocHasSystemFields(doc)
+  ensureSystemFields(doc, 'new', userIdentity, reqDateTime)
 
   const operationIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
@@ -57,11 +58,12 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
     }
 
     ensureMergePatchAvoidsSystemFields(mergePatch)
-    applyMergePatch(doc, mergePatch)
+    const mergePatchForUpdateableFields = createMergePatchForUpdateableFields(docType, mergePatch)
+    applyMergePatch(doc, mergePatchForUpdateableFields)
     applySystemFieldValuesToUpdatedDocument(docType, doc, operationId, userIdentity, reqDateTime, 'patch')
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeFields(docType.name, doc)
+    validatorCache.ensureDocTypeInstance(docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)

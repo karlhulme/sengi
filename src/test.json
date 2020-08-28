@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Doc Type \"car\"",
+  "type": "object",
+  "properties": {
+    "id": {
+      "$ref": "#/definitions/sysId"
+    },
+    "docType": {
+      "enum": [
+        "car"
+      ]
+    },
+    "docVersion": {
+      "$ref": "#/definitions/sysDocVersion"
+    },
+    "docHeader": {
+      "$ref": "#/definitions/sysDocHeader"
+    },
+    "manufacturer": {
+      "$ref": "#/definitions/mediumString"
+    },
+    "model": {
+      "$ref": "#/definitions/mediumString"
+    },
+    "registration": {
+      "$ref": "#/definitions/shortString"
+    }
+  },
+  "required": [
+    "id",
+    "docType",
+    "docHeader",
+    "manufacturer",
+    "model",
+    "registration"
+  ],
+  "definitions": {
+    "sysId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sysDocVersion": {
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "\\w"
+    },
+    "sysDocHeader": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "object",
+          "properties": {
+            "style": {
+              "enum": [
+                "new",
+                "replace"
+              ]
+            },
+            "userIdentity": {
+              "$ref": "#/definitions/sysUserIdentity"
+            },
+            "dateTime": {
+              "$ref": "#/definitions/sysDateTime"
+            }
+          },
+          "required": [
+            "style",
+            "userIdentity",
+            "dateTime"
+          ]
+        },
+        "updated": {
+          "type": "object",
+          "properties": {
+            "userIdentity": {
+              "$ref": "#/definitions/sysUserIdentity"
+            },
+            "dateTime": {
+              "$ref": "#/definitions/sysDateTime"
+            }
+          },
+          "required": [
+            "userIdentity",
+            "dateTime"
+          ]
+        },
+        "ops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "opId": {
+                "$ref": "#/definitions/sysOpId"
+              },
+              "userIdentity": {
+                "$ref": "#/definitions/sysUserIdentity"
+              },
+              "dateTime": {
+                "$ref": "#/definitions/sysDateTime"
+              },
+              "style": {
+                "enum": [
+                  "patch",
+                  "operation"
+                ]
+              },
+              "operationName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "opId",
+              "userIdentity",
+              "dateTime",
+              "style"
+            ]
+          }
+        },
+        "calcs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "value": {}
+            }
+          }
+        }
+      },
+      "required": [
+        "origin",
+        "updated",
+        "ops",
+        "calcs"
+      ]
+    },
+    "mediumString": {
+      "type": "string",
+      "maxLength": 50
+    },
+    "shortString": {
+      "type": "string",
+      "maxLength": 20
+    },
+    "sysOpId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sysDateTime": {
+      "type": "string",
+      "format": "custom-utc-date-time"
+    },
+    "sysUserIdentity": {
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "\\w"
+    }
+  }
+}

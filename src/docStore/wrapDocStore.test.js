@@ -34,7 +34,7 @@ const docStoreWithValidFunctions = {
   deleteById: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_DELETED' }),
   exists: () => ({ found: true }),
   fetch: () => ({ doc: { id: '123', docType: 'test', docVersion: 'aaaa' } }),
-  queryAll: () => ({ docs: [] }),
+  queryAll: () => ({ docs: [{ id: '123', docType: 'test', docVersion: 'aaaa' }] }),
   queryByFilter: () => ({ docs: [] }),
   queryByIds: () => ({ docs: [] }),
   upsert: () => ({ successCode: 'DOC_STORE_DOCUMENT_WAS_CREATED' })
@@ -75,6 +75,10 @@ const docStoreWithMalformedQueryAll = { queryAll: () => ({ docs: 'not an array' 
 const docStoreWithMalformedDocsId = { queryAll: () => ({ docs: [{ id: 123, docType: 'test', docVersion: 'aaaa' }] }) }
 const docStoreWithMalformedDocsType = { queryAll: () => ({ docs: [{ id: '123', docType: 'somethingWrong', docVersion: 'aaaa' }] }) }
 const docStoreWithMalformedDocsVersion = { queryAll: () => ({ docs: [{ id: '123', docType: 'test', docVersion: 111 }] }) }
+
+const docStoreWithFetchUnknownDoc = {
+  fetch: () => ({ doc: null })
+}
 
 test('A doc store without functions will throw missing function errors.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithoutFunctions)
@@ -158,7 +162,9 @@ test('A doc store with valid functions will return the underlying function retur
   await expect(safeDocStore.exists('test', 'tests', '123')).resolves.toEqual(true)
   await expect(safeDocStore.fetch('test', 'tests', '123')).resolves.toEqual({ id: '123', docType: 'test', docVersion: 'aaaa' })
   await expect(safeDocStore.queryAll('test', 'tests', ['id'])).resolves.not.toThrow()
+  await expect(safeDocStore.queryAll('test', 'tests', ['id'], 10, 0)).resolves.not.toThrow()
   await expect(safeDocStore.queryByFilter('test', 'tests', ['id'], 'A and B')).resolves.not.toThrow()
+  await expect(safeDocStore.queryByFilter('test', 'tests', ['id'], 'A and B', 10, 0)).resolves.not.toThrow()
   await expect(safeDocStore.queryByIds('test', 'tests', ['id'], ['123', '234'])).resolves.not.toThrow()
   await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' })).resolves.toEqual(true)
 })
@@ -167,4 +173,9 @@ test('Upserts will fail if the doc types are not consistent.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithValidFunctions)
   await expect(safeDocStore.upsert('test', 'tests', { docType: 'notTest' })).rejects.toThrow(JsonotronInternalError)
   await expect(safeDocStore.upsert('test', 'tests', { docType: 'notTest' })).rejects.toThrow(/does not match docTypeName/)
+})
+
+test('A doc store that searches for a missing document returns the null value.', async () => {
+  const safeDocStore = wrapDocStore(docStoreWithFetchUnknownDoc)
+  await expect(safeDocStore.fetch('test', 'tests', '123')).resolves.toEqual(null)
 })

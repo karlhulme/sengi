@@ -20,8 +20,8 @@ const getDeprecationsForRetrievalFieldNames = (docType, retrievalFieldNames) => 
     // field will be undefined for system field names
     const field = docType.fields[retrievalFieldName]
 
-    if (field && field.deprecation) {
-      deprecations[retrievalFieldName] = { reason: docType.fields[retrievalFieldName].deprecation }
+    if (field && field.isDeprecated) {
+      deprecations[retrievalFieldName] = { reason: 'This field has been deprecated.' }
     }
   }
 

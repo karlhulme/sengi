@@ -2,7 +2,7 @@
 const isOpIdInDocument = require('./isOpIdInDocument')
 
 const doc = {
-  sys: {
+  docHeader: {
     ops: [
       { opId: 'aaa', userIdentity: 'testUser', dateTime: 'then' },
       { opId: 'bbb', userIdentity: 'testUser', dateTime: 'now' }
