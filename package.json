@@ -19,7 +19,7 @@
   "homepage": "https://github.com/karlhulme/jsonotron#readme",
   "devDependencies": {
     "acorn": "^7.1.1",
-    "jest": "^26.4.2",
+    "jest": "^25.1.0",
     "standard": "^14.3.4"
   },
   "dependencies": {
