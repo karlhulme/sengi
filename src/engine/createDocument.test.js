@@ -29,7 +29,7 @@ test('Creating a document should call exists and then upsert on doc store.', asy
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     docType: 'person',
     docHeader: {
-      origin: { style: 'new', userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
+      origin: { userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
       updated: { userIdentity: 'testUser', dateTime: '2020-01-01T14:22:03Z' },
       ops: [],
       calcs: {

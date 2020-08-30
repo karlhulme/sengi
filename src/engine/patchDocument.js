@@ -44,7 +44,7 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
   const doc = await safeDocStore.fetch(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   ensureDocWasFound(docType.name, id, doc)
-  ensureSystemFields(doc, 'new', userIdentity, reqDateTime)
+  ensureSystemFields(doc, userIdentity, reqDateTime)
 
   const operationIdAlreadyExists = isOpIdInDocument(doc, operationId)
 

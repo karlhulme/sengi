@@ -21,7 +21,6 @@ const createNewDocument = () => ({
 
 const createExpectedDocHeader = () => ({
   origin: {
-    style: 'replace',
     userIdentity: 'testUser',
     dateTime: '2020-01-01T14:22:03Z'
   },

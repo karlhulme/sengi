@@ -20,7 +20,6 @@ const addSystemFieldValuesToNewDocument = (docType, doc, id, userIdentity, dateT
   doc.docType = docType.name
   doc.docHeader = {
     origin: {
-      style: 'new',
       userIdentity,
       dateTime
     },

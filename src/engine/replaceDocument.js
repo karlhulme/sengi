@@ -36,7 +36,7 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
-  ensureSystemFields(doc, 'replace', userIdentity, reqDateTime)
+  ensureSystemFields(doc, userIdentity, reqDateTime)
 
   executePreSave(docType, doc)
 

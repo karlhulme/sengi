@@ -8,14 +8,12 @@ const { JsonotronInternalError } = require('jsonotron-errors')
  * Note that a docVersion is not a required property and will
  * not be created.
  * @param {Object} doc A document.
- * @param {String} originStyle Either new or replace to indicate how
- * the document was first introduced to the system.
  * @param {String} userIdentity The identity of a user.
  * @param {String} dateTime A value that indicates when the
  * document is being treated.  This value is used where required date/time
  * values in the docHeader are missing.
  */
-const ensureSystemFields = (doc, originStyle, userIdentity, dateTime) => {
+const ensureSystemFields = (doc, userIdentity, dateTime) => {
   check.assert.object(doc)
   check.assert.string(userIdentity)
   check.assert.string(dateTime)
@@ -40,10 +38,6 @@ const ensureSystemFields = (doc, originStyle, userIdentity, dateTime) => {
 
   if (typeof doc.docHeader.origin !== 'object' || doc.docHeader.origin === null || Array.isArray(doc.docHeader.origin)) {
     doc.docHeader.origin = {}
-  }
-
-  if (typeof doc.docHeader.origin.style !== 'string') {
-    doc.docHeader.origin.style = originStyle
   }
 
   if (typeof doc.docHeader.origin.userIdentity !== 'string') {

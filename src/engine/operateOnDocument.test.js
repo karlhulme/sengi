@@ -17,7 +17,7 @@ const createJsonotronForTest = (upsertResponse, funcs) => {
         docType: 'person',
         docVersion: 'aaaa',
         docHeader: {
-          origin: { style: 'new', userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
+          origin: { userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
           updated: { userIdentity: 'testUser', dateTime: '2019-01-01T14:22:03Z' },
           ops: [{
             opId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
@@ -61,7 +61,6 @@ test('Operate on document should call fetch and upsert on doc store while retain
     docVersion: 'aaaa',
     docHeader: {
       origin: {
-        style: 'new',
         userIdentity: 'testUser',
         dateTime: '2019-01-01T14:22:03Z'
       },

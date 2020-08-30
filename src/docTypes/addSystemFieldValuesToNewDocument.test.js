@@ -12,7 +12,6 @@ test('Add the system fields to a new doc overwriting existing properties.', () =
   expect(doc).toHaveProperty('docType', 'test')
   expect(doc).toHaveProperty('docHeader')
   expect(doc.docHeader).toHaveProperty('origin', {
-    style: 'new',
     userIdentity: 'testUser',
     dateTime: 'now'
   })
