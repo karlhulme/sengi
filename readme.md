@@ -1,10 +1,10 @@
-# Jsonotron
+# Sengi
 
-![](https://github.com/karlhulme/jsonotron/workflows/CD/badge.svg)
-[![npm](https://img.shields.io/npm/v/jsonotron.svg)](https://www.npmjs.com/package/jsonotron)
+![](https://github.com/karlhulme/sengi/workflows/CD/badge.svg)
+[![npm](https://img.shields.io/npm/v/sengi.svg)](https://www.npmjs.com/package/sengi)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-The core Jsonotron engine.
+The core Sengi engine.
 
 It interprets the field type definitions, doc type definitions and role definitions.
 
@@ -12,35 +12,35 @@ It validates and actions input requests, by issuing instructions to query the un
 
 It mutates documents according to the defined mutators and patch policy, performs validation checks, and upserts modified documents back to the datastore.
 
-> This package is part of the Jsonotron system.
+> This package is part of the Sengi system.
 >
-> Jsonotron is...
+> Sengi is...
 > * a small set of components for building a **NodeJS microservice**
 > * for storing, patching and querying **JSON documents**
 > * stored in a schemaless/NoSQL **database**
 > * that have known, enforceable, and **evolving schemas**.
 >
-> **Visit https://karlhulme.github.io/jsonotron/ for details on how to get started.**
+> **Visit https://karlhulme.github.io/sengi/ for details on how to get started.**
 
 ## Installation
 
 ```bash
-npm install jsonotron --save
+npm install sengi --save
 ```
 
 ## Usage
 
-> This package is used by Jsonotron service implementations, such as Jsonotron-express.  Unless you are creating a new public interface for Jsonotron then you probably don't want to use this package directly!
+> This package is used by Sengi service implementations, such as sengi-express.  Unless you are creating a new public interface for Jsonotron then you probably don't want to use this package directly!
 
-Instantiate a Jsonotron engine with a configuration object:
+Instantiate a Sengi engine with a configuration object:
 
-* **docStore** - An object that implements the Jsonotron document store interface.
+* **docStore** - An object that implements the Sengi document store interface.
 
-* **docTypes** - An array of Jsonotron document types.
+* **docTypes** - An array of Sengi document types.
 
-* **roleTypes** - An array of Jsonotron role types.
+* **roleTypes** - An array of Sengi role types.
 
-* **fieldTypes** - An array of Jsonotron field types that will be appended to the built-in field types.
+* **fieldTypes** - An array of Sengi field types that will be appended to the built-in field types.
 
 * **formatValidators** - An array of format validators that will be appended to the built-in format validators.
 
@@ -57,9 +57,9 @@ Instantiate a Jsonotron engine with a configuration object:
 * **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
 
 ```javascript
-const { createJsonotron } = require('jsonotron')
+const { createSengi } = require('sengi')
 
 const docStore = { fetch: () => {}, queryAll: () => {}}
 
-const jsonotron = createJsonotron({ docStore, docTypes: [], roleTypes: [] })
+const sengi = createSengi({ docStore, docTypes: [], roleTypes: [] })
 ```

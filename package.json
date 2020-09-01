@@ -1,5 +1,5 @@
 {
-  "name": "jsonotron",
+  "name": "sengi",
   "version": "1.0.1",
   "description": "Provides a RESTful interface to a document-based database.",
   "main": "index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/karlhulme/jsonotron.git"
+    "url": "git+https://github.com/karlhulme/sengi.git"
   },
   "author": "Karl Hulme <karlhulme@hotmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/karlhulme/jsonotron/issues"
+    "url": "https://github.com/karlhulme/sengi/issues"
   },
-  "homepage": "https://github.com/karlhulme/jsonotron#readme",
+  "homepage": "https://github.com/karlhulme/sengi#readme",
   "devDependencies": {
     "acorn": "^7.1.1",
     "jest": "^25.1.0",
