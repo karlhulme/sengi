@@ -16,11 +16,11 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, fieldNames, filterName, filterParams, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
+const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, fieldNames, filterName, filterParams, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
-  check.assert.object(validatorCache)
+  check.assert.object(sengiValidation)
   check.assert.array.of.object(docTypes)
   check.assert.string(docTypeName)
   check.assert.string(filterName)

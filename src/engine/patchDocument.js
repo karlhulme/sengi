@@ -19,12 +19,12 @@ const {
 } = require('../roleTypes')
 const invokeCallback = require('./invokeCallback')
 
-const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, validatorCache, docTypes, docTypeName, id, reqVersion, operationId, mergePatch, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, reqVersion, operationId, mergePatch, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
   check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
-  check.assert.object(validatorCache)
+  check.assert.object(sengiValidation)
   check.assert.array.of.object(docTypes)
   check.assert.string(docTypeName)
   check.assert.string(id)

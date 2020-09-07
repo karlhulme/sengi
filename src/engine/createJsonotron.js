@@ -1,16 +1,6 @@
 const moment = require('moment')
-const { builtinEnumTypes, builtinFieldTypes } = require('jsonotron-builtin-field-types')
-const { builtinFormatValidators } = require('jsonotron-builtin-format-validators')
-const {
-  createCustomisedAjv,
-  ensureEnumType,
-  ensureFieldTypes,
-  ensureDocTypes,
-  ensureRoleType
-} = require('jsonotron-validation')
-const { initValidatorCache } = require('../validatorCache')
+const { SengiValidation } = require('sengi-validation')
 const { wrapDocStore } = require('../docStore')
-const combineCustomAndBuiltInTypes = require('./combineCustomAndBuiltInTypes')
 const createDocumentInternal = require('./createDocument')
 const deleteDocumentInternal = require('./deleteDocument')
 const operateOnDocumentInternal = require('./operateOnDocument')
@@ -54,8 +44,10 @@ const momentDateTimeFunc = () => {
 }
 
 /**
- * Choose a function for producing date time UTC strings.  This will either
+ * Choose a function for producing date time UTC strings.  This will either be
  * the given function (if supplied) or a function built around the moment library.
+ * This is useful for testing, as the date/time stamped onto operations can be
+ * controlled.
  * @param {Function} [dateTimeFunc] A function that returns a string
  * with the current date and time using the built-in date time UTC format.
  */
@@ -94,11 +86,11 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Array} config.docTypes An array of doc types.
  * @param {Array} config.roleTypes An array of role types.
  * @param {Array} [config.enumTypes] An array of enum types that will be combined with the
- * built-in field types.
- * @param {Array} [config.fieldTypes] An array of field types that will be combined with the
- * built-in field types.
+ * core enum types.
+ * @param {Array} [config.schemaTypes] An array of schema types that will be combined with the
+ * core schema types.
  * @param {Array} [config.formatValidators] An array of format validators that will be combined with the
- * built-in format validators.
+ * core format validators.
  * @param {Function} [config.dateTimeFunc] A function that returns a UTC date/time string in
  * sysDateTime format.
  * @param {Function} [config.onPreSaveDoc] A function that is invoked just before a document is saved.
@@ -137,8 +129,8 @@ const createJsonotron = config => {
     throw new TypeError('Constructor parameter \'config.enumTypes\' must be an array.')
   }
 
-  if (typeof config.fieldTypes !== 'undefined' && !Array.isArray(config.fieldTypes)) {
-    throw new TypeError('Constructor parameter \'config.fieldTypes\' must be an array.')
+  if (typeof config.schemaTypes !== 'undefined' && !Array.isArray(config.schemaTypes)) {
+    throw new TypeError('Constructor parameter \'config.schemaTypes\' must be an array.')
   }
 
   if (typeof config.formatValidators !== 'undefined' && !Array.isArray(config.formatValidators)) {
@@ -172,28 +164,18 @@ const createJsonotron = config => {
   // wrap the doc store so methods are safe to call
   const safeDocStore = wrapDocStore(config.docStore)
 
-  // build the format validators array (custom and built-in)
-  const builtinAndCustomFormatValidators = combineCustomAndBuiltInTypes(config.formatValidators || [], builtinFormatValidators)
+  // build the sengi validation
+  const sengiValidation = new SengiValidation({
+    enumTypes: config.enumTypes || [],
+    schemaTypes: config.schemaTypes || [],
+    formatValidators: config.formatValidators || [],
+    roleTypes: config.roleTypes,
+    docTypes: config.docTypes
+  })
 
-  // create a customised json validator with the jsonotron keywords and formats
-  const ajv = createCustomisedAjv(builtinAndCustomFormatValidators)
-
-  // build the enum types array (custom and built-in) and ensure they're all valid
-  const builtinAndCustomEnumTypes = combineCustomAndBuiltInTypes(config.enumTypes || [], builtinEnumTypes)
-  builtinAndCustomEnumTypes.forEach(enumType => ensureEnumType(ajv, enumType, false))
-
-  // build the field types array (custom and built-in) and ensure they're all valid
-  const builtinAndCustomFieldTypes = combineCustomAndBuiltInTypes(config.fieldTypes || [], builtinFieldTypes)
-  ensureFieldTypes(ajv, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes, false)
-
-  // ensure all the doc types are valid
-  ensureDocTypes(ajv, config.docTypes, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes, false)
-
-  // ensure all role types are valid
-  config.roleTypes.forEach(roleType => ensureRoleType(ajv, roleType, false))
-
-  // create a validator cache
-  const validatorCache = initValidatorCache(ajv, config.docTypes, builtinAndCustomFieldTypes, builtinAndCustomEnumTypes)
+  // extract the patched resources
+  const patchedRoleTypes = sengiValidation.getPatchedRoleTypes()
+  const patchedDocTypes = sengiValidation.getPatchedDocTypes()
 
   // choose a function for generating UTC date/time strings.
   const dateTimeFunc = chooseDateTimeFunction(config.dateTimeFunc)
@@ -203,11 +185,9 @@ const createJsonotron = config => {
   const buildEntryPointParameterObject = req => {
     return {
       safeDocStore,
-      docTypes: config.docTypes,
-      enumTypes: builtinAndCustomEnumTypes,
-      fieldTypes: builtinAndCustomFieldTypes,
-      roleTypes: config.roleTypes,
-      validatorCache,
+      sengiValidation,
+      roleTypes: patchedRoleTypes,
+      docTypes: patchedDocTypes,
       reqDateTime: dateTimeFunc(),
       onPreSaveDoc: config.onPreSaveDoc,
       onQueryDocs: config.onQueryDocs,
@@ -226,31 +206,31 @@ const createJsonotron = config => {
     \***********************************************/
 
     /**
-     * Returns an array of document type names.
-     */
-    getDocTypeNames: () => {
-      return config.docTypes.map(docType => docType.name)
-    },
-
-    /**
      * Returns an array of enum type names.
      */
     getEnumTypeNames: () => {
-      return builtinAndCustomEnumTypes.map(enumType => enumType.name)
+      return sengiValidation.getPatchedEnumTypes().map(enumType => enumType.name)
     },
 
     /**
-     * Returns an array of field type names.
+     * Returns an array of schema type names.
      */
-    getFieldTypeNames: () => {
-      return builtinAndCustomFieldTypes.map(fieldType => fieldType.name)
+    getSchemaTypeNames: () => {
+      return sengiValidation.getPatchedSchemaTypes().map(schemaType => schemaType.name)
     },
 
     /**
      * Returns an array of role type names.
      */
     getRoleTypeNames: () => {
-      return config.roleTypes.map(roleType => roleType.name)
+      return sengiValidation.getPatchedRoleTypes().map(roleType => roleType.name)
+    },
+
+    /**
+     * Returns an array of document type names.
+     */
+    getDocTypeNames: () => {
+      return sengiValidation.getPatchedDocTypes().map(docType => docType.name)
     },
 
     /***********************************************
