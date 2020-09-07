@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if the given operation id exists in
@@ -6,7 +6,7 @@ const check = require('check-types')
  * @param {Object} doc A document.
  * @param {String} opId The id of an operation.
  */
-const isOpIdInDocument = (doc, opId) => {
+export const isOpIdInDocument = (doc, opId) => {
   check.assert.object(doc)
   check.assert.object(doc.docHeader)
   check.assert.array.of.object(doc.docHeader.ops)
@@ -14,5 +14,3 @@ const isOpIdInDocument = (doc, opId) => {
 
   return doc.docHeader.ops.findIndex(op => op.opId === opId) > -1
 }
-
-module.exports = isOpIdInDocument

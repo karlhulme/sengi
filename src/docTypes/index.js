@@ -1,31 +1,29 @@
-module.exports = {
-  addSystemFieldValuesToNewDocument: require('./addSystemFieldValuesToNewDocument'),
-  applyMergePatch: require('./applyMergePatch'),
-  applyCalculatedFieldValuesToDocument: require('./applyCalculatedFieldValuesToDocument'),
-  applyDeclaredFieldDefaultsToDocument: require('./applyDeclaredFieldDefaultsToDocument'),
-  applySystemFieldValuesToUpdatedDocument: require('./applySystemFieldValuesToUpdatedDocument'),
-  createDocStoreOptions: require('./createDocStoreOptions'),
-  createMergePatchForUpdateableFields: require('./createMergePatchForUpdateableFields'),
-  determineFieldNamesForRetrieval: require('./determineFieldNamesForRetrieval'),
-  ensureCanDeleteDocuments: require('./ensureCanDeleteDocuments'),
-  ensureCanFetchWholeCollection: require('./ensureCanFetchWholeCollection'),
-  ensureCanReplaceDocuments: require('./ensureCanReplaceDocuments'),
-  ensureDocWasFound: require('./ensureDocWasFound'),
-  ensureFilterName: require('./ensureFilterName'),
-  ensureMergePatchAvoidsSystemFields: require('./ensureMergePatchAvoidsSystemFields'),
-  ensureOperationName: require('./ensureOperationName'),
-  ensureOperationMergePatchAvoidsSystemFields: require('./ensureOperationMergePatchAvoidsSystemFields'),
-  ensureSystemFields: require('./ensureSystemFields'),
-  evaluateFilter: require('./evaluateFilter'),
-  executeConstructor: require('./executeConstructor'),
-  executeOperation: require('./executeOperation'),
-  executePreSave: require('./executePreSave'),
-  executeValidator: require('./executeValidator'),
-  extractConstructorDeclaredParams: require('./extractConstructorDeclaredParams'),
-  extractConstructorMergeParams: require('./extractConstructorMergeParams'),
-  getDeprecationsForRetrievalFieldNames: require('./getDeprecationsForRetrievalFieldNames'),
-  isOpIdInDocument: require('./isOpIdInDocument'),
-  removeSurplusFieldsFromDocument: require('./removeSurplusFieldsFromDocument'),
-  selectDocTypeFromArray: require('./selectDocTypeFromArray'),
-  updateCalcsOnDocument: require('./updateCalcsOnDocument')
-}
+export * from './addSystemFieldValuesToNewDocument'
+export * from './applyMergePatch'
+export * from './applyCalculatedFieldValuesToDocument'
+export * from './applyDeclaredFieldDefaultsToDocument'
+export * from './applySystemFieldValuesToUpdatedDocument'
+export * from './createDocStoreOptions'
+export * from './createMergePatchForUpdateableFields'
+export * from './determineFieldNamesForRetrieval'
+export * from './ensureCanDeleteDocuments'
+export * from './ensureCanFetchWholeCollection'
+export * from './ensureCanReplaceDocuments'
+export * from './ensureDocWasFound'
+export * from './ensureFilterName'
+export * from './ensureMergePatchAvoidsSystemFields'
+export * from './ensureOperationName'
+export * from './ensureOperationMergePatchAvoidsSystemFields'
+export * from './ensureSystemFields'
+export * from './evaluateFilter'
+export * from './executeConstructor'
+export * from './executeOperation'
+export * from './executePreSave'
+export * from './executeValidator'
+export * from './extractConstructorDeclaredParams'
+export * from './extractConstructorMergeParams'
+export * from './getDeprecationsForRetrievalFieldNames'
+export * from './isOpIdInDocument'
+export * from './removeSurplusFieldsFromDocument'
+export * from './selectDocTypeFromArray'
+export * from './updateCalcsOnDocument'

@@ -1,6 +1,6 @@
-const check = require('check-types')
-const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
-const hasPermission = require('./hasPermission')
+import check from 'check-types'
+import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { hasPermission } from './hasPermission'
 
 /**
  * Raises an error if the given permissionFunc fails to find
@@ -14,7 +14,7 @@ const hasPermission = require('./hasPermission')
  * @param {Func} permissionFunc A function that accepts a role type
  * and returns true if a permission is held.
  */
-const ensurePermission = (roleNames, roleTypes, docTypeName, action, permissionFunc) => {
+export const ensurePermission = (roleNames, roleTypes, docTypeName, action, permissionFunc) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.function(permissionFunc)
@@ -25,5 +25,3 @@ const ensurePermission = (roleNames, roleTypes, docTypeName, action, permissionF
     throw new JsonotronInsufficientPermissionsError(roleNames, docTypeName, action)
   }
 }
-
-module.exports = ensurePermission

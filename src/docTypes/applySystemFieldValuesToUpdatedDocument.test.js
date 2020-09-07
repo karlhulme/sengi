@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const applySystemFieldValuesToUpdatedDocument = require('./applySystemFieldValuesToUpdatedDocument')
+import { applySystemFieldValuesToUpdatedDocument } from './applySystemFieldValuesToUpdatedDocument'
 
 test('Apply latest operation id to the doc ops.', () => {
   const docType = { policy: { maxOpsSize: 3 } }

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const applyDeclaredFieldDefaultsToDocument = require('./applyDeclaredFieldDefaultsToDocument')
+import { applyDeclaredFieldDefaultsToDocument } from './applyDeclaredFieldDefaultsToDocument'
 
 const docType = {
   fields: {

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const isOpIdInDocument = require('./isOpIdInDocument')
+import { isOpIdInDocument } from './isOpIdInDocument'
 
 const doc = {
   docHeader: {

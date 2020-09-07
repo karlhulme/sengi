@@ -1,13 +1,13 @@
-/* eslint-env jest */
-const {
+import { test, expect, jest } from '@jest/globals'
+import {
   JsonotronConflictOnSaveError,
   JsonotronDocumentNotFoundError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError,
   JsonotronUnrecognisedOperationNameError
-} = require('jsonotron-errors')
-const { errorCodes, successCodes } = require('jsonotron-consts')
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+} from '../jsonotron-errors'
+import { errorCodes, successCodes } from '../consts'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
 
 const createJsonotronForTest = (upsertResponse, funcs) => {
   return createJsonotronWithMockStore({

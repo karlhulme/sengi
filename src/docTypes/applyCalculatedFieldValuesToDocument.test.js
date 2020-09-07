@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { JsonotronCalculatedFieldFailedError } = require('jsonotron-errors')
-const applyCalculatedFieldValuesToDocument = require('./applyCalculatedFieldValuesToDocument')
+import { JsonotronCalculatedFieldFailedError } from '../jsonotron-errors'
+import { applyCalculatedFieldValuesToDocument } from './applyCalculatedFieldValuesToDocument'
 
 const docType = {
   name: 'test',

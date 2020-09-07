@@ -1,12 +1,12 @@
-const check = require('check-types')
-const { JsonotronUnrecognisedDocTypeNameError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronUnrecognisedDocTypeNameError } from '../jsonotron-errors'
 
 /**
  * Selects the doc type with the given name from the given docTypes array.
  * @param {Array} docTypes An array of doc types.
  * @param {String} docTypeName The name of a doc type.
  */
-const selectDocTypeFromArray = (docTypes, docTypeName) => {
+export const selectDocTypeFromArray = (docTypes, docTypeName) => {
   check.assert.array.of.object(docTypes)
   check.assert.string(docTypeName)
 
@@ -18,5 +18,3 @@ const selectDocTypeFromArray = (docTypes, docTypeName) => {
 
   return docType
 }
-
-module.exports = selectDocTypeFromArray

@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-module.exports = {
+export const car = {
   name: 'car',
   pluralName: 'cars',
   title: 'Car',

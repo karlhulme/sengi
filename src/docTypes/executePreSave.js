@@ -1,12 +1,12 @@
-const check = require('check-types')
-const { JsonotronPreSaveFailedError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronPreSaveFailedError } from '../jsonotron-errors'
 
 /**
  * Execute a doc type pre-save function.
  * @param {Object} docType A doc type.
  * @param {Object} doc A document that may be amended by the function.
  */
-const executePreSave = (docType, doc) => {
+export const executePreSave = (docType, doc) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.object(doc)
@@ -19,5 +19,3 @@ const executePreSave = (docType, doc) => {
     }
   }
 }
-
-module.exports = executePreSave

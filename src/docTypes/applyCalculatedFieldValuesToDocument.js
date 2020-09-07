@@ -1,6 +1,6 @@
-const check = require('check-types')
-const executeCalculatedField = require('./executeCalculatedField')
-const isCalculatedFieldName = require('./isCalculatedFieldName')
+import check from 'check-types'
+import { executeCalculatedField } from './executeCalculatedField'
+import { isCalculatedFieldName } from './isCalculatedFieldName'
 
 /**
  * Applies calculated field values to the given doc, as defined on the given
@@ -11,7 +11,7 @@ const isCalculatedFieldName = require('./isCalculatedFieldName')
  * @param {Object} doc A document.
  * @param {Array} requiredFieldNames An array of field names.
  */
-const applyCalculatedFieldValuesToDocument = (docType, doc, requiredFieldNames) => {
+export const applyCalculatedFieldValuesToDocument = (docType, doc, requiredFieldNames) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.object(doc)
@@ -23,5 +23,3 @@ const applyCalculatedFieldValuesToDocument = (docType, doc, requiredFieldNames) 
     }
   }
 }
-
-module.exports = applyCalculatedFieldValuesToDocument

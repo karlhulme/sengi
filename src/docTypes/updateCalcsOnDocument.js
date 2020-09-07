@@ -1,5 +1,5 @@
-const check = require('check-types')
-const executeCalculatedField = require('./executeCalculatedField')
+import check from 'check-types'
+import { executeCalculatedField } from './executeCalculatedField'
 
 /**
  * Update the system calcs object on the given document by re-evaluating
@@ -8,7 +8,7 @@ const executeCalculatedField = require('./executeCalculatedField')
  * @param {Object} doc A doc.
  * @param {String} opId An id of the operation that caused the update of the document.
  */
-const updateCalcsOnDocument = (docType, doc) => {
+export const updateCalcsOnDocument = (docType, doc) => {
   check.assert.object(docType)
   check.assert.object(doc)
   check.assert.object(doc.docHeader)
@@ -21,5 +21,3 @@ const updateCalcsOnDocument = (docType, doc) => {
     }
   }
 }
-
-module.exports = updateCalcsOnDocument

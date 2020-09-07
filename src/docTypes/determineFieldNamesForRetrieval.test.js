@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { JsonotronUnrecognisedFieldNameError } = require('jsonotron-errors')
-const determineFieldNamesForRetrieval = require('./determineFieldNamesForRetrieval')
+import { JsonotronUnrecognisedFieldNameError } from '../jsonotron-errors'
+import { determineFieldNamesForRetrieval } from './determineFieldNamesForRetrieval'
 
 const docType = {
   name: 'test',
@@ -21,7 +21,7 @@ test('Identify system fields for retrieval.', () => {
   expect(determineFieldNamesForRetrieval(docType, ['id'])).toEqual(['id'])
   expect(determineFieldNamesForRetrieval(docType, ['id', 'id'])).toEqual(['id'])
   expect(determineFieldNamesForRetrieval(docType, ['docType'])).toEqual(['docType'])
-  expect(determineFieldNamesForRetrieval(docType, ['id', 'sys'])).toEqual(['id', 'sys'])
+  expect(determineFieldNamesForRetrieval(docType, ['id', 'docHeader'])).toEqual(['id', 'docHeader'])
 })
 
 test('Identify declared fields for retrieval.', () => {

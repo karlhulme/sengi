@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const ensureSystemFields = require('./ensureSystemFields')
+import { ensureSystemFields } from './ensureSystemFields'
 
 test('Accept a document that has all the system fields.', () => {
   expect(() => ensureSystemFields({ id: 'aaa', docType: 'bbb' }, 'testUser', '2020-08-28T16:42:10Z')).not.toThrow()

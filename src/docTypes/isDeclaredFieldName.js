@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if the given field name is a declared
@@ -6,12 +6,10 @@ const check = require('check-types')
  * @param {Object} docType A doc type.
  * @param {String} fieldName The name of a field.
  */
-const isDeclaredFieldName = (docType, fieldName) => {
+export const isDeclaredFieldName = (docType, fieldName) => {
   check.assert.object(docType)
   check.assert.object(docType.fields)
   check.assert.string(fieldName)
 
   return typeof docType.fields[fieldName] === 'object'
 }
-
-module.exports = isDeclaredFieldName

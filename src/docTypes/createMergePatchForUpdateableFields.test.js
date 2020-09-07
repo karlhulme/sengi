@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { JsonotronInvalidMergePatchError } = require('jsonotron-errors')
-const createMergePatchForUpdateableFields = require('./createMergePatchForUpdateableFields')
+import { JsonotronInvalidMergePatchError } from '../jsonotron-errors'
+import { createMergePatchForUpdateableFields } from './createMergePatchForUpdateableFields'
 
 const docType = {
   fields: {

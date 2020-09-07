@@ -1,10 +1,10 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   JsonotronInternalError,
   JsonotronOperationFailedError,
   JsonotronOperationNonObjectResponseError,
   JsonotronUnrecognisedOperationNameError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 /**
  * Call operation implementation and wrap any errors raised.
@@ -14,7 +14,7 @@ const {
  * @param {Object} doc A document.
  * @param {Object} operationParams The parameters of an operation.
  */
-const callOperationImplementation = (docTypeName, operationName, implementation, doc, operationParams) => {
+export const callOperationImplementation = (docTypeName, operationName, implementation, doc, operationParams) => {
   try {
     return implementation(doc, operationParams)
   } catch (err) {
@@ -30,7 +30,7 @@ const callOperationImplementation = (docTypeName, operationName, implementation,
  * @param {String} operationName The name of an operation.
  * @param {Object} operationParams A parameter object to be passed to the operation.
  */
-const executeOperation = (docType, doc, operationName, operationParams) => {
+export const executeOperation = (docType, doc, operationName, operationParams) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.object(doc)
@@ -55,5 +55,3 @@ const executeOperation = (docType, doc, operationName, operationParams) => {
 
   return result
 }
-
-module.exports = executeOperation

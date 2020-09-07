@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   applyMergePatch,
   applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
@@ -13,11 +13,12 @@ const {
   isOpIdInDocument,
   selectDocTypeFromArray,
   updateCalcsOnDocument
-} = require('../docTypes')
-const { canOperate, ensurePermission } = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../docTypes'
+import { canOperate, ensurePermission } from '../roleTypes'
+import { ensureDocTypeInstance, ensureDocTypeOperationParams } from '../validation'
+import { invokeCallback } from './invokeCallback'
 
-const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+export const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, reqVersion, operationId, operationName, operationParams, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
   check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
@@ -50,7 +51,7 @@ const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocSt
   const opIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
   if (!opIdAlreadyExists) {
-    validatorCache.ensureDocTypeOperationParams(docType.name, operationName, operationParams)
+    ensureDocTypeOperationParams(sengiValidation, docType.name, operationName, operationParams)
 
     executePreSave(docType, doc)
 
@@ -65,7 +66,7 @@ const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocSt
     applySystemFieldValuesToUpdatedDocument(docType, doc, operationId, userIdentity, reqDateTime, 'operation', operationName)
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeInstance(docType.name, doc)
+    ensureDocTypeInstance(sengiValidation, docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
@@ -79,5 +80,3 @@ const operateOnDocument = async ({ userIdentity, roleNames, roleTypes, safeDocSt
     return { isUpdated: false }
   }
 }
-
-module.exports = operateOnDocument

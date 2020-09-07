@@ -1,6 +1,5 @@
-module.exports = {
+export const registration = {
   name: 'registration',
-  type: 'field',
   title: 'Registration',
   paragraphs: ['A vehicle registration.'],
   examples: [{ value: 'HG23 6JK' }],

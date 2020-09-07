@@ -1,4 +1,4 @@
-module.exports = {
+export const admin = {
   name: 'admin',
   docPermissions: {
     person: {

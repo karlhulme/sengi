@@ -1,9 +1,7 @@
-module.exports = {
-  canCreate: require('./canCreate'),
-  canDelete: require('./canDelete'),
-  canOperate: require('./canOperate'),
-  canPatch: require('./canPatch'),
-  canQuery: require('./canQuery'),
-  canReplace: require('./canReplace'),
-  ensurePermission: require('./ensurePermission')
-}
+export * from './canCreate'
+export * from './canDelete'
+export * from './canOperate'
+export * from './canPatch'
+export * from './canQuery'
+export * from './canReplace'
+export * from './ensurePermission'

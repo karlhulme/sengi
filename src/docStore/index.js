@@ -1,3 +1,1 @@
-module.exports = {
-  wrapDocStore: require('./wrapDocStore')
-}
+export * from './wrapDocStore'

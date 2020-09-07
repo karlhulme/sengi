@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const ensureCanFetchWholeCollection = require('./ensureCanFetchWholeCollection')
-const { JsonotronActionForbiddenByPolicyError } = require('jsonotron-errors')
+import { ensureCanFetchWholeCollection } from './ensureCanFetchWholeCollection'
+import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
 
 test('Remain silent if policy allows action.', () => {
   expect(() => ensureCanFetchWholeCollection({ name: 'test', policy: { canFetchWholeCollection: true } })).not.toThrow()

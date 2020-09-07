@@ -1,7 +1,7 @@
-/* eslint-env jest */
-const { successCodes } = require('jsonotron-consts')
-const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+import { test, expect, jest } from '@jest/globals'
+import { successCodes } from '../consts'
+import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
 
 test('Delete document by id should call delete on doc store.', async () => {
   const jsonotron = createJsonotronWithMockStore({

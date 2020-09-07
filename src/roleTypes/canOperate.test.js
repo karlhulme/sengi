@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canOperate = require('./canOperate')
+import { canOperate } from './canOperate'
 
 const admin = {
   docPermissions: true

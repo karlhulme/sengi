@@ -1,9 +1,9 @@
 /* eslint-env jest */
-const {
+import {
   JsonotronCalculatedFieldFailedError,
   JsonotronUnrecognisedCalculatedFieldNameError
-} = require('jsonotron-errors')
-const executeCalculatedField = require('./executeCalculatedField')
+} from '../jsonotron-errors'
+import { executeCalculatedField } from './executeCalculatedField'
 
 const docType = {
   name: 'test',

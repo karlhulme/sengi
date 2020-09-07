@@ -1,6 +1,6 @@
-/* eslint-env jest */
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
-const { JsonotronUnrecognisedFilterNameError, JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
+import { test, expect, jest } from '@jest/globals'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { JsonotronUnrecognisedFilterNameError, JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
 
 test('Query by document filter with support for paging.', async () => {
   const jsonotron = createJsonotronWithMockStore({

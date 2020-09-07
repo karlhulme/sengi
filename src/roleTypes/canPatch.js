@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if the given role type allows
@@ -6,7 +6,7 @@ const check = require('check-types')
  * @param {Object} roleType A role type.
  * @param {String} docTypeName The name of a doc type.
  */
-const canPatch = (roleType, docTypeName) => {
+export const canPatch = (roleType, docTypeName) => {
   check.assert.object(roleType)
   check.assert.string(docTypeName)
 
@@ -17,5 +17,3 @@ const canPatch = (roleType, docTypeName) => {
 
   return hasPermission
 }
-
-module.exports = canPatch

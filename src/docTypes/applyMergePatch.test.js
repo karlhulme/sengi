@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const applyMergePatch = require('./applyMergePatch')
+import { applyMergePatch } from './applyMergePatch'
 
 test('Reject a patch if the subject is not an object.', () => {
   expect(() => applyMergePatch(null, { a: 'b' })).toThrow()

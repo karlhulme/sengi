@@ -1,15 +1,15 @@
-/* eslint-env jest */
-const {
+import { test, expect, jest } from '@jest/globals'
+import {
   JsonotronConflictOnSaveError,
   JsonotronDocumentCustomValidationError,
   JsonotronDocumentNotFoundError,
   JsonotronInvalidMergePatchError,
-  JsonotronMergePatchValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
-} = require('jsonotron-errors')
-const { errorCodes, successCodes } = require('jsonotron-consts')
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+} from '../jsonotron-errors'
+import { errorCodes, successCodes } from '../consts'
+import { SengiDocTypePatchValidationFailedError } from '../errors'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
 
 const createJsonotronForTest = (upsertResponse, funcs) => {
   return createJsonotronWithMockStore({
@@ -273,8 +273,7 @@ test('Reject a patch with a field value that is invalid.', async () => {
     })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronMergePatchValidationError)
-  await expect(fn()).rejects.toThrow(/should be string/)
+  await expect(fn()).rejects.toThrow(SengiDocTypePatchValidationFailedError)
 })
 
 test('Reject a patch that would change a system field.', async () => {

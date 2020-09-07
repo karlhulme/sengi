@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canQuery = require('./canQuery')
+import { canQuery } from './canQuery'
 
 const admin = {
   docPermissions: true

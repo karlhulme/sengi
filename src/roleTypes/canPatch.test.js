@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canPatch = require('./canPatch')
+import { canPatch } from './canPatch'
 
 const admin = {
   docPermissions: true

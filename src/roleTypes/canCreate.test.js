@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canCreate = require('./canCreate')
+import { canCreate } from './canCreate'
 
 const admin = {
   docPermissions: true

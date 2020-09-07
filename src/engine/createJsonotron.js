@@ -1,14 +1,14 @@
-const moment = require('moment')
-const { SengiValidation } = require('sengi-validation')
-const { wrapDocStore } = require('../docStore')
-const createDocumentInternal = require('./createDocument')
-const deleteDocumentInternal = require('./deleteDocument')
-const operateOnDocumentInternal = require('./operateOnDocument')
-const patchDocumentInternal = require('./patchDocument')
-const queryDocumentsInternal = require('./queryDocuments')
-const queryDocumentsByIdsInternal = require('./queryDocumentsByIds')
-const queryDocumentsByFilterInternal = require('./queryDocumentsByFilter')
-const replaceDocumentInternal = require('./replaceDocument')
+import moment from 'moment'
+import { SengiValidation } from 'sengi-validation'
+import { wrapDocStore } from '../docStore'
+import { createDocument as createDocumentInternal } from './createDocument'
+import { deleteDocument as deleteDocumentInternal } from './deleteDocument'
+import { operateOnDocument as operateOnDocumentInternal } from './operateOnDocument'
+import { patchDocument as patchDocumentInternal } from './patchDocument'
+import { queryDocuments as queryDocumentsInternal } from './queryDocuments'
+import { queryDocumentsByIds as queryDocumentsByIdsInternal } from './queryDocumentsByIds'
+import { queryDocumentsByFilter as queryDocumentsByFilterInternal } from './queryDocumentsByFilter'
+import { replaceDocument as replaceDocumentInternal } from './replaceDocument'
 
 /**
  * Each key of this object is a validator for a parameter of an external request object.
@@ -108,7 +108,7 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Function} [config.onDeleteDoc] A function that is invoked when a document is deleted,
  * passed an object with roleNames, reqProps, docType and id properties.
  */
-const createJsonotron = config => {
+export const createJsonotron = config => {
   if (typeof config !== 'object' || Array.isArray(config) || config === null) {
     throw new TypeError('Constructor parameter \'config\' must be an object.')
   }
@@ -371,5 +371,3 @@ const createJsonotron = config => {
     }
   }
 }
-
-module.exports = createJsonotron

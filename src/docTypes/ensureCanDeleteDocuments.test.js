@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const ensureCanDeleteDocuments = require('./ensureCanDeleteDocuments')
-const { JsonotronActionForbiddenByPolicyError } = require('jsonotron-errors')
+import { ensureCanDeleteDocuments } from './ensureCanDeleteDocuments'
+import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
 
 test('Remain silent if policy allows action.', () => {
   expect(() => ensureCanDeleteDocuments({ name: 'test', policy: { canDeleteDocuments: true } })).not.toThrow()

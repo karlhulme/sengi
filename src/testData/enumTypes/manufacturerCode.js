@@ -1,10 +1,9 @@
-module.exports = {
+export const manufacturerCode = {
   name: 'manufacturerCode',
-  type: 'enum',
   title: 'Manufacturer Code',
   items: [
-    { value: 'Ford', paragraphs: ['Ford Motor Company.'] },
-    { value: 'GM', paragraphs: ['General Motors.'] },
-    { value: 'Volvo', paragraphs: ['Volvo Cars.'] }
+    { value: 'Ford', text: 'Ford Motor Company' },
+    { value: 'GM', text: 'General Motors' },
+    { value: 'Volvo', text: 'Volvo Cars' }
   ]
 }

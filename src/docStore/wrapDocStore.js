@@ -1,6 +1,6 @@
-const check = require('check-types')
-const { errorCodes, successCodes } = require('jsonotron-consts')
-const {
+import check from 'check-types'
+import { errorCodes, successCodes } from '../consts'
+import {
   JsonotronConflictOnSaveError,
   JsonotronInternalError,
   JsonotronDocStoreFailureError,
@@ -8,7 +8,7 @@ const {
   JsonotronDocStoreMissingFunctionError,
   JsonotronDocStoreUnrecognisedErrorCodeError,
   JsonotronRequiredVersionNotAvailableError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 /**
  * Raises an appropriate error if the given doc store result
@@ -119,7 +119,7 @@ const safeExecuteDocStoreFunction = async (docStore, functionName, params, reqVe
  * will cause useful explanatory errors to be raised.  This is then
  * considerd a safe document store.
  */
-const wrapDocStore = (docStore) => {
+export const wrapDocStore = (docStore) => {
   check.assert.object(docStore)
 
   return {
@@ -321,5 +321,3 @@ const wrapDocStore = (docStore) => {
     }
   }
 }
-
-module.exports = wrapDocStore

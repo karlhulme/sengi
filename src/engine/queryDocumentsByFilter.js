@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   applyCalculatedFieldValuesToDocument,
   applyDeclaredFieldDefaultsToDocument,
   createDocStoreOptions,
@@ -9,14 +9,15 @@ const {
   getDeprecationsForRetrievalFieldNames,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canQuery,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { ensureDocTypeFilterParams } from '../validation'
+import { invokeCallback } from './invokeCallback'
 
-const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, fieldNames, filterName, filterParams, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
+export const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, fieldNames, filterName, filterParams, limit, offset, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -38,7 +39,7 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, seng
   ensureFilterName(docType, filterName)
   const retrievalFieldNames = determineFieldNamesForRetrieval(docType, fieldNames)
   const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
-  validatorCache.ensureDocTypeFilterParams(docTypeName, filterName, filterParams)
+  ensureDocTypeFilterParams(sengiValidation, docTypeName, filterName, filterParams)
 
   const filterResult = evaluateFilter(docType, filterName, filterParams)
 
@@ -55,5 +56,3 @@ const queryDocumentsByFilter = async ({ roleNames, roleTypes, safeDocStore, seng
 
   return { deprecations, docs }
 }
-
-module.exports = queryDocumentsByFilter

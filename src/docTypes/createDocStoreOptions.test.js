@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const createDocStoreOptions = require('./createDocStoreOptions')
+import { createDocStoreOptions } from './createDocStoreOptions'
 
 const docTypeWithDocStoreOptions = {
   docStoreOptions: {

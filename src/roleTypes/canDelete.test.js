@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canDelete = require('./canDelete')
+import { canDelete } from './canDelete'
 
 const admin = {
   docPermissions: true

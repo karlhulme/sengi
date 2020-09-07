@@ -1,5 +1,5 @@
-const check = require('check-types')
-const { JsonotronInternalError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronInternalError } from '../jsonotron-errors'
 
 /**
  * Raises an error if the given document is missing an id or a docType.
@@ -13,7 +13,7 @@ const { JsonotronInternalError } = require('jsonotron-errors')
  * document is being treated.  This value is used where required date/time
  * values in the docHeader are missing.
  */
-const ensureSystemFields = (doc, userIdentity, dateTime) => {
+export const ensureSystemFields = (doc, userIdentity, dateTime) => {
   check.assert.object(doc)
   check.assert.string(userIdentity)
   check.assert.string(dateTime)
@@ -89,5 +89,3 @@ const ensureSystemFields = (doc, userIdentity, dateTime) => {
     doc.docHeader.calcs = {}
   }
 }
-
-module.exports = ensureSystemFields

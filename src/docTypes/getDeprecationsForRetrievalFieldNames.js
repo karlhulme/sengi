@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns an object where each key represents a deprecated field.
@@ -7,7 +7,7 @@ const check = require('check-types')
  * @param {Object} docType A document type.
  * @param {Array} retrievalFieldNames An array of field names.
  */
-const getDeprecationsForRetrievalFieldNames = (docType, retrievalFieldNames) => {
+export const getDeprecationsForRetrievalFieldNames = (docType, retrievalFieldNames) => {
   check.assert.object(docType)
   check.assert.object(docType.fields)
   check.assert.array.of.string(retrievalFieldNames)
@@ -27,5 +27,3 @@ const getDeprecationsForRetrievalFieldNames = (docType, retrievalFieldNames) => 
 
   return deprecations
 }
-
-module.exports = getDeprecationsForRetrievalFieldNames

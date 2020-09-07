@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const removeSurplusFieldsFromDocument = require('./removeSurplusFieldsFromDocument')
+import { removeSurplusFieldsFromDocument } from './removeSurplusFieldsFromDocument'
 
 test('Remove surplus fields from document.', () => {
   const doc = { propA: 'hello', propB: 'big', propC: 'world' }

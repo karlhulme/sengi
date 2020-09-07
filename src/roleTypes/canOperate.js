@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if the given role allows the given operation
@@ -7,7 +7,7 @@ const check = require('check-types')
  * @param {String} docTypeName The name of a doc type.
  * @param {String} operationName The name of an operation.
  */
-const canOperate = (roleType, docTypeName, operationName) => {
+export const canOperate = (roleType, docTypeName, operationName) => {
   check.assert.object(roleType)
   check.assert.string(docTypeName)
   check.assert.string(operationName)
@@ -19,5 +19,3 @@ const canOperate = (roleType, docTypeName, operationName) => {
 
   return hasPermission
 }
-
-module.exports = canOperate

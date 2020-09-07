@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const addSystemFieldValuesToNewDocument = require('./addSystemFieldValuesToNewDocument')
+import { addSystemFieldValuesToNewDocument } from './addSystemFieldValuesToNewDocument'
 
 const docType = {
   name: 'test'

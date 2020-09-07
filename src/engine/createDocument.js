@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   addSystemFieldValuesToNewDocument,
   applyMergePatch,
   createDocStoreOptions,
@@ -11,14 +11,15 @@ const {
   extractConstructorDeclaredParams,
   extractConstructorMergeParams,
   selectDocTypeFromArray
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canCreate,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { ensureDocTypeConstructorParams, ensureDocTypePatch, ensureDocTypeInstance } from '../validation'
+import { invokeCallback } from './invokeCallback'
 
-const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+export const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, constructorParams, onPreSaveDoc, onCreateDoc, reqProps, reqDateTime, docStoreOptions }) => {
   check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
@@ -42,11 +43,11 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
 
   if (!alreadyExists) {
     const ctorDeclaredParams = extractConstructorDeclaredParams(docType, constructorParams)
-    validatorCache.ensureDocTypeConstructorParams(docType.name, ctorDeclaredParams)
+    ensureDocTypeConstructorParams(sengiValidation, docType.name, constructorParams)
     const doc = executeConstructor(docType, ctorDeclaredParams)
 
     const ctorMergeParams = extractConstructorMergeParams(docType, constructorParams)
-    validatorCache.ensureDocTypeMergePatch(docType.name, ctorMergeParams)
+    ensureDocTypePatch(sengiValidation, docType.name, ctorMergeParams)
     ensureMergePatchAvoidsSystemFields(ctorMergeParams)
     applyMergePatch(doc, ctorMergeParams)
 
@@ -60,7 +61,7 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
 
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeInstance(docType.name, doc)
+    ensureDocTypeInstance(sengiValidation, docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, null, false, combinedDocStoreOptions)
@@ -74,5 +75,3 @@ const createDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore
     return { isNew: false }
   }
 }
-
-module.exports = createDocument

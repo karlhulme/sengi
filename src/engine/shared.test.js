@@ -1,9 +1,9 @@
-/* eslint-env jest */
-const testDocTypes = require('../testData/docTypes')
-const testEnumTypes = require('../testData/enumTypes')
-const testFieldTypes = require('../testData/fieldTypes')
-const testRoleTypes = require('../testData/roleTypes')
-const createJsonotron = require('./createJsonotron')
+import { test, expect, jest } from '@jest/globals'
+import { testDocTypes } from '../testData/docTypes'
+import { testEnumTypes } from '../testData/enumTypes'
+import { testSchemaTypes } from '../testData/schemaTypes'
+import { testRoleTypes } from '../testData/roleTypes'
+import { createJsonotron } from './createJsonotron'
 
 /**
  * Creates a jsonotron object with a mocked doc store based on the
@@ -14,14 +14,14 @@ const createJsonotron = require('./createJsonotron')
  * @param {Object} funcs A block of functions that can be invoked by
  * jsonotron to signal events have taken place.
  */
-const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
+export const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
   const docStore = Object.keys(mockedDocStoreTemplate || {})
     .reduce((agg, key) => ({ ...agg, [key]: jest.fn(mockedDocStoreTemplate[key]) }), {})
 
   const config = {
     docStore,
     enumTypes: testEnumTypes,
-    fieldTypes: testFieldTypes,
+    schemaTypes: testSchemaTypes,
     docTypes: testDocTypes,
     roleTypes: testRoleTypes,
     dateTimeFunc: () => '2020-01-01T14:22:03Z'
@@ -42,7 +42,7 @@ const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
   return jsonotron
 }
 
-const defaultRequestProps = {
+export const defaultRequestProps = {
   userIdentity: 'testUser',
   roleNames: ['admin'],
   reqProps: { foo: 'bar' },
@@ -54,8 +54,3 @@ test('createJsonotronWithMockStore creates a valid jsonotron object.', async () 
   expect(jsonotron._test).toHaveProperty('config')
   expect(jsonotron._test).toHaveProperty('docStore')
 })
-
-module.exports = {
-  createJsonotronWithMockStore,
-  defaultRequestProps
-}

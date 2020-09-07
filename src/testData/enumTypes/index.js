@@ -1,3 +1,3 @@
-module.exports = [
-  require('./manufacturerCode')
-]
+import { manufacturerCode } from './manufacturerCode'
+
+export const testEnumTypes = [manufacturerCode]

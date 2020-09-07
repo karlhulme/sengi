@@ -1,16 +1,16 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   createDocStoreOptions,
   ensureCanDeleteDocuments,
   selectDocTypeFromArray
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canDelete,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { invokeCallback } from './invokeCallback'
 
-const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, id, onDeleteDoc, reqProps, docStoreOptions }) => {
+export const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, id, onDeleteDoc, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -35,5 +35,3 @@ const deleteDocument = async ({ roleNames, roleTypes, safeDocStore, docTypes, do
 
   return { isDeleted }
 }
-
-module.exports = deleteDocument

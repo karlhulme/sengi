@@ -1,6 +1,6 @@
-const check = require('check-types')
-const { JsonotronInvalidOperationMergePatchError } = require('jsonotron-errors')
-const isSystemFieldName = require('./isSystemFieldName')
+import check from 'check-types'
+import { JsonotronInvalidOperationMergePatchError } from '../jsonotron-errors'
+import { systemFieldNames } from 'sengi-validation'
 
 /**
  * Raises an error if the given patch references
@@ -9,16 +9,14 @@ const isSystemFieldName = require('./isSystemFieldName')
  * @param {String} operationName The name of the operation that generated the patch.
  * @param {Object} patch A patch object.
  */
-const ensureOperationMergePatchAvoidsSystemFields = (docTypeName, operationName, patch) => {
+export const ensureOperationMergePatchAvoidsSystemFields = (docTypeName, operationName, patch) => {
   check.assert.string(docTypeName)
   check.assert.string(operationName)
   check.assert.object(patch)
 
   for (const patchKey in patch) {
-    if (isSystemFieldName(patchKey)) {
+    if (systemFieldNames.includes(patchKey)) {
       throw new JsonotronInvalidOperationMergePatchError(docTypeName, operationName, `Cannot reference a system field '${patchKey}'.`)
     }
   }
 }
-
-module.exports = ensureOperationMergePatchAvoidsSystemFields

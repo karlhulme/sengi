@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const hasPermission = require('./hasPermission')
+import { hasPermission } from './hasPermission'
 
 const roleTypes = [{
   name: 'admin',

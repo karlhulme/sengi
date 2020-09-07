@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { JsonotronPreSaveFailedError } = require('jsonotron-errors')
-const executePreSave = require('./executePreSave')
+import { JsonotronPreSaveFailedError } from '../jsonotron-errors'
+import { executePreSave } from './executePreSave'
 
 test('Executing a valid pre-save function raises no errors.', () => {
   const docType = {

@@ -1,6 +1,6 @@
-/* eslint-env jest */
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
-const { JsonotronActionForbiddenByPolicyError, JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
+import { test, expect, jest } from '@jest/globals'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { JsonotronActionForbiddenByPolicyError, JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
 
 const createJsonotronForTests = (funcs) => {
   return createJsonotronWithMockStore({

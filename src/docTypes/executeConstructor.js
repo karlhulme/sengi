@@ -1,15 +1,15 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   JsonotronConstructorFailedError,
   JsonotronConstructorNotDefinedError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 /**
  * Execute a doc type constructor.
  * @param {Object} docType A doc type.
  * @param {Object} constructorParams A parameter object to be passed to the constructor.
  */
-const executeConstructor = (docType, constructorParams) => {
+export const executeConstructor = (docType, constructorParams) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.maybe.object(constructorParams)
@@ -26,5 +26,3 @@ const executeConstructor = (docType, constructorParams) => {
     throw new JsonotronConstructorFailedError(docType.name, err)
   }
 }
-
-module.exports = executeConstructor

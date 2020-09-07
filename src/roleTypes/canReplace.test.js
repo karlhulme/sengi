@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const canReplace = require('./canReplace')
+import { canReplace } from './canReplace'
 
 const admin = {
   docPermissions: true

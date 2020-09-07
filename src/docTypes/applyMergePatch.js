@@ -1,11 +1,11 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Applies the given patch to the given subject.
  * @param {Object} subject The subject that will be patched.
  * @param {Object} patch A patch object.
  */
-const applyMergePatch = (subject, patch) => {
+export const applyMergePatch = (subject, patch) => {
   check.assert.object(subject)
 
   const patchKeys = Object.keys(patch)
@@ -29,5 +29,3 @@ const applyMergePatch = (subject, patch) => {
 
   return subject
 }
-
-module.exports = applyMergePatch

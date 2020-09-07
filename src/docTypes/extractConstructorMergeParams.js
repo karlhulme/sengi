@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Extracts the merge parameters from the parameters
@@ -8,7 +8,7 @@ const check = require('check-types')
  * both the declared constructor fields as well as regular fields intended
  * to be merged into the final document.
  */
-const extractConstructorMergeParams = (docType, constructorParams) => {
+export const extractConstructorMergeParams = (docType, constructorParams) => {
   check.assert.object(docType)
   check.assert.object(docType.ctor)
   check.assert.object(docType.ctor.parameters)
@@ -23,5 +23,3 @@ const extractConstructorMergeParams = (docType, constructorParams) => {
 
   return result
 }
-
-module.exports = extractConstructorMergeParams

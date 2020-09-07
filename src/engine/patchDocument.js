@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   applyMergePatch,
   applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
@@ -12,14 +12,15 @@ const {
   isOpIdInDocument,
   selectDocTypeFromArray,
   updateCalcsOnDocument
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canPatch,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { ensureDocTypeInstance, ensureDocTypePatch } from '../validation'
+import { invokeCallback } from './invokeCallback'
 
-const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, reqVersion, operationId, mergePatch, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+export const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, id, reqVersion, operationId, mergePatch, onPreSaveDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
   check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
@@ -49,7 +50,7 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
   const operationIdAlreadyExists = isOpIdInDocument(doc, operationId)
 
   if (!operationIdAlreadyExists) {
-    validatorCache.ensureDocTypeMergePatch(docType.name, mergePatch)
+    ensureDocTypePatch(sengiValidation, docType.name, mergePatch)
 
     executePreSave(docType, doc)
 
@@ -63,7 +64,7 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
     applySystemFieldValuesToUpdatedDocument(docType, doc, operationId, userIdentity, reqDateTime, 'patch')
     updateCalcsOnDocument(docType, doc)
 
-    validatorCache.ensureDocTypeInstance(docType.name, doc)
+    ensureDocTypeInstance(sengiValidation, docType.name, doc)
     executeValidator(docType, doc)
 
     await safeDocStore.upsert(docType.name, docType.pluralName, doc, reqVersion || doc.docVersion, Boolean(reqVersion), combinedDocStoreOptions)
@@ -77,5 +78,3 @@ const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore,
     return { isUpdated: false }
   }
 }
-
-module.exports = patchDocument

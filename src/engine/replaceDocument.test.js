@@ -1,13 +1,13 @@
-/* eslint-env jest */
-const {
+import { test, expect, jest } from '@jest/globals'
+import {
   JsonotronActionForbiddenByPolicyError,
   JsonotronDocumentCustomValidationError,
-  JsonotronDocumentFieldsValidationError,
   JsonotronInsufficientPermissionsError,
   JsonotronRequiredVersionNotAvailableError
-} = require('jsonotron-errors')
-const { errorCodes, successCodes } = require('jsonotron-consts')
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
+} from '../jsonotron-errors'
+import { errorCodes, successCodes } from '../consts'
+import { SengiDocTypeInstanceValidationFailedError } from '../errors'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
 
 const createNewDocument = () => ({
   id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -169,7 +169,7 @@ test('Fail to replace a document if it does not conform to the doc type schema.'
       ...createNewDocument(),
       tenantId: 505 // rather than a string
     }
-  })).rejects.toThrow(JsonotronDocumentFieldsValidationError)
+  })).rejects.toThrow(SengiDocTypeInstanceValidationFailedError)
 })
 
 test('Fail to replace a document if it fails custom validation.', async () => {

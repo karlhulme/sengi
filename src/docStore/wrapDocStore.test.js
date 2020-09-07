@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const wrapDocStore = require('./wrapDocStore')
-const {
+import { wrapDocStore } from './wrapDocStore'
+import {
   JsonotronConflictOnSaveError,
   JsonotronDocStoreInvalidResponseError,
   JsonotronDocStoreFailureError,
@@ -8,7 +8,7 @@ const {
   JsonotronDocStoreUnrecognisedErrorCodeError,
   JsonotronInternalError,
   JsonotronRequiredVersionNotAvailableError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 const docStoreWithoutFunctions = {
   deleteById: null,

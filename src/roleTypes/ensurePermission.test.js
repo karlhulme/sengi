@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const ensurePermission = require('./ensurePermission')
-const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
+import { ensurePermission } from './ensurePermission'
+import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
 
 const roleTypes = [{
   name: 'admin',

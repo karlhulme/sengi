@@ -1,3 +1,1 @@
-module.exports = {
-  createJsonotron: require('./createJsonotron')
-}
+export * from './createJsonotron'

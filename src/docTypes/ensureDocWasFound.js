@@ -1,5 +1,5 @@
-const check = require('check-types')
-const { JsonotronDocumentNotFoundError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronDocumentNotFoundError } from '../jsonotron-errors'
 
 /**
  * Raises an error if the given doc is not an object.
@@ -7,7 +7,7 @@ const { JsonotronDocumentNotFoundError } = require('jsonotron-errors')
  * @param {String} id The id of the document that was searched for.
  * @param {Object} doc The document object that was returned.
  */
-const ensureDocWasFound = (docTypeName, id, doc) => {
+export const ensureDocWasFound = (docTypeName, id, doc) => {
   check.assert.string(docTypeName)
   check.assert.string(id)
 
@@ -15,5 +15,3 @@ const ensureDocWasFound = (docTypeName, id, doc) => {
     throw new JsonotronDocumentNotFoundError(docTypeName, id)
   }
 }
-
-module.exports = ensureDocWasFound

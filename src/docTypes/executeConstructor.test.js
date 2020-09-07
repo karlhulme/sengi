@@ -1,9 +1,9 @@
 /* eslint-env jest */
-const {
+import {
   JsonotronConstructorFailedError,
   JsonotronConstructorNotDefinedError
-} = require('jsonotron-errors')
-const executeConstructor = require('./executeConstructor')
+} from '../jsonotron-errors'
+import { executeConstructor } from './executeConstructor'
 
 const docType = {
   name: 'example',

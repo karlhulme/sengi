@@ -1,5 +1,5 @@
-const check = require('check-types')
-const { JsonotronCallbackError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronCallbackError } from '../jsonotron-errors'
 
 /**
  * Invokes the given function with the given parameters.  If the
@@ -9,7 +9,7 @@ const { JsonotronCallbackError } = require('jsonotron-errors')
  * @param {Function} func A function.
  * @param  {...any} params An array of parameters.
  */
-const invokeCallback = async (callbackName, func, ...params) => {
+export const invokeCallback = async (callbackName, func, ...params) => {
   check.assert.string(callbackName)
   check.assert.function(func)
   check.assert.array(params)
@@ -20,5 +20,3 @@ const invokeCallback = async (callbackName, func, ...params) => {
     throw new JsonotronCallbackError(callbackName, err)
   }
 }
-
-module.exports = invokeCallback

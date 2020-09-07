@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const getDeprecationsForRetrievalFieldNames = require('./getDeprecationsForRetrievalFieldNames')
+import { getDeprecationsForRetrievalFieldNames } from './getDeprecationsForRetrievalFieldNames'
 
 const docType = {
   fields: {

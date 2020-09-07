@@ -1,6 +1,6 @@
-/* eslint-env jest */
-const { createJsonotronWithMockStore, defaultRequestProps } = require('./shared.test')
-const { JsonotronInsufficientPermissionsError } = require('jsonotron-errors')
+import { test, expect, jest } from '@jest/globals'
+import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
 
 const constructorParams = {
   shortName: 'Donald',

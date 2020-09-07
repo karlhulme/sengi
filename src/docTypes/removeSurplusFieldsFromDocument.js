@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Removes fields from the given doc that do not appear in the given
@@ -6,7 +6,7 @@ const check = require('check-types')
  * @param {Object} doc A document.
  * @param {Array} requiredFieldNames An array of field names.
  */
-const removeSurplusFieldsFromDocument = (doc, requiredFieldNames) => {
+export const removeSurplusFieldsFromDocument = (doc, requiredFieldNames) => {
   check.assert.object(doc)
   check.assert.array.of.string(requiredFieldNames)
 
@@ -18,5 +18,3 @@ const removeSurplusFieldsFromDocument = (doc, requiredFieldNames) => {
     }
   }
 }
-
-module.exports = removeSurplusFieldsFromDocument

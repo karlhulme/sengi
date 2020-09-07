@@ -1,6 +1,6 @@
-/* eslint-env jest */
-const { JsonotronCallbackError } = require('jsonotron-errors')
-const invokeCallback = require('./invokeCallback')
+import { test, expect, jest } from '@jest/globals'
+import { JsonotronCallbackError } from '../jsonotron-errors'
+import { invokeCallback } from './invokeCallback'
 
 test('A callback should be invoked with the given parameters.', async () => {
   const callback = jest.fn()

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const extractConstructorDeclaredParams = require('./extractConstructorDeclaredParams')
+import { extractConstructorDeclaredParams } from './extractConstructorDeclaredParams'
 
 const docType = {
   fields: {

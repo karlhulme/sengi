@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const isDeclaredFieldName = require('./isDeclaredFieldName')
+import { isDeclaredFieldName } from './isDeclaredFieldName'
 
 const docType = {
   fields: {

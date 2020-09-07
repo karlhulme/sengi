@@ -1,3 +1,1 @@
-module.exports = {
-  createJsonotron: require('./src/engine/createJsonotron')
-}
+export { createJsonotron } from './src/engine'

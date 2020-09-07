@@ -1,8 +1,8 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   JsonotronCalculatedFieldFailedError,
   JsonotronUnrecognisedCalculatedFieldNameError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 /**
  * Executes the calculated field value function using the inputs taken
@@ -11,7 +11,7 @@ const {
  * @param {Object} doc A document.
  * @param {String} calculatedFieldName The name of a calculated field.
  */
-const executeCalculatedField = (docType, doc, calculatedFieldName) => {
+export const executeCalculatedField = (docType, doc, calculatedFieldName) => {
   check.assert.object(docType)
   check.assert.object(docType.calculatedFields)
   check.assert.object(doc)
@@ -37,5 +37,3 @@ const executeCalculatedField = (docType, doc, calculatedFieldName) => {
     throw new JsonotronCalculatedFieldFailedError(docType.name, calculatedFieldName, err)
   }
 }
-
-module.exports = executeCalculatedField

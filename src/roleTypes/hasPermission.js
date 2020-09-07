@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if one of the held roles allows
@@ -8,7 +8,7 @@ const check = require('check-types')
  * @param {Func} permissionFunc A function that accepts a role type
  * and returns true if a permission is held.
  */
-const hasPermission = (roleNames, roleTypes, permissionFunc) => {
+export const hasPermission = (roleNames, roleTypes, permissionFunc) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.function(permissionFunc)
@@ -23,5 +23,3 @@ const hasPermission = (roleNames, roleTypes, permissionFunc) => {
 
   return false
 }
-
-module.exports = hasPermission

@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-module.exports = {
+export const person = {
   name: 'person',
   pluralName: 'persons',
   title: 'Person',
@@ -22,7 +22,7 @@ module.exports = {
     favouriteColors: { type: 'shortString', isArray: true },
     allowMarketing: { type: 'yesNo', default: 'no' },
     heightInCms: { type: 'integer', default: 0 },
-    ownedCarId: { type: 'sysId' },
+    ownedCarId: { type: 'uuid' },
     age: { type: 'integer', isDeprecated: true }
   },
   validate: doc => {

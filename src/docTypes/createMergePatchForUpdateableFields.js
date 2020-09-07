@@ -1,5 +1,5 @@
-const check = require('check-types')
-const { JsonotronInvalidMergePatchError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronInvalidMergePatchError } from '../jsonotron-errors'
 
 /**
  * Returns a subset of the given patch, such that the keys on the
@@ -9,7 +9,7 @@ const { JsonotronInvalidMergePatchError } = require('jsonotron-errors')
  * @param {Object} docType A document type.
  * @param {Object} patch A patch object.
  */
-const createMergePatchForUpdateableFields = (docType, patch) => {
+export const createMergePatchForUpdateableFields = (docType, patch) => {
   check.assert.object(docType)
   check.assert.object(docType.fields)
   check.assert.object(docType.calculatedFields)
@@ -34,5 +34,3 @@ const createMergePatchForUpdateableFields = (docType, patch) => {
 
   return safePatch
 }
-
-module.exports = createMergePatchForUpdateableFields

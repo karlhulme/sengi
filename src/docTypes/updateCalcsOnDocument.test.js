@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const updateCalcsOnDocument = require('./updateCalcsOnDocument')
+import { updateCalcsOnDocument } from './updateCalcsOnDocument'
 
 const docType = {
   name: 'test',

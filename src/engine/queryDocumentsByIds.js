@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   applyCalculatedFieldValuesToDocument,
   applyDeclaredFieldDefaultsToDocument,
   createDocStoreOptions,
@@ -7,14 +7,14 @@ const {
   getDeprecationsForRetrievalFieldNames,
   removeSurplusFieldsFromDocument,
   selectDocTypeFromArray
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canQuery,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { invokeCallback } from './invokeCallback'
 
-const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, ids, onQueryDocs, reqProps, docStoreOptions }) => {
+export const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docTypes, docTypeName, fieldNames, ids, onQueryDocs, reqProps, docStoreOptions }) => {
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
   check.assert.object(safeDocStore)
@@ -46,5 +46,3 @@ const queryDocumentsByIds = async ({ roleNames, roleTypes, safeDocStore, docType
 
   return { deprecations, docs }
 }
-
-module.exports = queryDocumentsByIds

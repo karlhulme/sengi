@@ -1,11 +1,11 @@
 /* eslint-env jest */
-const {
+import {
   JsonotronInternalError,
   JsonotronOperationFailedError,
   JsonotronOperationNonObjectResponseError,
   JsonotronUnrecognisedOperationNameError
-} = require('jsonotron-errors')
-const executeOperation = require('./executeOperation')
+} from '../jsonotron-errors'
+import { executeOperation } from './executeOperation'
 
 const docType = {
   name: 'example',

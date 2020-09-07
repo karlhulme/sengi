@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const ensureCanReplaceDocuments = require('./ensureCanReplaceDocuments')
-const { JsonotronActionForbiddenByPolicyError } = require('jsonotron-errors')
+import { ensureCanReplaceDocuments } from './ensureCanReplaceDocuments'
+import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
 
 test('Remain silent if policy allows action.', () => {
   expect(() => ensureCanReplaceDocuments({ name: 'test', policy: { canReplaceDocuments: true } })).not.toThrow()

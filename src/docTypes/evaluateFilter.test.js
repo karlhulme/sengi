@@ -1,9 +1,9 @@
 /* eslint-env jest */
-const evaluateFilter = require('./evaluateFilter')
-const {
+import { evaluateFilter } from './evaluateFilter'
+import {
   JsonotronUnrecognisedFilterNameError,
   JsonotronFilterFailedError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 const docType = {
   name: 'example',

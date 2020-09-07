@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Extracts the constructor declared parameters from the parameters
@@ -8,7 +8,7 @@ const check = require('check-types')
  * both the declared constructor fields as well as regular fields intended
  * to be merged into the final document.
  */
-const extractConstructorDeclaredParams = (docType, constructorParams) => {
+export const extractConstructorDeclaredParams = (docType, constructorParams) => {
   check.assert.object(docType)
   check.assert.object(docType.ctor)
   check.assert.object(docType.ctor.parameters)
@@ -23,5 +23,3 @@ const extractConstructorDeclaredParams = (docType, constructorParams) => {
 
   return result
 }
-
-module.exports = extractConstructorDeclaredParams

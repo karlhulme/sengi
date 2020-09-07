@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Returns true if the given field name is a calculated
@@ -6,7 +6,7 @@ const check = require('check-types')
  * @param {Object} docType A doc type.
  * @param {String} fieldName The name of a field.
  */
-const isCalculatedFieldName = (docType, fieldName) => {
+export const isCalculatedFieldName = (docType, fieldName) => {
   check.assert.object(docType)
   check.assert.string(fieldName)
 
@@ -16,5 +16,3 @@ const isCalculatedFieldName = (docType, fieldName) => {
     return false
   }
 }
-
-module.exports = isCalculatedFieldName

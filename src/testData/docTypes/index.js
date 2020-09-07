@@ -1,4 +1,4 @@
-module.exports = [
-  require('./car'),
-  require('./person')
-]
+import { car } from './car'
+import { person } from './person'
+
+export const testDocTypes = [car, person]

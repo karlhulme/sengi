@@ -1,8 +1,8 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   JsonotronUnrecognisedFilterNameError,
   JsonotronFilterFailedError
-} = require('jsonotron-errors')
+} from '../jsonotron-errors'
 
 /**
  * Evaluate a doc type filter.
@@ -10,7 +10,7 @@ const {
  * @param {String} filterName The name of a filter.
  * @param {Object} filterParams A parameter object to be passed to the filter.
  */
-const evaluateFilter = (docType, filterName, filterParams) => {
+export const evaluateFilter = (docType, filterName, filterParams) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.string(filterName)
@@ -28,5 +28,3 @@ const evaluateFilter = (docType, filterName, filterParams) => {
     throw new JsonotronFilterFailedError(docType.name, filterName, err)
   }
 }
-
-module.exports = evaluateFilter

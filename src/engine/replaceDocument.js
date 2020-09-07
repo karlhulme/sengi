@@ -1,5 +1,5 @@
-const check = require('check-types')
-const {
+import check from 'check-types'
+import {
   createDocStoreOptions,
   ensureCanReplaceDocuments,
   ensureSystemFields,
@@ -7,14 +7,15 @@ const {
   executeValidator,
   selectDocTypeFromArray,
   updateCalcsOnDocument
-} = require('../docTypes')
-const {
+} from '../docTypes'
+import {
   canReplace,
   ensurePermission
-} = require('../roleTypes')
-const invokeCallback = require('./invokeCallback')
+} from '../roleTypes'
+import { ensureDocTypeInstance } from '../validation'
+import { invokeCallback } from './invokeCallback'
 
-const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
+export const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStore, sengiValidation, docTypes, docTypeName, reqVersion, doc, onPreSaveDoc, onCreateDoc, onUpdateDoc, reqProps, reqDateTime, docStoreOptions }) => {
   check.assert.string(userIdentity)
   check.assert.array.of.string(roleNames)
   check.assert.array.of.object(roleTypes)
@@ -46,7 +47,7 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
 
   updateCalcsOnDocument(docType, doc)
 
-  validatorCache.ensureDocTypeInstance(docType.name, doc)
+  ensureDocTypeInstance(sengiValidation, docType.name, doc)
   executeValidator(docType, doc)
 
   const combinedDocStoreOptions = createDocStoreOptions(docType, docStoreOptions)
@@ -62,5 +63,3 @@ const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safeDocStor
 
   return { isNew }
 }
-
-module.exports = replaceDocument

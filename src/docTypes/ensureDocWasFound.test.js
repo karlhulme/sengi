@@ -1,6 +1,6 @@
 /* eslint-env jest */
-const { JsonotronDocumentNotFoundError } = require('jsonotron-errors')
-const ensureDocWasFound = require('./ensureDocWasFound')
+import { JsonotronDocumentNotFoundError } from '../jsonotron-errors'
+import { ensureDocWasFound } from './ensureDocWasFound'
 
 test('A found doc should not raise an error.', () => {
   expect(() => ensureDocWasFound('test', '123', {})).not.toThrow()

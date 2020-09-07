@@ -1,5 +1,5 @@
-const check = require('check-types')
-const { JsonotronInternalError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronInternalError } from '../jsonotron-errors'
 
 /**
  * Returns true if the requested field names can be honoured.
@@ -38,7 +38,7 @@ const determineIfReqFieldsConformsToBlacklist = (requestedFieldNames, blackliste
  * @param {String} docTypeName The name of a doc type.
  * @param {Array} fieldNames An array of requested field names.
  */
-const canQuery = (roleType, docTypeName, fieldNames) => {
+export const canQuery = (roleType, docTypeName, fieldNames) => {
   check.assert.object(roleType)
   check.assert.string(docTypeName)
   check.assert.array.of.string(fieldNames)
@@ -64,5 +64,3 @@ const canQuery = (roleType, docTypeName, fieldNames) => {
 
   return hasPermission
 }
-
-module.exports = canQuery

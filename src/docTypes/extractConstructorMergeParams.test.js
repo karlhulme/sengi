@@ -1,5 +1,5 @@
 /* eslint-env jest */
-const extractConstructorMergeParams = require('./extractConstructorMergeParams')
+import { extractConstructorMergeParams } from './extractConstructorMergeParams'
 
 const docType = {
   fields: {

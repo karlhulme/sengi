@@ -1,3 +1,3 @@
-module.exports = [
-  require('./admin')
-]
+import { admin } from './admin'
+
+export const testRoleTypes = [admin]

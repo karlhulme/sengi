@@ -1,4 +1,4 @@
-const check = require('check-types')
+import check from 'check-types'
 
 /**
  * Update the system properties 'updated' and 'ops' on the given document.
@@ -10,7 +10,7 @@ const check = require('check-types')
  * @param {String} style A value of either 'operation' or 'patch'.
  * @param {String} [operationName] The name of an operation, if the style was 'operation'.
  */
-const applySystemFieldValuesToUpdatedDocument = (docType, doc, opId, userIdentity, dateTime, style, operationName) => {
+export const applySystemFieldValuesToUpdatedDocument = (docType, doc, opId, userIdentity, dateTime, style, operationName) => {
   check.assert.object(docType)
   check.assert.object(docType.policy)
   check.assert.integer(docType.policy.maxOpsSize)
@@ -45,5 +45,3 @@ const applySystemFieldValuesToUpdatedDocument = (docType, doc, opId, userIdentit
 
   doc.docHeader.ops.push(op)
 }
-
-module.exports = applySystemFieldValuesToUpdatedDocument

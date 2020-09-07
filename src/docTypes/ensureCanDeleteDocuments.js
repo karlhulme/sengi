@@ -1,11 +1,11 @@
-const check = require('check-types')
-const { JsonotronActionForbiddenByPolicyError } = require('jsonotron-errors')
+import check from 'check-types'
+import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
 
 /**
  * Raises an error if the doc type policy does not allow documents to be deleted.
  * @param {Object} docType A doc type.
  */
-const ensureCanDeleteDocuments = docType => {
+export const ensureCanDeleteDocuments = docType => {
   check.assert.object(docType)
   check.assert.string(docType.name)
 
@@ -13,5 +13,3 @@ const ensureCanDeleteDocuments = docType => {
     throw new JsonotronActionForbiddenByPolicyError(docType.name, 'delete document')
   }
 }
-
-module.exports = ensureCanDeleteDocuments

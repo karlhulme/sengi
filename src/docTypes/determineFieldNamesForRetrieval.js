@@ -1,8 +1,8 @@
-const check = require('check-types')
-const { JsonotronUnrecognisedFieldNameError } = require('jsonotron-errors')
-const isSystemFieldName = require('./isSystemFieldName')
-const isDeclaredFieldName = require('./isDeclaredFieldName')
-const isCalculatedFieldName = require('./isCalculatedFieldName')
+import check from 'check-types'
+import { systemFieldNames } from 'sengi-validation'
+import { JsonotronUnrecognisedFieldNameError } from '../jsonotron-errors'
+import { isDeclaredFieldName } from './isDeclaredFieldName'
+import { isCalculatedFieldName } from './isCalculatedFieldName'
 
 /**
  * Determines the names of the fields that need to be retrieved
@@ -10,7 +10,7 @@ const isCalculatedFieldName = require('./isCalculatedFieldName')
  * @param {Object} docType A doc type.
  * @param {Array} requiredFieldNames An array of field names.
  */
-const determineFieldNamesForRetrieval = (docType, requiredFieldNames) => {
+export const determineFieldNamesForRetrieval = (docType, requiredFieldNames) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
   check.assert.array.of.string(requiredFieldNames)
@@ -20,7 +20,7 @@ const determineFieldNamesForRetrieval = (docType, requiredFieldNames) => {
   for (let i = 0; i < requiredFieldNames.length; i++) {
     const fieldName = requiredFieldNames[i]
 
-    const isSystemFN = isSystemFieldName(fieldName)
+    const isSystemFN = systemFieldNames.includes(fieldName)
     const isDeclaredFN = isDeclaredFieldName(docType, fieldName)
     const isCalculatedFN = isCalculatedFieldName(docType, fieldName)
 
@@ -43,5 +43,3 @@ const determineFieldNamesForRetrieval = (docType, requiredFieldNames) => {
 
   return result
 }
-
-module.exports = determineFieldNamesForRetrieval
