@@ -3,7 +3,7 @@ import { testDocTypes } from '../testData/docTypes'
 import { testEnumTypes } from '../testData/enumTypes'
 import { testSchemaTypes } from '../testData/schemaTypes'
 import { testRoleTypes } from '../testData/roleTypes'
-import { createSengi } from './createSengi'
+import { Sengi } from './Sengi'
 
 /**
  * Creates a sengi object with a mocked doc store based on the
@@ -35,7 +35,7 @@ export const createSengiWithMockStore = (mockedDocStoreTemplate, funcs) => {
     if (funcs.onDeleteDoc) { config.onDeleteDoc = funcs.onDeleteDoc }
   }
 
-  const sengi = createSengi(config)
+  const sengi = new Sengi(config)
 
   sengi._test = { config, docStore }
 

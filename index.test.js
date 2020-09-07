@@ -1,6 +1,11 @@
 /* eslint-env jest */
 import * as mdl from './index'
 
-test('A createSengi function is exported from the module.', () => {
-  expect(mdl).toHaveProperty('createSengi')
+test('A Sengi (class) function is exported from the module.', () => {
+  expect(mdl).toHaveProperty('Sengi')
+})
+
+test('The errors are exported from the module.', () => {
+  expect(mdl).toHaveProperty('SengiCallbackError')
+  expect(mdl).toHaveProperty('SengiDocumentNotFoundError')
 })

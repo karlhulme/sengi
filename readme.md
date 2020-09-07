@@ -35,11 +35,11 @@ npm install sengi
 > This package is used by Sengi service implementations, such as sengi-express.  Unless you are creating a new public interface for Jsonotron then you probably don't want to use this package directly!
 
 ```javascript
-const { createSengi } = require('sengi')
+const { Sengi } = require('sengi')
 
 const docStore = { fetch: () => {}, queryAll: () => {}}
 
-const sengi = createSengi({ docStore, docTypes: [], roleTypes: [] })
+const sengi = new Sengi({ docStore, docTypes: [], roleTypes: [] })
 ```
 
 ## Constructor

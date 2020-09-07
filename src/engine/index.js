@@ -1,1 +1,1 @@
-export * from './createSengi'
+export * from './Sengi'

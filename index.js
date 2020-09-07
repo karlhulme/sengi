@@ -1,1 +1,2 @@
-export { createSengi } from './src/engine'
+export { Sengi } from './src/engine'
+export * from './src/errors'
