@@ -1,6 +1,6 @@
 import check from 'check-types'
 
-export class JsonotronError extends Error {
+export class SengiError extends Error {
   constructor (message) {
     check.assert.string(message)
     super(message)

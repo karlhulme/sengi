@@ -1,6 +1,6 @@
 import check from 'check-types'
 import { systemFieldNames } from 'sengi-validation'
-import { JsonotronUnrecognisedFieldNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedFieldNameError } from '../errors'
 import { isDeclaredFieldName } from './isDeclaredFieldName'
 import { isCalculatedFieldName } from './isCalculatedFieldName'
 
@@ -37,7 +37,7 @@ export const determineFieldNamesForRetrieval = (docType, requiredFieldNames) => 
         }
       }
     } else {
-      throw new JsonotronUnrecognisedFieldNameError(docType.name, requiredFieldNames[i])
+      throw new SengiUnrecognisedFieldNameError(docType.name, requiredFieldNames[i])
     }
   }
 

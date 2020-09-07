@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronPreSaveFailedError } from '../jsonotron-errors'
+import { SengiPreSaveFailedError } from '../errors'
 
 /**
  * Execute a doc type pre-save function.
@@ -15,7 +15,7 @@ export const executePreSave = (docType, doc) => {
     try {
       docType.preSave(doc)
     } catch (err) {
-      throw new JsonotronPreSaveFailedError(docType.name, err)
+      throw new SengiPreSaveFailedError(docType.name, err)
     }
   }
 }

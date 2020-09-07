@@ -1,9 +1,9 @@
 import { test, expect, jest } from '@jest/globals'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
-import { JsonotronActionForbiddenByPolicyError, JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
+import { SengiActionForbiddenByPolicyError, SengiInsufficientPermissionsError } from '../errors'
 
-const createJsonotronForTests = (funcs) => {
-  return createJsonotronWithMockStore({
+const createSengiForTests = (funcs) => {
+  return createSengiWithMockStore({
     queryAll: async () => ({
       docs: [
         { id: 'c75321e5-5c8a-49f8-a525-f0f472fb5fa0', shortName: 'Max', allowMarketing: 'no', addressLines: '24 Ryan Gardens\nFerndown', postCode: 'BH23 9KL', age: 22 },
@@ -15,9 +15,9 @@ const createJsonotronForTests = (funcs) => {
 }
 
 test('Query for all documents of a type in a collection with support for paging.', async () => {
-  const jsonotron = createJsonotronForTests()
+  const sengi = createSengiForTests()
 
-  await expect(jsonotron.queryDocuments({
+  await expect(sengi.queryDocuments({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id'],
@@ -32,26 +32,26 @@ test('Query for all documents of a type in a collection with support for paging.
     ]
   })
 
-  expect(jsonotron._test.docStore.queryAll.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { offset: 1, limit: 3 }, { custom: 'prop' }])
+  expect(sengi._test.docStore.queryAll.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], { offset: 1, limit: 3 }, { custom: 'prop' }])
 })
 
 test('Query for all documents of a type in a collection with an onQueryDocs delegate but without paging.', async () => {
-  const jsonotron = createJsonotronForTests({
+  const sengi = createSengiForTests({
     onQueryDocs: jest.fn()
   })
 
-  await expect(jsonotron.queryDocuments({
+  await expect(sengi.queryDocuments({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id']
   })).resolves.toBeDefined()
 
-  expect(jsonotron._test.docStore.queryAll.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.queryAll.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.queryAll.mock.calls[0]).toEqual(['person', 'persons', ['id'], {}, { custom: 'prop' }])
 
-  expect(jsonotron._test.config.onQueryDocs.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onQueryDocs.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onQueryDocs.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onQueryDocs.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
@@ -61,9 +61,9 @@ test('Query for all documents of a type in a collection with an onQueryDocs dele
 })
 
 test('Query for all documents of a type with declared, calculated and default fields.', async () => {
-  const jsonotron = createJsonotronForTests()
+  const sengi = createSengiForTests()
 
-  await expect(jsonotron.queryDocuments({
+  await expect(sengi.queryDocuments({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id', 'shortName', 'allowMarketing', 'fullAddress', 'age']
@@ -82,22 +82,22 @@ test('Query for all documents of a type with declared, calculated and default fi
 })
 
 test('Fail to query all documents of type if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronForTests()
+  const sengi = createSengiForTests()
 
-  await expect(jsonotron.queryDocuments({
+  await expect(sengi.queryDocuments({
     ...defaultRequestProps,
     roleNames: ['none'],
     docTypeName: 'person',
     fieldNames: ['id']
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })
 
 test('Fail to query all document of a type in collection if fetchWholeCollection is not allowed.', async () => {
-  const jsonotron = createJsonotronForTests()
+  const sengi = createSengiForTests()
 
-  await expect(jsonotron.queryDocuments({
+  await expect(sengi.queryDocuments({
     ...defaultRequestProps,
     docTypeName: 'car',
     fieldNames: ['id']
-  })).rejects.toThrow(JsonotronActionForbiddenByPolicyError)
+  })).rejects.toThrow(SengiActionForbiddenByPolicyError)
 })

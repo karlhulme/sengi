@@ -80,7 +80,7 @@ const validateRequestParameters = function (req, ...parameterNames) {
 }
 
 /**
- * Create a new Jsonotron.
+ * Create a new Sengi.
  * @param {Object} config A configuration object.
  * @param {Object} config.docStore A collection of functions for reading and writing JSON data.
  * @param {Array} config.docTypes An array of doc types.
@@ -108,7 +108,7 @@ const validateRequestParameters = function (req, ...parameterNames) {
  * @param {Function} [config.onDeleteDoc] A function that is invoked when a document is deleted,
  * passed an object with roleNames, reqProps, docType and id properties.
  */
-export const createJsonotron = config => {
+export const createSengi = config => {
   if (typeof config !== 'object' || Array.isArray(config) || config === null) {
     throw new TypeError('Constructor parameter \'config\' must be an object.')
   }

@@ -1,8 +1,5 @@
 import check from 'check-types'
-import {
-  JsonotronConstructorFailedError,
-  JsonotronConstructorNotDefinedError
-} from '../jsonotron-errors'
+import { SengiConstructorFailedError } from '../errors'
 
 /**
  * Execute a doc type constructor.
@@ -12,17 +9,13 @@ import {
 export const executeConstructor = (docType, constructorParams) => {
   check.assert.object(docType)
   check.assert.string(docType.name)
+  check.assert.object(docType.ctor)
+  check.assert.function(docType.ctor.implementation)
   check.assert.maybe.object(constructorParams)
 
-  const ctorFunc = (docType.ctor || {}).implementation
-
-  if (typeof ctorFunc !== 'function') {
-    throw new JsonotronConstructorNotDefinedError(docType.name)
-  }
-
   try {
-    return ctorFunc(constructorParams)
+    return docType.ctor.implementation(constructorParams)
   } catch (err) {
-    throw new JsonotronConstructorFailedError(docType.name, err)
+    throw new SengiConstructorFailedError(docType.name, err)
   }
 }

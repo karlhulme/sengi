@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronDocumentCustomValidationError } from '../jsonotron-errors'
+import { SengiDocumentCustomValidationError } from '../errors'
 
 /**
  * Executes the validator function on the given doc type if
@@ -17,7 +17,7 @@ export const executeValidator = (docType, doc) => {
     try {
       docType.validate(doc)
     } catch (err) {
-      throw new JsonotronDocumentCustomValidationError(docType.name, err)
+      throw new SengiDocumentCustomValidationError(docType.name, err)
     }
   }
 }

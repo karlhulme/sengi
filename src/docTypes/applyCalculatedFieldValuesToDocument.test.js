@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { JsonotronCalculatedFieldFailedError } from '../jsonotron-errors'
+import { SengiCalculatedFieldFailedError } from '../errors'
 import { applyCalculatedFieldValuesToDocument } from './applyCalculatedFieldValuesToDocument'
 
 const docType = {
@@ -39,6 +39,6 @@ test('Apply calculated values where there are no input names.', () => {
 
 test('Calculated fields that raise errors should be surfaced.', () => {
   const doc = { propA: 'hello', propB: 'world' }
-  expect(() => applyCalculatedFieldValuesToDocument(docType, doc, ['errorThrower'])).toThrow(JsonotronCalculatedFieldFailedError)
+  expect(() => applyCalculatedFieldValuesToDocument(docType, doc, ['errorThrower'])).toThrow(SengiCalculatedFieldFailedError)
   expect(() => applyCalculatedFieldValuesToDocument(docType, doc, ['errorThrower'])).toThrow(/problemo/)
 })

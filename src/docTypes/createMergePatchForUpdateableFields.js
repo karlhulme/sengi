@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronInvalidMergePatchError } from '../jsonotron-errors'
+import { SengiInvalidMergePatchError } from '../errors'
 
 /**
  * Returns a subset of the given patch, such that the keys on the
@@ -20,14 +20,14 @@ export const createMergePatchForUpdateableFields = (docType, patch) => {
 
   for (const patchKey of patchKeys) {
     if (typeof docType.calculatedFields[patchKey] !== 'undefined') {
-      throw new JsonotronInvalidMergePatchError(`Cannot reference a calculated field '${patchKey}'.`)
+      throw new SengiInvalidMergePatchError(`Cannot reference a calculated field '${patchKey}'.`)
     }
 
     if (typeof docType.fields[patchKey] !== 'undefined') {
       if (docType.fields[patchKey].canUpdate === true) {
         safePatch[patchKey] = patch[patchKey]
       } else {
-        throw new JsonotronInvalidMergePatchError(`Cannot reference a non-updateable field '${patchKey}'.`)
+        throw new SengiInvalidMergePatchError(`Cannot reference a non-updateable field '${patchKey}'.`)
       }
     }
   }

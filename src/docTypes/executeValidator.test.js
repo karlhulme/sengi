@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { executeValidator } from './executeValidator'
-import { JsonotronDocumentCustomValidationError } from '../jsonotron-errors'
+import { SengiDocumentCustomValidationError } from '../errors'
 
 const docTypeWithNoValidate = {
   name: 'testDocType2'
@@ -24,6 +24,6 @@ test('Executing a doc type validator on a valid doc raises no error.', () => {
 })
 
 test('Executing a doc type validator on an invalid doc raises an error.', () => {
-  expect(() => executeValidator(docType, { isValid: false })).toThrow(JsonotronDocumentCustomValidationError)
+  expect(() => executeValidator(docType, { isValid: false })).toThrow(SengiDocumentCustomValidationError)
   expect(() => executeValidator(docType, { isValid: false })).toThrow(/Valid was not set to true/)
 })

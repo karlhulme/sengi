@@ -1,32 +1,19 @@
 import check from 'check-types'
-import { JsonotronInternalError } from '../jsonotron-errors'
 
 /**
- * Raises an error if the given document is missing an id or a docType.
- * If the doc does not have a docHeader.origin, docHeader.updated,
- * docHeader.ops or docHeader.calcs property it will be created.
- * Note that a docVersion is not a required property and will
- * not be created.
+ * Applies the docHeader property to the document, appending
+ * any sections that are missing using the given user identity
+ * and date time.
  * @param {Object} doc A document.
  * @param {String} userIdentity The identity of a user.
  * @param {String} dateTime A value that indicates when the
  * document is being treated.  This value is used where required date/time
  * values in the docHeader are missing.
  */
-export const ensureSystemFields = (doc, userIdentity, dateTime) => {
+export const applyDocHeaderToDocument = (doc, userIdentity, dateTime) => {
   check.assert.object(doc)
   check.assert.string(userIdentity)
   check.assert.string(dateTime)
-
-  /* required system fields */
-
-  if (!doc.id) {
-    throw new JsonotronInternalError('Document is missing system property \'id\'.')
-  }
-
-  if (!doc.docType) {
-    throw new JsonotronInternalError('Document is missing system property \'docType\'.')
-  }
 
   /* docHeader */
 

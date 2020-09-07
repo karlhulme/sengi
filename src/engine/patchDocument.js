@@ -1,10 +1,10 @@
 import check from 'check-types'
 import {
+  applyDocHeaderToDocument,
   applyMergePatch,
   applySystemFieldValuesToUpdatedDocument,
   createDocStoreOptions,
   createMergePatchForUpdateableFields,
-  ensureSystemFields,
   ensureDocWasFound,
   ensureMergePatchAvoidsSystemFields,
   executePreSave,
@@ -45,7 +45,7 @@ export const patchDocument = async ({ userIdentity, roleNames, roleTypes, safeDo
   const doc = await safeDocStore.fetch(docType.name, docType.pluralName, id, combinedDocStoreOptions)
 
   ensureDocWasFound(docType.name, id, doc)
-  ensureSystemFields(doc, userIdentity, reqDateTime)
+  applyDocHeaderToDocument(doc, userIdentity, reqDateTime)
 
   const operationIdAlreadyExists = isOpIdInDocument(doc, operationId)
 

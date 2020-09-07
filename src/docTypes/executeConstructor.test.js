@@ -1,8 +1,7 @@
 /* eslint-env jest */
 import {
-  JsonotronConstructorFailedError,
-  JsonotronConstructorNotDefinedError
-} from '../jsonotron-errors'
+  SengiConstructorFailedError
+} from '../errors'
 import { executeConstructor } from './executeConstructor'
 
 const docType = {
@@ -28,11 +27,7 @@ test('Executing a doc type constructor with valid parameters creates a doc.', ()
   expect(executeConstructor(docType, { propA: 'hello', propB: 'world' })).toEqual({ combined: 'helloworld' })
 })
 
-test('Executing a doc type constructor with no constructor defined raises an error.', () => {
-  expect(() => executeConstructor({ name: 'faulty' }, { propA: 'hello', propB: null })).toThrow(JsonotronConstructorNotDefinedError)
-})
-
 test('Executing a faulty doc type constructor raises an error.', () => {
-  expect(() => executeConstructor(faultyDocType, { a: 123 })).toThrow(JsonotronConstructorFailedError)
+  expect(() => executeConstructor(faultyDocType, { a: 123 })).toThrow(SengiConstructorFailedError)
   expect(() => executeConstructor(faultyDocType, { a: 123 })).toThrow(/Error: wrong/)
 })

@@ -1,9 +1,9 @@
 /* eslint-env jest */
 import { evaluateFilter } from './evaluateFilter'
 import {
-  JsonotronUnrecognisedFilterNameError,
-  JsonotronFilterFailedError
-} from '../jsonotron-errors'
+  SengiUnrecognisedFilterNameError,
+  SengiFilterFailedError
+} from '../errors'
 
 const docType = {
   name: 'example',
@@ -31,10 +31,10 @@ test('Evaluate a doc type filter with valid parameters.', () => {
 
 test('Evaluating an unknown doc type filter raises an error.', () => {
   expect(() => evaluateFilter(docType, 'madeup', { a: 123 })).toThrow(/madeup/)
-  expect(() => evaluateFilter(docTypeWithNoFilters, 'madeup', { a: 123 })).toThrow(JsonotronUnrecognisedFilterNameError)
+  expect(() => evaluateFilter(docTypeWithNoFilters, 'madeup', { a: 123 })).toThrow(SengiUnrecognisedFilterNameError)
 })
 
 test('Evaluating a faulty doc type filter raises an error.', () => {
   expect(() => evaluateFilter(docType, 'faulty', { a: 123 })).toThrow(/Error: bad/)
-  expect(() => evaluateFilter(docType, 'faulty', { a: 123 })).toThrow(JsonotronFilterFailedError)
+  expect(() => evaluateFilter(docType, 'faulty', { a: 123 })).toThrow(SengiFilterFailedError)
 })

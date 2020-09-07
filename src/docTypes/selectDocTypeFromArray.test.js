@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { JsonotronUnrecognisedDocTypeNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedDocTypeNameError } from '../errors'
 import { selectDocTypeFromArray } from './selectDocTypeFromArray'
 
 const docTypes = [
@@ -13,6 +13,6 @@ test('Find valid doc types by name', () => {
 })
 
 test('Fail to find invalid doc types by name.', () => {
-  expect(() => selectDocTypeFromArray(docTypes, 'madeup')).toThrow(JsonotronUnrecognisedDocTypeNameError)
+  expect(() => selectDocTypeFromArray(docTypes, 'madeup')).toThrow(SengiUnrecognisedDocTypeNameError)
   expect(() => selectDocTypeFromArray(docTypes, 'madeup')).toThrow(/not defined/)
 })

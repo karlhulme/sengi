@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
+import { SengiActionForbiddenByPolicyError } from '../errors'
 
 /**
  * Raises an error if the doc type policy does not allow
@@ -11,6 +11,6 @@ export const ensureCanFetchWholeCollection = docType => {
   check.assert.string(docType.name)
 
   if (typeof docType.policy !== 'object' || docType.policy.canFetchWholeCollection !== true) {
-    throw new JsonotronActionForbiddenByPolicyError(docType.name, 'fetch whole collection')
+    throw new SengiActionForbiddenByPolicyError(docType.name, 'fetch whole collection')
   }
 }

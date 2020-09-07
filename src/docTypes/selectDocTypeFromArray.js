@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronUnrecognisedDocTypeNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedDocTypeNameError } from '../errors'
 
 /**
  * Selects the doc type with the given name from the given docTypes array.
@@ -13,7 +13,7 @@ export const selectDocTypeFromArray = (docTypes, docTypeName) => {
   const docType = docTypes.find(dt => dt.name === docTypeName)
 
   if (!docType) {
-    throw new JsonotronUnrecognisedDocTypeNameError(docTypeName)
+    throw new SengiUnrecognisedDocTypeNameError(docTypeName)
   }
 
   return docType

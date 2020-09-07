@@ -1,16 +1,16 @@
 import { test, expect, jest } from '@jest/globals'
 import {
-  JsonotronConflictOnSaveError,
-  JsonotronDocumentNotFoundError,
-  JsonotronInsufficientPermissionsError,
-  JsonotronRequiredVersionNotAvailableError,
-  JsonotronUnrecognisedOperationNameError
-} from '../jsonotron-errors'
+  SengiConflictOnSaveError,
+  SengiDocumentNotFoundError,
+  SengiInsufficientPermissionsError,
+  SengiRequiredVersionNotAvailableError,
+  SengiUnrecognisedOperationNameError
+} from '../errors'
 import { errorCodes, successCodes } from '../consts'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
-const createJsonotronForTest = (upsertResponse, funcs) => {
-  return createJsonotronWithMockStore({
+const createSengiForTest = (upsertResponse, funcs) => {
+  return createSengiWithMockStore({
     fetch: async () => ({
       doc: {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -39,9 +39,9 @@ const createJsonotronForTest = (upsertResponse, funcs) => {
 }
 
 test('Operate on document should call fetch and upsert on doc store while retaining existing properties, including unrecognised ones.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -52,8 +52,8 @@ test('Operate on document should call fetch and upsert on doc store while retain
     }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -90,21 +90,21 @@ test('Operate on document should call fetch and upsert on doc store while retain
     unrecognisedProp: 'unrecognisedValue'
   }
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Operate on document should raise callbacks.', async () => {
   let preSaveDoc = null
 
-  const jsonotron = createJsonotronForTest(
+  const sengi = createSengiForTest(
     null, {
       onPreSaveDoc: jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) }),
       onUpdateDoc: jest.fn()
     }
   )
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -115,8 +115,8 @@ test('Operate on document should raise callbacks.', async () => {
     }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
+  expect(sengi._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -127,8 +127,8 @@ test('Operate on document should raise callbacks.', async () => {
 
   expect(preSaveDoc.favouriteColors).not.toBeDefined()
 
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -137,9 +137,9 @@ test('Operate on document should raise callbacks.', async () => {
 })
 
 test('Operate on document for second time should only call fetch on doc store.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -150,16 +150,16 @@ test('Operate on document for second time should only call fetch on doc store.',
     }
   })).resolves.toEqual({ isUpdated: false })
 
-  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(0)
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(0)
 })
 
 test('Operate on document using a required version should cause required version to be passed to doc store.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -171,14 +171,14 @@ test('Operate on document using a required version should cause required version
     reqVersion: 'aaaa'
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to operate on document when required version is not available.', async () => {
-  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
+  const sengi = createSengiForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -188,13 +188,13 @@ test('Fail to operate on document when required version is not available.', asyn
       newFavouriteColors: ['puse', 'gold']
     },
     reqVersion: 'bbbb' // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is specified then versionNotAvailable error is raised
-  })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  })).rejects.toThrow(SengiRequiredVersionNotAvailableError)
 })
 
 test('Fail to operate on document if it changes between fetch and upsert.', async () => {
-  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
+  const sengi = createSengiForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -204,15 +204,15 @@ test('Fail to operate on document if it changes between fetch and upsert.', asyn
       newFavouriteColors: ['puse', 'gold']
     }
     // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is NOT specified then conflictOnSave error is raised
-  })).rejects.toThrow(JsonotronConflictOnSaveError)
+  })).rejects.toThrow(SengiConflictOnSaveError)
 })
 
 test('Fail to operate on document if it does not exist.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     fetch: async () => ({ doc: null })
   })
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-888888888888',
@@ -221,13 +221,13 @@ test('Fail to operate on document if it does not exist.', async () => {
     operationParams: {
       newFavouriteColors: ['puse', 'gold']
     }
-  })).rejects.toThrow(JsonotronDocumentNotFoundError)
+  })).rejects.toThrow(SengiDocumentNotFoundError)
 })
 
 test('Fail to invoke an operation if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     roleNames: ['none'],
     docTypeName: 'person',
@@ -237,18 +237,18 @@ test('Fail to invoke an operation if permissions insufficient.', async () => {
     operationParams: {
       newFavouriteColors: ['puse', 'gold']
     }
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })
 
 test('Fail to operate on document using an unknown operation.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.operateOnDocument({
+  await expect(sengi.operateOnDocument({
     ...defaultRequestProps,
     docTypeName: 'car',
     id: 'bd605c90-67c0-4125-a404-4fff3366d6ac',
     operationId: 'a2c9bec0-ab03-4ded-bce6-d8a91f71e1d4',
     operationName: 'unknownOperation',
     operationParams: {}
-  })).rejects.toThrow(JsonotronUnrecognisedOperationNameError)
+  })).rejects.toThrow(SengiUnrecognisedOperationNameError)
 })

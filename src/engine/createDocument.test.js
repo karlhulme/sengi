@@ -1,6 +1,6 @@
 import { test, expect, jest } from '@jest/globals'
-import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { SengiInsufficientPermissionsError } from '../errors'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 const constructorParams = {
   shortName: 'Donald',
@@ -10,20 +10,20 @@ const constructorParams = {
 }
 
 test('Creating a document should call exists and then upsert on doc store.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     exists: async () => ({ found: false }),
     upsert: async () => ({})
   })
 
-  await expect(jsonotron.createDocument({
+  await expect(sengi.createDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     constructorParams
   })).resolves.toEqual({ isNew: true })
 
-  expect(jsonotron._test.docStore.exists.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.exists.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', {}, { custom: 'prop' }])
 
   const resultDoc = {
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
@@ -48,12 +48,12 @@ test('Creating a document should call exists and then upsert on doc store.', asy
     tenantId: 'companyA'
   }
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
 test('Creating a document should cause the onPreSave and onCreateDoc events to be invoked.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     exists: async () => ({ found: false }),
     upsert: async () => ({})
   }, {
@@ -61,14 +61,14 @@ test('Creating a document should cause the onPreSave and onCreateDoc events to b
     onCreateDoc: jest.fn()
   })
 
-  await expect(jsonotron.createDocument({
+  await expect(sengi.createDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     constructorParams
   })).resolves.toEqual({ isNew: true })
 
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0][0]).toEqual({
+  expect(sengi._test.config.onPreSaveDoc.mock.calls[0][0]).toEqual({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -76,7 +76,7 @@ test('Creating a document should cause the onPreSave and onCreateDoc events to b
     mergePatch: null
   })
 
-  expect(jsonotron._test.config.onCreateDoc.mock.calls[0][0]).toEqual({
+  expect(sengi._test.config.onCreateDoc.mock.calls[0][0]).toEqual({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -85,30 +85,30 @@ test('Creating a document should cause the onPreSave and onCreateDoc events to b
 })
 
 test('Creating a document for the second time should only call exists on doc store.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     exists: async () => ({ found: true }),
     upsert: async () => ({})
   })
 
-  await expect(jsonotron.createDocument({
+  await expect(sengi.createDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     constructorParams
   })).resolves.toEqual({ isNew: false })
 
-  expect(jsonotron._test.docStore.exists.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.exists.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.exists.mock.calls[0]).toEqual(['person', 'persons', 'd7fe060b-2d03-46e2-8cb5-ab18380790d1', {}, { custom: 'prop' }])
 })
 
 test('Fail to create document if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.createDocument({
+  await expect(sengi.createDocument({
     ...defaultRequestProps,
     roleNames: ['none'],
     docTypeName: 'person',
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     constructorParams
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })

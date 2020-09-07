@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { JsonotronInvalidMergePatchError } from '../jsonotron-errors'
+import { SengiInvalidMergePatchError } from '../errors'
 import { createMergePatchForUpdateableFields } from './createMergePatchForUpdateableFields'
 
 const docType = {
@@ -18,11 +18,11 @@ test('Accept patches that reference updateable fields.', () => {
 })
 
 test('Reject patches that reference non-updatable fields.', () => {
-  expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', propB: 'bad' })).toThrow(JsonotronInvalidMergePatchError)
+  expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', propB: 'bad' })).toThrow(SengiInvalidMergePatchError)
   expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', propB: 'bad' })).toThrow(/Cannot reference a non-updateable field 'propB'/)
 })
 
 test('Reject patches that reference calculated fields.', () => {
-  expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', calcD: 'bad' })).toThrow(JsonotronInvalidMergePatchError)
+  expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', calcD: 'bad' })).toThrow(SengiInvalidMergePatchError)
   expect(() => createMergePatchForUpdateableFields(docType, { propA: 'hello', calcD: 'bad' })).toThrow(/Cannot reference a calculated field 'calcD'/)
 })

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { JsonotronPreSaveFailedError } from '../jsonotron-errors'
+import { SengiPreSaveFailedError } from '../errors'
 import { executePreSave } from './executePreSave'
 
 test('Executing a valid pre-save function raises no errors.', () => {
@@ -34,7 +34,7 @@ test('Executing a pre-save function that raises errors will be wrapped.', () => 
     preSave: () => { throw new Error('failure') }
   }
   const doc = {}
-  expect(() => executePreSave(docType, doc)).toThrow(JsonotronPreSaveFailedError)
+  expect(() => executePreSave(docType, doc)).toThrow(SengiPreSaveFailedError)
   expect(() => executePreSave(docType, doc)).toThrow(/Pre-save/)
   expect(() => executePreSave(docType, doc)).toThrow(/failure/)
 })

@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronInvalidOperationMergePatchError } from '../jsonotron-errors'
+import { SengiInvalidOperationMergePatchError } from '../errors'
 import { systemFieldNames } from 'sengi-validation'
 
 /**
@@ -16,7 +16,7 @@ export const ensureOperationMergePatchAvoidsSystemFields = (docTypeName, operati
 
   for (const patchKey in patch) {
     if (systemFieldNames.includes(patchKey)) {
-      throw new JsonotronInvalidOperationMergePatchError(docTypeName, operationName, `Cannot reference a system field '${patchKey}'.`)
+      throw new SengiInvalidOperationMergePatchError(docTypeName, operationName, `Cannot reference a system field '${patchKey}'.`)
     }
   }
 }

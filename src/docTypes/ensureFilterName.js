@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronUnrecognisedFilterNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedFilterNameError } from '../errors'
 
 /**
  * Ensure that the given filter name is a filter defined
@@ -13,6 +13,6 @@ export const ensureFilterName = (docType, filterName) => {
   check.assert.string(filterName)
 
   if (!docType.filters[filterName]) {
-    throw new JsonotronUnrecognisedFilterNameError(docType.name, filterName)
+    throw new SengiUnrecognisedFilterNameError(docType.name, filterName)
   }
 }

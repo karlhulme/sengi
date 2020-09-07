@@ -1,6 +1,6 @@
 import check from 'check-types'
 import { systemFieldNames } from 'sengi-validation'
-import { JsonotronInvalidMergePatchError } from '../jsonotron-errors'
+import { SengiInvalidMergePatchError } from '../errors'
 
 /**
  * Raises an error if the given patch references
@@ -12,7 +12,7 @@ export const ensureMergePatchAvoidsSystemFields = patch => {
 
   for (const patchKey in patch) {
     if (systemFieldNames.includes(patchKey)) {
-      throw new JsonotronInvalidMergePatchError(`Cannot reference a system field '${patchKey}'.`)
+      throw new SengiInvalidMergePatchError(`Cannot reference a system field '${patchKey}'.`)
     }
   }
 }

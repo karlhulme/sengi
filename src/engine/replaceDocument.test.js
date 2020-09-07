@@ -1,13 +1,13 @@
 import { test, expect, jest } from '@jest/globals'
 import {
-  JsonotronActionForbiddenByPolicyError,
-  JsonotronDocumentCustomValidationError,
-  JsonotronInsufficientPermissionsError,
-  JsonotronRequiredVersionNotAvailableError
-} from '../jsonotron-errors'
+  SengiActionForbiddenByPolicyError,
+  SengiDocumentCustomValidationError,
+  SengiInsufficientPermissionsError,
+  SengiRequiredVersionNotAvailableError,
+  SengiDocTypeInstanceValidationFailedError
+} from '../errors'
 import { errorCodes, successCodes } from '../consts'
-import { SengiDocTypeInstanceValidationFailedError } from '../errors'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 const createNewDocument = () => ({
   id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -40,11 +40,11 @@ const createExpectedDocHeader = () => ({
 })
 
 test('Replacing a document should call upsert on the doc store.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
   })
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: createNewDocument()
@@ -55,26 +55,26 @@ test('Replacing a document should call upsert on the doc store.', async () => {
     docHeader: createExpectedDocHeader()
   }
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
 test('Replacing a document should raise the onPreSaveDoc and onUpdateDoc delegates.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
   }, {
     onPreSaveDoc: jest.fn(),
     onUpdateDoc: jest.fn()
   })
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: createNewDocument()
   })).resolves.toEqual({ isNew: false })
 
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onPreSaveDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -82,8 +82,8 @@ test('Replacing a document should raise the onPreSaveDoc and onUpdateDoc delegat
     mergePatch: null
   }])
 
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -92,11 +92,11 @@ test('Replacing a document should raise the onPreSaveDoc and onUpdateDoc delegat
 })
 
 test('Replacing a document with a required version should cause the required version to be passed to the doc store.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_REPLACED })
   })
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: createNewDocument(),
@@ -108,18 +108,18 @@ test('Replacing a document with a required version should cause the required ver
     docHeader: createExpectedDocHeader()
   }
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Replacing a non-existent document and retaining unrecognised fields and raising onCreateDoc delegate.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     upsert: async () => ({ successCode: successCodes.DOC_STORE_DOCUMENT_WAS_CREATED })
   }, {
     onCreateDoc: jest.fn()
   })
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
@@ -134,35 +134,35 @@ test('Replacing a non-existent document and retaining unrecognised fields and ra
     unrecognisedProperty: 'unrecognisedValue'
   }
 
-  expect(jsonotron._test.config.onCreateDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onCreateDoc.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onCreateDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onCreateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
     doc: expect.objectContaining({ shortName: 'Francesco', fullName: 'Francesco Speedio', unrecognisedProperty: 'unrecognisedValue' })
   }])
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, {}, { custom: 'prop' }])
 })
 
 test('Fail to replace a document with an unavailable required version.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     upsert: async () => ({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
   })
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     doc: createNewDocument(),
     docTypeName: 'person',
     reqVersion: 'aaaa'
-  })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  })).rejects.toThrow(SengiRequiredVersionNotAvailableError)
 })
 
 test('Fail to replace a document if it does not conform to the doc type schema.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
@@ -173,33 +173,33 @@ test('Fail to replace a document if it does not conform to the doc type schema.'
 })
 
 test('Fail to replace a document if it fails custom validation.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: {
       ...createNewDocument(),
       addressLines: 'i live in a castle' // address lines containing 'castle' are rejected
     }
-  })).rejects.toThrow(JsonotronDocumentCustomValidationError)
+  })).rejects.toThrow(SengiDocumentCustomValidationError)
 })
 
 test('Fail to replace a document if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     doc: createNewDocument(),
     roleNames: ['none']
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })
 
 test('Fail to replace a document if disallowed by doc type policy.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.replaceDocument({
+  await expect(sengi.replaceDocument({
     ...defaultRequestProps,
     roleNames: ['admin'],
     docTypeName: 'car',
@@ -211,5 +211,5 @@ test('Fail to replace a document if disallowed by doc type policy.', async () =>
       model: 'Accord',
       registration: 'HG67 8HJ'
     }
-  })).rejects.toThrow(JsonotronActionForbiddenByPolicyError)
+  })).rejects.toThrow(SengiActionForbiddenByPolicyError)
 })

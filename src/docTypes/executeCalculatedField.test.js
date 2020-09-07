@@ -1,8 +1,5 @@
 /* eslint-env jest */
-import {
-  JsonotronCalculatedFieldFailedError,
-  JsonotronUnrecognisedCalculatedFieldNameError
-} from '../jsonotron-errors'
+import { SengiCalculatedFieldFailedError } from '../errors'
 import { executeCalculatedField } from './executeCalculatedField'
 
 const docType = {
@@ -27,16 +24,11 @@ test('Execute calculated field.', () => {
   expect(executeCalculatedField(docType, doc, 'combined')).toEqual('hello world')
 })
 
-test('Fail to execute an invalid calculated field.', () => {
-  const doc = { propA: 'hello', propB: 'world' }
-  expect(() => executeCalculatedField(docType, doc, 'invalid')).toThrow(JsonotronUnrecognisedCalculatedFieldNameError)
-})
-
 test('Execute calculated field where there are no inputs.', () => {
   expect(executeCalculatedField(docType, {}, 'noInputs')).toEqual('fixed result')
 })
 
 test('Wrap calculated fields that throw errors.', () => {
-  expect(() => executeCalculatedField(docType, {}, 'errorThrower')).toThrow(JsonotronCalculatedFieldFailedError)
+  expect(() => executeCalculatedField(docType, {}, 'errorThrower')).toThrow(SengiCalculatedFieldFailedError)
   expect(() => executeCalculatedField(docType, {}, 'errorThrower')).toThrow(/problemo/)
 })

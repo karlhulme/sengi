@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { SengiInsufficientPermissionsError } from '../errors'
 import { hasPermission } from './hasPermission'
 
 /**
@@ -22,6 +22,6 @@ export const ensurePermission = (roleNames, roleTypes, docTypeName, action, perm
   check.assert.string(action)
 
   if (!hasPermission(roleNames, roleTypes, permissionFunc)) {
-    throw new JsonotronInsufficientPermissionsError(roleNames, docTypeName, action)
+    throw new SengiInsufficientPermissionsError(roleNames, docTypeName, action)
   }
 }

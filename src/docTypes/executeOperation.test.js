@@ -1,10 +1,9 @@
 /* eslint-env jest */
 import {
-  JsonotronInternalError,
-  JsonotronOperationFailedError,
-  JsonotronOperationNonObjectResponseError,
-  JsonotronUnrecognisedOperationNameError
-} from '../jsonotron-errors'
+  SengiOperationFailedError,
+  SengiOperationNonObjectResponseError,
+  SengiUnrecognisedOperationNameError
+} from '../errors'
 import { executeOperation } from './executeOperation'
 
 const docType = {
@@ -52,20 +51,16 @@ test('Executing a doc type operation with valid parameters returns the operation
 })
 
 test('Executing an unrecognised doc type operation raises an error.', () => {
-  expect(() => executeOperation(docType, {}, 'madeup', { propA: 'hello', propB: null })).toThrow(JsonotronUnrecognisedOperationNameError)
+  expect(() => executeOperation(docType, {}, 'madeup', { propA: 'hello', propB: null })).toThrow(SengiUnrecognisedOperationNameError)
   expect(() => executeOperation(docTypeWithNoOperations, {}, 'madeup', { propA: 'hello', propB: null })).toThrow(/madeup/)
 })
 
-test('Executing an operation with no implementation raises an error.', () => {
-  expect(() => executeOperation(docType, {}, 'noImplementation', {})).toThrow(JsonotronInternalError)
-})
-
 test('Executing an operation that does not return a merge patch raises an error.', () => {
-  expect(() => executeOperation(docType, {}, 'stringErrorResponse', {})).toThrow(JsonotronOperationNonObjectResponseError)
+  expect(() => executeOperation(docType, {}, 'stringErrorResponse', {})).toThrow(SengiOperationNonObjectResponseError)
   expect(() => executeOperation(docType, {}, 'nullErrorResponse', {})).toThrow(/failed to return an object/)
 })
 
 test('Executing an operation that raises an error causes that error to be passed on.', () => {
-  expect(() => executeOperation(docType, {}, 'broken', {})).toThrow(JsonotronOperationFailedError)
+  expect(() => executeOperation(docType, {}, 'broken', {})).toThrow(SengiOperationFailedError)
   expect(() => executeOperation(docType, {}, 'broken', {})).toThrow(/Error: fail/)
 })

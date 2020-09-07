@@ -1,10 +1,9 @@
 import check from 'check-types'
 import {
-  JsonotronInternalError,
-  JsonotronOperationFailedError,
-  JsonotronOperationNonObjectResponseError,
-  JsonotronUnrecognisedOperationNameError
-} from '../jsonotron-errors'
+  SengiOperationFailedError,
+  SengiOperationNonObjectResponseError,
+  SengiUnrecognisedOperationNameError
+} from '../errors'
 
 /**
  * Call operation implementation and wrap any errors raised.
@@ -18,7 +17,7 @@ export const callOperationImplementation = (docTypeName, operationName, implemen
   try {
     return implementation(doc, operationParams)
   } catch (err) {
-    throw new JsonotronOperationFailedError(docTypeName, operationName, err)
+    throw new SengiOperationFailedError(docTypeName, operationName, err)
   }
 }
 
@@ -37,20 +36,16 @@ export const executeOperation = (docType, doc, operationName, operationParams) =
   check.assert.string(operationName)
   check.assert.object(operationParams)
 
-  const operation = (docType.operations || {})[operationName]
+  const operation = docType.operations[operationName]
 
   if (typeof operation !== 'object') {
-    throw new JsonotronUnrecognisedOperationNameError(docType.name, operationName)
-  }
-
-  if (typeof operation.implementation !== 'function') {
-    throw new JsonotronInternalError(`Doc type '${docType.name}' does not define an implementation for operation '${operationName}'.`)
+    throw new SengiUnrecognisedOperationNameError(docType.name, operationName)
   }
 
   const result = callOperationImplementation(docType.name, operationName, operation.implementation, doc, operationParams)
 
   if (typeof result !== 'object' || result === null || Array.isArray(result)) {
-    throw new JsonotronOperationNonObjectResponseError(docType.name, operationName)
+    throw new SengiOperationNonObjectResponseError(docType.name, operationName)
   }
 
   return result

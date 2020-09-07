@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronUnrecognisedOperationNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedOperationNameError } from '../errors'
 
 /**
  * Ensure that the given operation name is an operation defined
@@ -13,6 +13,6 @@ export const ensureOperationName = (docType, operationName) => {
   check.assert.string(operationName)
 
   if (!docType.operations[operationName]) {
-    throw new JsonotronUnrecognisedOperationNameError(docType.name, operationName)
+    throw new SengiUnrecognisedOperationNameError(docType.name, operationName)
   }
 }

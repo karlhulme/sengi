@@ -3,18 +3,18 @@ import { testDocTypes } from '../testData/docTypes'
 import { testEnumTypes } from '../testData/enumTypes'
 import { testSchemaTypes } from '../testData/schemaTypes'
 import { testRoleTypes } from '../testData/roleTypes'
-import { createJsonotron } from './createJsonotron'
+import { createSengi } from './createSengi'
 
 /**
- * Creates a jsonotron object with a mocked doc store based on the
+ * Creates a sengi object with a mocked doc store based on the
  * given functions.
  * @param {Object} mockedDocStoreTemplate An object where each key represents
  * a mocked method that should be monitored by the test runtime, and each
  * value represents the implementation of that method.
  * @param {Object} funcs A block of functions that can be invoked by
- * jsonotron to signal events have taken place.
+ * sengi to signal events have taken place.
  */
-export const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
+export const createSengiWithMockStore = (mockedDocStoreTemplate, funcs) => {
   const docStore = Object.keys(mockedDocStoreTemplate || {})
     .reduce((agg, key) => ({ ...agg, [key]: jest.fn(mockedDocStoreTemplate[key]) }), {})
 
@@ -35,11 +35,11 @@ export const createJsonotronWithMockStore = (mockedDocStoreTemplate, funcs) => {
     if (funcs.onDeleteDoc) { config.onDeleteDoc = funcs.onDeleteDoc }
   }
 
-  const jsonotron = createJsonotron(config)
+  const sengi = createSengi(config)
 
-  jsonotron._test = { config, docStore }
+  sengi._test = { config, docStore }
 
-  return jsonotron
+  return sengi
 }
 
 export const defaultRequestProps = {
@@ -49,8 +49,8 @@ export const defaultRequestProps = {
   docStoreOptions: { custom: 'prop' }
 }
 
-test('createJsonotronWithMockStore creates a valid jsonotron object.', async () => {
-  const jsonotron = createJsonotronWithMockStore({})
-  expect(jsonotron._test).toHaveProperty('config')
-  expect(jsonotron._test).toHaveProperty('docStore')
+test('createSengiWithMockStore creates a valid sengi object.', async () => {
+  const sengi = createSengiWithMockStore({})
+  expect(sengi._test).toHaveProperty('config')
+  expect(sengi._test).toHaveProperty('docStore')
 })

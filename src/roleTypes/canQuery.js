@@ -1,5 +1,4 @@
 import check from 'check-types'
-import { JsonotronInternalError } from '../jsonotron-errors'
 
 /**
  * Returns true if the requested field names can be honoured.
@@ -58,7 +57,7 @@ export const canQuery = (roleType, docTypeName, fieldNames) => {
     } else if (fieldsTreatment === 'blacklist') {
       hasPermission = determineIfReqFieldsConformsToBlacklist(fieldNames, roleType.docPermissions[docTypeName].query.fields)
     } else {
-      throw new JsonotronInternalError(`Unrecognised fields treatment value: '${fieldsTreatment}'.`)
+      hasPermission = false
     }
   }
 

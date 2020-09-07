@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { ensureOperationName } from './ensureOperationName'
-import { JsonotronUnrecognisedOperationNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedOperationNameError } from '../errors'
 
 const docType = {
   name: 'testDocType',
@@ -16,5 +16,5 @@ test('Accept recognised operation names.', () => {
 })
 
 test('Reject unrecognised operation names.', () => {
-  expect(() => ensureOperationName(docType, 'invalidOpName')).toThrow(JsonotronUnrecognisedOperationNameError)
+  expect(() => ensureOperationName(docType, 'invalidOpName')).toThrow(SengiUnrecognisedOperationNameError)
 })

@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
+import { SengiActionForbiddenByPolicyError } from '../errors'
 
 /**
  * Raises an error if the doc type policy does not allow
@@ -11,6 +11,6 @@ export const ensureCanReplaceDocuments = docType => {
   check.assert.string(docType.name)
 
   if (typeof docType.policy !== 'object' || docType.policy.canReplaceDocuments !== true) {
-    throw new JsonotronActionForbiddenByPolicyError(docType.name, 'replace document')
+    throw new SengiActionForbiddenByPolicyError(docType.name, 'replace document')
   }
 }

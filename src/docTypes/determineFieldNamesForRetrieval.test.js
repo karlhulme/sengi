@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { JsonotronUnrecognisedFieldNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedFieldNameError } from '../errors'
 import { determineFieldNamesForRetrieval } from './determineFieldNamesForRetrieval'
 
 const docType = {
@@ -37,6 +37,6 @@ test('Identify calculated fields for retrieval.', () => {
 })
 
 test('Fail to identify fields for retrieval that are neither declared, calculated or system.', () => {
-  expect(() => determineFieldNamesForRetrieval(docType, ['invalid'])).toThrow(JsonotronUnrecognisedFieldNameError)
+  expect(() => determineFieldNamesForRetrieval(docType, ['invalid'])).toThrow(SengiUnrecognisedFieldNameError)
   expect(() => determineFieldNamesForRetrieval(docType, ['invalid'])).toThrow(/invalid/)
 })

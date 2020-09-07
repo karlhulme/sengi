@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { JsonotronCallbackError } from '../jsonotron-errors'
+import { SengiCallbackError } from '../errors'
 import { invokeCallback } from './invokeCallback'
 
 test('A callback should be invoked with the given parameters.', async () => {
@@ -26,12 +26,12 @@ test('An async callback should be invoked even if there are no parameters.', () 
   expect(callback.mock.calls[0]).toEqual([])
 })
 
-test('A callback that throws an error should be wrapped in a JsonotronCallbackError.', () => {
+test('A callback that throws an error should be wrapped in a SengiCallbackError.', () => {
   const callback = jest.fn(() => { throw new Error('the inner error') })
-  expect(invokeCallback('myCallback', callback, 1, true, ['foo', 'bar'])).rejects.toThrow(JsonotronCallbackError)
+  expect(invokeCallback('myCallback', callback, 1, true, ['foo', 'bar'])).rejects.toThrow(SengiCallbackError)
 })
 
-test('An async callback that throws an error should be wrapped in a JsonotronCallbackError.', () => {
+test('An async callback that throws an error should be wrapped in a SengiCallbackError.', () => {
   const callback = jest.fn(async () => { throw new Error('the inner error') })
-  expect(invokeCallback('myCallback', callback, 1, true, ['foo', 'bar'])).rejects.toThrow(JsonotronCallbackError)
+  expect(invokeCallback('myCallback', callback, 1, true, ['foo', 'bar'])).rejects.toThrow(SengiCallbackError)
 })

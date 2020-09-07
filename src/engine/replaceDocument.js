@@ -1,8 +1,8 @@
 import check from 'check-types'
 import {
+  applyDocHeaderToDocument,
   createDocStoreOptions,
   ensureCanReplaceDocuments,
-  ensureSystemFields,
   executePreSave,
   executeValidator,
   selectDocTypeFromArray,
@@ -37,7 +37,7 @@ export const replaceDocument = async ({ userIdentity, roleNames, roleTypes, safe
   const docType = selectDocTypeFromArray(docTypes, docTypeName)
   ensureCanReplaceDocuments(docType)
 
-  ensureSystemFields(doc, userIdentity, reqDateTime)
+  applyDocHeaderToDocument(doc, userIdentity, reqDateTime)
 
   executePreSave(docType, doc)
 

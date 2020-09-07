@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { ensureFilterName } from './ensureFilterName'
-import { JsonotronUnrecognisedFilterNameError } from '../jsonotron-errors'
+import { SengiUnrecognisedFilterNameError } from '../errors'
 
 const docType = {
   name: 'testDocType',
@@ -16,5 +16,5 @@ test('Accept recognised filter names.', () => {
 })
 
 test('Reject unrecognised filter names.', () => {
-  expect(() => ensureFilterName(docType, 'byInvalid')).toThrow(JsonotronUnrecognisedFilterNameError)
+  expect(() => ensureFilterName(docType, 'byInvalid')).toThrow(SengiUnrecognisedFilterNameError)
 })

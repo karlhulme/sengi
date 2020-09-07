@@ -1,14 +1,13 @@
 /* eslint-env jest */
 import { wrapDocStore } from './wrapDocStore'
 import {
-  JsonotronConflictOnSaveError,
-  JsonotronDocStoreInvalidResponseError,
-  JsonotronDocStoreFailureError,
-  JsonotronDocStoreMissingFunctionError,
-  JsonotronDocStoreUnrecognisedErrorCodeError,
-  JsonotronInternalError,
-  JsonotronRequiredVersionNotAvailableError
-} from '../jsonotron-errors'
+  SengiDocStoreInvalidResponseError,
+  SengiDocStoreFailureError,
+  SengiDocStoreMissingFunctionError,
+  SengiDocStoreUnrecognisedErrorCodeError,
+  SengiConflictOnSaveError,
+  SengiRequiredVersionNotAvailableError
+} from '../errors'
 
 const docStoreWithoutFunctions = {
   deleteById: null,
@@ -82,7 +81,7 @@ const docStoreWithFetchUnknownDoc = {
 
 test('A doc store without functions will throw missing function errors.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithoutFunctions)
-  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(JsonotronDocStoreMissingFunctionError)
+  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(SengiDocStoreMissingFunctionError)
   await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(/document store does not provide an implementation of 'deleteById'/)
   await expect(safeDocStore.exists('test', 'tests', '123')).rejects.toThrow(/document store does not provide an implementation of 'exists'/)
   await expect(safeDocStore.fetch('test', 'tests', '123')).rejects.toThrow(/document store does not provide an implementation of 'fetch'/)
@@ -94,7 +93,7 @@ test('A doc store without functions will throw missing function errors.', async 
 
 test('A doc store with erroring functions will throw erroring function errors.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithErroringFunctions)
-  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(JsonotronDocStoreFailureError)
+  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(SengiDocStoreFailureError)
   await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(/'deleteById' raised an error.[\n]Error: A/)
   await expect(safeDocStore.exists('test', 'tests', '123')).rejects.toThrow(/'exists' raised an error.[\n]Error: A2/)
   await expect(safeDocStore.fetch('test', 'tests', '123')).rejects.toThrow(/'fetch' raised an error.[\n]Error: B/)
@@ -106,11 +105,11 @@ test('A doc store with erroring functions will throw erroring function errors.',
 
 test('A doc store with error function responses will throw appropriate errors.', async () => {
   const safeDocStore = wrapDocStore(docStoreWithFunctionsWithErrorReturns)
-  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(JsonotronDocStoreInvalidResponseError)
-  await expect(safeDocStore.exists('test', 'tests', '123')).rejects.toThrow(JsonotronDocStoreUnrecognisedErrorCodeError)
-  await expect(safeDocStore.queryByIds('test', 'tests', ['id'], ['123', '234'])).rejects.toThrow(JsonotronDocStoreInvalidResponseError)
-  await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' })).rejects.toThrow(JsonotronConflictOnSaveError)
-  await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' }, '123', true)).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  await expect(safeDocStore.deleteById('test', 'tests', '123')).rejects.toThrow(SengiDocStoreInvalidResponseError)
+  await expect(safeDocStore.exists('test', 'tests', '123')).rejects.toThrow(SengiDocStoreUnrecognisedErrorCodeError)
+  await expect(safeDocStore.queryByIds('test', 'tests', ['id'], ['123', '234'])).rejects.toThrow(SengiDocStoreInvalidResponseError)
+  await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' })).rejects.toThrow(SengiConflictOnSaveError)
+  await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' }, '123', true)).rejects.toThrow(SengiRequiredVersionNotAvailableError)
 })
 
 test('A doc store with upsert success function responses will return success codes.', async () => {
@@ -167,12 +166,6 @@ test('A doc store with valid functions will return the underlying function retur
   await expect(safeDocStore.queryByFilter('test', 'tests', ['id'], 'A and B', 10, 0)).resolves.not.toThrow()
   await expect(safeDocStore.queryByIds('test', 'tests', ['id'], ['123', '234'])).resolves.not.toThrow()
   await expect(safeDocStore.upsert('test', 'tests', { docType: 'test' })).resolves.toEqual(true)
-})
-
-test('Upserts will fail if the doc types are not consistent.', async () => {
-  const safeDocStore = wrapDocStore(docStoreWithValidFunctions)
-  await expect(safeDocStore.upsert('test', 'tests', { docType: 'notTest' })).rejects.toThrow(JsonotronInternalError)
-  await expect(safeDocStore.upsert('test', 'tests', { docType: 'notTest' })).rejects.toThrow(/does not match docTypeName/)
 })
 
 test('A doc store that searches for a missing document returns the null value.', async () => {

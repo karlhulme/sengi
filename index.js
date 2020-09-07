@@ -1,1 +1,1 @@
-export { createJsonotron } from './src/engine'
+export { createSengi } from './src/engine'

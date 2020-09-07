@@ -1,8 +1,8 @@
 import check from 'check-types'
 import {
-  JsonotronUnrecognisedFilterNameError,
-  JsonotronFilterFailedError
-} from '../jsonotron-errors'
+  SengiUnrecognisedFilterNameError,
+  SengiFilterFailedError
+} from '../errors'
 
 /**
  * Evaluate a doc type filter.
@@ -19,12 +19,12 @@ export const evaluateFilter = (docType, filterName, filterParams) => {
   const filter = (docType.filters || {})[filterName]
 
   if (!filter) {
-    throw new JsonotronUnrecognisedFilterNameError(docType.name, filterName)
+    throw new SengiUnrecognisedFilterNameError(docType.name, filterName)
   }
 
   try {
     return filter.implementation(filterParams || {})
   } catch (err) {
-    throw new JsonotronFilterFailedError(docType.name, filterName, err)
+    throw new SengiFilterFailedError(docType.name, filterName, err)
   }
 }

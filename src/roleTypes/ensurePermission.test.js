@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { ensurePermission } from './ensurePermission'
-import { JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { SengiInsufficientPermissionsError } from '../errors'
 
 const roleTypes = [{
   name: 'admin',
@@ -19,6 +19,6 @@ test('Permission is found any if role grants permission.', () => {
 })
 
 test('Error is raised if permission is not found.', () => {
-  expect(() => ensurePermission(['none'], roleTypes, 'testDocType', 'create', permissionFunc)).toThrow(JsonotronInsufficientPermissionsError)
-  expect(() => ensurePermission(['invalid', 'none'], roleTypes, 'testDocType', 'create', permissionFunc)).toThrow(JsonotronInsufficientPermissionsError)
+  expect(() => ensurePermission(['none'], roleTypes, 'testDocType', 'create', permissionFunc)).toThrow(SengiInsufficientPermissionsError)
+  expect(() => ensurePermission(['invalid', 'none'], roleTypes, 'testDocType', 'create', permissionFunc)).toThrow(SengiInsufficientPermissionsError)
 })

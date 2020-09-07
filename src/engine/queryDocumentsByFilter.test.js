@@ -1,13 +1,13 @@
 import { test, expect, jest } from '@jest/globals'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
-import { JsonotronUnrecognisedFilterNameError, JsonotronInsufficientPermissionsError } from '../jsonotron-errors'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
+import { SengiUnrecognisedFilterNameError, SengiInsufficientPermissionsError } from '../errors'
 
 test('Query by document filter with support for paging.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     queryByFilter: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }] })
   })
 
-  await expect(jsonotron.queryDocumentsByFilter({
+  await expect(sengi.queryDocumentsByFilter({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id', 'fullName', 'age'],
@@ -28,18 +28,18 @@ test('Query by document filter with support for paging.', async () => {
     ]
   })
 
-  expect(jsonotron._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), { limit: 1, offset: 2 }, { custom: 'prop' }])
+  expect(sengi._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), { limit: 1, offset: 2 }, { custom: 'prop' }])
 })
 
 test('Query by document filter with onQueryDocs delegate and without paging.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     queryByFilter: async () => ({ docs: [{ id: '06151119-065a-4691-a7c8-2d84ec746ba9', fullName: 'Maisie Amillion', age: 60 }] })
   }, {
     onQueryDocs: jest.fn()
   })
 
-  await expect(jsonotron.queryDocumentsByFilter({
+  await expect(sengi.queryDocumentsByFilter({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id', 'fullName', 'age'],
@@ -49,11 +49,11 @@ test('Query by document filter with onQueryDocs delegate and without paging.', a
     }
   })).resolves.toBeDefined()
 
-  expect(jsonotron._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.queryByFilter.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.queryByFilter.mock.calls[0]).toEqual(['person', 'persons', ['id', 'fullName', 'age'], expect.any(Function), {}, { custom: 'prop' }])
 
-  expect(jsonotron._test.config.onQueryDocs.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onQueryDocs.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onQueryDocs.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onQueryDocs.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
@@ -63,21 +63,21 @@ test('Query by document filter with onQueryDocs delegate and without paging.', a
 })
 
 test('Fail to query by document filter if filter name not recognised.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.queryDocumentsByFilter({
+  await expect(sengi.queryDocumentsByFilter({
     ...defaultRequestProps,
     docTypeName: 'person',
     fieldNames: ['id'],
     filterName: 'byInvalid',
     filterParams: {}
-  })).rejects.toThrow(JsonotronUnrecognisedFilterNameError)
+  })).rejects.toThrow(SengiUnrecognisedFilterNameError)
 })
 
 test('Fail to query by document filter if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronWithMockStore()
+  const sengi = createSengiWithMockStore()
 
-  await expect(jsonotron.queryDocumentsByFilter({
+  await expect(sengi.queryDocumentsByFilter({
     ...defaultRequestProps,
     roleNames: ['none'],
     docTypeName: 'person',
@@ -86,5 +86,5 @@ test('Fail to query by document filter if permissions insufficient.', async () =
     filterParams: {
       postCode: 'BH23 4FG'
     }
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })

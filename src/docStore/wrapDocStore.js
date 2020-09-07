@@ -1,14 +1,13 @@
 import check from 'check-types'
 import { errorCodes, successCodes } from '../consts'
 import {
-  JsonotronConflictOnSaveError,
-  JsonotronInternalError,
-  JsonotronDocStoreFailureError,
-  JsonotronDocStoreInvalidResponseError,
-  JsonotronDocStoreMissingFunctionError,
-  JsonotronDocStoreUnrecognisedErrorCodeError,
-  JsonotronRequiredVersionNotAvailableError
-} from '../jsonotron-errors'
+  SengiConflictOnSaveError,
+  SengiRequiredVersionNotAvailableError,
+  SengiDocStoreFailureError,
+  SengiDocStoreInvalidResponseError,
+  SengiDocStoreMissingFunctionError,
+  SengiDocStoreUnrecognisedErrorCodeError
+} from '../errors'
 
 /**
  * Raises an appropriate error if the given doc store result
@@ -22,17 +21,17 @@ const ensureDocStoreResult = (functionName, result, reqVersionExplicit) => {
   check.assert.string(functionName)
 
   if (typeof result !== 'object' || Array.isArray(result) || result === null) {
-    throw new JsonotronDocStoreInvalidResponseError(functionName, 'Response must be an object.')
+    throw new SengiDocStoreInvalidResponseError(functionName, 'Response must be an object.')
   }
 
   if (result.errorCode === errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE) {
     if (reqVersionExplicit) {
-      throw new JsonotronRequiredVersionNotAvailableError()
+      throw new SengiRequiredVersionNotAvailableError()
     } else {
-      throw new JsonotronConflictOnSaveError()
+      throw new SengiConflictOnSaveError()
     }
   } else if (typeof result.errorCode !== 'undefined') {
-    throw new JsonotronDocStoreUnrecognisedErrorCodeError(functionName, result.errorCode)
+    throw new SengiDocStoreUnrecognisedErrorCodeError(functionName, result.errorCode)
   }
 }
 
@@ -46,20 +45,20 @@ const ensureDocStoreResult = (functionName, result, reqVersionExplicit) => {
  */
 const ensureReturnedDocsArray = (functionName, docs, docTypeName) => {
   if (!Array.isArray(docs)) {
-    throw new JsonotronDocStoreInvalidResponseError(functionName, 'Property \'docs\' must be an array.')
+    throw new SengiDocStoreInvalidResponseError(functionName, 'Property \'docs\' must be an array.')
   }
 
   for (const doc of docs) {
     if (typeof doc.id !== 'undefined' && typeof doc.id !== 'string') {
-      throw new JsonotronDocStoreInvalidResponseError(functionName, 'When returned, doc property \'id\' must be a string.')
+      throw new SengiDocStoreInvalidResponseError(functionName, 'When returned, doc property \'id\' must be a string.')
     }
 
     if (typeof doc.docType !== 'undefined' && doc.docType !== docTypeName) {
-      throw new JsonotronDocStoreInvalidResponseError(functionName, `When returned, doc property 'docType' must match requested type '${docTypeName}'`)
+      throw new SengiDocStoreInvalidResponseError(functionName, `When returned, doc property 'docType' must match requested type '${docTypeName}'`)
     }
 
     if (typeof doc.docVersion !== 'undefined' && typeof doc.docVersion !== 'string') {
-      throw new JsonotronDocStoreInvalidResponseError(functionName, 'When returned, doc property \'docVersion\' must be a string.')
+      throw new SengiDocStoreInvalidResponseError(functionName, 'When returned, doc property \'docVersion\' must be a string.')
     }
   }
 }
@@ -82,7 +81,7 @@ const safeInvokeDocStoreFunction = (functionName, func, docStore, params) => {
   try {
     return func.apply(docStore, params)
   } catch (err) {
-    throw new JsonotronDocStoreFailureError(functionName, err)
+    throw new SengiDocStoreFailureError(functionName, err)
   }
 }
 
@@ -105,7 +104,7 @@ const safeExecuteDocStoreFunction = async (docStore, functionName, params, reqVe
   const func = docStore[functionName]
 
   if (typeof func !== 'function') {
-    throw new JsonotronDocStoreMissingFunctionError(functionName)
+    throw new SengiDocStoreMissingFunctionError(functionName)
   }
 
   const result = await safeInvokeDocStoreFunction(functionName, func, docStore, params)
@@ -162,7 +161,7 @@ export const wrapDocStore = (docStore) => {
       const result = await safeExecuteDocStoreFunction(docStore, 'exists', [docTypeName, docTypePluralName, id, props, options], false)
 
       if (typeof result.found !== 'boolean') {
-        throw new JsonotronDocStoreInvalidResponseError('exists', 'Property \'found\' must be a boolean.')
+        throw new SengiDocStoreInvalidResponseError('exists', 'Property \'found\' must be a boolean.')
       }
 
       return result.found
@@ -186,24 +185,24 @@ export const wrapDocStore = (docStore) => {
       const result = await safeExecuteDocStoreFunction(docStore, 'fetch', [docTypeName, docTypePluralName, id, props, options], false)
 
       if (typeof result.doc !== 'object' || Array.isArray(result.doc)) {
-        throw new JsonotronDocStoreInvalidResponseError('fetch', 'Property \'doc\' must be an object.')
+        throw new SengiDocStoreInvalidResponseError('fetch', 'Property \'doc\' must be an object.')
       }
 
       if (result.doc !== null) {
         if (typeof result.doc.id !== 'string') {
-          throw new JsonotronDocStoreInvalidResponseError('fetch', 'Returned document must have an \'id\' string property.')
+          throw new SengiDocStoreInvalidResponseError('fetch', 'Returned document must have an \'id\' string property.')
         }
 
         if (result.doc.id !== id) {
-          throw new JsonotronDocStoreInvalidResponseError('fetch', 'Returned document must have the requested \'id\'.')
+          throw new SengiDocStoreInvalidResponseError('fetch', 'Returned document must have the requested \'id\'.')
         }
 
         if (result.doc.docType !== docTypeName) {
-          throw new JsonotronDocStoreInvalidResponseError('fetch', `Returned document must have a 'docType' property of the expected type '${docTypeName}'.`)
+          throw new SengiDocStoreInvalidResponseError('fetch', `Returned document must have a 'docType' property of the expected type '${docTypeName}'.`)
         }
 
         if (typeof result.doc.docVersion !== 'string') {
-          throw new JsonotronDocStoreInvalidResponseError('fetch', 'Returned document must have a \'docVersion\' string property.')
+          throw new SengiDocStoreInvalidResponseError('fetch', 'Returned document must have a \'docVersion\' string property.')
         }
       }
 
@@ -305,13 +304,11 @@ export const wrapDocStore = (docStore) => {
       check.assert.string(docTypeName)
       check.assert.string(docTypePluralName)
       check.assert.object(doc)
+      check.assert.string(doc.docType)
+      check.equal(docTypeName, doc.docType)
       check.assert.maybe.string(reqVersion)
       check.assert.maybe.boolean(reqVersionExplicit)
       check.assert.maybe.object(options)
-
-      if (doc.docType !== docTypeName) {
-        throw new JsonotronInternalError(`Cannot upsert document with docType property '${doc.docType}' that does not match docTypeName '${docTypeName}'.`)
-      }
 
       const props = {}
       if (reqVersion) { props.reqVersion = reqVersion }

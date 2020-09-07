@@ -1,5 +1,5 @@
 import check from 'check-types'
-import { JsonotronActionForbiddenByPolicyError } from '../jsonotron-errors'
+import { SengiActionForbiddenByPolicyError } from '../errors'
 
 /**
  * Raises an error if the doc type policy does not allow documents to be deleted.
@@ -10,6 +10,6 @@ export const ensureCanDeleteDocuments = docType => {
   check.assert.string(docType.name)
 
   if (typeof docType.policy !== 'object' || docType.policy.canDeleteDocuments !== true) {
-    throw new JsonotronActionForbiddenByPolicyError(docType.name, 'delete document')
+    throw new SengiActionForbiddenByPolicyError(docType.name, 'delete document')
   }
 }

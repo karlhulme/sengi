@@ -102,5 +102,5 @@ test('Determine that a role without relevant doc permissions cannot be used to q
 })
 
 test('Reject an invalid fields treatment value.', () => {
-  expect(() => canQuery(invalidFieldsTreatment, 'places', ['fieldA', 'fieldB', 'fieldC'])).toThrow(/Unrecognised fields treatment/)
+  expect(canQuery(invalidFieldsTreatment, 'places', ['fieldA', 'fieldB', 'fieldC'])).toEqual(false)
 })

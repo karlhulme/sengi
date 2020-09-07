@@ -1,18 +1,18 @@
 import { test, expect, jest } from '@jest/globals'
 import {
-  JsonotronConflictOnSaveError,
-  JsonotronDocumentCustomValidationError,
-  JsonotronDocumentNotFoundError,
-  JsonotronInvalidMergePatchError,
-  JsonotronInsufficientPermissionsError,
-  JsonotronRequiredVersionNotAvailableError
-} from '../jsonotron-errors'
+  SengiConflictOnSaveError,
+  SengiDocumentCustomValidationError,
+  SengiDocumentNotFoundError,
+  SengiInvalidMergePatchError,
+  SengiInsufficientPermissionsError,
+  SengiRequiredVersionNotAvailableError,
+  SengiDocTypePatchValidationFailedError
+} from '../errors'
 import { errorCodes, successCodes } from '../consts'
-import { SengiDocTypePatchValidationFailedError } from '../errors'
-import { createJsonotronWithMockStore, defaultRequestProps } from './shared.test'
+import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
-const createJsonotronForTest = (upsertResponse, funcs) => {
-  return createJsonotronWithMockStore({
+const createSengiForTest = (upsertResponse, funcs) => {
+  return createSengiWithMockStore({
     fetch: async () => ({
       doc: {
         id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -41,9 +41,9 @@ const createJsonotronForTest = (upsertResponse, funcs) => {
 }
 
 test('Patching a document should call fetch and upsert on doc store, retaining existing properties (including unrecognised ones).', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -53,8 +53,8 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -96,19 +96,19 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     pinCode: 3333
   }
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', resultDoc, { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegates.', async () => {
   let preSaveDoc = null
 
-  const jsonotron = createJsonotronForTest(null, {
+  const sengi = createSengiForTest(null, {
     onPreSaveDoc: jest.fn(p => { preSaveDoc = JSON.parse(JSON.stringify(p.doc)) }),
     onUpdateDoc: jest.fn()
   })
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -118,8 +118,8 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
+  expect(sengi._test.config.onPreSaveDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onPreSaveDoc.mock.calls[0]).toEqual([expect.objectContaining({
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -130,8 +130,8 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
 
   expect(preSaveDoc.shortName).toEqual('David')
 
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
+  expect(sengi._test.config.onUpdateDoc.mock.calls.length).toEqual(1)
+  expect(sengi._test.config.onUpdateDoc.mock.calls[0]).toEqual([{
     roleNames: ['admin'],
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ title: 'Person', pluralTitle: 'Persons' }),
@@ -140,9 +140,9 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
 })
 
 test('Patching a document for a second time should only call fetch on doc store.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -152,16 +152,16 @@ test('Patching a document for a second time should only call fetch on doc store.
     }
   })).resolves.toEqual({ isUpdated: false })
 
-  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(0)
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(0)
 })
 
 test('Patching a document using a required version should cause the required version to be passed to the doc store.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -172,17 +172,17 @@ test('Patching a document using a required version should cause the required ver
     }
   })).resolves.toEqual({ isUpdated: true })
 
-  expect(jsonotron._test.docStore.fetch.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
+  expect(sengi._test.docStore.fetch.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.fetch.mock.calls[0]).toEqual(['person', 'persons', '06151119-065a-4691-a7c8-2d84ec746ba9', {}, { custom: 'prop' }])
 
-  expect(jsonotron._test.docStore.upsert.mock.calls.length).toEqual(1)
-  expect(jsonotron._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
+  expect(sengi._test.docStore.upsert.mock.calls.length).toEqual(1)
+  expect(sengi._test.docStore.upsert.mock.calls[0]).toEqual(['person', 'persons', expect.anything(), { reqVersion: 'aaaa' }, { custom: 'prop' }])
 })
 
 test('Fail to patch document when required version is not available.', async () => {
-  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
+  const sengi = createSengiForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -191,13 +191,13 @@ test('Fail to patch document when required version is not available.', async () 
       shortName: 'Maisory'
     },
     reqVersion: 'aaaa' // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is specified then versionNotAvailable error is raised
-  })).rejects.toThrow(JsonotronRequiredVersionNotAvailableError)
+  })).rejects.toThrow(SengiRequiredVersionNotAvailableError)
 })
 
 test('Fail to patch document if it changes between fetch and upsert.', async () => {
-  const jsonotron = createJsonotronForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
+  const sengi = createSengiForTest({ errorCode: errorCodes.DOC_STORE_REQ_VERSION_NOT_AVAILABLE })
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -206,15 +206,15 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
       shortName: 'Maisory'
     }
     // if upsert yields DOC_STORE_REQ_VERSION_NOT_AVAILABLE and reqVersion is NOT specified then conflictOnSave error is raised
-  })).rejects.toThrow(JsonotronConflictOnSaveError)
+  })).rejects.toThrow(SengiConflictOnSaveError)
 })
 
 test('Reject a patch to a non-existent doc.', async () => {
-  const jsonotron = createJsonotronWithMockStore({
+  const sengi = createSengiWithMockStore({
     fetch: async () => ({ doc: null })
   })
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-aaaaaaaaaaaa',
@@ -222,14 +222,14 @@ test('Reject a patch to a non-existent doc.', async () => {
     mergePatch: {
       shortName: 'Maisory'
     }
-  })).rejects.toThrow(JsonotronDocumentNotFoundError)
+  })).rejects.toThrow(SengiDocumentNotFoundError)
 })
 
 test('Reject a patch to any field that is not explicitly allowed for patching.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
   const fn = () => {
-    return jsonotron.patchDocument({
+    return sengi.patchDocument({
       ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -240,14 +240,14 @@ test('Reject a patch to any field that is not explicitly allowed for patching.',
     })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronInvalidMergePatchError)
+  await expect(fn()).rejects.toThrow(SengiInvalidMergePatchError)
   await expect(fn()).rejects.toThrow(/pinCode/)
 })
 
 test('Accept a patch to an unrecognised field although it has no effect.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -259,10 +259,10 @@ test('Accept a patch to an unrecognised field although it has no effect.', async
 })
 
 test('Reject a patch with a field value that is invalid.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
   const fn = () => {
-    return jsonotron.patchDocument({
+    return sengi.patchDocument({
       ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -277,10 +277,10 @@ test('Reject a patch with a field value that is invalid.', async () => {
 })
 
 test('Reject a patch that would change a system field.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
   const fn = () => {
-    return jsonotron.patchDocument({
+    return sengi.patchDocument({
       ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -291,15 +291,15 @@ test('Reject a patch that would change a system field.', async () => {
     })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronInvalidMergePatchError)
+  await expect(fn()).rejects.toThrow(SengiInvalidMergePatchError)
   await expect(fn()).rejects.toThrow(/id/)
 })
 
 test('Reject a patch that would leave the document in an invalid state.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
   const fn = () => {
-    return jsonotron.patchDocument({
+    return sengi.patchDocument({
       ...defaultRequestProps,
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
@@ -310,14 +310,14 @@ test('Reject a patch that would leave the document in an invalid state.', async 
     })
   }
 
-  await expect(fn()).rejects.toThrow(JsonotronDocumentCustomValidationError)
+  await expect(fn()).rejects.toThrow(SengiDocumentCustomValidationError)
   await expect(fn()).rejects.toThrow(/No castle dwellers allowed/)
 })
 
 test('Fail to patch a document if permissions insufficient.', async () => {
-  const jsonotron = createJsonotronForTest()
+  const sengi = createSengiForTest()
 
-  await expect(jsonotron.patchDocument({
+  await expect(sengi.patchDocument({
     ...defaultRequestProps,
     roleNames: ['none'],
     docTypeName: 'person',
@@ -326,5 +326,5 @@ test('Fail to patch a document if permissions insufficient.', async () => {
     mergePatch: {
       shortName: 'Maisory'
     }
-  })).rejects.toThrow(JsonotronInsufficientPermissionsError)
+  })).rejects.toThrow(SengiInsufficientPermissionsError)
 })

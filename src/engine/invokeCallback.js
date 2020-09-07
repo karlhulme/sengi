@@ -1,10 +1,10 @@
 import check from 'check-types'
-import { JsonotronCallbackError } from '../jsonotron-errors'
+import { SengiCallbackError } from '../errors'
 
 /**
  * Invokes the given function with the given parameters.  If the
  * given function throws an error then it will be wrapped in a
- * JsonotronCallbackError with the original error inside.
+ * SengiCallbackError with the original error inside.
  * @param {String} callbackName The name of the callback.
  * @param {Function} func A function.
  * @param  {...any} params An array of parameters.
@@ -17,6 +17,6 @@ export const invokeCallback = async (callbackName, func, ...params) => {
   try {
     await Promise.resolve(func(...params))
   } catch (err) {
-    throw new JsonotronCallbackError(callbackName, err)
+    throw new SengiCallbackError(callbackName, err)
   }
 }
