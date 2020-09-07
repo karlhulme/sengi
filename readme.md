@@ -12,6 +12,8 @@ It validates and actions input requests, by issuing instructions to query the un
 
 It mutates documents according to the defined mutators and patch policy, performs validation checks, and upserts modified documents back to the datastore.
 
+It is powered by (Jsonotron)[https://github.com/karlhulme/jsonotron]
+
 > This package is part of the Sengi system.
 >
 > Sengi is...
@@ -25,12 +27,22 @@ It mutates documents according to the defined mutators and patch policy, perform
 ## Installation
 
 ```bash
-npm install sengi --save
+npm install sengi
 ```
 
 ## Usage
 
 > This package is used by Sengi service implementations, such as sengi-express.  Unless you are creating a new public interface for Jsonotron then you probably don't want to use this package directly!
+
+```javascript
+const { createSengi } = require('sengi')
+
+const docStore = { fetch: () => {}, queryAll: () => {}}
+
+const sengi = createSengi({ docStore, docTypes: [], roleTypes: [] })
+```
+
+## Constructor
 
 Instantiate a Sengi engine with a configuration object:
 
@@ -40,7 +52,9 @@ Instantiate a Sengi engine with a configuration object:
 
 * **roleTypes** - An array of Sengi role types.
 
-* **fieldTypes** - An array of Sengi field types that will be appended to the built-in field types.
+* **enumTypes** - An array of Sengi field types that will be appended to the core enum types provided by Jsonotron.
+
+* **schemaTypes** - An array of Sengi field types that will be appended to the core schema types provided Jsonotron.
 
 * **formatValidators** - An array of format validators that will be appended to the built-in format validators.
 
@@ -55,11 +69,3 @@ Instantiate a Sengi engine with a configuration object:
 * **onUpdateDoc** - A function that is invoked when a document is updated, passed an object with roleNames, reqProps, docType and doc properties.
 
 * **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
-
-```javascript
-const { createSengi } = require('sengi')
-
-const docStore = { fetch: () => {}, queryAll: () => {}}
-
-const sengi = createSengi({ docStore, docTypes: [], roleTypes: [] })
-```
