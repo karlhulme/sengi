@@ -1,6 +1,6 @@
 {
   "name": "sengi",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "type": "module",
   "description": "Provides a RESTful interface to a document-based database.",
   "main": "./index.js",
