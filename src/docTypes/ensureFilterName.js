@@ -12,7 +12,7 @@ export const ensureFilterName = (docType, filterName) => {
   check.assert.object(docType.filters)
   check.assert.string(filterName)
 
-  if (!docType.filters[filterName]) {
+  if (typeof docType.filters[filterName] !== 'object') {
     throw new SengiUnrecognisedFilterNameError(docType.name, filterName)
   }
 }

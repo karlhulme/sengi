@@ -12,7 +12,7 @@ export const ensureOperationName = (docType, operationName) => {
   check.assert.object(docType.operations)
   check.assert.string(operationName)
 
-  if (!docType.operations[operationName]) {
+  if (typeof docType.operations[operationName] !== 'object') {
     throw new SengiUnrecognisedOperationNameError(docType.name, operationName)
   }
 }
