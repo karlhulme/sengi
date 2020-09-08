@@ -69,3 +69,19 @@ Instantiate a Sengi engine with a configuration object:
 * **onUpdateDoc** - A function that is invoked when a document is updated, passed an object with roleNames, reqProps, docType and doc properties.
 
 * **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
+
+## Development
+
+Code base adheres to the rules chosen by https://standardjs.com/.  Code is formatted with 2 spaces.
+
+Tests are written using Jest with 100% coverage.
+
+```javascript
+npm test
+```
+
+## Continuous Deployment
+
+Any pushes or pull-requests on non-master branches will trigger the test runner.
+
+Any pushes to master will cause the library to be re-published.
