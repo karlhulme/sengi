@@ -1,14 +1,14 @@
 import check from 'check-types'
 import { SengiError } from './SengiError'
 
-export class SengiDocStoreValidationFailedError extends SengiError {
+export class SengiDocTypeValidationFailedError extends SengiError {
   constructor (message) {
     check.assert.string(message)
     super(message)
   }
 }
 
-export class SengiDocTypeCtorParamsValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypeCtorParamsValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, errors) {
     check.assert.string(docTypeName)
     check.assert.array.of.object(errors)
@@ -19,7 +19,7 @@ export class SengiDocTypeCtorParamsValidationFailedError extends SengiDocStoreVa
   }
 }
 
-export class SengiDocTypeFieldsValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypeFieldsValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, errors) {
     check.assert.string(docTypeName)
     check.assert.array.of.object(errors)
@@ -30,7 +30,7 @@ export class SengiDocTypeFieldsValidationFailedError extends SengiDocStoreValida
   }
 }
 
-export class SengiDocTypeFilterParamsValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypeFilterParamsValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, filterName, errors) {
     check.assert.string(docTypeName)
     check.assert.string(filterName)
@@ -43,7 +43,7 @@ export class SengiDocTypeFilterParamsValidationFailedError extends SengiDocStore
   }
 }
 
-export class SengiDocTypeInstanceValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypeInstanceValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, errors) {
     check.assert.string(docTypeName)
     check.assert.array.of.object(errors)
@@ -54,7 +54,7 @@ export class SengiDocTypeInstanceValidationFailedError extends SengiDocStoreVali
   }
 }
 
-export class SengiDocTypeOperationParamsValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypeOperationParamsValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, operationName, errors) {
     check.assert.string(docTypeName)
     check.assert.string(operationName)
@@ -67,7 +67,7 @@ export class SengiDocTypeOperationParamsValidationFailedError extends SengiDocSt
   }
 }
 
-export class SengiDocTypePatchValidationFailedError extends SengiDocStoreValidationFailedError {
+export class SengiDocTypePatchValidationFailedError extends SengiDocTypeValidationFailedError {
   constructor (docTypeName, errors) {
     check.assert.string(docTypeName)
     check.assert.array.of.object(errors)
