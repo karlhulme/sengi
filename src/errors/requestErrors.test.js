@@ -9,6 +9,7 @@ import {
   SengiInvalidMergePatchError,
   SengiRequiredVersionNotAvailableError,
   SengiUnrecognisedDocTypeNameError,
+  SengiUnrecognisedEnumTypeNameError,
   SengiUnrecognisedFieldNameError,
   SengiUnrecognisedFilterNameError,
   SengiUnrecognisedOperationNameError
@@ -77,6 +78,13 @@ test('The unrecognised doc type name error is constructed correctly.', () => {
   expect(err).toHaveProperty('name', 'SengiUnrecognisedDocTypeNameError')
   expect(err).toHaveProperty('docTypeName', 'my docType')
   expect(err).toHaveProperty('message', 'A document type named \'my docType\' is not defined.')
+})
+
+test('The unrecognised enum type name error is constructed correctly.', () => {
+  const err = new SengiUnrecognisedEnumTypeNameError('my enumType')
+  expect(err).toHaveProperty('name', 'SengiUnrecognisedEnumTypeNameError')
+  expect(err).toHaveProperty('enumTypeName', 'my enumType')
+  expect(err).toHaveProperty('message', 'An enum type named \'my enumType\' is not defined.')
 })
 
 test('The unrecognised field name error is constructed correctly.', () => {

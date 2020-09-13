@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { SengiInsufficientPermissionsError } from '../errors'
+import { SengiInsufficientPermissionsError, SengiUnrecognisedEnumTypeNameError } from '../errors'
 import { Sengi } from './Sengi'
 
 const createRequestWith = (propertyName, propertyValue) => {
@@ -81,6 +81,20 @@ test('A Sengi can be queried for document types.', () => {
 test('A Sengi can be queried for enum types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
   expect(sengi.getEnumTypeNames()).toEqual(expect.arrayContaining(['boolean', 'callingCode', 'monthOfYear']))
+})
+
+test('A Sengi can be queried for the values of a known enum type.', () => {
+  const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
+  expect(sengi.getEnumTypeValues('yesNo')).toEqual([
+    { value: 'yes', text: 'Yes', symbol: '', isDeprecated: false },
+    { value: 'no', text: 'No', symbol: '', isDeprecated: false }
+  ])
+})
+
+test('A Sengi will throw an error if asked for the values of an unknown enum type.', () => {
+  const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
+  expect(() => sengi.getEnumTypeValues('madeupEnumType')).toThrow(SengiUnrecognisedEnumTypeNameError)
+  expect(() => sengi.getEnumTypeValues('madeupEnumType')).toThrow(/madeupEnumType/)
 })
 
 test('A Sengi can be queried for field types.', () => {

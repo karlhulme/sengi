@@ -9,6 +9,7 @@ import { queryDocuments as queryDocumentsInternal } from './queryDocuments'
 import { queryDocumentsByIds as queryDocumentsByIdsInternal } from './queryDocumentsByIds'
 import { queryDocumentsByFilter as queryDocumentsByFilterInternal } from './queryDocumentsByFilter'
 import { replaceDocument as replaceDocumentInternal } from './replaceDocument'
+import { SengiUnrecognisedEnumTypeNameError } from '../errors'
 
 /**
  * Each key of this object is a validator for a parameter of an external request object.
@@ -210,6 +211,26 @@ export class Sengi {
    */
   getEnumTypeNames () {
     return this.sengiValidation.getPatchedEnumTypes().map(enumType => enumType.name)
+  }
+
+  /**
+   * Returns an array of {value, text, symbol, isDeprecated} objects
+   * for the named enum type.
+   * @param {String} enumTypeName The name of an enum type.
+   */
+  getEnumTypeValues (enumTypeName) {
+    const enumType = this.sengiValidation.getPatchedEnumTypes().find(enumType => enumType.name === enumTypeName)
+
+    if (enumType) {
+      return enumType.items.map(item => ({
+        value: item.value,
+        text: item.text,
+        symbol: item.symbol,
+        isDeprecated: item.isDeprecated
+      }))
+    } else {
+      throw new SengiUnrecognisedEnumTypeNameError(enumTypeName)
+    }
   }
 
   /**
