@@ -28,7 +28,7 @@
     "check-types": "^10.1.2",
     "fast-json-patch": "^2.1.0",
     "moment": "^2.24.0",
-    "sengi-validation": "^1.6.1"
+    "sengi-validation": "^1.7.0"
   },
   "jest": {
     "collectCoverage": true,

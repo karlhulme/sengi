@@ -9,7 +9,6 @@ import { queryDocuments as queryDocumentsInternal } from './queryDocuments'
 import { queryDocumentsByIds as queryDocumentsByIdsInternal } from './queryDocumentsByIds'
 import { queryDocumentsByFilter as queryDocumentsByFilterInternal } from './queryDocumentsByFilter'
 import { replaceDocument as replaceDocumentInternal } from './replaceDocument'
-import { SengiUnrecognisedEnumTypeNameError } from '../errors'
 
 /**
  * Each key of this object is a validator for a parameter of an external request object.
@@ -207,51 +206,32 @@ export class Sengi {
   \***********************************************/
 
   /**
-   * Returns an array of enum type names.
+   * Clones and returns an array of enum types.
    */
-  getEnumTypeNames () {
-    return this.sengiValidation.getPatchedEnumTypes().map(enumType => enumType.name)
+  getPatchedEnumTypes () {
+    return this.sengiValidation.getPatchedEnumTypes()
   }
 
   /**
-   * Returns an array of {value, text, symbol, isDeprecated} objects
-   * for the named enum type.
-   * @param {String} enumTypeName The name of an enum type.
+   * Clones and returns an array of schema types.
    */
-  getEnumTypeValues (enumTypeName) {
-    const enumType = this.sengiValidation.getPatchedEnumTypes().find(enumType => enumType.name === enumTypeName)
-
-    if (enumType) {
-      return enumType.items.map(item => ({
-        value: item.value,
-        text: item.text,
-        symbol: item.symbol,
-        isDeprecated: item.isDeprecated
-      }))
-    } else {
-      throw new SengiUnrecognisedEnumTypeNameError(enumTypeName)
-    }
+  getPatchedSchemaType () {
+    return this.sengiValidation.getPatchedSchemaTypes()
   }
 
   /**
-   * Returns an array of schema type names.
+   * Clones and returns an array of role types.
    */
-  getSchemaTypeNames () {
-    return this.sengiValidation.getPatchedSchemaTypes().map(schemaType => schemaType.name)
+  getPatchedRoleTypes () {
+    return this.sengiValidation.getPatchedRoleTypes()
   }
 
   /**
-   * Returns an array of role type names.
+   * Clones and returns an array of document types.
+   * After the cloning process, the functions are still intact.
    */
-  getRoleTypeNames () {
-    return this.sengiValidation.getPatchedRoleTypes().map(roleType => roleType.name)
-  }
-
-  /**
-   * Returns an array of document type names.
-   */
-  getDocTypeNames () {
-    return this.sengiValidation.getPatchedDocTypes().map(docType => docType.name)
+  getPatchedDocTypes () {
+    return this.sengiValidation.getPatchedDocTypes()
   }
 
   /***********************************************

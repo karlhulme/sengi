@@ -1,5 +1,5 @@
 /* eslint-env jest */
-import { SengiInsufficientPermissionsError, SengiUnrecognisedEnumTypeNameError } from '../errors'
+import { SengiInsufficientPermissionsError } from '../errors'
 import { Sengi } from './Sengi'
 
 const createRequestWith = (propertyName, propertyValue) => {
@@ -75,36 +75,22 @@ test('A Sengi can be created given valid inputs.', () => {
 
 test('A Sengi can be queried for document types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: createCandidateDocTypes(), roleTypes: [] })
-  expect(sengi.getDocTypeNames()).toEqual(['candidate'])
+  expect(sengi.getPatchedDocTypes().map(docType => docType.name)).toEqual(['candidate'])
 })
 
 test('A Sengi can be queried for enum types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
-  expect(sengi.getEnumTypeNames()).toEqual(expect.arrayContaining(['boolean', 'callingCode', 'monthOfYear']))
+  expect(sengi.getPatchedEnumTypes().map(enumType => enumType.name)).toEqual(expect.arrayContaining(['boolean', 'callingCode', 'monthOfYear']))
 })
 
-test('A Sengi can be queried for the values of a known enum type.', () => {
+test('A Sengi can be queried for schema types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
-  expect(sengi.getEnumTypeValues('yesNo')).toEqual([
-    { value: 'yes', text: 'Yes', symbol: '', isDeprecated: false },
-    { value: 'no', text: 'No', symbol: '', isDeprecated: false }
-  ])
+  expect(sengi.getPatchedSchemaType().map(schemaType => schemaType.name)).toEqual(expect.arrayContaining(['integer', 'money', 'paymentCardNo', 'uuid']))
 })
 
-test('A Sengi will throw an error if asked for the values of an unknown enum type.', () => {
-  const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
-  expect(() => sengi.getEnumTypeValues('madeupEnumType')).toThrow(SengiUnrecognisedEnumTypeNameError)
-  expect(() => sengi.getEnumTypeValues('madeupEnumType')).toThrow(/madeupEnumType/)
-})
-
-test('A Sengi can be queried for field types.', () => {
-  const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
-  expect(sengi.getSchemaTypeNames()).toEqual(expect.arrayContaining(['integer', 'money', 'paymentCardNo', 'uuid']))
-})
-
-test('A Sengi can be queried for field types.', () => {
+test('A Sengi can be queried for role types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: createCandidateRoleTypes() })
-  expect(sengi.getRoleTypeNames()).toEqual(['admin'])
+  expect(sengi.getPatchedRoleTypes().map(roleType => roleType.name)).toEqual(['admin'])
 })
 
 test('A Sengi cannot be created with invalid inputs or config.', () => {

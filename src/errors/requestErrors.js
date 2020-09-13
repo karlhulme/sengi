@@ -77,14 +77,6 @@ export class SengiUnrecognisedDocTypeNameError extends SengiRequestError {
   }
 }
 
-export class SengiUnrecognisedEnumTypeNameError extends SengiRequestError {
-  constructor (enumTypeName) {
-    check.assert.string(enumTypeName)
-    super(`An enum type named '${enumTypeName}' is not defined.`)
-    this.enumTypeName = enumTypeName
-  }
-}
-
 export class SengiUnrecognisedFieldNameError extends SengiRequestError {
   constructor (docTypeName, fieldName) {
     check.assert.string(docTypeName)
