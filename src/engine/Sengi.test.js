@@ -85,7 +85,7 @@ test('A Sengi can be queried for enum types.', () => {
 
 test('A Sengi can be queried for schema types.', () => {
   const sengi = new Sengi({ docStore: {}, docTypes: [], roleTypes: [] })
-  expect(sengi.getPatchedSchemaType().map(schemaType => schemaType.name)).toEqual(expect.arrayContaining(['integer', 'money', 'paymentCardNo', 'uuid']))
+  expect(sengi.getPatchedSchemaTypes().map(schemaType => schemaType.name)).toEqual(expect.arrayContaining(['integer', 'money', 'paymentCardNo', 'uuid']))
 })
 
 test('A Sengi can be queried for role types.', () => {
