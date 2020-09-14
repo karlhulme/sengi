@@ -215,7 +215,7 @@ export class Sengi {
   /**
    * Clones and returns an array of schema types.
    */
-  getPatchedSchemaType () {
+  getPatchedSchemaTypes () {
     return this.sengiValidation.getPatchedSchemaTypes()
   }
 
