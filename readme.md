@@ -70,6 +70,18 @@ Instantiate a Sengi engine with a configuration object:
 
 * **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
 
+## Guidance on Filters
+
+Filters should generally hit a specific index.  This means they should specify the fields and sort order defined on a secondary index on the collection.  Filter parameters could be used to control the ordering but only options covered by indexes should be offered.  This may not be necessary if the number of documents in a collection is small.
+
+## Guidance on Extracting Whole Collections
+
+If you need to extract all the documents from a non-trivial collection then it will be necessary to do it sections.
+
+To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documnts that were added during the extraction but of course that can be resolved the next time the synchronisation/extraction takes place.
+
+Skip and Limit are included as a convenience, but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12, 13.  So if you request records 11-20 you'll get duplicates.  If you specify a sort order in the underlying query then this problem clearly exists.  If you don't specify any sort order then they can't assume anything about the order of requests from one request to the next.  If records get deleted there is similar issue with missing records.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.
+
 ## Development
 
 Code base adheres to the rules chosen by https://standardjs.com/.  Code is formatted with 2 spaces.
