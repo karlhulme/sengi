@@ -1,7 +1,0 @@
-export * from './canCreate'
-export * from './canDelete'
-export * from './canOperate'
-export * from './canPatch'
-export * from './canQuery'
-export * from './canReplace'
-export * from './ensurePermission'

@@ -4,6 +4,8 @@
 [![npm](https://img.shields.io/npm/v/sengi.svg)](https://www.npmjs.com/package/sengi)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
+DOCUMENTATION IS A MESS SINCE MOVING TO A MONO-REPO - NEEDS RE-WRITING
+
 The core Sengi engine.
 
 It interprets the field type definitions, doc type definitions and role definitions.
@@ -44,31 +46,32 @@ const sengi = new Sengi({ docStore, docTypes: [], roleTypes: [] })
 
 ## Constructor
 
-Instantiate a Sengi engine with a configuration object:
+* **onPreQueryDocs** - A function that is invoked when a query is about to be executed.
 
-* **docStore** - An object that implements the Sengi document store interface.
+* **onSaveDoc** - A function that is invoked when a document has been saved to the database.
 
-* **docTypes** - An array of Sengi document types.
+* **onPreSaveDoc** - A function that is invoked when a document has been updated and is about to be saved to the database.
 
-* **roleTypes** - An array of Sengi role types.
+* **onDeleteDoc** - A function that is invoked when a document has been deleted.
 
-* **enumTypes** - An array of Sengi field types that will be appended to the core enum types provided by Jsonotron.
+## Database Guidance
 
-* **schemaTypes** - An array of Sengi field types that will be appended to the core schema types provided Jsonotron.
+Document databases claim to be infinitely scalable but in practice documents will be divided up into physical sets.  Where possible, we want to query a single physical set as this will yield better performance than querying multiple physical sets.
 
-* **formatValidators** - An array of format validators that will be appended to the built-in format validators.
+To deal with this, we divide documents into 2 types:
 
-* **dateTimeFunc** - A function that returns a UTC date/time string in docDateTime format.
+* An **authoritative document** that contains the largely normalised data for an entity - it is always accessed by it's id.
+* A **warehouse document** that is indexed on multiple fields - it is used with filters.
 
-* **onPreSaveDoc** - A function that is invoked just before a document is saved.  The function is passed roleNames, reqProps, docType and doc properties. If the document is being updated (rather than created or replaced) then a mergePatch property will be also be passed to the function that describes the changes. Any change made to the doc property or the mergePatch properties will be reflected in the document that is sent to the document store to be persisted.
+The **authoritative documents** are stored in a collection that uses the id as the partition key.  This ensures a good spread of documents across any logical or physical partitions created by the database while allowing us to access them with only one piece of information.
 
-* **onQueryDocs** - A function that is invoked when a query is executed, passed an object with roleNames, reqProps, docType, fieldNames and retrievalFieldNames properties.
+Authoritative records must contain the ids of any documents that they link to.  This means a parent record will contain an array of child record ids.  It may be necessary to store some of the display fields on the child records in the parent too.
 
-* **onCreateDoc** - A function that is invoked when a document is created, passed an object with roleNames, reqProps, docType and doc properties.
+The **warehouse documents** are stored in a collection that use a domain-specific partition key.  This key should divide the data up into chunks, typically a few GB.  Geographic values like salesRegion or salesOffice often work well.  We're trying to avoid hot partitions and achieve an even spread of data.  Most challenging of all, the partition key needs to be something that is passed with every (or at least most) queries.
 
-* **onUpdateDoc** - A function that is invoked when a document is updated, passed an object with roleNames, reqProps, docType and doc properties.
+If you have a dataset for which no partition key makes sense, then you can store all the records in the same physical partition.  For example use a partition key of docType, which will be the same for every record.  You will need to monitor this dataset to ensure it doesn't exceed the limits of the database storage for a single partition.  Be conservative about the quantity of fields stored for each warehouse record to maximise the number of records that can be stored in this way.
 
-* **onDeleteDoc** - A function that is invoked when a document is deleted, passed an object with roleNames, reqProps, docType and id properties.
+To keep all the documents in sync you'll a mechanism that can write to multiple records in sequence in a fault-tolerant manner.  Crucially, if a second or third record needs to be updated but fails, you'll need a system that presents this as a problem to be fixed with the opportunity to resume/try-again.  [Piggle](https://github.com/karlhulme/piggle) is an appropriate light framework for this.
 
 ## Guidance on Filters
 
@@ -78,9 +81,9 @@ Filters should generally hit a specific index.  This means they should specify t
 
 If you need to extract all the documents from a non-trivial collection then it will be necessary to do it sections.
 
-To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documnts that were added during the extraction but of course that can be resolved the next time the synchronisation/extraction takes place.
+To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documnts that were added during the extraction (or holding documents removed during the extraction) but of course that can be resolved the next time the synchronisation takes place.
 
-Skip and Limit are included as a convenience, but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12, 13.  So if you request records 11-20 you'll get duplicates.  If you specify a sort order in the underlying query then this problem clearly exists.  If you don't specify any sort order then they can't assume anything about the order of requests from one request to the next.  If records get deleted there is similar issue with missing records.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.
+Skip and Limit are included as a convenience, but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12, 13.  So if you request records 11-20 you'll get duplicates.  Databases do not guarantee the order of documents, so omitting a search order will not help.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.  For this reason, some databases (e.g. AWS DynamoDO) don't provide any support for Offset. 
 
 ## Development
 
