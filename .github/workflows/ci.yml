@@ -36,6 +36,9 @@ jobs:
     - name: Test document stores
       run: |
         cd workspaces
+        cd sengi-docstore-mongodb
+        npm test
+        cd ..
         cd sengi-docstore-cosmosdb
         npm test
         cd ..
@@ -44,9 +47,6 @@ jobs:
         npm test
         cd ..
         cd sengi-docstore-mem
-        npm test
-        cd ..
-        npm sengi-docstore-mongodb
         npm test
         cd ..
       env:
