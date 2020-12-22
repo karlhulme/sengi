@@ -36,18 +36,33 @@ jobs:
     - name: Test document stores
       run: |
         cd workspaces
-        cd sengi-docstore-mongodb
-        npm test
-        cd ..
         cd sengi-docstore-cosmosdb
         npm test
+        npm run build
         cd ..
         cd sengi-docstore-dynamodb
         npm run setup
         npm test
+        npm run build
         cd ..
         cd sengi-docstore-mem
         npm test
+        npm run build
+        cd ..
+        cd sengi-docstore-mongodb
+        npm test
+        npm run build
+        cd ..
+    - name: Test engine and express
+      run: |
+        cd workspaces
+        cd sengi-engine
+        npm test
+        npm run build
+        cd ..
+        cd sengi-express
+        npm test
+        npm run build
         cd ..
       env:
         CI: true
