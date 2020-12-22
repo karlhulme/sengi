@@ -1,6 +1,5 @@
 {
   "name": "sengi-express",
-  "version": "0.0.1",
   "type": "module",
   "description": "An express interface to the Sengi engine.",
   "main": "./lib/index.js",

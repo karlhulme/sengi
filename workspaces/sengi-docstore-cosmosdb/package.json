@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-cosmosdb",
-  "version": "0.0.1",
   "type": "module",
   "description": "An Azure CosmosDB document store for Sengi.",
   "main": "./lib/index.js",

@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-mongodb",
-  "version": "0.0.1",
   "type": "module",
   "description": "A document store for Sengi based on Mongo DB.",
   "main": "./lib/index.js",

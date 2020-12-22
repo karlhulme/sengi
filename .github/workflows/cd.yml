@@ -90,72 +90,79 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Clone repo
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         uses: actions/checkout@v1
         with:
           ref: v${{ steps.prepare.outputs.releaseVersion }}
       - name: Setup Node.js
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         uses: actions/setup-node@v1
         with:
           node-version: 15
           registry-url: https://registry.npmjs.org/
       - name: Install deps
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: npm ci
       - name: Publish interfaces
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-interfaces
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (cosmos)
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-docstore-cosmosdb
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (dynamodb)
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-docstore-dynamodb
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (in-memory)
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-docstore-mem
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (mongo)
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-docstore-mongodb
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish engine
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-engine
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish express wrapper
-        if: steps.prepare.outputs.canRelease == 'yes'
+        if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-express
+          npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          # npm publish
+          npm publish --dry-run
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}

@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-dynamodb",
-  "version": "0.0.1",
   "type": "module",
   "description": "A document store for Sengi based on AWS Dynamo DB.",
   "main": "./lib/index.js",

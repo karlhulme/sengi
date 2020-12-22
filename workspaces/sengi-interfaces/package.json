@@ -1,6 +1,5 @@
 {
   "name": "sengi-interfaces",
-  "version": "0.0.1",
   "type": "module",
   "description": "The interfaces defined by the Sengi system.",
   "main": "./lib/index.js",
@@ -25,6 +24,5 @@
     "eslint": "^7.12.1",
     "typescript": "^4.0.5"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

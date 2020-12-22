@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-mem",
-  "version": "0.0.1",
   "type": "module",
   "description": "An in-memory document store for Sengi.",
   "main": "./lib/index.js",
