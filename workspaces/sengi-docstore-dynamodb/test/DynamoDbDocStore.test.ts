@@ -4,14 +4,14 @@ import { Doc, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sen
 import { DynamoDbDocStore } from '../src'
 
 const DYNAMO_URL = 'http://localhost:8000'
-const REGION = 'us-east-1'
+const TEST_DYNAMODB_REGION = 'us-east-1'
 const API_VERSION = '2012-08-10'
 const TABLE_NAME = 'sengi.testing.trees'
 
 function createDynamoDbDocStore (): DynamoDbDocStore {
   return new DynamoDbDocStore({
     dynamoUrl: DYNAMO_URL,
-    region: REGION,
+    region: TEST_DYNAMODB_REGION,
     generateDocVersionFunc: () => 'xxxx',
     getTableNameFunc: () => TABLE_NAME
   })
@@ -20,9 +20,15 @@ function createDynamoDbDocStore (): DynamoDbDocStore {
 async function initDb (): Promise<void> {
   const MAX_ITEMS_TO_DELETE = 10
 
+  AWS.config.update({
+    region: TEST_DYNAMODB_REGION,
+    accessKeyId: 'xxxx',
+    secretAccessKey: 'xxxx'
+  })
+
   const dynamoClient = new AWS.DynamoDB.DocumentClient({
     endpoint: DYNAMO_URL,
-    region: REGION,
+    region: TEST_DYNAMODB_REGION,
     apiVersion: API_VERSION
   })
 
@@ -54,7 +60,7 @@ async function initDb (): Promise<void> {
 async function readTable (): Promise<Doc[]> {
   const dynamoClient = new AWS.DynamoDB.DocumentClient({
     endpoint: DYNAMO_URL,
-    region: REGION,
+    region: TEST_DYNAMODB_REGION,
     apiVersion: API_VERSION
   })
 

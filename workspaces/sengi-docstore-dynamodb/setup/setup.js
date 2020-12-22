@@ -2,7 +2,6 @@ import AWS from 'aws-sdk'
 
 const TEST_DYNAMODB_URL = 'http://localhost:8000'
 const TEST_DYNAMODB_REGION = 'us-east-1'
-
 const TABLE_NAME = 'sengi.testing.trees'
 
 /**
@@ -27,6 +26,12 @@ async function doesTableExist (dynamoClient, tableName) {
  * Prepares the local database for running the tests.
  */
 async function setup () {
+  AWS.config.update({
+    region: TEST_DYNAMODB_REGION,
+    accessKeyId: 'xxxx',
+    secretAccessKey: 'xxxx'
+  })
+
   const dynamoClient = new AWS.DynamoDB({
     apiVersion: '2012-08-10',
     endpoint: TEST_DYNAMODB_URL,
