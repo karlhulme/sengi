@@ -1,0 +1,53 @@
+{
+  "name": "sengi-express",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "An express interface to the Sengi engine.",
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
+  "files": [
+    "lib",
+    "types"
+  ],
+  "scripts": {
+    "test": "jest && eslint '*/**/*.{js,ts}'",
+    "build": "rm -rf types && rm -rf lib && tsc --target es5 --downlevelIteration true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/karlhulme/sengi.git",
+    "directory": "workspaces/sengi-express"
+  },
+  "author": "Karl Hulme <karlhulme@hotmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "body-parser": "1.19.0",
+    "eslint": "^7.12.1",
+    "express": "^4.17.1",
+    "jest": "^26.4.2",
+    "supertest": "6.0.1",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.9",
+    "@types/supertest": "2.0.4",
+    "@types/uuid": "3.4.3",
+    "uuid": "8.3.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 0
+      }
+    },
+    "testEnvironment": "node"
+  }
+}
