@@ -1,12 +1,20 @@
 # Sengi
 
 ![](https://github.com/karlhulme/sengi/workflows/CD/badge.svg)
-[![npm](https://img.shields.io/npm/v/sengi.svg)](https://www.npmjs.com/package/sengi)
+[![npm](https://img.shields.io/npm/v/sengi-engine.svg)](https://www.npmjs.com/package/sengi-engine)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 DOCUMENTATION IS A MESS SINCE MOVING TO A MONO-REPO - NEEDS RE-WRITING
 
-The core Sengi engine.
+Components:
+
+* Sengi Engine for processing requests
+* Sengi Express provides an HTTP/RESTful layer
+* Sengi Interfaces defines the shared types
+* Document store wrapper for Cosmos DB (Microsoft Azure)
+* Document store wrapper for Dynamo DB (Amazon AWS)
+* Document store wrapper for Mongo DB (Mongo)
+* In-memory document store
 
 It interprets the field type definitions, doc type definitions and role definitions.
 

@@ -109,7 +109,7 @@ jobs:
           cd workspaces/sengi-interfaces
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (cosmos)
@@ -118,7 +118,7 @@ jobs:
           cd workspaces/sengi-docstore-cosmosdb
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (dynamodb)
@@ -127,7 +127,7 @@ jobs:
           cd workspaces/sengi-docstore-dynamodb
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (in-memory)
@@ -136,7 +136,7 @@ jobs:
           cd workspaces/sengi-docstore-mem
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish document stores (mongo)
@@ -145,7 +145,7 @@ jobs:
           cd workspaces/sengi-docstore-mongodb
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish engine
@@ -154,7 +154,7 @@ jobs:
           cd workspaces/sengi-engine
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
       - name: Publish express wrapper
@@ -163,6 +163,6 @@ jobs:
           cd workspaces/sengi-express
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
-          npm publish --dry-run
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
