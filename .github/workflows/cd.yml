@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+      max-parallel: 1
+    steps:
+    - name: Clone repo
+      uses: actions/checkout@v1
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Setup Mongo database
+      run: |
+        docker run -d --name test-mongo-with-sengi -p 127.0.0.1:27017:27017 \
+          -e MONGO_INITDB_ROOT_USERNAME=sengi \
+          -e MONGO_INITDB_ROOT_PASSWORD=sengi \
+          mongo:4.2.9
+    - name: Setup Dynamo database
+      run: docker run -d -p 8000:8000 amazon/dynamodb-local:1.13.4
+    - name: Install deps
+      run: npm ci
+    - name: Build interfaces library
+      run: |
+        cd workspaces/sengi-interfaces
+        npm run build
+    - name: Test document stores (cosmos)
+      run: |
+        cd workspaces/sengi-docstore-cosmosdb
+        npm test
+        npm run build
+      env:
+        SENGI_COSMOS_URL: ${{ secrets.SENGI_COSMOS_URL }}
+        SENGI_COSMOS_KEY: ${{ secrets.SENGI_COSMOS_KEY }}
+    - name: Test document stores (dynamodb)
+      run: |
+        cd workspaces/sengi-docstore-dynamodb
+        npm run setup
+        npm test
+        npm run build
+    - name: Test document stores (in-memory)
+      run: |
+        cd workspaces/sengi-docstore-mem
+        npm test
+        npm run build
+    - name: Test document stores (mongo)
+      run: |
+        cd workspaces/sengi-docstore-mongodb
+        npm test
+        npm run build
+    - name: Test engine
+      run: |
+        cd workspaces/sengi-engine
+        npm test
+        npm run build
+    - name: Test express wrapper
+      run: |
+        cd workspaces/sengi-express
+        npm test
+        npm run build
+
+  release:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Prepare Release
+        id: prepare
+        uses: karlhulme/github-action-prepare-release@master
+        with:
+          branchName: master
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Create GitHub Release
+        if: steps.prepare.outputs.canRelease == 'yes'
+        id: release
+        uses: karlhulme/github-action-create-release@master
+        with:
+          branchName: master
+          releaseVersion: ${{ steps.prepare.outputs.releaseVersion }}
+          releaseNotes: ${{ steps.prepare.outputs.releaseNotes }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Clone repo
+        if: steps.prepare.outputs.canRelease == 'yes'
+        uses: actions/checkout@v1
+        with:
+          ref: v${{ steps.prepare.outputs.releaseVersion }}
+      - name: Setup Node.js
+        if: steps.prepare.outputs.canRelease == 'yes'
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+          registry-url: https://registry.npmjs.org/
+      - name: Install deps
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: npm ci
+      - name: Publish interfaces
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-interfaces
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish document stores (cosmos)
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-docstore-cosmosdb
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish document stores (dynamodb)
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-docstore-dynamodb
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish document stores (in-memory)
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-docstore-mem
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish document stores (mongo)
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-docstore-mongodb
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish engine
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-engine
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Publish express wrapper
+        if: steps.prepare.outputs.canRelease == 'yes'
+        run: |
+          cd workspaces/sengi-express
+          npm run build
+          # npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
