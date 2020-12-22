@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         node-version: [15.x]
+      max-parallel: 1
     steps:
     - name: Clone repo
       uses: actions/checkout@v1
@@ -52,6 +53,7 @@ jobs:
         npm test
         npm run build
     - name: Test document stores (mongo)
+      run: |
         cd workspaces/sengi-docstore-mongodb
         npm test
         npm run build
