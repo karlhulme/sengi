@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    # branches-ignore:
+    #   - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+    steps:
+    - name: Clone repo
+      uses: actions/checkout@v1
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Setup Mongo database
+      run: |
+        docker run -d --name test-mongo-with-sengi -p 127.0.0.1:27017:27017 \
+          -e MONGO_INITDB_ROOT_USERNAME=sengi \
+          -e MONGO_INITDB_ROOT_PASSWORD=sengi \
+          mongo:4.2.9
+    - name: Setup Dynamo database
+      run: docker run -d -p 8000:8000 amazon/dynamodb-local:1.13.4
+    - name: Install deps
+      run: npm ci
+    - name: Build interfaces library
+      run: |
+        cd workspaces
+        cd sengi-interfaces
+        npm run build
+    - name: Test document stores
+      run: |
+        cd workspaces
+        cd sengi-docstore-cosmosdb
+        npm test
+        cd ..
+        cd sengi-docstore-dynamodb
+        npm run setup
+        npm test
+        cd ..
+        cd sengi-docstore-mem
+        npm test
+        cd ..
+        npm sengi-docstore-mongodb
+        npm test
+        cd ..
+      env:
+        CI: true
+        SENGI_COSMOS_URL: ${{ secrets.SENGI_COSMOS_URL }}
+        SENGI_COSMOS_KEY: ${{ secrets.SENGI_COSMOS_KEY }}
