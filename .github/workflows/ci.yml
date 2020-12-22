@@ -30,41 +30,38 @@ jobs:
       run: npm ci
     - name: Build interfaces library
       run: |
-        cd workspaces
-        cd sengi-interfaces
+        cd workspaces/sengi-interfaces
         npm run build
-    - name: Test document stores
+    - name: Test document stores (cosmos)
       run: |
-        cd workspaces
-        cd sengi-docstore-cosmosdb
+        cd workspaces/sengi-docstore-cosmosdb
         npm test
         npm run build
-        cd ..
-        cd sengi-docstore-dynamodb
+      env:
+        SENGI_COSMOS_URL: ${{ secrets.SENGI_COSMOS_URL }}
+        SENGI_COSMOS_KEY: ${{ secrets.SENGI_COSMOS_KEY }}
+    - name: Test document stores (dynamodb)
+      run: |
+        cd workspaces/sengi-docstore-dynamodb
         npm run setup
         npm test
         npm run build
-        cd ..
-        cd sengi-docstore-mem
-        npm test
-        npm run build
-        cd ..
-        cd sengi-docstore-mongodb
-        npm test
-        npm run build
-        cd ..
-    - name: Test engine and express
+    - name: Test document stores (in-memory)
       run: |
-        cd workspaces
-        cd sengi-engine
+        cd workspaces/sengi-docstore-mem
         npm test
         npm run build
-        cd ..
-        cd sengi-express
+    - name: Test document stores (mongo)
+        cd workspaces/sengi-docstore-mongodb
         npm test
         npm run build
-        cd ..
-      env:
-        CI: true
-        SENGI_COSMOS_URL: ${{ secrets.SENGI_COSMOS_URL }}
-        SENGI_COSMOS_KEY: ${{ secrets.SENGI_COSMOS_KEY }}
+    - name: Test engine
+      run: |
+        cd workspaces/sengi-engine
+        npm test
+        npm run build
+    - name: Test express wrapper
+      run: |
+        cd workspaces/sengi-express
+        npm test
+        npm run build
