@@ -1,6 +1,5 @@
 {
   "name": "sengi-interfaces",
-  "type": "module",
   "description": "The interfaces defined by the Sengi system.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",

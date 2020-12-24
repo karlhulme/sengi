@@ -56,7 +56,7 @@ interface DynamoDbFilterExpression {
 }
 
 /**
- * An document store based on AWS DynamoDB.
+ * A document store based on AWS DynamoDB.
  */
 export class DynamoDbDocStore implements DocStore {
   generateDocVersionFunc: () => string

@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-dynamodb",
-  "type": "module",
   "description": "A document store for Sengi based on AWS Dynamo DB.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -33,6 +32,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testMatch": ["**/*.test.ts"],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {

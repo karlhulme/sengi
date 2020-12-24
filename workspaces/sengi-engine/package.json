@@ -1,6 +1,5 @@
 {
   "name": "sengi-engine",
-  "type": "module",
   "description": "The Sengi engine.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -32,6 +31,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testMatch": ["**/*.test.ts"],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {

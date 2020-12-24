@@ -1,6 +1,5 @@
 {
   "name": "sengi-docstore-cosmosdb",
-  "type": "module",
   "description": "An Azure CosmosDB document store for Sengi.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -34,6 +33,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testMatch": ["**/*.test.ts"],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {

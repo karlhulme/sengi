@@ -1,6 +1,5 @@
 {
   "name": "sengi-express",
-  "type": "module",
   "description": "An express interface to the Sengi engine.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -38,6 +37,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testMatch": ["**/*.test.ts"],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {

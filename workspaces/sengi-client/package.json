@@ -1,6 +1,5 @@
 {
   "name": "sengi-client",
-  "type": "module",
   "description": "A library that simplifies calling a Sengi-based service.",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -33,6 +32,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testMatch": ["**/*.test.ts"],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {
