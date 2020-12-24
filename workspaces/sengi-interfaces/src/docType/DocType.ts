@@ -1,5 +1,4 @@
 import { DocTypeField } from './DocTypeField'
-import { DocTypeExample } from './DocTypeExample'
 import { DocTypeCalculatedField } from './DocTypeCalculatedField'
 import { DocTypeFilter } from './DocTypeFilter'
 import { DocTypeAggregate } from './DocTypeAggregate'
@@ -7,7 +6,7 @@ import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeOperation } from './DocTypeOperation'
 import { DocTypePolicy } from './DocTypePolicy'
 import { DocStoreOptions } from '../docStore'
-import { Doc, DocFragmentExample } from '../doc'
+import { Doc, DocExample, DocPatchExample } from '../doc'
 
 export interface DocType {
   name: string
@@ -31,8 +30,8 @@ export interface DocType {
    */
   validate?: (doc: Doc) => void
 
-  examples: DocTypeExample[]
-  patchExamples: DocFragmentExample[]
+  examples: DocExample[]
+  patchExamples: DocPatchExample[]
 
   calculatedFields: Record<string, DocTypeCalculatedField>
   filters: Record<string, DocTypeFilter>

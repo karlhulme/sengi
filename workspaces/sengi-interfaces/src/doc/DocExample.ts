@@ -1,6 +1,6 @@
 import { Doc } from '../doc'
 
-export interface DocTypeExample {
+export interface DocExample {
   value: Doc
   documentation: string
 }
