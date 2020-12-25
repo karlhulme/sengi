@@ -75,4 +75,4 @@ You can remove the database by running `npm run teardown`.
 
 Any pushes or pull-requests on non-master branches will trigger the test runner.
 
-Any pushes to master will cause the library to be re-published.
+Any pushes to master will cause the family of libraries to be re-published.
