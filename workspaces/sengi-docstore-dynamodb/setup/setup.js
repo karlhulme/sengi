@@ -1,4 +1,5 @@
-import AWS from 'aws-sdk'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const AWS = require('aws-sdk')
 
 const TEST_DYNAMODB_URL = 'http://localhost:8000'
 const TEST_DYNAMODB_REGION = 'us-east-1'
