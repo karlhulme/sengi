@@ -44,6 +44,19 @@ Filters are passed unchanged to the SQL execution engine.  For this reason, filt
 
 Assume the table is qualified with the letter `d`.  For example, `d.myField = 'VALUE' and d.myOtherField > 25`.
 
+## Setup
+
+To run the tests you will need an Azure Account with a Cosmos instance running.  If a linux-compatible docker image for Cosmos emerges, this will no longer be necessary.
+
+In the mean-time, you will need to configure the following environent variables:
+
+* SENGI_COSMOS_URL: `https://<your-account-name>.documents.azure.com`
+* SENGI_COSMOS_KEY: `abcdabcdabcdabcdabcdabcd==`
+
+You will then need to run `npm run setup` in order to create database.  This needs to be left running (and available) so that CI/CD tests can run.
+
+You can remove the database by running `npm run teardown`.
+
 ## Development
 
 Test run requires the --detectOpenHandles flag because occassionally a handle is held open - no idea why.
@@ -57,19 +70,6 @@ npm test
 ```
 
 Note that the tests run sequentially (`jest --runInBand`) so that only one test can access the database at a time. 
-
-## Setup
-
-To run the tests you will need an Azure Account with a Cosmos instance running.  If a linux-compatible docker image for Cosmos emerges, this will no longer be necessary.
-
-In the mean-time, you will need to configure the following environent variables:
-
-* SENGI_COSMOS_URL: `https://<your-account-name>.documents.azure.com`
-* SENGI_COSMOS_KEY: `abcdabcdabcdabcdabcdabcd==`
-
-You will then need to run `npm run setup` in order to create database.  This needs to be left running (and available) so that CI/CD tests can run.
-
-You can remove the database by running `npm run teardown`.
 
 ## Continuous Deployment
 

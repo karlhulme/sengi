@@ -35,7 +35,7 @@ interface DynamoDbDocStoreConstructorProps {
 /**
  * Represents a filter that can be processed by AWS DynamoDb. 
  */
-interface DynamoDbFilterExpression {
+export interface DynamoDbFilterExpression {
   /**
    * The name of the index to filter against.
    */
