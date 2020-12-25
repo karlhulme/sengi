@@ -280,7 +280,7 @@ export class Sengi {
   }
 
   /**
-   * Operates an existing document.
+   * Operates on an existing document.
    * @param props A property bag.
    */
   async operateOnDocument (props: OperateOnDocumentProps): Promise<OperateOnDocumentResult> {
@@ -434,7 +434,7 @@ export class Sengi {
   }
 
   /**
-   * Queries for a all documents of a specified doc type.
+   * Queries for all documents of a specified doc type.
    * @param props A property bag.
    */
   async queryDocuments (props: QueryDocumentsProps): Promise<QueryDocumentsResult> {
