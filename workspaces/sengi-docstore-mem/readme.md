@@ -1,5 +1,7 @@
 # Sengi DocStore Mem
 
+> This package is part of the [Sengi](https://github.com/karlhulme/sengi) family.
+
 ![](https://github.com/karlhulme/sengi/workflows/CD/badge.svg)
 [![npm](https://img.shields.io/npm/v/sengi-docstore-mem.svg)](https://www.npmjs.com/package/sengi-docstore-mem)
 
