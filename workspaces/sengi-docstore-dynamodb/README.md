@@ -58,7 +58,7 @@ const filterExpression = {
 
 ## Indexes
 
-This provider requires the key schema of each table to be based on the string field named `id`.
+This provider requires each table to be partitioned on a string field named `id`.  To do this, specify the key schema as follows:
 
 ```json
 {
@@ -67,10 +67,11 @@ This provider requires the key schema of each table to be based on the string fi
 }
 ```
 
-DynamoDB can create secondary indexes but these are not quite analogous to secondary indexes on Mongo, Cosmos or RDBMS systems.  In DynamoDB a secondary index is essentially a copy of the original table with (a) a subset of the columns, and (b) a different partition and sort key.  This presents a few limitations for Sengi:
+DynamoDB can create secondary indexes but these are not quite analogous to secondary indexes on Mongo, Cosmos or RDBMS systems.  In DynamoDB a secondary index is essentially a copy of (or a subset of) the original table with a different partition (hash) and sort key.
 
-* You can only order on a single sort key.  A secondary sort will need to be done in memory by the client.
-* You must filter based on the hash key before the sort key is applied.  If there is no sensible hash key to use, perhaps because you want to filter across the whole dataset, then you can use the `docType` field as a hash value.  In this scenario you'll only have 1 partition so it's important not to project too many fields into it.
+For authoratitive child documents, you will need a mechanism for finding all the child records that are *owned* by a given parent.  You do this by filtering the child table based on the parent table id.  To enable this, create a global secondary index specifying the parent record's id as the hash code.  This will allow you to create a `DocType` filter on the child table that targets the parent id.
+
+For warehousing documents, you can specify any field to act as a partition key.  If there is no sensible field to use, perhaps because you want to filter across the whole dataset, then you can use the `docType` field as the partition key.  In this scenario you'll only have 1 partition so it's important not to project too many fields into it.
 
 
 ## Limitations
