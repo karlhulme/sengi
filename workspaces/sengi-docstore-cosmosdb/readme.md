@@ -1,10 +1,9 @@
-# Sengi-CosmosDB
+# Sengi DocStore CosmosDB
 
-![](https://github.com/karlhulme/sengi-docstore-cosmosdb/workflows/CD/badge.svg)
+![](https://github.com/karlhulme/sengi/workflows/CD/badge.svg)
 [![npm](https://img.shields.io/npm/v/sengi-docstore-cosmosdb.svg)](https://www.npmjs.com/package/sengi-docstore-cosmosdb)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-A wrapper for Azure Cosmos DB that implements the Sengi document store interface.
+A wrapper for Microsoft's Azure Cosmos DB that implements the Sengi document store interface.
 
 ## Installation
 
@@ -14,19 +13,19 @@ npm install sengi-docstore-cosmosdb
 
 ## Usage
 
-The CosmosDbDocStore implements the DocStore interface defined in sengi-interfaces.
+The `CosmosDbDocStore` implements the DocStore interface defined in sengi-interfaces.
 
-To instantiate a CosmosDbDocStore you have to provide the following parameters:
+To instantiate a `CosmosDbDocStore` you have to provide the following parameters:
 
 * **cosmosUrl** - A url that identifies your Cosmos DB instance.
 
 * **cosmosKey** - A master key with read and write access to your Cosmos DB instance.
 
-* **getDatabaseName** - A function `(docTypeName: string, docTypePluralName: string, options: DocStoreOptions)` that returns the name of the database to connect to.
+* **getDatabaseNameFunc** - A function `(docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string` that returns the name of the database to connect to.
 
-* **getContainerName** - A function `(databaseName: string, docTypeName: string, docTypePluralName: string, options: DocStoreOptions)` that returns the name of the container to edit.
+* **getContainerNameFunc** - A function `(databaseName: string, docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string` that returns the name of the container to edit.
 
-* **getPartitionKey** - A function `(databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions)` that returns the value of a document's partition key.  Typically this will return the id or something from the options
+* **getPartitionKeyFunc** - A function `(databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions) => string|null` that returns the value of a document's partition key.  Typically this will return the id or something from the options
 object that has been populated by the Sengi interface.  For example, the Sengi-Express library will place the additional path components (for example the tenant ID) into the options for use here.  If the partition key is not known, just return null and the library will look it up.
 
 ```javascript
@@ -53,17 +52,24 @@ Unable to find any async functions that we're not awaiting on the result, and al
 
 Tests are written using Jest with 100% coverage.
 
-To run the tests you will need an Azure Cosmos Account with the following environments variables configured
-* SENGI_COSMOS_URL: `https://<your-account-name>.documents.azure.com`
-* SENGI_COSMOS_KEY: `abcdabcdabcdabcdabcdabcd==`
-
 ```bash
-npm run setup
 npm test
-npm run teardown
 ```
 
 Note that the tests run sequentially (`jest --runInBand`) so that only one test can access the database at a time. 
+
+## Setup
+
+To run the tests you will need an Azure Account with a Cosmos instance running.  If a linux-compatible docker image for Cosmos emerges, this will no longer be necessary.
+
+In the mean-time, you will need to configure the following environent variables:
+
+* SENGI_COSMOS_URL: `https://<your-account-name>.documents.azure.com`
+* SENGI_COSMOS_KEY: `abcdabcdabcdabcdabcdabcd==`
+
+You will then need to run `npm run setup` in order to create database.  This needs to be left running (and available) so that CI/CD tests can run.
+
+You can remove the database by running `npm run teardown`.
 
 ## Continuous Deployment
 
