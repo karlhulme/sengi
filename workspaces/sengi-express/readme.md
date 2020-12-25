@@ -1,9 +1,11 @@
-# Sengi-Express
+# Sengi Express
 
+![](https://github.com/karlhulme/sengi/workflows/CD/badge.svg)
 [![npm](https://img.shields.io/npm/v/sengi-express.svg)](https://www.npmjs.com/package/sengi-express)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-An ExpressJS RESTful host for [Sengi](https://github.com/karlhulme/sengi).
+An ExpressJS RESTful host for a Sengi-based document service.
+
+This modules provides a `createSengiExpress` function that returns an Express Request handler that you can mount using `app.use`.
 
 ## Installation
 
@@ -14,101 +16,96 @@ npm install sengi-express
 ## Usage
 
 ```javascript
-import { createMemDocStore } from 'sengi-memdocstore'
+import { MemDocStore } from 'sengi-docstore-mem'
 import { createSengiExpress } from 'sengi-express'
+import { v4 } from 'uuid'
 
-const docTypes = []
-const roleTypes = []
+const docTypes = [] // import implementations of DocType interface
+const roleTypes = [] // import implementations of RoleType interface
+const jsonotronTypes = [] // load from YAML files
 
-const memDocStore = createMemDocStore(docs, uuid)
+const memDocStore = new MemDocStore({ docs, generateDocVersionFunc: v4 })
 const sengiExpress = createSengiExpress({
   docStore: memDocStore,
   docTypes,
-  roleTypes
+  roleTypes,
+  jsonotronTypes
 })
 
 const app = express()
 app.use(bodyParser.json())
-app.use('/sengi', sengiExpress)
+app.use('/', sengiExpress)
 ```
 
 ## Constructor
 
-To instantiate a sengi-express server you can use the following parameters:
+To instantiate a sengi-express server you pass the constructor parameters defined for a [sengi-engine](https://github.com/karlhulme/sengi/blob/master/workspaces/sengi-engine/readme.md#constructor) plus the following additional properties:
 
-* **docStore** - (Required) A document store implementation such as sengi-memdocstore, sengi-cosmosdb or sengi-mongodb.
+* **additionalComponentsCount** - The number of additional components to be expected between the /docs and /docTypeName component parts of the request url.  This can be used for capturing additional url parameters (e.g. tenant id).
 
-* **docTypes** - (Required) An array of document type definitions.
+* **getDocStoreOptions** - A function that returns an object that will be provided to the DocStore and included in DocStore callbacks.
 
-* **roleTypes** - (Required) An array of role type definitions.
+* **getRequestOptions** - A functino that returns an object that will be provided to the Sengi Engine and included in Sengi Engine callbacks.
 
-* **enumTypes** - An array of enum type definitions.
+* **getUuid** - A function that generates a unique identifier, used for ensuring uniqueness of operations and patches.  If not supplied then the uuid/v4 package is used by default.
 
-* **schemaTypes** - An array of schema type definitions.
+The `getDocStoreOptions` and `getRequestOptions` callbacks will be passed a `SengiExpressCallbackProps` object.  This contains the following properties:
 
-* **additionalComponentsCount** - The number of additional components to be expected between the /docs and /docTypeName component parts of the request url.
+* **headers** - An object where each key name is a header name and each value is the corresponding header value sent with a request.
 
-* **uuid** - A function that generates a unique identifier, used for ensuring uniqueness of operations and patches.  If not supplied then the uuid/v4 package is used by default.
+* **path** - The path of the request.
 
-* **logger** - A function that is passed an object with status, text, internalText, json and header properties that will be used to compose the response.  If not supplied, then responses with a status of 500 or higher will be logged to stdout.
+* **matchedResourceType** - The type of resource that was matched from the `RestResourceType` enum.
 
-* **handler** - A function that overrides the handler used to process the response.  This is used by the testing framework.
+* **method** - The method of the request, e.g. GET, POST, etc
 
-You can also specify functions that are used on each request.  This functions are:
-
-* **getRequestRoles** - A function that should return the roles held by the requesting user.
-
-* **getRequestUserIdentity** - A function that should return the user identity for the requesting user.
-
-* **getRequestProps** - A function that should return a property bag that is passed to the document store as the request properties.  This can be used for per-request custom processing that the document store understands.
-
-* **createDocStoreOptions** - A function should return an object that will be passed to the document store.  The response will be combined with the docStoreOptions for the matched document store.
-
-Each of these methods will be passed an object with the following properties:
-
-Property Name | Description
----|---
-path | The url requested.
-headers | A property bag of headers specified in the request.  One key per header.
-matchedPathType | A constant value that indicates the type of request that was made.
-urlParams | A property bag of parameters pulled from the url.  One key per url parameter.
+* **urlParams** - The parameters pulled from the url as a consequence of matching the resource type.  Possible keys are `adc`, `docTypePluralName`, `id` and `operationName`.
 
 
 ## Routes
 
 A SengiExpress mounted at the `/root` path would make a number of different routes accessible.
 
-To retrieve all documents in a collection:
+### To retrieve all documents in a collection:
 
-`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c`
+`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c`
 
-To retrieve a subset documents from a collection:
+*(This route all supports the offset and limit query parameters, although this is not supported by all doc stores)*
 
-`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
+### To retrieve a subset of documents from a collection using a filter:
 
-To create a new document, post constructor parameters to:
+`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
 
-`POST https://server.com/sengi/<docTypePluralName>`
+### To retrieve a subset of documents from a collection by specifying id's:
 
-To access a single document:
+`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c&ids=1234,5678`
 
-`GET https://server.com/sengi/<docTypePluralName>/<id>?fields=a,b,c`
+### To create a new document, post constructor parameters to:
 
-To update a document, send new field values:
+`POST https://server.com/sengi/docs/<docTypePluralName>`
 
-`PATCH https://server.com/sengi/<docTypePluralName>/<id>`
+### To access a single document:
 
-To excute an operation, send operation parameters to:
+`GET https://server.com/sengi/docs/<docTypePluralName>/<id>?fields=a,b,c`
 
-`POST https://server.com/sengi/<docTypePluralName>/<id>:<operationName>`
+### To update a document, send new field values:
 
-To delete a document:
+`PATCH https://server.com/sengi/docs/<docTypePluralName>/<id>`
+
+### To execute an operation, send operation parameters to:
+
+`POST https://server.com/sengi/docs/<docTypePluralName>/<id>:<operationName>`
+
+### To patch a document, send a merge patch object to:
+
+`PATCH https://server.com/sengi/docs/<docTypePluralName>/<id>`
+
+### To delete a document:
 
 `DELETE https://server.com/sengi/<docTypePluralName>/<id>`
 
-## Development
 
-Code base adheres to the rules chosen by [StandardJS](https://standardjs.com).  Code is formatted with 2 spaces.
+## Development
 
 Tests are written using Jest with 100% coverage.
 
@@ -116,10 +113,9 @@ Tests are written using Jest with 100% coverage.
 npm test
 ```
 
-At present the test framework `jest` does not fully support the package.json `exports` property.  This means it cannot load the `uuid` library via ESM properly.  For the moment I'm importing the required function using the CommonJS format in a separate .cjs file.
 
 ## Continuous Deployment
 
 Any pushes or pull-requests on non-master branches will trigger the test runner.
 
-Any pushes to master will cause the library to be re-published.
+Any pushes to master will cause the family of libraries to be re-published.
