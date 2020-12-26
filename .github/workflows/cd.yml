@@ -100,6 +100,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 15.x
+          registry-url: https://registry.npmjs.org/
       - name: Install deps
         if: steps.release.outputs.didRelease == 'yes'
         run: npm ci
