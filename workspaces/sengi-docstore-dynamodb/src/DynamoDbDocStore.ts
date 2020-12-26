@@ -87,6 +87,19 @@ export class DynamoDbDocStore implements DocStore {
   }
 
   /**
+   * Returns the given field names array, unless it is empty,
+   * in which case an array of ['id'] is returned.
+   * @param fieldNames An array of field names.
+   */
+  private safeFieldNames (fieldNames: string[]) {
+    if (fieldNames.length === 0) {
+      return ['id']
+    } else {
+      return fieldNames
+    }
+  }
+
+  /**
    * Constructs a new instance of the DynamoDb document store.
    * @param props The constructor properties.
    */
@@ -194,7 +207,7 @@ export class DynamoDbDocStore implements DocStore {
 
       const result = await this.dynamoClient.scan({
         TableName: tableName,
-        AttributesToGet: fieldNames,
+        AttributesToGet: this.safeFieldNames(fieldNames),
         ScanFilter: {
           docType: {
             ComparisonOperator: 'EQ',
@@ -239,7 +252,7 @@ export class DynamoDbDocStore implements DocStore {
       return { docs: this.createOutputDocs(result.Items || [], fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error procesing \'queryByFilter\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'queryByFilter\'.', err)
     }
   }
 
@@ -261,7 +274,7 @@ export class DynamoDbDocStore implements DocStore {
           [tableName]: {
             // de-duplicate ids array using a set
             Keys: Array.from(new Set(ids)).map(id => ({ id })),
-            AttributesToGet: fieldNames
+            AttributesToGet: this.safeFieldNames(fieldNames)
           }
         }
       }).promise()
@@ -270,7 +283,7 @@ export class DynamoDbDocStore implements DocStore {
       return { docs: (result.Responses || {})[tableName] }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error procesing \'queryByIds\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'queryByIds\'.', err)
     }
   }
 
@@ -319,7 +332,7 @@ export class DynamoDbDocStore implements DocStore {
       if (err.code === 'ConditionalCheckFailedException') {
         return { code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE }
       } else {
-        throw new UnexpectedDocStoreError('Dynamo database error procesing \'upsert\'.', err)
+        throw new UnexpectedDocStoreError('Dynamo database error processing \'upsert\'.', err)
       }
     }
   }

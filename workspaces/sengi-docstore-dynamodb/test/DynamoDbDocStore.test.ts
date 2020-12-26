@@ -183,6 +183,14 @@ test('Query documents using ids.', async () => {
   expect(result.docs.find(d => d.id === '03')).toEqual({ id: '03', name: 'pine' })
 })
 
+test('Query documents using ids and an empty field list.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  const result = await docStore.queryByIds('tree', 'trees', [], ['02', '03'] , {}, {})
+  expect(result.docs).toHaveLength(2)
+})
+
 test('Query documents using ids that appear multiple times.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
