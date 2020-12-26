@@ -123,7 +123,7 @@ export class SengiClient {
    * @param fieldNames An array of field names.
    */
   async getDocumentById (docTypePluralName: string, documentId: string, fieldNames: string[]): Promise<Doc> {
-    const url = `${this.url}docs/${docTypePluralName}/${documentId}?fields=${fieldNames.join(',')}`
+    const url = `${this.url}${docTypePluralName}/${documentId}?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -158,7 +158,7 @@ export class SengiClient {
    * @param doc A document with an id.
    */
   async saveNewDocument (docTypePluralName: string, doc: Doc): Promise<void> {
-    const url = `${this.url}docs/${docTypePluralName}`
+    const url = `${this.url}${docTypePluralName}`
 
     if (typeof doc.id !== 'string') {
       throw new Error('Document must have id.')
@@ -193,7 +193,7 @@ export class SengiClient {
    * @param params The parameters required by the operation.
    */
   async operateOnDocument (docTypePluralName: string, operationId: string, documentId: string, operationName: string, params: DocFragment): Promise<void> {
-    const url = `${this.url}docs/${docTypePluralName}/${documentId}:${operationName}`
+    const url = `${this.url}${docTypePluralName}/${documentId}:${operationName}`
 
     const result = await this.retryableFetch(url, {
       method: 'post',
