@@ -30,7 +30,7 @@ export const hobby: DocType = {
         minRules: { type: 'positiveInteger', isRequired: true, documentation: 'The minimum number of rules.' }
       },
       examples: [],
-      implementation: input => (d: Doc) => (d.rules as string[] || []).length > input.minRules
+      implementation: input => (d: Doc) => (d.rules as string[] || []).length >= input.minRules
     }
   },
   operations: {
