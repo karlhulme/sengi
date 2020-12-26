@@ -35,6 +35,6 @@ export async function queryAllDocumentsHandler (props: RequestHandlerProps): Pro
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err })
   }
 }

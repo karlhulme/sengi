@@ -38,6 +38,6 @@ export async function getDocumentHandler (props: RequestHandlerProps): Promise<v
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err })
   }
 }

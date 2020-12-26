@@ -33,6 +33,6 @@ export async function createDocumentHandler (props: RequestHandlerProps): Promis
       statusCode: 201
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err })
   }
 }

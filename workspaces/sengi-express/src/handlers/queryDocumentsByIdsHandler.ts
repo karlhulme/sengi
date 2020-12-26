@@ -33,6 +33,6 @@ export async function queryDocumentsByIdsHandler (props: RequestHandlerProps): P
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err })
   }
 }

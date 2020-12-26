@@ -1,4 +1,4 @@
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { HttpHeaderNames } from '../utils'
 import {
   SengiActionForbiddenByPolicyError,
@@ -90,7 +90,7 @@ function determineResponseTextFromError (err: ErrorWithErrorsProperty): string {
  * @param res An express response.
  * @param err An Error object.
  */
-export function applyErrorToHttpResponse (res: Response, props: ErrorForHttpResponseProps): void {
+export function applyErrorToHttpResponse (req: Request, res: Response, props: ErrorForHttpResponseProps): void {
   const statusCode = determineStatusFromError(props.err)
 
   res.status(statusCode)
@@ -100,6 +100,8 @@ export function applyErrorToHttpResponse (res: Response, props: ErrorForHttpResp
 
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'test') {
+    console.log(req.url)
+    console.log(req.body)
     console.log(props.err)
   }
 }

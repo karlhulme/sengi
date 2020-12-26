@@ -27,6 +27,6 @@ export async function deleteDocumentHandler (props: RequestHandlerProps): Promis
       statusCode: 204
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err })
   }
 }
