@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('204 - patch a document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ filmTitle: 'Die Hard 2' })
 
@@ -21,7 +21,7 @@ test('204 - patch a document', async () => {
 test('204 - patch a document with a required version', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .set('if-match', 'xyz')
     .send({ filmTitle: 'Die Hard 2' })
@@ -38,7 +38,7 @@ test('204 - patch a document with a required version', async () => {
 test('204 - patch a document with an explicit operation id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ filmTitle: 'Die Hard 2' })
@@ -55,7 +55,7 @@ test('204 - patch a document with an explicit operation id', async () => {
 test('204 - patch a document with a used (previously applied) operation id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .set('x-request-id', '0000d8e8-70b5-4968-8fc8-f9ef8b150000')
     .send({ filmTitle: 'Die Hard 2' })
@@ -72,7 +72,7 @@ test('204 - patch a document with a used (previously applied) operation id', asy
 test('400 - fail to patch a document with invalid fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ filmTitle: 123 })
 
@@ -84,7 +84,7 @@ test('400 - fail to patch a document with invalid fields', async () => {
 test('400 - fail to patch a unpatchable fields in a document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ durationInMinutes: 95 })
 
@@ -97,7 +97,7 @@ test('400 - fail to patch a unpatchable fields in a document', async () => {
 test('404 - fail to patch an unknown document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/unknown_id')
+    .patch('/root/films/unknown_id')
     .set('x-role-names', 'admin')
     .send({ filmTitle: 'Die Hard 2' })
 
@@ -109,7 +109,7 @@ test('404 - fail to patch an unknown document', async () => {
 test('412 - fail to patch a document with an unavailable required version', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .patch('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .patch('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .set('if-match', 'abcd')
     .send({ filmTitle: 'Die Hard 2' })

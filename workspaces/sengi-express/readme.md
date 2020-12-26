@@ -43,7 +43,7 @@ app.use('/', sengiExpress)
 
 To instantiate a sengi-express server you pass the constructor parameters defined for a [sengi-engine](https://github.com/karlhulme/sengi/blob/master/workspaces/sengi-engine/readme.md#constructor) plus the following additional properties:
 
-* **additionalComponentsCount** - The number of additional components to be expected between the /docs and /docTypeName component parts of the request url.  This can be used for capturing additional url parameters (e.g. tenant id).
+* **additionalComponentsCount** - The number of additional components to be expected between the / and /docTypeName component parts of the request url.  This can be used for capturing additional url parameters (e.g. tenant id).
 
 * **getDocStoreOptions** - A function that returns an object that will be provided to the DocStore and included in DocStore callbacks.
 
@@ -66,41 +66,41 @@ The `getDocStoreOptions` and `getRequestOptions` callbacks will be passed a `Sen
 
 ## Routes
 
-A SengiExpress mounted at the `/root` path would make a number of different routes accessible.
+A SengiExpress mounted at the `/` path would make a number of different routes accessible.  If you want to divide your doc types into collections, then mount multiple handlers at different points, e.g. `/cars` and `/bikes`.
 
 ### To retrieve all documents in a collection:
 
-`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c`
+`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c`
 
 *(This route all supports the offset and limit query parameters, although this is not supported by all doc stores)*
 
 ### To retrieve a subset of documents from a collection using a filter:
 
-`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
+`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
 
 ### To retrieve a subset of documents from a collection by specifying id's:
 
-`GET https://server.com/sengi/docs/<docTypePluralName>?fields=a,b,c&ids=1234,5678`
+`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c&ids=1234,5678`
 
 ### To create a new document, post constructor parameters to:
 
-`POST https://server.com/sengi/docs/<docTypePluralName>`
+`POST https://server.com/sengi/<docTypePluralName>`
 
 ### To access a single document:
 
-`GET https://server.com/sengi/docs/<docTypePluralName>/<id>?fields=a,b,c`
+`GET https://server.com/sengi/<docTypePluralName>/<id>?fields=a,b,c`
 
 ### To update a document, send new field values:
 
-`PATCH https://server.com/sengi/docs/<docTypePluralName>/<id>`
+`PATCH https://server.com/sengi/<docTypePluralName>/<id>`
 
 ### To execute an operation, send operation parameters to:
 
-`POST https://server.com/sengi/docs/<docTypePluralName>/<id>:<operationName>`
+`POST https://server.com/sengi/<docTypePluralName>/<id>:<operationName>`
 
 ### To patch a document, send a merge patch object to:
 
-`PATCH https://server.com/sengi/docs/<docTypePluralName>/<id>`
+`PATCH https://server.com/sengi/<docTypePluralName>/<id>`
 
 ### To delete a document:
 

@@ -50,7 +50,7 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
       case 'POST': return operateOnDocumentHandler
       default: return invalidEndPointVerbHandlerFactory(['POST'], req.method)
     }
-  } else if (matchedResource.type === RestResourceType.GLOBAL_ROOT) {
+  } else if (matchedResource.type === RestResourceType.ROOT) {
     switch (req.method) {
       case 'GET': return rootHandler
       default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)

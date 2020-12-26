@@ -8,17 +8,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [15.x]
-      max-parallel: 1
     steps:
     - name: Clone repo
       uses: actions/checkout@v1
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 15.x
     - name: Setup Mongo database
       run: |
         docker run -d --name test-mongo-with-sengi -p 127.0.0.1:27017:27017 \

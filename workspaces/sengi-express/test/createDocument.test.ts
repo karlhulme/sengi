@@ -5,13 +5,13 @@ import { createTestableApp } from './shared.test'
 test('201 - create a new document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'admin')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87, initialCastMembers: ['Idina Menzel', 'Kristen Bell'] })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
-  expect(response.header.location).toEqual('/root/docs/films/00000000-0000-0000-0000-000000000001')
+  expect(response.header.location).toEqual('/root/films/00000000-0000-0000-0000-000000000001')
   expect(response.header['sengi-document-operation-type']).toEqual('create')
   expect(docs).toHaveLength(3)
   expect(docs[2]).toEqual({
@@ -32,14 +32,14 @@ test('201 - create a new document', async () => {
 test('201 - create a new document with an explicit id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'admin')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87, initialCastMembers: ['Tom', 'Dick', 'Harry'] })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
-  expect(response.header.location).toEqual('/root/docs/films/abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
+  expect(response.header.location).toEqual('/root/films/abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
   expect(response.header['sengi-document-operation-type']).toEqual('create')
   expect(docs).toHaveLength(3)
   expect(docs[2]).toEqual({
@@ -57,14 +57,14 @@ test('201 - create a new document with an explicit id', async () => {
 test('201 - create a new document with a previously used id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'admin')
     .set('x-request-id', 'ba8f06b4-9b41-4e71-849c-484433afee79')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87 })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
-  expect(response.header.location).toEqual('/root/docs/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+  expect(response.header.location).toEqual('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
   expect(response.header['sengi-document-operation-type']).toEqual('none')
   expect(docs).toHaveLength(2)
   expect(docs[0]).toEqual({
@@ -85,7 +85,7 @@ test('201 - create a new document with a previously used id', async () => {
 test('400 - fail to create new document with missing constructor fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'admin')
     .send({ initialCastMembers: [], filmTitle: 'Frozen' })
 
@@ -98,7 +98,7 @@ test('400 - fail to create new document with missing constructor fields', async 
 test('400 - fail to create a new document with missing X-ROLE-NAMES header', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87, initialCastMembers: [] })
 
   expect(response.status).toEqual(400)
@@ -109,7 +109,7 @@ test('400 - fail to create a new document with missing X-ROLE-NAMES header', asy
 test('403 - fail to create document with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'none')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87 })
 
@@ -121,7 +121,7 @@ test('403 - fail to create document with insufficient permissions', async () => 
 test('404 - fail to create document in an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/unknown')
+    .post('/root/unknown')
     .set('x-role-names', 'admin')
     .set('x-user-id', 'testUser')
     .send({ fieldA: 1, fieldB: true })
@@ -134,7 +134,7 @@ test('404 - fail to create document in an unknown collection', async () => {
 test('405 - fail to create a new document using PUT method', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/docs/films')
+    .put('/root/films')
     .set('x-role-names', 'admin')
     .send({ filmTitle: 'Frozen', initialDurationInMinutes: 87 })
 
@@ -146,7 +146,7 @@ test('405 - fail to create a new document using PUT method', async () => {
 test('415 - fail to create a new document with invalid content-type headers', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/docs/films')
+    .post('/root/films')
     .set('x-role-names', 'admin')
     .set('content-type', 'application/xml')
     .send('<?xml version="1.0" encoding="UTF-8"?><root />')
