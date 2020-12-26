@@ -1,6 +1,12 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
 import { Doc, DocFragment, DocPatch } from 'sengi-interfaces'
-import { SengiClientGatewayError, SengiClientInvalidInputError, SengiClientUnexpectedError, SengiClientUnrecognisedPathError } from '../errors'
+import {
+  SengiClientGatewayError,
+  SengiClientInvalidInputError,
+  SengiClientRequiredVersionNotAvailableError,
+  SengiClientUnexpectedError,
+  SengiClientUnrecognisedPathError
+} from '../errors'
 
 /**
  * The retry intervals between subsequent requests to the Sengi service
@@ -125,6 +131,7 @@ export class SengiClient {
     switch (result.status) {
       case 400: return new SengiClientInvalidInputError(await result.text())
       case 404: return new SengiClientUnrecognisedPathError(url)
+      case 412: return new SengiClientRequiredVersionNotAvailableError()
       case 503: return new SengiClientGatewayError()
       default: return new SengiClientUnexpectedError(`${result.status}: ${await result.text()}`)
     }
@@ -216,16 +223,21 @@ export class SengiClient {
    * @param documentId The id of the document to operate on.
    * @param operationName The name of the operation to invoke.
    * @param operationParams The parameters required by the operation.
+   * @param reqVersion If supplied, the document must have this document version or the operation will not be invoked.
    */
-  async operateOnDocument ({ docTypePluralName, operationId, documentId, operationName, operationParams }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: DocFragment }): Promise<void> {
+  async operateOnDocument ({ docTypePluralName, operationId, documentId, operationName, operationParams, reqVersion }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: DocFragment, reqVersion?: string }): Promise<void> {
     const url = `${this.url}${docTypePluralName}/${documentId}:${operationName}`
+
+    const optionalHeaders: Record<string, string> = {}
+    if (reqVersion) { optionalHeaders['if-match'] = reqVersion }
 
     const result = await this.retryableFetch(url, {
       method: 'post',
       headers: {
         'content-type': 'application/json',
         'x-role-names': this.roleNames.join(','),
-        'x-request-id': operationId
+        'x-request-id': operationId,
+        ...optionalHeaders
       },
       body: JSON.stringify(operationParams)
     })
@@ -242,17 +254,22 @@ export class SengiClient {
    * @param operationId The id of the operation that is used to ensure each operation is applied only once.
    * @param documentId The id of the document to operate on.
    * @param patch The merge patch to apply to the document.
+   * @param reqVersion If supplied, the document must have this document version or the patch will not be applied.
    */
-  async patchDocument ({ docTypePluralName, operationId, documentId, patch }: { docTypePluralName: string; operationId: string; documentId: string; patch: DocPatch }): Promise<void> {
+  async patchDocument ({ docTypePluralName, operationId, documentId, patch, reqVersion }: { docTypePluralName: string; operationId: string; documentId: string; patch: DocPatch, reqVersion?: string }): Promise<void> {
     const url = `${this.url}${docTypePluralName}/${documentId}`
+
+    const optionalHeaders: Record<string, string> = {}
+    if (reqVersion) { optionalHeaders['if-match'] = reqVersion }
 
     const result = await this.retryableFetch(url, {
       method: 'patch',
-      headers: {
+      headers: Object.assign({
         'content-type': 'application/json',
         'x-role-names': this.roleNames.join(','),
-        'x-request-id': operationId
-      },
+        'x-request-id': operationId,
+        ...optionalHeaders
+      }),
       body: JSON.stringify(patch)
     })
 

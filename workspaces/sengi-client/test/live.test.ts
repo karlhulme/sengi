@@ -116,7 +116,7 @@ test('Get a document.', async () => {
   expect(fetchedDoc).toHaveProperty('inventor')
 })
 
-test('Operate on a document.', async () => {
+test('Operate on a document with a required version.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.operateOnDocument({
     docTypePluralName: 'hobbies',
@@ -125,24 +125,26 @@ test('Operate on a document.', async () => {
     operationName: 'addRule',
     operationParams: {
       newRule: 'The king moves one space in any direction'
-    }
+    },
+    reqVersion: 'xyz'
   })
   const doc = docs.find(d => d.id === 'ba8f06b4-9b41-4e71-849c-484433afee79') as Record<string, Doc>
   expect(doc.rules).toHaveLength(4)
 })
 
-test('Patch a document.', async () => {
+test('Patch a document with a required version.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.patchDocument({
     docTypePluralName:'hobbies',
     operationId: 'e24c71a2-b5dd-4b83-bce6-dde2817225d8',
-    documentId: 'ba8f06b4-9b41-4e71-849c-484433afee79',
+    documentId: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c',
     patch: {
-      inventor: 'Grand Vizier Sissa Ben Dahir'
-    }
+      inventor: 'Unknown Person'
+    },
+    reqVersion: 'xyz'
   })
-  const doc = docs.find(d => d.id === 'ba8f06b4-9b41-4e71-849c-484433afee79') as Record<string, Doc>
-  expect(doc).toHaveProperty('inventor', 'Grand Vizier Sissa Ben Dahir')
+  const doc = docs.find(d => d.id === '8c6e2aa0-b88d-4d14-966e-da8d3941d13c') as Record<string, Doc>
+  expect(doc).toHaveProperty('inventor', 'Unknown Person')
 })
 
 test('Query all documents.', async () => {

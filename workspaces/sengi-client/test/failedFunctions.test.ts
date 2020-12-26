@@ -49,7 +49,7 @@ test('An error is thrown if getDocumentById does not work.', async () => {
   }
 })
 
-test('An error is thrown if operateOnDocument does not work.', async () => {
+test('An error is thrown if operateOnDocument (without a required version) does not work.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(500, 'not working')
     const client = createClient(fetchFunc)
@@ -67,7 +67,7 @@ test('An error is thrown if operateOnDocument does not work.', async () => {
   }
 })
 
-test('An error is thrown if patchDocument does not work.', async () => {
+test('An error is thrown if patchDocument (without a required version) does not work.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(500, 'not working')
     const client = createClient(fetchFunc)

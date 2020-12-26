@@ -1,5 +1,5 @@
 import { expect, test } from '@jest/globals'
-import { SengiClientGatewayError, SengiClientInvalidInputError, SengiClientUnexpectedError, SengiClientUnrecognisedPathError } from '../src'
+import { SengiClientGatewayError, SengiClientInvalidInputError, SengiClientRequiredVersionNotAvailableError, SengiClientUnexpectedError, SengiClientUnrecognisedPathError } from '../src'
 import { createClient, createErrorFetchFunc } from './shared.test'
 
 test('400 - An error is thrown if the input parameters are not valid.', async () => {
@@ -32,6 +32,24 @@ test('404 - An error is thrown if the document type is not recognised.', async (
     expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
     expect(err.message).toMatch(/path component of the url/)
     expect(err.message).toMatch(/docTypePluralName/)
+  }
+})
+
+test('404 - An error is thrown if the document type is not recognised.', async () => {
+  try {
+    const fetchFunc = createErrorFetchFunc(412, 'not available')
+    const client = createClient(fetchFunc)
+    await client.patchDocument({
+      docTypePluralName: 'docTypePluralName',
+      documentId: 'document-id',
+      operationId: '1234',
+      patch: {},
+      reqVersion: 'abc'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiClientRequiredVersionNotAvailableError)
+    expect(err.message).toMatch(/required version of the document is not available/)
   }
 })
 
