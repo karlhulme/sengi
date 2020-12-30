@@ -38,11 +38,24 @@ const client = new SengiClient({
 
 Method Name | Description
 ---|---
+createDocument | Create a new document using a DocType constructor.
+deleteByDocumentId | Delete a document using it's id.
 getDocumentById | Retrieve a single document using the documents id.
-saveNewDocument | Creates a new document using a DocType constructor.
-operateOnDocument | Invoke a DocType operation on a Doc.
+operateOnDocument | Invoke a DocType operation on a document.
+patchDocument | Apply a merge patch to a document.
+queryAllDocuments | Retrieve all the documents in a collection, specifying the fields to include in the result.
+queryDocumentsByFilter | Retrieve the documents in a collection that match a DocType filter, specifying the fields to include in the result.
+queryDocumentsByIds | Retrieve the documents in a collection with the given ids, specifying the fields to include in the result.
+upsertDocument | Insert a new document (without calling the DocType constructor) or replace an existing document in the collection.
+
+All of the above methods allow you to supply the following parameters:
+
+* **pathComponents** - An array of path components that will be added to the url used to initialise the Sengi-Client.
+* **roleNames** - An array of data service role names.  If supplied these are the only role names that will be sent with the request.  If omitted, the role names supplied with the Sengi-Client was constructed will be used.
 
 ## Development
+
+Written in Typescript.
 
 Tests are written using Jest with 100% coverage.
 
