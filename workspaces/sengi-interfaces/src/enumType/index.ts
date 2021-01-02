@@ -1,1 +1,1 @@
-export * from './EnumTypeItem'
+export * from './RuntimeEnumTypeItem'

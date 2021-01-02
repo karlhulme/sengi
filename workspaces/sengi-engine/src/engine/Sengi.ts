@@ -240,6 +240,12 @@ export class Sengi {
     }
   }
 
+  getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
+    const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
+
+    
+  }
+
   /**
    * Creates a new document using a doc type constructor.
    * @param props A property bag.
