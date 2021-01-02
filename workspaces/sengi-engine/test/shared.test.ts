@@ -12,6 +12,7 @@ interface SengiTestObjects {
 }
 
 export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unknown>, sengiCtorOverrides?: Record<string, unknown>): SengiTestObjects => {
+  const dayOfWeekType = fs.readFileSync('./test/testTypeSystem/dayOfWeek.yaml', 'utf-8')
   const mediumStringType = fs.readFileSync('./test/testTypeSystem/mediumString.yaml', 'utf-8')
   const positiveIntegerType = fs.readFileSync('./test/testTypeSystem/positiveInteger.yaml', 'utf-8')
   const shortStringType = fs.readFileSync('./test/testTypeSystem/shortString.yaml', 'utf-8')
@@ -29,7 +30,7 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
   const sengi = new Sengi(Object.assign({
     docTypes: testDocTypes,
     roleTypes: testRoleTypes,
-    jsonotronTypes: [mediumStringType, positiveIntegerType, shortStringType],
+    jsonotronTypes: [dayOfWeekType, mediumStringType, positiveIntegerType, shortStringType],
     docStore
   }, sengiCtorOverrides) as unknown as SengiConstructorProps)
 

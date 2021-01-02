@@ -1,3 +1,4 @@
+import { EnumType, Jsonotron, JsonSchemaFormatValidatorFunc, Structure } from 'jsonotron-js'
 import { 
   CreateDocumentProps,
   CreateDocumentResult,
@@ -26,6 +27,7 @@ import {
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
+  RuntimeEnumTypeItem,
   SavedDocCallback,
   SavedDocCallbackProps,
   SengiCallbackError
@@ -74,7 +76,6 @@ import {
    ensurePatch,
    selectDocTypeFromArray
 } from '../requestValidation'
-import { Jsonotron, JsonSchemaFormatValidatorFunc, Structure } from 'jsonotron-js'
 
 export interface SengiConstructorProps {
   jsonotronTypes?: string[]
@@ -94,6 +95,7 @@ export interface SengiConstructorProps {
 export class Sengi {
   private docTypes: DocType[]
   private roleTypes: RoleType[]
+  private enumTypes: EnumType[]
   private safeDocStore: SafeDocStore
   private jsonotron: Jsonotron
   private validateCache: Record<string, Structure> = {}
@@ -176,6 +178,7 @@ export class Sengi {
     this.safeDocStore = new SafeDocStore(props.docStore)
 
     this.jsonotron = new Jsonotron({ types: props.jsonotronTypes, jsonSchemaFormatValidators: props.jsonotronFormatValidators })
+    this.enumTypes = this.jsonotron.getEnumTypes()
 
     this.onSavedDoc = props.onSavedDoc
     this.onDeletedDoc = props.onDeletedDoc
@@ -206,6 +209,32 @@ export class Sengi {
 
     if (docType) {
       return docType.pluralName
+    } else {
+      return null
+    }
+  }
+
+  /**
+   * Returns the enum type identified by the given properties, or null if not found.
+   * @param domain A domain that operates as a namespace for the enum type.
+   * @param system The name of the system that the enum belongs to.
+   * @param name The name of the enum.
+   */
+  getEnumTypeItems (domain: string, system: string, name: string): RuntimeEnumTypeItem[]|null {
+    const enumType = this.enumTypes.find(e => e.domain === domain && e.system === system && e.name === name)
+
+    if (enumType) {
+      return enumType.items.map(e => {
+        const runtimeEnumType: RuntimeEnumTypeItem = {
+          value: e.value,
+          text: e.text,
+          symbol: e.symbol,
+          deprecated: e.deprecated,
+          documentation: e.documentation
+        }
+
+        return runtimeEnumType
+      })
     } else {
       return null
     }
