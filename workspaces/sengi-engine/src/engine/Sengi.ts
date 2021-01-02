@@ -6,6 +6,7 @@ import {
   DeletedDocCallbackProps,
   DeleteDocumentProps,
   DeleteDocumentResult,
+  // GetDocTypeAsGraphQLProps,
   DocStore,
   DocStoreDeleteByIdResultCode,
   DocStoreUpsertResultCode,
@@ -215,13 +216,11 @@ export class Sengi {
   }
 
   /**
-   * Returns the enum type identified by the given properties, or null if not found.
-   * @param domain A domain that operates as a namespace for the enum type.
-   * @param system The name of the system that the enum belongs to.
-   * @param name The name of the enum.
+   * Returns the enum type identified by the given fully qualified enum type name, or null if not found.
+   * @param fullyQualifiedEnumTypeName An enum type name that includes the domain and system.
    */
-  getEnumTypeItems (domain: string, system: string, name: string): RuntimeEnumTypeItem[]|null {
-    const enumType = this.enumTypes.find(e => e.domain === domain && e.system === system && e.name === name)
+  getEnumTypeItems (fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null {
+    const enumType = this.enumTypes.find(e => `${e.domain}/${e.system}/${e.name}` === fullyQualifiedEnumTypeName)
 
     if (enumType) {
       return enumType.items.map(e => {
@@ -240,11 +239,15 @@ export class Sengi {
     }
   }
 
-  getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
-    const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
+  // getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
+  //   const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
 
-    
-  }
+  //   if (docType) {
+  //     return 'something'
+  //   } else {
+
+  //   }
+  // }
 
   /**
    * Creates a new document using a doc type constructor.

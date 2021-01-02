@@ -72,3 +72,9 @@ test('Find a specific record and operation name method within a record collectio
   const pathMatchArray2 = createRestResourceMatcherArray(2)
   expect(matchPathToRestResource('/records/orgA/tenantA/films/123:addReview/', pathMatchArray2)).toEqual({ type: RestResourceType.OPERATION, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films', id: '123', operationName: 'addReview' } })
 })
+
+test('Find a request for enum items.', () => {
+  const pathMatchArray = createRestResourceMatcherArray(0)
+  expect(matchPathToRestResource('/enumTypes/myEnum/items', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE_ITEMS, urlParams: { enumTypeEncodedFqn: 'myEnum' } })
+  expect(matchPathToRestResource('/enumTypes/https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek/items', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE_ITEMS, urlParams: { enumTypeEncodedFqn: 'https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek' } })
+})

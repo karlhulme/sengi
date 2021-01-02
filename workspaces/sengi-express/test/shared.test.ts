@@ -14,6 +14,7 @@ interface TestableAppResult {
 }
 
 export function createTestableApp (): TestableAppResult {
+  const dayOfWeekType = fs.readFileSync('./test/testTypeSystem/dayOfWeek.yaml', 'utf-8')
   const integerType = fs.readFileSync('./test/testTypeSystem/integer.yaml', 'utf-8')
   const mediumStringType = fs.readFileSync('./test/testTypeSystem/mediumString.yaml', 'utf-8')
   const positiveInteger = fs.readFileSync('./test/testTypeSystem/positiveInteger.yaml', 'utf-8')
@@ -46,7 +47,7 @@ export function createTestableApp (): TestableAppResult {
   const sengiExpress = createSengiExpress({
     docTypes: testDocTypes,
     roleTypes: testRoleTypes,
-    jsonotronTypes: [integerType, mediumStringType, positiveInteger, shortStringType],
+    jsonotronTypes: [dayOfWeekType, integerType, mediumStringType, positiveInteger, shortStringType],
     docStore: memDocStore,
     getUuid: () => '00000000-0000-0000-0000-000000000001'
   })

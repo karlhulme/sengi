@@ -6,5 +6,6 @@ export enum RestResourceType {
   ROOT,
   RECORD_COLLECTION,
   RECORD,
-  OPERATION
+  OPERATION,
+  ENUM_TYPE_ITEMS
 }

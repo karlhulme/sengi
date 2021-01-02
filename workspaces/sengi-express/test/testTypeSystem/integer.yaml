@@ -1,7 +1,7 @@
 ---
 kind: schema
 domain: https://jsonotron.org
-system: jsl
+system: jss
 name: integer
 title: Integer
 documentation: A whole number.

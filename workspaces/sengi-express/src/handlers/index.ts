@@ -16,6 +16,9 @@ export * from './queryAllDocumentsHandler'
 export * from './queryDocumentsByFilterHandler'
 export * from './queryDocumentsByIdsHandler'
 
+// enum handlers
+export * from './enumTypeItemsHandler'
+
 // errors
 export * from './invalidEndPointVerbHandlerFactory'
 export * from './invalidPathHandler'

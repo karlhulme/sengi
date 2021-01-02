@@ -1,7 +1,7 @@
 ---
 kind: schema
 domain: https://jsonotron.org
-system: jsl
+system: jss
 name: positiveInteger
 title: Positive Integer
 documentation: A whole number that is equal to 1 or greater.
