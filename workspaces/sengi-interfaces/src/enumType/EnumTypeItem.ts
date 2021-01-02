@@ -1,7 +1,11 @@
 /**
- * Represents an item in an enumeration.
+ * Represents an item in an enumeration deduced at runtime.
+ * This will follow a very similar (if not exact) structure to
+ * the jsonotron-js type EnumTypeItem.  It is declared here so
+ * that consumers can work with this type without having to
+ * import jsonotron-js.
  */
-export interface EnumTypeItem {
+export interface RuntimeEnumTypeItem {
   /**
    * The underlying value of the item.
    */
@@ -10,7 +14,7 @@ export interface EnumTypeItem {
   /**
    * The display text of the value in English.
    */
-  text?: string
+  text: string
 
   /**
    * If populated, this value explains why the value was deprecated
