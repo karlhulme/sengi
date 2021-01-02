@@ -4,7 +4,7 @@
 export enum RestResourceType {
   NO_MATCH,
   ROOT,
-  COLLECTION,
-  DOCUMENT,
+  RECORD_COLLECTION,
+  RECORD,
   OPERATION
 }

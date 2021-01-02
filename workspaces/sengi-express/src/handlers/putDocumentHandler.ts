@@ -26,7 +26,7 @@ export async function putDocumentHandler (props: RequestHandlerProps): Promise<v
 
     applyResultToHttpResponse(props.res, {
       headers: {
-        location: `${props.baseUrl}/${docType.pluralName}/${props.req.body.id}`,
+        location: `${props.baseUrl}${props.matchedResource.urlParams.adc}/records/${docType.pluralName}/${props.req.body.id}`,
         'sengi-document-operation-type': result.isNew ? 'create' : 'update'
       },
       statusCode: 204

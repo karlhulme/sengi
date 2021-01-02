@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('200 - get a document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
+    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -23,7 +23,7 @@ test('200 - get a document', async () => {
 test('400 - request unknown fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle_unknown')
+    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle_unknown')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -34,7 +34,7 @@ test('400 - request unknown fields', async () => {
 test('403 - fail to get a document due to insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
+    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -45,7 +45,7 @@ test('403 - fail to get a document due to insufficient permissions', async () =>
 test('404 - fail to get a document of a known type but unknown id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films/unknown_id?fields=filmTitle,durationInMinutes')
+    .get('/root/records/films/unknown_id?fields=filmTitle,durationInMinutes')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)
@@ -56,7 +56,7 @@ test('404 - fail to get a document of a known type but unknown id', async () => 
 test('404 - fail to get a document of an unknown document type', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/unknown/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
+    .get('/root/records/unknown/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

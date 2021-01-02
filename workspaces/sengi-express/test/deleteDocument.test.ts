@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('204 - delete a document that exists', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .delete('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .delete('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(204)
@@ -17,7 +17,7 @@ test('204 - delete a document that exists', async () => {
 test('204 - delete a non-existent document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .delete('/root/films/unknown_id')
+    .delete('/root/records/films/unknown_id')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(204)
@@ -29,7 +29,7 @@ test('204 - delete a non-existent document', async () => {
 test('403 - fail to delete a document with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .delete('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .delete('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -40,7 +40,7 @@ test('403 - fail to delete a document with insufficient permissions', async () =
 test('404 - fail to delete a document in an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .delete('/root/unknown/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .delete('/root/records/unknown/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

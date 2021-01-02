@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('200 - get all documents', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle')
+    .get('/root/records/films?fields=id,filmTitle')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -23,7 +23,7 @@ test('200 - get all documents', async () => {
 test('200 - get all documents without specifying fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films')
+    .get('/root/records/films')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -35,7 +35,7 @@ test('200 - get all documents without specifying fields', async () => {
 test('400 - fail to get all documents with invalid field names', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle,invalid')
+    .get('/root/records/films?fields=id,filmTitle,invalid')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -46,7 +46,7 @@ test('400 - fail to get all documents with invalid field names', async () => {
 test('403 - fail to get all documents with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films')
+    .get('/root/records/films')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -57,7 +57,7 @@ test('403 - fail to get all documents with insufficient permissions', async () =
 test('403 - fail to get all documents with invalid role names', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films')
+    .get('/root/records/films')
     .set('x-role-names', 'guest')
 
   expect(response.status).toEqual(403)
@@ -68,7 +68,7 @@ test('403 - fail to get all documents with invalid role names', async () => {
 test('404 - fail to get all documents from an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/unknown')
+    .get('/root/records/unknown')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

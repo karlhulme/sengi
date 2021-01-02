@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('204 - put a new document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/films/a8808117-f8c7-4928-ac19-08532d2e5775')
+    .put('/root/records/films/a8808117-f8c7-4928-ac19-08532d2e5775')
     .set('x-role-names', 'admin')
     .send({ id: 'a8808117-f8c7-4928-ac19-08532d2e5775', docType: 'film', filmTitle: 'Frozen', castMembers: [] })
 
@@ -18,7 +18,7 @@ test('204 - put a new document', async () => {
 test('204 - replace an existing document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .put('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ id: 'ba8f06b4-9b41-4e71-849c-484433afee79', docType: 'film', filmTitle: 'Frozen', castMembers: [] })
 
@@ -31,7 +31,7 @@ test('204 - replace an existing document', async () => {
 test('400 - fail to put new document with missing required fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .put('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ id: 'ba8f06b4-9b41-4e71-849c-484433afee79', docType: 'film', missingFilmTitle: 'Frozen', castMembers: [] })
 
@@ -45,7 +45,7 @@ test('400 - fail to put new document with missing required fields', async () => 
 test('403 - fail to replace document with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/films/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .put('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'none')
     .send({ id: 'ba8f06b4-9b41-4e71-849c-484433afee79', docType: 'film', filmTitle: 'Frozen', castMembers: [] })
 
@@ -57,7 +57,7 @@ test('403 - fail to replace document with insufficient permissions', async () =>
 test('404 - fail to put document in an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/unknown/ba8f06b4-9b41-4e71-849c-484433afee79')
+    .put('/root/records/unknown/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
     .send({ id: 'ba8f06b4-9b41-4e71-849c-484433afee79', docType: 'film', filmTitle: 'Frozen', castMembers: [] })
 
@@ -69,7 +69,7 @@ test('404 - fail to put document in an unknown collection', async () => {
 test('405 - fail to create a new document using POST method', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/films/a8808117-f8c7-4928-ac19-08532d2e5775')
+    .post('/root/records/films/a8808117-f8c7-4928-ac19-08532d2e5775')
     .set('x-role-names', 'admin')
     .send({ id: 'a8808117-f8c7-4928-ac19-08532d2e5775', docType: 'film', filmTitle: 'Frozen', castMembers: [] })
 

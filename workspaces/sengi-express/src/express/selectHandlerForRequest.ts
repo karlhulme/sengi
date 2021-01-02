@@ -23,7 +23,7 @@ import { MatchedRestResource } from '../matching'
  * @param matchedResource A matched resource.
  */
 export function selectHandlerForRequest (req: Request, matchedResource: MatchedRestResource): RequestHandler {
-  if (matchedResource.type === RestResourceType.COLLECTION) {
+  if (matchedResource.type === RestResourceType.RECORD_COLLECTION) {
     switch (req.method) {
       case 'GET': {
         if (req.query.ids) {
@@ -37,7 +37,7 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
       case 'POST': return createDocumentHandler
       default: return invalidEndPointVerbHandlerFactory(['POST', 'GET'], req.method)
     }
-  } else if (matchedResource.type === RestResourceType.DOCUMENT) {
+  } else if (matchedResource.type === RestResourceType.RECORD) {
     switch (req.method) {
       case 'GET': return getDocumentHandler
       case 'DELETE': return deleteDocumentHandler

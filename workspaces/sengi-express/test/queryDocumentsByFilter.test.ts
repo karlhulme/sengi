@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('200 - get documents by parameterised filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&filterName=byRuntime&filterParams={"minRuntime":100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byRuntime&filterParams={"minRuntime":100}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -22,7 +22,7 @@ test('200 - get documents by parameterised filter', async () => {
 test('200 - get documents with non-parameterised filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&filterName=byCastIncludesBob')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byCastIncludesBob')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -39,7 +39,7 @@ test('200 - get documents with non-parameterised filter', async () => {
 test('200 - get documents with non-parameterised filter that includes empty filter params', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&filterName=byCastIncludesBob&filterParams={}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byCastIncludesBob&filterParams={}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -56,7 +56,7 @@ test('200 - get documents with non-parameterised filter that includes empty filt
 test('200 - get documents by filter without specifying fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?filterName=byCastIncludesBob')
+    .get('/root/records/films?filterName=byCastIncludesBob')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -68,7 +68,7 @@ test('200 - get documents by filter without specifying fields', async () => {
 test('400 - fail to get documents for an unknown filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&filterName=byInvalidFilter&filterParams={"minRuntime":100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byInvalidFilter&filterParams={"minRuntime":100}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -79,7 +79,7 @@ test('400 - fail to get documents for an unknown filter', async () => {
 test('400 - fail to get documents by filter with invalid field names', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle,invalid&filterName=byCastIncludesBob')
+    .get('/root/records/films?fields=id,filmTitle,invalid&filterName=byCastIncludesBob')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -90,7 +90,7 @@ test('400 - fail to get documents by filter with invalid field names', async () 
 test('400 - fail to get documents by filter with invalid filter JSON parameters', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&filterName=byRuntime&filterParams={minRuntime:100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byRuntime&filterParams={minRuntime:100}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -102,7 +102,7 @@ test('400 - fail to get documents by filter with invalid filter JSON parameters'
 test('403 - fail to get documents by filter with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?filterName=byCastIncludesBob')
+    .get('/root/records/films?filterName=byCastIncludesBob')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -113,7 +113,7 @@ test('403 - fail to get documents by filter with insufficient permissions', asyn
 test('404 - fail to get documents by filter from an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/unknown?filterName=byCastIncludesBob')
+    .get('/root/records/unknown?filterName=byCastIncludesBob')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

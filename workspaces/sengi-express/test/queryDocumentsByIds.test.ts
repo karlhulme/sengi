@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('200 - get documents by single id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/films?fields=id,filmTitle&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -22,7 +22,7 @@ test('200 - get documents by single id', async () => {
 test('200 - get documents with multiple ids', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c,ba8f06b4-9b41-4e71-849c-484433afee79')
+    .get('/root/records/films?fields=id,filmTitle&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c,ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -40,7 +40,7 @@ test('200 - get documents with multiple ids', async () => {
 test('200 - get documents with unrecognised ids', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle&ids=00000000-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/films?fields=id,filmTitle&ids=00000000-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -52,7 +52,7 @@ test('200 - get documents with unrecognised ids', async () => {
 test('200 - get documents by ids without specifying fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/films?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
@@ -64,7 +64,7 @@ test('200 - get documents by ids without specifying fields', async () => {
 test('400 - fail to get documents by ids with invalid field names', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?fields=id,filmTitle,invalid&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/films?fields=id,filmTitle,invalid&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -75,7 +75,7 @@ test('400 - fail to get documents by ids with invalid field names', async () => 
 test('403 - fail to get documents by ids with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/films?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/films?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -86,7 +86,7 @@ test('403 - fail to get documents by ids with insufficient permissions', async (
 test('404 - fail to get documents by ids from an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/unknown?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
+    .get('/root/records/unknown?ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

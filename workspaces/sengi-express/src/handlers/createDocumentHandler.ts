@@ -27,7 +27,7 @@ export async function createDocumentHandler (props: RequestHandlerProps): Promis
 
     applyResultToHttpResponse(props.res, {
       headers: {
-        location: `${props.baseUrl}/${docType.pluralName}/${requestId}`,
+        location: `${props.baseUrl}${props.matchedResource.urlParams.adc}/records/${docType.pluralName}/${requestId}`,
         'sengi-document-operation-type': result.isNew ? 'create' : 'none'
       },
       statusCode: 201

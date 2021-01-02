@@ -5,7 +5,7 @@ import { createTestableApp } from './shared.test'
 test('404 - invalid path', async () => {
   const { testableApp } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/route/to/nowhere')
+    .get('/root/records/route/to/nowhere')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)
