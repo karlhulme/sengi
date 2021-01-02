@@ -9,8 +9,8 @@ import { RestResourceMatcher } from './RestResourceMatcher'
 export function createRestResourceMatcherArray (adc: number): RestResourceMatcher[] {
   return [
     { type: RestResourceType.ROOT, expr: /^\/?$/ },
-    { type: RestResourceType.RECORD_COLLECTION, expr: new RegExp(`^(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/records/(?<docTypePluralName>[a-zA-Z0-9_.]+)/?$`) },
-    { type: RestResourceType.RECORD, expr: new RegExp(`^(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/records/(?<docTypePluralName>[a-zA-Z0-9_.]+)/(?<id>[a-zA-Z0-9_-]+)/?$`) },
-    { type: RestResourceType.OPERATION, expr: new RegExp(`^(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/records/(?<docTypePluralName>[a-zA-Z0-9_.]+)/(?<id>[a-zA-Z0-9_-]+):(?<operationName>[a-zA-Z0-9_]+)/?$`) }
+    { type: RestResourceType.RECORD_COLLECTION, expr: new RegExp(`^/records(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/(?<docTypePluralName>[a-zA-Z0-9_.]+)/?$`) },
+    { type: RestResourceType.RECORD, expr: new RegExp(`^/records(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/(?<docTypePluralName>[a-zA-Z0-9_.]+)/(?<id>[a-zA-Z0-9_-]+)/?$`) },
+    { type: RestResourceType.OPERATION, expr: new RegExp(`^/records(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/(?<docTypePluralName>[a-zA-Z0-9_.]+)/(?<id>[a-zA-Z0-9_-]+):(?<operationName>[a-zA-Z0-9_]+)/?$`) }
   ]
 }
