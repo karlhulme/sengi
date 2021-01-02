@@ -46,6 +46,8 @@ operations | A `Record<string, DocTypeOperation>` that provides all the mutation
 policy | A `DocTypePolicy` object that defines the types of permitted operations on the document.
 docStoreOptions | A property bag that is passed to many of the document store operation callbacks.
 
+When naming doc types, you may want to use dotted notation to include one or more containers in order to logically group doc types together.
+
 ## Role Type
 
 The Sengi system uses RoleType objects to determine the operations and document types that a user can manipulate.
@@ -71,11 +73,13 @@ You can define new enum and schema types using the JSON schema language and Seng
 
 This gives you extensive control over the shape of the field values in a Sengi document.
 
+
 ## Database Guidance
 
 Document databases claim to be infinitely scalable but in practice documents will be divided up into physical sets.  Where possible, we want to query a single physical set as this will yield better performance than querying multiple physical sets.
 
 To deal with this, we can consider most documents to be 1 of 2 possible types:
+
 
 ### An Authoritative Document
 
@@ -84,6 +88,7 @@ This document contains the largely normalised data for an entity.
 The primary key is always a single unique id.  This ensures a good spread of documents across any logical or physical partitions created by the database while allowing us to access them with only one piece of information.
 
 A **child authoritative document** is one that exists in a one-to-many relationship with a parent.  These records will need a secondary index on the field that links the child to the parent.  If the secondary index is actually a copy of the table (as per DynamoDB) then all keys should be projected into this secondary index.
+
 
 ### A Warehouse Document
 
@@ -96,6 +101,7 @@ A warehouse document will then be given secondary indexes that satisfy the acces
 This key should divide the data up into chunks, typically a few GB.  Geographic values like salesRegion or salesOffice often work well.  We're trying to avoid hot partitions and achieve an even spread of data.  Most challenging of all, the partition key needs to be something that is passed with every (or at least most) queries.
 
 If you have a dataset for which no partition key makes sense, then you can store all the records in the same physical partition.  For example use a partition key of docType, which will be the same for every record.  You will need to monitor this dataset to ensure it doesn't exceed the limits of the database storage for a single partition.  Be conservative about the quantity of fields stored for each warehouse record to maximise the number of records that can be stored in this way.
+
 
 ### Synchronisation
 
