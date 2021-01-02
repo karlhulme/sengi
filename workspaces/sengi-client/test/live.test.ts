@@ -21,7 +21,7 @@ beforeAll(async () => {
 
   docs.push({
     id: 'ba8f06b4-9b41-4e71-849c-484433afee79',
-    docType: 'hobby',
+    docType: 'ns.hobby',
     docVersion: 'xyz',
     docOps: [],
     name: 'Chess',
@@ -35,7 +35,7 @@ beforeAll(async () => {
   
   docs.push({
     id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c',
-    docType: 'hobby',
+    docType: 'ns.hobby',
     docVersion: 'xyz',
     docOps: [],
     name: 'Tic tac toe',
@@ -48,7 +48,7 @@ beforeAll(async () => {
 
   docs.push({
     id: '5bca1b41-e0fa-4c3a-86ae-7a8e1e832f0e',
-    docType: 'hobby',
+    docType: 'ns.hobby',
     docVersion: 'xyz',
     docOps: [],
     name: 'Darts',
@@ -85,7 +85,7 @@ beforeAll(async () => {
 test('Create a new document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.createDocument({
-    docTypePluralName: 'hobbies', 
+    docTypePluralName: 'ns.hobbies', 
     newDocumentId: '72750f5a-0e85-4dd3-bfe9-bdb8c623d3d1',
     constructorParams: {
       name: 'Snakes and Ladders',
@@ -99,7 +99,7 @@ test('Delete a document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   expect(docs.findIndex(d => d.id === '5bca1b41-e0fa-4c3a-86ae-7a8e1e832f0e')).toBeGreaterThan(-1)
   await client.deleteDocumentById({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     documentId: '5bca1b41-e0fa-4c3a-86ae-7a8e1e832f0e'
   })
   expect(docs.findIndex(d => d.id === '5bca1b41-e0fa-4c3a-86ae-7a8e1e832f0e')).toEqual(-1)
@@ -108,7 +108,7 @@ test('Delete a document.', async () => {
 test('Get a document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   const fetchedDoc = await client.getDocumentById({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     documentId: 'ba8f06b4-9b41-4e71-849c-484433afee79',
     fieldNames: ['name', 'inventor']
   })
@@ -119,7 +119,7 @@ test('Get a document.', async () => {
 test('Operate on a document with a required version.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.operateOnDocument({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     operationId: 'cbd7a3a5-97cb-4279-abb4-25061293d795',
     documentId: 'ba8f06b4-9b41-4e71-849c-484433afee79',
     operationName: 'addRule',
@@ -135,7 +135,7 @@ test('Operate on a document with a required version.', async () => {
 test('Patch a document with a required version.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.patchDocument({
-    docTypePluralName:'hobbies',
+    docTypePluralName:'ns.hobbies',
     operationId: 'e24c71a2-b5dd-4b83-bce6-dde2817225d8',
     documentId: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c',
     patch: {
@@ -150,7 +150,7 @@ test('Patch a document with a required version.', async () => {
 test('Query all documents.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   const fetchedDocs = await client.queryAllDocuments({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     fieldNames: ['id', 'inventor']
   })
   expect(fetchedDocs.length).toBeGreaterThanOrEqual(2)
@@ -159,7 +159,7 @@ test('Query all documents.', async () => {
 test('Query documents with a filter.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   const fetchedDocs = await client.queryDocumentsByFilter({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     filterName: 'byRulesCount',
     filterParams: { minRules: 3 },
     fieldNames: ['id', 'inventor']
@@ -170,7 +170,7 @@ test('Query documents with a filter.', async () => {
 test('Query documents with an id array.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   const fetchedDocs = await client.queryDocumentsByIds({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     documentIds: ['ba8f06b4-9b41-4e71-849c-484433afee79', 'ba8f06b4-9b41-4e71-849c-484433afee79'],
     fieldNames: ['id', 'inventor']
   })
@@ -180,7 +180,7 @@ test('Query documents with an id array.', async () => {
 test('Upsert a document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.upsertDocument({
-    docTypePluralName: 'hobbies',
+    docTypePluralName: 'ns.hobbies',
     document: {
       id: '67a5aa97-1a94-477a-884b-b2555f9aa230',
       name: 'Poker',

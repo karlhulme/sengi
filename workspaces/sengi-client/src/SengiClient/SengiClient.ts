@@ -138,12 +138,12 @@ export class SengiClient {
   }
 
   /**
-   * Builds the target url for the request, which includes any additional path components.
+   * Builds the target url for a records request, which includes any additional path components.
    * @param docTypePluralName A doc type plural name which identifies a specific collection of docs.
    * @param pathComponents An optional array of path components.
    */
-  private buildUrl (docTypePluralName: string, pathComponents?: string[]) {
-    return this.url + (pathComponents || []).map(pc => `${pc}/`).join('') + docTypePluralName + '/'
+  private buildRecordsUrl (docTypePluralName: string, pathComponents?: string[]) {
+    return this.url + 'records/' + (pathComponents || []).map(pc => `${pc}/`).join('') + docTypePluralName + '/'
   }
 
   /**
@@ -162,7 +162,7 @@ export class SengiClient {
    * @param constructorParams The parameters for the constructor (and any updatable fields).
    */
   async createDocument ({ docTypePluralName, newDocumentId, constructorParams, pathComponents, roleNames }: { docTypePluralName: string; newDocumentId: string; constructorParams: DocFragment; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
-    const url = this.buildUrl(docTypePluralName, pathComponents)
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents)
 
     const result = await this.retryableFetch(url, {
       method: 'post',
@@ -186,7 +186,7 @@ export class SengiClient {
    * @param documentId The id of the document to delete.
    */
   async deleteDocumentById ({ docTypePluralName, documentId, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + documentId
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + documentId
 
     const result = await this.retryableFetch(url, {
       method: 'delete',
@@ -209,7 +209,7 @@ export class SengiClient {
    * @param fieldNames An array of field names.
    */
   async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + `${documentId}?fields=${fieldNames.join(',')}`
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -244,7 +244,7 @@ export class SengiClient {
    * @param reqVersion If supplied, the document must have this document version or the operation will not be invoked.
    */
   async operateOnDocument ({ docTypePluralName, operationId, documentId, operationName, operationParams, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: DocFragment, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + `${documentId}:${operationName}`
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}:${operationName}`
 
     const optionalHeaders: Record<string, string> = {}
     if (reqVersion) { optionalHeaders['if-match'] = reqVersion }
@@ -275,7 +275,7 @@ export class SengiClient {
    * @param reqVersion If supplied, the document must have this document version or the patch will not be applied.
    */
   async patchDocument ({ docTypePluralName, operationId, documentId, patch, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; patch: DocPatch, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + documentId
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + documentId
 
     const optionalHeaders: Record<string, string> = {}
     if (reqVersion) { optionalHeaders['if-match'] = reqVersion }
@@ -303,7 +303,7 @@ export class SengiClient {
    * @param fieldNames An array of field names.
    */
   async queryAllDocuments ({ docTypePluralName, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + `?fields=${fieldNames.join(',')}`
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -336,7 +336,7 @@ export class SengiClient {
    * @param fieldNames An array of field names.
    */
   async queryDocumentsByFilter ({ docTypePluralName, filterName, filterParams, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; filterName: string; filterParams: Record<string, unknown>; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + `?filterName=${filterName}&filterParams=${JSON.stringify(filterParams)}&fields=${fieldNames.join(',')}`
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?filterName=${filterName}&filterParams=${JSON.stringify(filterParams)}&fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -368,7 +368,7 @@ export class SengiClient {
    * @param fieldNames An array of field names.
    */
   async queryDocumentsByIds ({ docTypePluralName, documentIds, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentIds: string[]; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
-    const url = this.buildUrl(docTypePluralName, pathComponents) + `?ids=${documentIds.join(',')}&fields=${fieldNames.join(',')}`
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?ids=${documentIds.join(',')}&fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -403,7 +403,7 @@ export class SengiClient {
       throw new Error('Document must have id.')
     }
 
-    const url = this.buildUrl(docTypePluralName, pathComponents) + document.id
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + document.id
 
     const result = await this.retryableFetch(url, {
       method: 'put',

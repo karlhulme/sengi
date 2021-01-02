@@ -5,6 +5,6 @@ export const admin: RoleType = {
   title: 'Admin',
   documentation: '',
   docPermissions: {
-    hobby: true
+    'ns.hobby': true
   }
 }

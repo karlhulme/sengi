@@ -3,8 +3,8 @@
 import { Doc, DocType } from 'sengi-interfaces'
 
 export const hobby: DocType = {
-  name: 'hobby',
-  pluralName: 'hobbies',
+  name: 'ns.hobby',
+  pluralName: 'ns.hobbies',
   title: 'Hobby',
   pluralTitle: 'Hobbies',
   summary: '',

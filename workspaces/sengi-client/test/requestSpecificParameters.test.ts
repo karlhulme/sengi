@@ -12,7 +12,7 @@ test('Request path components will be added to the base url.', async () => {
     pathComponents: ['additional', 'path', 'components']
   })
   expect(fetchFunc).toBeCalledTimes(1)
-  expect(fetchFunc).toBeCalledWith('http://test.com/additional/path/components/myDocTypePluralName/', expect.objectContaining({
+  expect(fetchFunc).toBeCalledWith('http://test.com/records/additional/path/components/myDocTypePluralName/', expect.objectContaining({
     headers: expect.objectContaining({
       'x-role-names': 'general'
     })
@@ -29,7 +29,7 @@ test('Request role names will be used in place of init ones.', async () => {
     roleNames: ['bespoke', 'account']
   })
   expect(fetchFunc).toBeCalledTimes(1)
-  expect(fetchFunc).toBeCalledWith('http://test.com/myDocTypePluralName/', expect.objectContaining({
+  expect(fetchFunc).toBeCalledWith('http://test.com/records/myDocTypePluralName/', expect.objectContaining({
     headers: expect.objectContaining({
       'x-role-names': 'bespoke,account'
     })
