@@ -50,7 +50,7 @@ export function generateConstructorGraphQLTypeForDocType (jsonotron: Jsonotron, 
 
   if (propertyLines.length > 0) {
     const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + 'ConstructorProps'
-    return `input ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
+    return `"""\nThe constructor parameters of the ${docType.name} object.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
   } else {
     return ''
   }

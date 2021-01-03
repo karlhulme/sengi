@@ -9,9 +9,9 @@ The core Sengi engine.
 
 It interprets the field type definitions, doc type definitions and role definitions.
 
-It validates and actions input requests, by issuing queries and instructions to  the underlying datastore.
+It validates and actions input requests, by issuing queries and instructions to the underlying datastore.
 
-It mutates documents according to the defined operations and patch policy, performs validation checks, and upserts modified documents back to the datastore.
+It mutates documents according to the defined operations and patch policy, performs validation checks, and upserts modified documents back to the data store.
 
 Parameter and document validation is performed by [Jsonotron](https://github.com/karlhulme/jsonotron).
 

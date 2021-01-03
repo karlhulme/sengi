@@ -37,7 +37,7 @@ export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, do
 
   if (propertyLines.length > 0) {
     const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + capitalizeFirstLetter(operationName) + 'Props'
-    return `input ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
+    return `"""\nThe parameters of the ${operationName} operation of the ${docType.name} object.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
   } else {
     return ''
   }

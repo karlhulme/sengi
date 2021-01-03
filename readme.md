@@ -46,7 +46,7 @@ operations | A `Record<string, DocTypeOperation>` that provides all the mutation
 policy | A `DocTypePolicy` object that defines the types of permitted operations on the document.
 docStoreOptions | A property bag that is passed to many of the document store operation callbacks.
 
-When naming doc types, you may want to use dotted notation to include one or more containers in order to logically group doc types together.
+When naming doc types, you may want to use dotted notation to include one or more containers in order to logically group doc types together.  For example, `automotive.car` and `automotive.boat`.
 
 ## Role Type
 
@@ -87,7 +87,7 @@ This document contains the largely normalised data for an entity.
 
 The primary key is always a single unique id.  This ensures a good spread of documents across any logical or physical partitions created by the database while allowing us to access them with only one piece of information.
 
-A **child authoritative document** is one that exists in a one-to-many relationship with a parent.  These records will need a secondary index on the field that links the child to the parent.  If the secondary index is actually a copy of the table (as per DynamoDB) then all keys should be projected into this secondary index.
+A **child authoritative document** is one that exists in a one-to-many relationship with a parent.  These records will need a secondary index on the field that links the child to the parent.  If the secondary index is actually a copy of the table (as per DynamoDB) then all keys (but not all fields) should be projected into this secondary index.
 
 
 ### A Warehouse Document
@@ -121,14 +121,14 @@ Filter parameters could be used to control the ordering but only options covered
 
 If you need to extract all the documents from a non-trivial collection then it will be necessary to do it sections.
 
-To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documnts that were added during the extraction (or holding documents removed during the extraction) but of course that can be resolved the next time the synchronisation takes place.
+To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documents that were added during the extraction (or holding documents removed during the extraction) but of course that can be resolved the next time the synchronisation takes place.
 
-Skip and Limit are included as a convenience, but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12, 13.  So if you request records 11-20 you'll get duplicates.  Databases do not guarantee the order of documents, so omitting a search order will not help.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.  For this reason, some databases (e.g. AWS DynamoDO) don't provide any support for Offset. 
+Skip and Limit are included as a convenience but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12 and 13.  So if you request records 11-20 you'll get duplicates.  Databases do not guarantee the order of documents, so omitting a search order will not help.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.  For this reason, some databases (e.g. AWS DynamoDO) don't provide any support for Offset. 
 
 
 ## Development
 
-All packages in the monorepo are testing and versioned together.
+All packages in the monorepo are tested and versioned together.
 
 The version number is only stored in the root package.json.  The version number is inserted into the child projects just before they are published by npm.  By not storing them at all, they cannot be out of sync.
 

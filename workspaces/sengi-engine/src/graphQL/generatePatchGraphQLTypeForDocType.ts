@@ -33,7 +33,7 @@ export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docTyp
 
   if (propertyLines.length > 0) {
     const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + 'PatchProps'
-    return `input ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
+    return `"""\nThe fields of the ${docType.name} object that can be patched.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
   } else {
     return ''
   }
