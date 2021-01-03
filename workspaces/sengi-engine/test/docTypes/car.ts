@@ -7,8 +7,8 @@ export const car: DocType = {
   pluralName: 'cars',
   title: 'Car',
   pluralTitle: 'Cars',
-  summary: '',
-  documentation: '',
+  summary: 'A car',
+  documentation: 'The information about a car document.',
   examples: [],
   patchExamples: [],
   policy: {
@@ -19,13 +19,13 @@ export const car: DocType = {
   },
   docStoreOptions: {},
   fields: {
-    manufacturer: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: '' },
-    model: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: '' },
-    registration: { type: 'shortString', isRequired: true, canUpdate: true, documentation: '' }
+    manufacturer: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The manufacturer of the car.' },
+    model: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The model of the car.' },
+    registration: { type: 'shortString', isRequired: true, canUpdate: true, documentation: 'The registration number that appears on the car plate.' }
   },
   calculatedFields: {
     displayName: {
-      documentation: '',
+      documentation: 'A combination of manufacturer and model.',
       inputFields: ['manufacturer', 'model'],
       type: 'mediumString',
       value: data => `${data.manufacturer || ''} ${data.model || ''}`
@@ -43,7 +43,7 @@ export const car: DocType = {
   },
   ctor: {
     title: 'New car',
-    documentation: '',
+    documentation: 'Creates a new car.',
     examples: [],
     parameters: {},
     implementation: () => ({})

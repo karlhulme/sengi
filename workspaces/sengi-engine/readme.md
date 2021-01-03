@@ -65,6 +65,8 @@ Method Name | Parameters | Description
 ---|---|---
 getDocTypeNameFromPluralName | `docTypePluralName: string` | Returns the singular doc type name for the given plural name, or null if not found.
 getDocTypePluralNameFromName | `docTypeName: string` | Returns the plural doc type name for the given singular name, or null if not found.
+getEnumTypeItems | `(fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null` | Returns the list of items that are defined within the given enum type.
+getDocTypeAsGraphQL | `(props: GetDocTypeAsGraphQLProps): string` | Returns a set of GraphQL types and inputs for the named doc type and set of role types.
 createDocument | `props: CreateDocumentProps` | Creates a new document using a doc type constructor.  Returns `{ isNew }`.
 deleteDocument | `props: DeleteDocumentProps` | Deletes an existing document.  Returns `{ isDeleted }`.
 operateOnDocument | `props: OperateOnDocumentProps` | Operates on an existing document.  Returns `{ isUpdated }`.
@@ -74,11 +76,11 @@ queryDocumentsByIds | `props: QueryDocumentsByIdsProps` | Queries for a set of d
 queryDocuments | `props: QueryDocumentsProps` | Queries for all documents of a specified doc type.  Returns `{ deprecations, docs }`.
 replaceDocument | `props: ReplaceDocumentProps` | Replaces (or inserts) a document, without using the doc type constructor.  Returns `{ isNew }`.
 
-The properties `isNew`, `isDeleted` and `isUpdated` are booleans.
+For the document-centric methods The properties `isNew`, `isDeleted` and `isUpdated` are booleans.
 
-The property `deprecations` is an object that contains a key for each field that was requested and is also deprecated.  The value is a comment describing the reason for the deprecation and/or the fields to request instead.
+For the query-centric methods the property `deprecations` is an object that contains a key for each field that was requested and is also deprecated.  The value is a comment describing the reason for the deprecation and/or the fields to request instead.
 
-The `docs` property is an array of `Doc` objects.  The objects will only contain the requested fields.
+For they query-centric methods the `docs` property is an array of `Doc` objects.  The objects will only contain the requested fields.
 
 ## Development
 

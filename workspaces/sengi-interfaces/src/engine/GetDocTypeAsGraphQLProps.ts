@@ -1,3 +1,9 @@
 export interface GetDocTypeAsGraphQLProps {
-  something?: boolean
+  docTypeName: string
+  roleTypeSets: QueryableRoleTypeSet[]
+}
+
+export interface QueryableRoleTypeSet {
+  suffix: string
+  roleTypeNames: string[]
 }

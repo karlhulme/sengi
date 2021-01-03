@@ -1,5 +1,4 @@
 import { expect, test } from '@jest/globals'
-import {  } from 'sengi-interfaces'
 import { applyMergePatch } from './applyMergePatch'
 
 test('Replace an attribute.', () => {

@@ -1,4 +1,9 @@
-import { EnumType, Jsonotron, JsonSchemaFormatValidatorFunc, Structure } from 'jsonotron-js'
+import {
+  EnumType,
+  Jsonotron,
+  JsonSchemaFormatValidatorFunc,
+  Structure
+} from 'jsonotron-js'
 import { 
   CreateDocumentProps,
   CreateDocumentResult,
@@ -6,7 +11,7 @@ import {
   DeletedDocCallbackProps,
   DeleteDocumentProps,
   DeleteDocumentResult,
-  // GetDocTypeAsGraphQLProps,
+  GetDocTypeAsGraphQLProps,
   DocStore,
   DocStoreDeleteByIdResultCode,
   DocStoreUpsertResultCode,
@@ -77,6 +82,12 @@ import {
    ensurePatch,
    selectDocTypeFromArray
 } from '../requestValidation'
+import {
+  generateConstructorGraphQLTypeForDocType,
+  generateOperationGraphQLTypeForDocType,
+  generatePatchGraphQLTypeForDocType,
+  generateQueryableGraphQLTypeForDocType
+} from '../graphQL'
 
 export interface SengiConstructorProps {
   jsonotronTypes?: string[]
@@ -239,15 +250,28 @@ export class Sengi {
     }
   }
 
-  // getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
-  //   const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
+  /**
+   * Returns a Graph QL definition string for the named doc type
+   * and the set of queryable role types. 
+   * @param props A property bag that describes what to generate.
+   */
+  getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
+    const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
 
-  //   if (docType) {
-  //     return 'something'
-  //   } else {
+    const queryGqls = props.roleTypeSets.map(roleTypeSet => {
+      const roleTypes = this.roleTypes.filter(r => roleTypeSet.roleTypeNames.includes(r.name))
+      return generateQueryableGraphQLTypeForDocType(this.jsonotron, docType, roleTypes, roleTypeSet.suffix)
+    })
 
-  //   }
-  // }
+    const constructorGql = generateConstructorGraphQLTypeForDocType(this.jsonotron, docType)
+
+    const patchGql = generatePatchGraphQLTypeForDocType(this.jsonotron, docType)
+
+    const operationGqls = Object.keys(docType.operations)
+      .map(operationName => generateOperationGraphQLTypeForDocType(this.jsonotron, docType, operationName))
+
+    return `${queryGqls.join('\n\n')}\n\n${constructorGql}\n\n${patchGql}\n\n${operationGqls.join('\n\n')}`
+  }
 
   /**
    * Creates a new document using a doc type constructor.
