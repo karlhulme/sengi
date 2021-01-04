@@ -86,7 +86,8 @@ import {
   generateConstructorGraphQLTypeForDocType,
   generateOperationGraphQLTypeForDocType,
   generatePatchGraphQLTypeForDocType,
-  generateQueryableGraphQLTypeForDocType
+  generateQueryableGraphQLTypeForDocType,
+  generateRuntimeEnumTypeItemGraphQLType
 } from '../graphQL'
 
 export interface SengiConstructorProps {
@@ -248,6 +249,13 @@ export class Sengi {
     } else {
       return null
     }
+  }
+
+  /**
+   * Returns a GraphQL definition string for an enum type item.
+   */
+  getEnumTypeItemAsGraphQL (): string {
+    return generateRuntimeEnumTypeItemGraphQLType()
   }
 
   /**
