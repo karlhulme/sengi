@@ -57,7 +57,7 @@ All of the above methods allow you to supply the following parameters:
 
 Enum Methods | Description
 ---|---
-getEnumTypeItems |  Retrieve the items that are defined within an enum identified by it's fully qualified name.
+getEnumTypeItems | Retrieve the items that are defined within an enum identified by it's fully qualified name.
 
 ## Development
 
