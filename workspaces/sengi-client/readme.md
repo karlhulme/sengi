@@ -36,7 +36,9 @@ const client = new SengiClient({
 
 ## Methods
 
-Method Name | Description
+This section describes the methods available on the sengi client.
+
+Document Methods | Description
 ---|---
 createDocument | Create a new document using a DocType constructor.
 deleteByDocumentId | Delete a document using it's id.
@@ -52,6 +54,10 @@ All of the above methods allow you to supply the following parameters:
 
 * **pathComponents** - An array of path components that will be added to the url used to initialise the Sengi-Client.
 * **roleNames** - An array of data service role names.  If supplied these are the only role names that will be sent with the request.  If omitted, the role names supplied with the Sengi-Client was constructed will be used.
+
+Enum Methods | Description
+---|---
+getEnumTypeItems |  Retrieve the items that are defined within an enum identified by it's fully qualified name.
 
 ## Development
 
