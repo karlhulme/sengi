@@ -53,6 +53,20 @@ test('404 - An error is thrown if the document type is not recognised.', async (
   }
 })
 
+test('404 - An error is thrown if the enum type is not recognised.', async () => {
+  try {
+    const fetchFunc = createErrorFetchFunc(404, 'not available')
+    const client = createClient(fetchFunc)
+    await client.getEnumTypeItems({
+      fullyQualifiedEnumTypeName: 'unknown-enum-type'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
+    expect(err.message).toMatch(/path component of the url/)
+  }
+})
+
 test('500 - An error is thrown if an unexpected error is raised.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(500, 'internal error')

@@ -1,5 +1,5 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
-import { Doc, DocFragment, DocPatch } from 'sengi-interfaces'
+import { Doc, DocFragment, DocPatch, RuntimeEnumTypeItem } from 'sengi-interfaces'
 import {
   SengiClientGatewayError,
   SengiClientInvalidInputError,
@@ -144,6 +144,14 @@ export class SengiClient {
    */
   private buildRecordsUrl (docTypePluralName: string, pathComponents?: string[]) {
     return this.url + 'records/' + (pathComponents || []).map(pc => `${pc}/`).join('') + docTypePluralName + '/'
+  }
+
+  /**
+   * Builds the target url for an enum type items request.
+   * @param fullyQualifiedEnumTypeName The fully qualified name of the enum.
+   */
+  private buildEnumTypeItemsUrl (fullyQualifiedEnumTypeName: string) {
+    return this.url + 'enumTypes/' + encodeURIComponent(fullyQualifiedEnumTypeName) + '/items'
   }
 
   /**
@@ -361,7 +369,7 @@ export class SengiClient {
     }
   }
 
-    /**
+  /**
    * Query for documents using an array of ids.
    * @param docTypePluralName The plural name of a doc type.
    * @param documentIds An array of document ids.
@@ -416,6 +424,39 @@ export class SengiClient {
     })
 
     if (result.status !== 204) {
+      const err = await this.generateError(url, result)
+      throw err
+    }
+  }
+
+    /**
+   * Query for documents using an array of ids.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param documentIds An array of document ids.
+   * @param fieldNames An array of field names.
+   */
+  async getEnumTypeItems ({ fullyQualifiedEnumTypeName }: { fullyQualifiedEnumTypeName: string; }): Promise<RuntimeEnumTypeItem[]> {
+    const url = this.buildEnumTypeItemsUrl(fullyQualifiedEnumTypeName)
+
+    const result = await this.retryableFetch(url, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    if (result.status === 200) {
+      const json = await result.json()
+      const items = json.items as Record<string, string>[]
+
+      return items.map(item => ({
+        deprecated: item.deprecated,
+        documentation: item.documentation,
+        symbol: item.symbol,
+        text: item.text,
+        value: item.value
+      }))
+    } else {
       const err = await this.generateError(url, result)
       throw err
     }

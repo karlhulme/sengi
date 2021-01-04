@@ -40,7 +40,7 @@ export class SengiClientUnexpectedError extends SengiClientError {
 
 export class SengiClientUnrecognisedPathError extends SengiClientError {
   constructor (readonly url: string) {
-    super(`The path component of the url '${url}' was not recognised.  Check the spelling of the doc type plural name.`)
+    super(`The path component of the url '${url}' was not recognised.\nCheck the spelling of the doc type plural name or enum type name.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.url = url

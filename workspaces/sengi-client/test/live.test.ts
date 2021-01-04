@@ -18,6 +18,7 @@ let server: http.Server
 beforeAll(async () => {
   const mediumStringType = fs.readFileSync('./test/testTypeSystem/mediumString.yaml', 'utf-8')
   const positiveInteger = fs.readFileSync('./test/testTypeSystem/positiveInteger.yaml', 'utf-8')
+  const yesNo = fs.readFileSync('./test/testTypeSystem/yesNo.yaml', 'utf-8')
 
   docs.push({
     id: 'ba8f06b4-9b41-4e71-849c-484433afee79',
@@ -66,7 +67,7 @@ beforeAll(async () => {
   const sengiExpress = createSengiExpress({
     docTypes: testDocTypes,
     roleTypes: testRoleTypes,
-    jsonotronTypes: [mediumStringType, positiveInteger],
+    jsonotronTypes: [mediumStringType, positiveInteger, yesNo],
     docStore: memDocStore,
     getUuid: () => '00000000-0000-0000-0000-000000000001'
   })
@@ -188,6 +189,19 @@ test('Upsert a document.', async () => {
     }
   })
   expect(docs.findIndex(d => d.id === '67a5aa97-1a94-477a-884b-b2555f9aa230')).toBeGreaterThan(-1)
+})
+
+test('Get enum type items.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const enumTypeItems = await client.getEnumTypeItems({
+    fullyQualifiedEnumTypeName: 'https://jsonotron.org/jss/yesNo'
+  })
+  expect(enumTypeItems.length).toEqual(2)
+  expect(enumTypeItems[0]).toHaveProperty('value', 'yes')
+  expect(enumTypeItems[0]).toHaveProperty('text', 'Yes')
+
+  expect(enumTypeItems[1]).toHaveProperty('value', 'no')
+  expect(enumTypeItems[1]).toHaveProperty('text', 'No')
 })
 
 afterAll(async () => {
