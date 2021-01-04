@@ -66,6 +66,7 @@ Method Name | Parameters | Description
 getDocTypeNameFromPluralName | `docTypePluralName: string` | Returns the singular doc type name for the given plural name, or null if not found.
 getDocTypePluralNameFromName | `docTypeName: string` | Returns the plural doc type name for the given singular name, or null if not found.
 getEnumTypeItems | `(fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null` | Returns the list of items that are defined within the given enum type.
+getEnumTypeItemAsGraphQL | `(): string` | Returns a GraphQL type that represents an item from an enum.
 getDocTypeAsGraphQL | `(props: GetDocTypeAsGraphQLProps): string` | Returns a set of GraphQL types and inputs for the named doc type and set of role types.
 createDocument | `props: CreateDocumentProps` | Creates a new document using a doc type constructor.  Returns `{ isNew }`.
 deleteDocument | `props: DeleteDocumentProps` | Deletes an existing document.  Returns `{ isDeleted }`.
