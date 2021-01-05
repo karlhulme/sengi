@@ -450,7 +450,6 @@ export class Sengi {
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
     ensureFilterName(docType, props.filterName)
-    ensureCanFetchWholeCollection(docType)
   
     const retrievalFieldNames = determineFieldNamesForRetrieval(docType, props.fieldNames)
     const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
@@ -484,7 +483,6 @@ export class Sengi {
     ensureQueryPermission(props.roleNames, this.roleTypes, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
-    ensureCanFetchWholeCollection(docType)
   
     const retrievalFieldNames = determineFieldNamesForRetrieval(docType, props.fieldNames)
     const deprecations = getDeprecationsForRetrievalFieldNames(docType, retrievalFieldNames)
