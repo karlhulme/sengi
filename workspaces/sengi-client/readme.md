@@ -27,6 +27,8 @@ To instantiate a `SengiClient` you have to provide the following parameters:
 
 * **url** - The url of the Sengi service.
 
+* **logToConsole** - True if the client should log out the contents of any fetch calls just before they are invoked.  A call is only logged once, even if it has to be repeated due to transitory errors.
+
 ```javascript
 const client = new SengiClient({
   roleNames: ['admin'],

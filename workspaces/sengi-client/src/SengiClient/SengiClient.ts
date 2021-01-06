@@ -40,6 +40,11 @@ interface SengiClientConstructorProps {
    * The url of a Sengi service.  This value must be supplied.
    */
   url?: string
+
+  /**
+   * True if the client should log any API calls to the console. 
+   */
+  logToConsole?: boolean
 }
 
 /**
@@ -50,6 +55,7 @@ export class SengiClient {
   roleNames: string[]
   retryIntervals: number[]
   url: string
+  logToConsole: boolean
 
   /**
    * Creates a new Sengi client.
@@ -72,6 +78,7 @@ export class SengiClient {
     this.roleNames = props.roleNames
     this.retryIntervals = props.retryIntervals || DEFAULT_RETRY_INTERVALS
     this.url = `${props.url}${props.url.endsWith('/') ? '' : '/'}`
+    this.logToConsole = props.logToConsole || false
   }
 
   /**
@@ -95,6 +102,17 @@ export class SengiClient {
   private async retryableFetch (url: string, fetchParams: RequestInit): Promise<Response> {
     let lastResult = null
     let lastError = null
+
+    if (this.logToConsole) {
+      /* istanbul ignore next - we always specify method but check in case of future changes */
+      const method = fetchParams.method || 'get'
+
+      const message = `${method.toUpperCase()} ${url}\n` +
+        `Headers: ${JSON.stringify(fetchParams.headers, null, 2)}\n` +
+        `Body: ${JSON.stringify(fetchParams.body, null, 2)}`
+
+      console.log(message)
+    }
 
     for (let i = 0; i <= this.retryIntervals.length; i++) {
       if (i > 0) {

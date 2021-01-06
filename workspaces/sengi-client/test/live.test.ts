@@ -134,7 +134,7 @@ test('Operate on a document with a required version.', async () => {
 })
 
 test('Patch a document with a required version.', async () => {
-  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'], logToConsole: true })
   await client.patchDocument({
     docTypePluralName:'ns.hobbies',
     operationId: 'e24c71a2-b5dd-4b83-bce6-dde2817225d8',
