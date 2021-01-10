@@ -48,7 +48,7 @@ This is an example filter expression returned from a DocType filter implementati
 ```javascript
 const filterExpression = {
   indexName: 'mySecondaryIndex',
-  condition: 'docType = :docType and heightInCms > :heightParam', // must supply both of these parts
+  condition: 'docType = :docType and heightInCms > :heightParam', // can use just the equality, or equality and sort
   conditionParams: {
     ':docType': 'tree',
     ':heightParam': 200
