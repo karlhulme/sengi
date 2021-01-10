@@ -116,6 +116,22 @@ test('An error is thrown if queryDocumentsByFilter does not work.', async () => 
   }
 })
 
+test('An error is thrown if queryDocumentById does not work.', async () => {
+  try {
+    const fetchFunc = createErrorFetchFunc(500, 'not working')
+    const client = createClient(fetchFunc)
+    await client.queryDocumentById({
+      docTypePluralName: 'docTypePluralName',
+      documentId: '1234',
+      fieldNames: ['id']
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiClientUnexpectedError)
+    expect(err.message).toMatch(/not working/)
+  }
+})
+
 test('An error is thrown if queryDocumentsByIds does not work.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(500, 'not working')

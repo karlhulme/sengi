@@ -186,6 +186,8 @@ export class SengiClient {
    * @param docTypePluralName The plural name of a doc type.
    * @param newDocumentId The id for the new document.
    * @param constructorParams The parameters for the constructor (and any updatable fields).
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async createDocument ({ docTypePluralName, newDocumentId, constructorParams, pathComponents, roleNames }: { docTypePluralName: string; newDocumentId: string; constructorParams: DocFragment; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents)
@@ -210,6 +212,8 @@ export class SengiClient {
    * Delete a document.
    * @param docTypePluralName The plural name of a doc type.
    * @param documentId The id of the document to delete.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async deleteDocumentById ({ docTypePluralName, documentId, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + documentId
@@ -233,8 +237,10 @@ export class SengiClient {
    * @param docTypePluralName The plural name of a doc type.
    * @param documentId The id of the document to fetch.
    * @param fieldNames An array of field names.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
-  async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc|null> {
+  async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -254,9 +260,6 @@ export class SengiClient {
       }
 
       return json.doc
-    } else if (result.status === 404) {
-      // we cannot tell the difference between an unknown path (e.g. wrong docTypePluralName) and a document not being found.
-      return null
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -271,6 +274,8 @@ export class SengiClient {
    * @param operationName The name of the operation to invoke.
    * @param operationParams The parameters required by the operation.
    * @param reqVersion If supplied, the document must have this document version or the operation will not be invoked.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async operateOnDocument ({ docTypePluralName, operationId, documentId, operationName, operationParams, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: DocFragment, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}:${operationName}`
@@ -302,6 +307,8 @@ export class SengiClient {
    * @param documentId The id of the document to operate on.
    * @param patch The merge patch to apply to the document.
    * @param reqVersion If supplied, the document must have this document version or the patch will not be applied.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async patchDocument ({ docTypePluralName, operationId, documentId, patch, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; patch: DocPatch, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + documentId
@@ -330,6 +337,8 @@ export class SengiClient {
    * Query for all documents of a type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async queryAllDocuments ({ docTypePluralName, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?fields=${fieldNames.join(',')}`
@@ -363,6 +372,8 @@ export class SengiClient {
    * @param filterName The name of a filter.
    * @param filterParams The parameters of a filter.
    * @param fieldNames An array of field names.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async queryDocumentsByFilter ({ docTypePluralName, filterName, filterParams, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; filterName: string; filterParams: Record<string, unknown>; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?filterName=${filterName}&filterParams=${JSON.stringify(filterParams)}&fields=${fieldNames.join(',')}`
@@ -390,11 +401,47 @@ export class SengiClient {
     }
   }
 
+/**
+   * Query for a specific document using it's id.  If the document is not found, return null.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param documentId A document id.
+   * @param fieldNames An array of field names.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
+   */
+  async queryDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc|null> {
+    const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?ids=${documentId}&fields=${fieldNames.join(',')}`
+
+    const result = await this.retryableFetch(url, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json',
+        'x-role-names': this.buildRoleNames(roleNames),
+      }
+    })
+
+    if (result.status === 200) {
+      const json = await result.json()
+
+      /* istanbul ignore next */
+      if (json.deprecations && Object.keys(json.deprecations).length > 0) {
+        console.warn(json.deprecations)
+      }
+
+      return json.docs.length === 1 ? json.docs[0] : null
+    } else {
+      const err = await this.generateError(url, result)
+      throw err
+    }
+  }
+
   /**
    * Query for documents using an array of ids.
    * @param docTypePluralName The plural name of a doc type.
    * @param documentIds An array of document ids.
    * @param fieldNames An array of field names.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async queryDocumentsByIds ({ docTypePluralName, documentIds, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentIds: string[]; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?ids=${documentIds.join(',')}&fields=${fieldNames.join(',')}`
@@ -426,6 +473,8 @@ export class SengiClient {
    * Inserts a new document (without calling the constructor) or replaces an existing document.
    * @param docTypePluralName The plural name of a doc type.
    * @param doc The document to be upserted.
+   * @param pathComponents An array of components to be added to the path for this request.
+   * @param roleNames An array of role names to use just for this request. 
    */
   async upsertDocument ({ docTypePluralName, document, pathComponents, roleNames }: { docTypePluralName: string; document: Doc; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     if (typeof document.id !== 'string') {

@@ -18,22 +18,22 @@ test('400 - An error is thrown if the input parameters are not valid.', async ()
   }
 })
 
-// test('404 - An error is NOT thrown if the document type is not recognised because we cannot distinguish between this and documents not found.', async () => {
-//   try {
-//     const fetchFunc = createErrorFetchFunc(404, 'not recognised')
-//     const client = createClient(fetchFunc)
-//     await client.getDocumentById({
-//       docTypePluralName: 'docTypePluralName',
-//       documentId: 'document-id',
-//       fieldNames: ['some', 'field', 'names']
-//     })
-//     throw new Error('fail')
-//   } catch (err) {
-//     expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
-//     expect(err.message).toMatch(/path component of the url/)
-//     expect(err.message).toMatch(/docTypePluralName/)
-//   }
-// })
+test('404 - An error is thrown if the path is invalid, such as when docTypePluralName is not recognised or the id is invalid.', async () => {
+  try {
+    const fetchFunc = createErrorFetchFunc(404, 'path is not recognised')
+    const client = createClient(fetchFunc)
+    await client.getDocumentById({
+      docTypePluralName: 'docTypePluralName',
+      documentId: 'document-id',
+      fieldNames: ['some', 'field', 'names']
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
+    expect(err.message).toMatch(/path component of the url/)
+    expect(err.message).toMatch(/docTypePluralName/)
+  }
+})
 
 test('404 - An error is thrown if the enum type is not recognised.', async () => {
   try {

@@ -117,11 +117,22 @@ test('Get a document.', async () => {
   expect(fetchedDoc).toHaveProperty('inventor')
 })
 
-test('Get an non-existent document.', async () => {
+test('Query for a document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
-  const fetchedDoc = await client.getDocumentById({
+  const fetchedDoc = await client.queryDocumentById({
     docTypePluralName: 'ns.hobbies',
-    documentId: 'does-not-exist',
+    documentId: 'ba8f06b4-9b41-4e71-849c-484433afee79',
+    fieldNames: ['name', 'inventor']
+  })
+  expect(fetchedDoc).toHaveProperty('name', 'Chess')
+  expect(fetchedDoc).toHaveProperty('inventor')
+})
+
+test('Query for a non-existent document.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const fetchedDoc = await client.queryDocumentById({
+    docTypePluralName: 'ns.hobbies',
+    documentId: 'not-a-real-doc-id',
     fieldNames: ['name', 'inventor']
   })
   expect(fetchedDoc).toEqual(null)
