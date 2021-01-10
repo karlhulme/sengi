@@ -234,7 +234,7 @@ export class SengiClient {
    * @param documentId The id of the document to fetch.
    * @param fieldNames An array of field names.
    */
-  async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc> {
+  async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc|null> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -254,6 +254,9 @@ export class SengiClient {
       }
 
       return json.doc
+    } else if (result.status === 404) {
+      // we cannot tell the difference between an unknown path (e.g. wrong docTypePluralName) and a document not being found.
+      return null
     } else {
       const err = await this.generateError(url, result)
       throw err

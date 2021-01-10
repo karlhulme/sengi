@@ -117,6 +117,16 @@ test('Get a document.', async () => {
   expect(fetchedDoc).toHaveProperty('inventor')
 })
 
+test('Get an non-existent document.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const fetchedDoc = await client.getDocumentById({
+    docTypePluralName: 'ns.hobbies',
+    documentId: 'does-not-exist',
+    fieldNames: ['name', 'inventor']
+  })
+  expect(fetchedDoc).toEqual(null)
+})
+
 test('Operate on a document with a required version.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.operateOnDocument({
