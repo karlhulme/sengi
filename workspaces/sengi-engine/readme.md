@@ -67,7 +67,7 @@ getDocTypeNameFromPluralName | `docTypePluralName: string` | Returns the singula
 getDocTypePluralNameFromName | `docTypeName: string` | Returns the plural doc type name for the given singular name, or null if not found.
 getEnumTypeItems | `(fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null` | Returns the list of items that are defined within the given enum type.
 getEnumTypeItemAsGraphQL | `(): string` | Returns a GraphQL type that represents an item from an enum.
-getDocTypeAsGraphQL | `(props: GetDocTypeAsGraphQLProps): string` | Returns a set of GraphQL types and inputs for the named doc type and set of role types.
+getDocTypeAsGraphQL | `(props: GetDocTypeAsGraphQLProps): string` | Returns a set of GraphQL types and inputs for the named doc type and set of role types.  These types do not enforce the isRequired flag because it is expected that additional layers of processing may be applied between a graph service and the sengi-based data store.
 createDocument | `props: CreateDocumentProps` | Creates a new document using a doc type constructor.  Returns `{ isNew }`.
 deleteDocument | `props: DeleteDocumentProps` | Deletes an existing document.  Returns `{ isDeleted }`.
 operateOnDocument | `props: OperateOnDocumentProps` | Operates on an existing document.  Returns `{ isUpdated }`.

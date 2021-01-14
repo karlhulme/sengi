@@ -30,9 +30,9 @@ export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, do
       true
     )
 
-    const reqFlag = operationParam.isRequired ? '!' : ''
+    // ignore isRequired flag because middleware (e.g. lambda/functions service) may provide that value.
 
-    propertyLines.push(`  """\n  ${operationParam.documentation}\n  """\n  ${operationParamName}: ${graphQLPropertyTypeName}${reqFlag}`)
+    propertyLines.push(`  """\n  ${operationParam.documentation}\n  """\n  ${operationParamName}: ${graphQLPropertyTypeName}`)
   })
 
   if (propertyLines.length > 0) {

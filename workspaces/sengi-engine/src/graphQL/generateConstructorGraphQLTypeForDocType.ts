@@ -41,8 +41,8 @@ export function generateConstructorGraphQLTypeForDocType (jsonotron: Jsonotron, 
         true
       )
 
-      // ignore isRequired flag because constructor implementation should ensure
-      // that the constructor params are enough to create the doc.
+      // ignore isRequired flag because middlware (e.g. lamba/functions service) may
+      // provide additional values.
 
       propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}`)
     }

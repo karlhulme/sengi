@@ -26,6 +26,8 @@ export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docTyp
 
       // ignore isRequired flag because patching is just adjusting existing fields.
       // or potentially deleting them (by passing null)
+      // also, additional values may be provided by middleware (e.g. lambda/functions service).
+
 
       propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}`)
     }
