@@ -56,6 +56,22 @@ const filterExpression = {
 }
 ```
 
+DynamoDB defines a long list of [reserved words](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html).  If the field of a doc uses one of these names it is necessary to alias the field (# prefix) using a condition param name as shown below:
+
+```javascript
+const filterExpression = {
+  indexName: 'mySecondaryIndex',
+  condition: '#docTypeVar = :docType and heightInCms > :heightParam',
+  conditionParams: {
+    ':docType': 'tree',
+    ':heightParam': 200
+  },
+  conditionParamNames: {
+    '#docTypeVar': 'docType'
+  }
+}
+```
+
 ## Indexes
 
 This provider requires each table to be partitioned on a string field named `id`.  To do this, specify the key schema as follows:
