@@ -155,6 +155,28 @@ test('Query documents using a filter.', async () => {
   expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
 })
 
+test('Query documents using a filter with renames.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  const filterExpression = {
+    indexName: 'treeHeightIndex',
+    condition: '#docTypeVar = :docType and heightInCms > :heightParam',
+    conditionParams: {
+      ':docType': 'tree',
+      ':heightParam': 200
+    },
+    conditionParamNames: {
+      '#docTypeVar': 'docType'
+    }
+  }
+
+  const result = await docStore.queryByFilter('tree', 'trees', ['id'], filterExpression, {}, {})
+  expect(result.docs).toHaveLength(2)
+  expect(result.docs.findIndex(d => d.id === '01')).toBeGreaterThanOrEqual(0)
+  expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
+})
+
 test('Query documents using a filter and paging.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()

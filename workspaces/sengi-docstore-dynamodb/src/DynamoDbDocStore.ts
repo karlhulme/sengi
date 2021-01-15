@@ -53,6 +53,12 @@ export interface DynamoDbFilterExpression {
   } 
    */
   conditionParams: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap
+
+  /**
+   * A map of values to rename variable names where reserved
+   * words have been used.
+   */
+  conditionParamNames?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap
 }
 
 /**
@@ -245,6 +251,7 @@ export class DynamoDbDocStore implements DocStore {
         IndexName: dynamoFilterExpression.indexName,
         KeyConditionExpression: dynamoFilterExpression.condition,
         ExpressionAttributeValues: dynamoFilterExpression.conditionParams,
+        ExpressionAttributeNames: dynamoFilterExpression.conditionParamNames,
         Limit: props.limit
       }).promise()
   
