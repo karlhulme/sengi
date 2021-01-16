@@ -26,6 +26,5 @@ test('Generate GraphQL string for operation with no parameters.', () => {
   docType.operations.addTopping.parameters = {}
 
   const gql = generateOperationGraphQLTypeForDocType(jsonotron, docType, 'addTopping')
-  expect(gql).toEqual(expect.stringContaining('input PizzaAddToppingProps {'))
-  expect(gql).toEqual(expect.stringContaining('id: String!'))
+  expect(gql).toEqual('')
 })

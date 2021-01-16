@@ -11,8 +11,6 @@ export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docTyp
   const map = jsonotron.getGraphQLMap()
   const propertyLines: string[] = []
 
-  propertyLines.push(`  """\n  The id of the document to patch.\n  """\n  id: String!`)
-
   const fieldNames = Object.keys(docType.fields)
 
   fieldNames.forEach(fieldName => {
@@ -30,12 +28,11 @@ export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docTyp
       // or potentially deleting them (by passing null)
       // also, additional values may be provided by middleware (e.g. lambda/functions service).
 
-
       propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}`)
     }
   })
 
-  if (propertyLines.length > 1) {
+  if (propertyLines.length > 0) {
     const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + 'PatchProps'
     return `"""\nThe fields of the ${docType.name} object that can be patched.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
   } else {

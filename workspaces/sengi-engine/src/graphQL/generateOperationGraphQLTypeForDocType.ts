@@ -18,8 +18,6 @@ export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, do
     return ''
   }
 
-  propertyLines.push(`  """\n  The id of the document to operate on.\n  """\n  id: String!`)
-
   const operationParamNames = Object.keys(operation.parameters)
 
   operationParamNames.forEach(operationParamName => {
@@ -37,6 +35,10 @@ export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, do
     propertyLines.push(`  """\n  ${operationParam.documentation}\n  """\n  ${operationParamName}: ${graphQLPropertyTypeName}`)
   })
 
-  const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + capitalizeFirstLetter(operationName) + 'Props'
-  return `"""\nThe parameters of the ${operationName} operation of the ${docType.name} object.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
+  if (propertyLines.length > 0) {
+    const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + capitalizeFirstLetter(operationName) + 'Props'
+    return `"""\nThe parameters of the ${operationName} operation of the ${docType.name} object.\n"""\ninput ${graphQLTypeName} {\n${propertyLines.join('\n\n')}\n}`
+  } else {
+    return ''
+  }
 }
