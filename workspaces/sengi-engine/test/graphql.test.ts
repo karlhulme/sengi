@@ -9,7 +9,6 @@ test('Fetch the graph ql definition of a doc type.', async () => {
   expect(gql).toEqual(expect.stringContaining('input PersonConstructorProps {'))
   expect(gql).toEqual(expect.stringContaining('input PersonPatchProps {'))
   expect(gql).toEqual(expect.stringContaining('input PersonReplaceFavouriteColorsProps {'))
-  expect(gql).not.toEqual(expect.stringContaining('input PersonAttemptToChangeIdProps {'))
 })
 
 test('Fetch the graph ql definition of an enum type item.', async () => {

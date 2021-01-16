@@ -15,7 +15,7 @@ test('Generate patch GraphQL type for doc type.', () => {
   expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String]'))  
 })
 
-test('Generate empty GraphQL string for doc type with no fields.', () => {
+test('Generate empty GraphQL string for doc type with no updateable fields.', () => {
   const jsonotron = createJsonotron()
   const docType = createPizzaDocType()
   docType.fields.pizzaName.canUpdate = false

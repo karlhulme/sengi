@@ -20,11 +20,12 @@ test('Generate empty GraphQL string for unknown operation on doc type.', () => {
   expect(gql).toEqual('')
 })
 
-test('Generate empty GraphQL string for operation with no parameters.', () => {
+test('Generate GraphQL string for operation with no parameters.', () => {
   const jsonotron = createJsonotron()
   const docType = createPizzaDocType()
   docType.operations.addTopping.parameters = {}
 
   const gql = generateOperationGraphQLTypeForDocType(jsonotron, docType, 'addTopping')
-  expect(gql).toEqual('')
+  expect(gql).toEqual(expect.stringContaining('input PizzaAddToppingProps {'))
+  expect(gql).toEqual(expect.stringContaining('id: String!'))
 })
