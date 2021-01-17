@@ -86,7 +86,7 @@ export function generateQueryableGraphQLTypeForDocType (jsonotron: Jsonotron, do
   if (propertyLines.length > 0) {
     propertyLines.push(`  """\n  The id.\n  """\n  id: String!`)
     propertyLines.push(`  """\n  The type of the doc.\n  """\n  docType: String!`)
-    propertyLines.push(`  """\n  The list of operations on the doc.\n  """\n  docOps: [String]!`)
+    propertyLines.push(`  """\n  The list of operations on the doc.\n  """\n  docOps: [String!]!`)
     propertyLines.push(`  """\n  The version of the doc.\n  """\n  docVersion: String!`)
 
     const graphQLTypeName = capitalizeFirstLetter(codeSafeTypeName(docType.name)) + suffix

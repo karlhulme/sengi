@@ -17,14 +17,14 @@ test('Generate queryable GraphQL type for doc type for admin role.', () => {
 
     expect(gql).toEqual(expect.stringContaining('id: String!'))
     expect(gql).toEqual(expect.stringContaining('docType: String!'))
-    expect(gql).toEqual(expect.stringContaining('docOps: [String]!'))
+    expect(gql).toEqual(expect.stringContaining('docOps: [String!]!'))
     expect(gql).toEqual(expect.stringContaining('docVersion: String!'))
 
     expect(gql).toEqual(expect.stringContaining('pizzaName: String!'))
     expect(gql).toEqual(expect.stringContaining('inventor: String!'))
-    expect(gql).toEqual(expect.stringContaining('toppings: [String]'))
+    expect(gql).toEqual(expect.stringContaining('toppings: [String!]'))
     expect(gql).toEqual(expect.stringContaining('toppingCount: String'))
-    expect(gql).toEqual(expect.stringContaining('toppingsInCaps: [String]'))  
+    expect(gql).toEqual(expect.stringContaining('toppingsInCaps: [String!]'))  
   }
 })
 
@@ -42,14 +42,14 @@ test('Generate queryable GraphQL type for doc type for whitelisted role.', () =>
 
     expect(gql).toEqual(expect.stringContaining('id: String!'))
     expect(gql).toEqual(expect.stringContaining('docType: String!'))
-    expect(gql).toEqual(expect.stringContaining('docOps: [String]!'))
+    expect(gql).toEqual(expect.stringContaining('docOps: [String!]!'))
     expect(gql).toEqual(expect.stringContaining('docVersion: String!'))
 
     expect(gql).toEqual(expect.stringContaining('pizzaName: String!'))
     expect(gql).not.toEqual(expect.stringContaining('inventor: String!'))
-    expect(gql).not.toEqual(expect.stringContaining('toppings: [String]'))
+    expect(gql).not.toEqual(expect.stringContaining('toppings: [String!]'))
     expect(gql).not.toEqual(expect.stringContaining('toppingCount: String'))
-    expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String]'))
+    expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String!]'))
   }
 })
 

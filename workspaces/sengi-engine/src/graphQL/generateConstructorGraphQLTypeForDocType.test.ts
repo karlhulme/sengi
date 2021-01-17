@@ -9,12 +9,12 @@ test('Generate constructor GraphQL type for doc type.', () => {
   const gql = generateConstructorGraphQLTypeForDocType(jsonotron, docType)
   expect(gql).toEqual(expect.stringContaining('input PizzaConstructorProps {'))
   expect(gql).toEqual(expect.stringContaining('size: String!'))
-  expect(gql).toEqual(expect.stringContaining('deliveryInstructions: [String]'))
+  expect(gql).toEqual(expect.stringContaining('deliveryInstructions: [String!]'))
   expect(gql).toEqual(expect.stringContaining('pizzaName: String'))
   expect(gql).not.toEqual(expect.stringContaining('inventor: String!'))
-  expect(gql).toEqual(expect.stringContaining('toppings: [String]'))
+  expect(gql).toEqual(expect.stringContaining('toppings: [String!]'))
   expect(gql).not.toEqual(expect.stringContaining('toppingCount: String'))
-  expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String]'))  
+  expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String!]'))  
 })
 
 test('Generate empty constructor GraphQL string for doc type with parameterless constructor.', () => {

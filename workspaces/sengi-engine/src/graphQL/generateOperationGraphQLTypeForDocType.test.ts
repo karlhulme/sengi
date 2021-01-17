@@ -9,7 +9,7 @@ test('Generate operation GraphQL type for operation on doc type.', () => {
   const gql = generateOperationGraphQLTypeForDocType(jsonotron, docType, 'addTopping')
   expect(gql).toEqual(expect.stringContaining('input PizzaAddToppingProps {'))
   expect(gql).toEqual(expect.stringContaining('toppingName: String'))
-  expect(gql).toEqual(expect.stringContaining('quantity: [String]'))
+  expect(gql).toEqual(expect.stringContaining('quantity: [String!]'))
 })
 
 test('Generate empty GraphQL string for unknown operation on doc type.', () => {

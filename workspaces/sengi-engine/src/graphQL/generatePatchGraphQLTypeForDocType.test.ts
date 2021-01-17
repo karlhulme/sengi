@@ -10,9 +10,9 @@ test('Generate patch GraphQL type for doc type.', () => {
   expect(gql).toEqual(expect.stringContaining('input PizzaPatchProps {'))
   expect(gql).toEqual(expect.stringContaining('pizzaName: String'))
   expect(gql).not.toEqual(expect.stringContaining('inventor: String!'))
-  expect(gql).toEqual(expect.stringContaining('toppings: [String]'))
+  expect(gql).toEqual(expect.stringContaining('toppings: [String!]'))
   expect(gql).not.toEqual(expect.stringContaining('toppingCount: String'))
-  expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String]'))  
+  expect(gql).not.toEqual(expect.stringContaining('toppingsInCaps: [String!]'))  
 })
 
 test('Generate empty GraphQL string for doc type with no updateable fields.', () => {
