@@ -1,6 +1,6 @@
 {
   "name": "sengi",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "type": "module",
   "description": "Sengi is a set of components for building a microservice for querying/updating JSON docs based on known, enforceable, and evolving schemas.",
   "main": "./index.js",
