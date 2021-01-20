@@ -1,4 +1,4 @@
-import { Jsonotron, resolveJsonotronTypeToGraphQLType } from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
 import { DocType } from 'sengi-interfaces'
 import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
 
@@ -9,7 +9,6 @@ import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
  * @param operationName The name of an operation.
  */
 export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, docType: DocType, operationName: string): string {
-  const map = jsonotron.getGraphQLMap()
   const propertyLines: string[] = []
 
   const operation = docType.operations[operationName]
@@ -23,14 +22,9 @@ export function generateOperationGraphQLTypeForDocType (jsonotron: Jsonotron, do
   operationParamNames.forEach(operationParamName => {
     const operationParam = operation.parameters[operationParamName]
 
-    const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-      jsonotron.getFullyQualifiedTypeName(operationParam.type),
-      operationParam.isArray ? 1 : 0,
-      map,
-      true
-    )
+    const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: operationParam.type, isArray: operationParam.isArray })
 
-    // ignore isRequired flag because middleware (e.g. lambda/functions service) may provide that value.
+    // ignore isRequired flag because middleware (e.g. lambda/functions service) may provide that value - (parameterise would be better)
 
     propertyLines.push(`  """\n  ${operationParam.documentation}\n  """\n  ${operationParamName}: ${graphQLPropertyTypeName}`)
   })

@@ -1,4 +1,4 @@
-import { Jsonotron, resolveJsonotronTypeToGraphQLType } from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
 import { DocType } from 'sengi-interfaces'
 import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
 
@@ -8,7 +8,6 @@ import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
  * @param docType A doc type.
  */
 export function generateConstructorGraphQLTypeForDocType (jsonotron: Jsonotron, docType: DocType): string {
-  const map = jsonotron.getGraphQLMap()
   const propertyLines: string[] = []
 
   const ctorParamNames = Object.keys(docType.ctor.parameters)
@@ -16,16 +15,11 @@ export function generateConstructorGraphQLTypeForDocType (jsonotron: Jsonotron, 
   ctorParamNames.forEach(ctorParamName => {
     const ctorParam = docType.ctor.parameters[ctorParamName]
 
-    const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-      jsonotron.getFullyQualifiedTypeName(ctorParam.type),
-      ctorParam.isArray ? 1 : 0,
-      map,
-      true
-    )
+    const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: ctorParam.type, isArray: ctorParam.isArray })
 
-    const reqFlag = ctorParam.isRequired ? '!' : ''
+    // ignore isRequired flag because middleware (e.g. lambda/functions service) may provide that value. - (parameterise would be better)
 
-    propertyLines.push(`  """\n  ${ctorParam.documentation}\n  """\n  ${ctorParamName}: ${graphQLPropertyTypeName}${reqFlag}`)
+    propertyLines.push(`  """\n  ${ctorParam.documentation}\n  """\n  ${ctorParamName}: ${graphQLPropertyTypeName}`)
   })
 
   const fieldNames = Object.keys(docType.fields)
@@ -34,15 +28,10 @@ export function generateConstructorGraphQLTypeForDocType (jsonotron: Jsonotron, 
     const field = docType.fields[fieldName]
 
     if (field.canUpdate) {
-      const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-        jsonotron.getFullyQualifiedTypeName(field.type),
-        field.isArray ? 1 : 0,
-        map,
-        true
-      )
+      const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: field.type, isArray: field.isArray })
 
-      // ignore isRequired flag because middlware (e.g. lamba/functions service) may
-      // provide additional values.
+      // ignore isRequired flag because we are calling the constructor, which should set any required fields
+      // and these are optional additional fields to patch-in afterwards.
 
       propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}`)
     }

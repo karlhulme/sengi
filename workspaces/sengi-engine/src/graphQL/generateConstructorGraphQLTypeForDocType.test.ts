@@ -8,7 +8,7 @@ test('Generate constructor GraphQL type for doc type.', () => {
 
   const gql = generateConstructorGraphQLTypeForDocType(jsonotron, docType)
   expect(gql).toEqual(expect.stringContaining('input PizzaConstructorProps {'))
-  expect(gql).toEqual(expect.stringContaining('size: String!'))
+  expect(gql).toEqual(expect.stringContaining('size: String'))
   expect(gql).toEqual(expect.stringContaining('deliveryInstructions: [String!]'))
   expect(gql).toEqual(expect.stringContaining('pizzaName: String'))
   expect(gql).not.toEqual(expect.stringContaining('inventor: String!'))

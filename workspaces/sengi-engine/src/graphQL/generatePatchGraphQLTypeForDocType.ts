@@ -1,4 +1,4 @@
-import { Jsonotron, resolveJsonotronTypeToGraphQLType } from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
 import { DocType } from 'sengi-interfaces'
 import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
 
@@ -8,7 +8,6 @@ import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
  * @param docType A doc type.
  */
 export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docType: DocType): string {
-  const map = jsonotron.getGraphQLMap()
   const propertyLines: string[] = []
 
   const fieldNames = Object.keys(docType.fields)
@@ -17,12 +16,7 @@ export function generatePatchGraphQLTypeForDocType (jsonotron: Jsonotron, docTyp
     const field = docType.fields[fieldName]
 
     if (field.canUpdate) {
-      const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-        jsonotron.getFullyQualifiedTypeName(field.type),
-        field.isArray ? 1 : 0,
-        map,
-        true
-      )
+      const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: field.type, isArray: field.isArray })
 
       // ignore isRequired flag because patching is just adjusting existing fields.
       // or potentially deleting them (by passing null)

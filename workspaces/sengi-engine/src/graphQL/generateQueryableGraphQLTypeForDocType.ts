@@ -1,4 +1,4 @@
-import { Jsonotron, resolveJsonotronTypeToGraphQLType } from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
 import { DocType, RoleType, RoleTypeDocPermissionSet, RoleTypeDocQueryPermissionSet } from 'sengi-interfaces'
 import { capitalizeFirstLetter, codeSafeTypeName } from '../utils'
 
@@ -45,8 +45,6 @@ function canQueryField (fieldName: string, docType: DocType, roleTypes: RoleType
  * @param suffix A suffix to apply to the graph QL type name.
  */
 export function generateQueryableGraphQLTypeForDocType (jsonotron: Jsonotron, docType: DocType, roleTypes: RoleType[], suffix: string): string {
-  const map = jsonotron.getGraphQLMap()
-
   const propertyLines: string[] = []
   const fieldNames = Object.keys(docType.fields)
   const calcFieldNames = Object.keys(docType.calculatedFields)
@@ -55,16 +53,9 @@ export function generateQueryableGraphQLTypeForDocType (jsonotron: Jsonotron, do
     if (canQueryField(fieldName, docType, roleTypes)) {
       const field = docType.fields[fieldName]
 
-      const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-        jsonotron.getFullyQualifiedTypeName(field.type),
-        field.isArray ? 1 : 0,
-        map,
-        false
-      )
+      const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: field.type, isArray: field.isArray, isRequired: field.isRequired })
 
-      const reqFlag = field.isRequired ? '!' : ''
-
-      propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}${reqFlag}`)
+      propertyLines.push(`  """\n  ${field.documentation}\n  """\n  ${fieldName}: ${graphQLPropertyTypeName}`)
     }
   })
 
@@ -72,12 +63,7 @@ export function generateQueryableGraphQLTypeForDocType (jsonotron: Jsonotron, do
     if (canQueryField(calcFieldName, docType, roleTypes)) {
       const calcField = docType.calculatedFields[calcFieldName]
 
-      const graphQLPropertyTypeName = resolveJsonotronTypeToGraphQLType(
-        jsonotron.getFullyQualifiedTypeName(calcField.type),
-        calcField.isArray ? 1 : 0,
-        map,
-        false
-      )
+      const graphQLPropertyTypeName = jsonotron.getGraphQLPrimitiveType({ typeName: calcField.type, isArray: calcField.isArray })
 
       propertyLines.push(`  """\n  ${calcField.documentation}\n  """\n  ${calcFieldName}: ${graphQLPropertyTypeName}`)
     }
