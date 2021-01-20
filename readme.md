@@ -126,6 +126,13 @@ To extract an entire collection, a client should use a filter to extract subsets
 Skip and Limit are included as a convenience but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12 and 13.  So if you request records 11-20 you'll get duplicates.  Databases do not guarantee the order of documents, so omitting a search order will not help.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.  For this reason, some databases (e.g. AWS DynamoDO) don't provide any support for Offset. 
 
 
+## Patching
+
+The sengi engine will replace any field that is included in a patch.  If a field should be removed, then specify null.
+
+A field is always replaced in it's entirety, you cannot replace part of a schema type field.  This makes it easier for clients to produce new values, without having to keep track of the individual changes made to parts of a field.  As a side effect, it means that nulls value can be stored within schema types if desired.
+
+
 ## Development
 
 All packages in the monorepo are tested and versioned together.

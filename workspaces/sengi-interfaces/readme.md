@@ -16,6 +16,15 @@ npm install sengi-interfaces
 ```
 
 
+## Check
+
+There are no tests for the interface definitions.  You can produce a build to check validity.
+
+```
+npm run build
+```
+
+
 ## Continuous Deployment
 
 Any pushes or pull-requests on non-master branches will trigger the test runner.

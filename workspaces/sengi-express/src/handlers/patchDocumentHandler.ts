@@ -21,7 +21,7 @@ export async function patchDocumentHandler (props: RequestHandlerProps): Promise
       docStoreOptions: props.docStoreOptions,
       docTypeName: docType.name,
       id: props.matchedResource.urlParams['id'],
-      mergePatch: props.req.body as DocPatch,
+      patch: props.req.body as DocPatch,
       operationId: requestId,
       reqProps: props.reqProps,
       reqVersion,

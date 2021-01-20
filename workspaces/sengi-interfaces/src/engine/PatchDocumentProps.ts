@@ -7,7 +7,7 @@ export interface PatchDocumentProps {
   docTypeName: string
   id: string
   operationId: string
-  mergePatch: DocPatch
+  patch: DocPatch
   reqProps: RequestProps
   docStoreOptions: DocStoreOptions
   reqVersion?: string

@@ -59,7 +59,7 @@ test('Executing an unrecognised doc type operation raises an error.', () => {
   }
 })
 
-test('Executing an operation that does not return a merge patch raises an error.', () => {
+test('Executing an operation that does not return a patch raises an error.', () => {
   try {
     executeOperation(createDocType(), {}, 'stringErrorResponse', {})
     throw new Error('fail')

@@ -62,7 +62,7 @@ export class SengiFilterFailedError extends SengiEngineError {
   }
 }
 
-export class SengiInvalidOperationMergePatchError extends SengiEngineError {
+export class SengiInvalidOperationPatchError extends SengiEngineError {
   constructor (readonly docTypeName: string, readonly operationName: string, readonly message: string) {
     super(`Merge patch returned from operation '${operationName}' on document type '${docTypeName}' is invalid.\n${message}`)
     Object.setPrototypeOf(this, new.target.prototype)

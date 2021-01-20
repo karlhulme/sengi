@@ -42,7 +42,7 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     }
   })).resolves.toEqual({ isUpdated: true })
@@ -86,7 +86,7 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     }
   })).resolves.toEqual({ isUpdated: true })
@@ -116,7 +116,7 @@ test('Patching a document for a second time should only call fetch on doc store.
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '50e02b33-b22c-4207-8785-5a8aa529ec84',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     }
   })).resolves.toEqual({ isUpdated: false })
@@ -136,7 +136,7 @@ test('Patching a document using a required version should cause the required ver
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
     reqVersion: 'aaaa',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     }
   })).resolves.toEqual({ isUpdated: true })
@@ -156,7 +156,7 @@ test('Fail to patch document when required version is not available.', async () 
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     },
     reqVersion: 'aaaa' // if upsert yields VERSION_NOT_AVAILABLE and reqVersion is specified then versionNotAvailable error is raised
@@ -171,7 +171,7 @@ test('Fail to patch document if it changes between fetch and upsert.', async () 
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    mergePatch: {
+    patch: {
       shortName: 'Maisory'
     }
     // if upsert yields VERSION_NOT_AVAILABLE and reqVersion is NOT specified then conflictOnSave error is raised
@@ -189,7 +189,7 @@ test('Reject a patch to a non-existent doc.', async () => {
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-aaaaaaaaaaaa',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         shortName: 'Maisory'
       }
     })
@@ -207,7 +207,7 @@ test('Accept a patch to an unrecognised field although it has no effect.', async
     docTypeName: 'person',
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-    mergePatch: {
+    patch: {
       madeup: 'value'
     }
   })).resolves.toEqual({ isUpdated: true })
@@ -222,7 +222,7 @@ test('Reject a patch to any field that is not explicitly allowed for patching.',
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         pinCode: 4444
       }
     })
@@ -242,7 +242,7 @@ test('Reject a patch with a field value that is given an invalid type.', async (
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         shortName: 123
       }
     })
@@ -263,7 +263,7 @@ test('Reject a patch that would change a system field.', async () => {
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         id: 'aaaaaaaa-065a-4691-a7c8-2d84ec746ba9'
       }
     })
@@ -283,7 +283,7 @@ test('Reject a patch that produces a doc that fails the docType validate functio
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         addressLines: 'I live in a castle - which is not allowed'
       }
     })
@@ -304,7 +304,7 @@ test('Fail to patch a document if permissions insufficient.', async () => {
       docTypeName: 'person',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
-      mergePatch: {
+      patch: {
         shortName: 'Maisory'
       }
     })

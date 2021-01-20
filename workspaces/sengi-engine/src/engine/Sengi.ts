@@ -41,7 +41,7 @@ import {
  import { ensureUpsertSuccessful, SafeDocStore } from '../docStore'
  import {
    addSystemFieldValuesToNewDocument,
-   applyMergePatch,
+   applyPatch,
    createDocStoreOptions,
    executeConstructor,
    extractConstructorDeclaredParams,
@@ -299,7 +299,7 @@ export class Sengi {
   
       const ctorMergeParams = extractConstructorMergeParams(docType, props.constructorParams)
       ensurePatch(this.jsonotron, this.validateCache, docType, ctorMergeParams)
-      applyMergePatch(doc, ctorMergeParams)
+      applyPatch(doc, ctorMergeParams)
   
       addSystemFieldValuesToNewDocument(doc, docType.name, props.id)
   
@@ -373,7 +373,7 @@ export class Sengi {
       const mergePatch = executeOperation(docType, doc, props.operationName, props.operationParams)
       const safeMergePatch = trimInternalPatch(docType, mergePatch)
 
-      applyMergePatch(doc, safeMergePatch)
+      applyPatch(doc, safeMergePatch)
       applySystemFieldValuesToUpdatedDocument(docType, doc, props.operationId, 'operation', props.operationName)
       updateCalcsOnDocument(docType, doc)
 
@@ -413,11 +413,11 @@ export class Sengi {
     const operationIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
   
     if (!operationIdAlreadyExists) {
-      ensurePatch(this.jsonotron, this.validateCache, docType, props.mergePatch)
+      ensurePatch(this.jsonotron, this.validateCache, docType, props.patch)
   
       executePreSave(docType, doc)
   
-      applyMergePatch(doc, props.mergePatch)
+      applyPatch(doc, props.patch)
       applySystemFieldValuesToUpdatedDocument(docType, doc, props.operationId, 'patch')
       updateCalcsOnDocument(docType, doc)
   

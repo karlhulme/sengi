@@ -6,7 +6,7 @@ import { DocType, DocStoredField } from 'sengi-interfaces'
  * @param docType A document type.
  * @param constructorParams A set of constructor parameters that includes
  * both the declared constructor fields as well as regular fields intended
- * to be merged into the final document.
+ * to be appended to the final document.
  */
 export function extractConstructorDeclaredParams (docType: DocType, constructorParams: Record<string, DocStoredField>): Record<string, DocStoredField> {
   const result: Record<string, DocStoredField> = {}
