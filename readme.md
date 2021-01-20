@@ -141,6 +141,8 @@ The version number is only stored in the root package.json.  The version number 
 
 All projects include tests written in Jest with 100% coverage.
 
+To update dependencies, edit the respective `package.json` files, but then run `npm install` **in the root** of the project.  If you run it in a workspace folder a `node_modules` folder will be created which you'll then need to manually remove.
+
 
 ## Continuous Deployment
 

@@ -27,7 +27,7 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
-    "jsonotron-js": "^2.15.0"
+    "jsonotron-js": "^2.15.1"
   },
   "jest": {
     "preset": "ts-jest",
