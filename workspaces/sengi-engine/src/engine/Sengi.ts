@@ -33,6 +33,7 @@ import {
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
+  RuntimeEnumType,
   RuntimeEnumTypeItem,
   SavedDocCallback,
   SavedDocCallbackProps,
@@ -225,6 +226,19 @@ export class Sengi {
     } else {
       return null
     }
+  }
+
+  /**
+   * Returns the array of enum types.
+   */
+  getEnumTypes (): RuntimeEnumType[] {
+    return this.enumTypes.map(e => ({
+      domain: e.domain,
+      system: e.system,
+      name: e.name,
+      title: e.title,
+      documentation: e.documentation
+    }))
   }
 
   /**

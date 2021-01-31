@@ -13,6 +13,13 @@ test('Fetch the plural doc type name from the singular name.', async () => {
   expect(sengi.getDocTypePluralNameFromName('unknown')).toEqual(null)
 })
 
+test('Fetch the array of enum types.', async () => {
+  const { sengi } = createSengiWithMockStore()
+  expect(sengi.getEnumTypes()).toEqual([
+    { domain: 'https://jsonotron.org', system: 'jss', name: 'dayOfWeek', title: 'Day of Week', documentation: expect.any(String) }
+  ])
+})
+
 test('Fetch an enum type definition.', async () => {
   const { sengi } = createSengiWithMockStore()
   expect(sengi.getEnumTypeItems('https://jsonotron.org/jss/dayOfWeek')).toEqual(expect.arrayContaining([

@@ -17,6 +17,7 @@ export * from './queryDocumentsByFilterHandler'
 export * from './queryDocumentsByIdsHandler'
 
 // enum handlers
+export * from './enumTypesHandler'
 export * from './enumTypeItemsHandler'
 
 // errors

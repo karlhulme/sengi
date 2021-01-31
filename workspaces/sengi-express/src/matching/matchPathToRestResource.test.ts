@@ -73,6 +73,12 @@ test('Find a specific record and operation name method within a record collectio
   expect(matchPathToRestResource('/records/orgA/tenantA/films/123:addReview/', pathMatchArray2)).toEqual({ type: RestResourceType.OPERATION, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films', id: '123', operationName: 'addReview' } })
 })
 
+test('Find a request for enums.', () => {
+  const pathMatchArray = createRestResourceMatcherArray(0)
+  expect(matchPathToRestResource('/enumTypes', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPES, urlParams: {} })
+  expect(matchPathToRestResource('/enumTypes/', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPES, urlParams: {} })
+})
+
 test('Find a request for enum items.', () => {
   const pathMatchArray = createRestResourceMatcherArray(0)
   expect(matchPathToRestResource('/enumTypes/myEnum/items', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE_ITEMS, urlParams: { enumTypeEncodedFqn: 'myEnum' } })

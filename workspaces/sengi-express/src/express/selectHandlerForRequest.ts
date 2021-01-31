@@ -3,6 +3,7 @@ import { RestResourceType } from '../enums'
 import {
   createDocumentHandler,
   deleteDocumentHandler,
+  enumTypesHandler,
   enumTypeItemsHandler,
   getDocumentHandler,
   invalidEndPointVerbHandlerFactory,
@@ -51,7 +52,12 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
       case 'POST': return operateOnDocumentHandler
       default: return invalidEndPointVerbHandlerFactory(['POST'], req.method)
     }
-  } else if (matchedResource.type === RestResourceType.ENUM_TYPE_ITEMS) {
+  } else if (matchedResource.type === RestResourceType.ENUM_TYPES) {
+    switch (req.method) {
+      case 'GET': return enumTypesHandler
+      default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
+    }
+  }  else if (matchedResource.type === RestResourceType.ENUM_TYPE_ITEMS) {
     switch (req.method) {
       case 'GET': return enumTypeItemsHandler
       default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
