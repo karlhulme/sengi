@@ -79,8 +79,14 @@ test('Find a request for enums.', () => {
   expect(matchPathToRestResource('/enumTypes/', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPES, urlParams: {} })
 })
 
-test('Find a request for enum items.', () => {
+test('Find a request for an enum.', () => {
   const pathMatchArray = createRestResourceMatcherArray(0)
-  expect(matchPathToRestResource('/enumTypes/myEnum/items', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE_ITEMS, urlParams: { enumTypeEncodedFqn: 'myEnum' } })
-  expect(matchPathToRestResource('/enumTypes/https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek/items', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE_ITEMS, urlParams: { enumTypeEncodedFqn: 'https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek' } })
+  expect(matchPathToRestResource('/enumTypes/myEnum', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE, urlParams: { enumTypeEncodedFqn: 'myEnum' } })
+  expect(matchPathToRestResource('/enumTypes/https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek/', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE, urlParams: { enumTypeEncodedFqn: 'https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek' } })
+})
+
+test('Find a request for doc types.', () => {
+  const pathMatchArray = createRestResourceMatcherArray(0)
+  expect(matchPathToRestResource('/docTypes', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
+  expect(matchPathToRestResource('/docTypes/', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
 })

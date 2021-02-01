@@ -17,8 +17,11 @@ export * from './queryDocumentsByFilterHandler'
 export * from './queryDocumentsByIdsHandler'
 
 // enum handlers
+export * from './enumTypeHandler'
 export * from './enumTypesHandler'
-export * from './enumTypeItemsHandler'
+
+// doc type handlers
+export * from './docTypesHandler'
 
 // errors
 export * from './invalidEndPointVerbHandlerFactory'

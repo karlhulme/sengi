@@ -3,8 +3,9 @@ import { RestResourceType } from '../enums'
 import {
   createDocumentHandler,
   deleteDocumentHandler,
+  docTypesHandler,
   enumTypesHandler,
-  enumTypeItemsHandler,
+  enumTypeHandler,
   getDocumentHandler,
   invalidEndPointVerbHandlerFactory,
   invalidPathHandler,
@@ -57,9 +58,14 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
       case 'GET': return enumTypesHandler
       default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
     }
-  }  else if (matchedResource.type === RestResourceType.ENUM_TYPE_ITEMS) {
+  } else if (matchedResource.type === RestResourceType.ENUM_TYPE) {
     switch (req.method) {
-      case 'GET': return enumTypeItemsHandler
+      case 'GET': return enumTypeHandler
+      default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
+    }
+  } else if (matchedResource.type === RestResourceType.DOC_TYPES) {
+    switch (req.method) {
+      case 'GET': return docTypesHandler
       default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
     }
   } else if (matchedResource.type === RestResourceType.ROOT) {

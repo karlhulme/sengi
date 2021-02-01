@@ -1,9 +1,7 @@
-import { RuntimeEnumTypeItem } from './RuntimeEnumTypeItem';
-
 /**
  * Represents an enum accessed at runtime.
  */
-export interface RuntimeEnumType {
+export interface RuntimeEnumTypeOverview {
   /**
    * The domain of the enum, used to guarantee uniqueness.
    */
@@ -23,14 +21,4 @@ export interface RuntimeEnumType {
    * The title of the enum, suitable for display.
    */
   title: string
-
-  /**
-   * The documentation of the enum.
-   */
-  documentation: string
-
-  /**
-   * An array of the items that make up the enum type.
-   */
-  items: RuntimeEnumTypeItem[]
 }

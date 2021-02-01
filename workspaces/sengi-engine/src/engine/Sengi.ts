@@ -33,11 +33,12 @@ import {
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
+  RuntimeEnumTypeOverview,
   RuntimeEnumType,
-  RuntimeEnumTypeItem,
   SavedDocCallback,
   SavedDocCallbackProps,
-  SengiCallbackError
+  SengiCallbackError,
+  RuntimeDocTypeOverview
  } from 'sengi-interfaces'
  import { ensureUpsertSuccessful, SafeDocStore } from '../docStore'
  import {
@@ -229,15 +230,14 @@ export class Sengi {
   }
 
   /**
-   * Returns the array of enum types.
+   * Returns an array of enum type overviews.
    */
-  getEnumTypes (): RuntimeEnumType[] {
+  getEnumTypes (): RuntimeEnumTypeOverview[] {
     return this.enumTypes.map(e => ({
       domain: e.domain,
       system: e.system,
       name: e.name,
-      title: e.title,
-      documentation: e.documentation
+      title: e.title
     }))
   }
 
@@ -245,24 +245,40 @@ export class Sengi {
    * Returns the enum type identified by the given fully qualified enum type name, or null if not found.
    * @param fullyQualifiedEnumTypeName An enum type name that includes the domain and system.
    */
-  getEnumTypeItems (fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null {
+  getEnumType (fullyQualifiedEnumTypeName: string): RuntimeEnumType|null {
     const enumType = this.enumTypes.find(e => `${e.domain}/${e.system}/${e.name}` === fullyQualifiedEnumTypeName)
 
     if (enumType) {
-      return enumType.items.map(e => {
-        const runtimeEnumType: RuntimeEnumTypeItem = {
-          value: e.value,
-          text: e.text,
-          symbol: e.symbol,
-          deprecated: e.deprecated,
-          documentation: e.documentation
-        }
-
-        return runtimeEnumType
-      })
+      return {
+        domain: enumType.domain,
+        system: enumType.system,
+        name: enumType.name,
+        title: enumType.title,
+        documentation: enumType.documentation,
+        items: enumType.items.map(item => ({
+          text: item.text,
+          value: item.value,
+          deprecated: item.deprecated,
+          symbol: item.symbol,
+          documentation: item.documentation
+        }))
+      }
     } else {
       return null
     }
+  }
+
+  /**
+   * Returns an array of the doc types.
+   */
+  getDocTypes (): RuntimeDocTypeOverview[] {
+    return this.docTypes.map(d => ({
+      name: d.name,
+      pluralName: d.pluralName,
+      title: d.title,
+      pluralTitle: d.pluralTitle,
+      summary: d.summary
+    }))
   }
 
   /**

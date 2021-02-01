@@ -4,19 +4,19 @@ import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
 
 /**
- * Handles a request for enum type items. 
+ * Handles a request for an enum type. 
  * @param props Properties for handling the request.
  */
-export async function enumTypeItemsHandler (props: RequestHandlerProps): Promise<void> {
+export async function enumTypeHandler (props: RequestHandlerProps): Promise<void> {
   ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
   const enumTypeDecodedFqn = decodeURIComponent(props.matchedResource.urlParams['enumTypeEncodedFqn'])
 
-  const enumTypeItems = props.sengi.getEnumTypeItems(enumTypeDecodedFqn)
+  const enumType = props.sengi.getEnumType(enumTypeDecodedFqn)
 
-  if (Array.isArray(enumTypeItems)) {
+  if (enumType) {
     applyResultToHttpResponse(props.res, {
-      json: { items: enumTypeItems },
+      json: { enumType },
       statusCode: 200
     })
   } else {
