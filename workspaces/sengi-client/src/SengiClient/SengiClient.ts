@@ -1,5 +1,5 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
-import { Doc, DocFragment, DocPatch, SerializableEnumType } from 'sengi-interfaces'
+import { Doc, DocFragment, DocPatch, SerializableDocType, SerializableDocTypeOverview, SerializableEnumType, SerializableEnumTypeOverview } from 'sengi-interfaces'
 import {
   SengiClientGatewayError,
   SengiClientInvalidInputError,
@@ -165,11 +165,33 @@ export class SengiClient {
   }
 
   /**
-   * Builds the target url for an enum type items request.
+   * Builds the target url for an enum types request.
+   */
+  private buildEnumTypesUrl () {
+    return this.url + 'enumTypes/'
+  }
+
+  /**
+   * Builds the target url for an enum type request.
    * @param fullyQualifiedEnumTypeName The fully qualified name of the enum.
    */
-  private buildEnumTypeItemsUrl (fullyQualifiedEnumTypeName: string) {
+  private buildEnumTypeUrl (fullyQualifiedEnumTypeName: string) {
     return this.url + 'enumTypes/' + encodeURIComponent(fullyQualifiedEnumTypeName)
+  }
+
+  /**
+   * Builds the target url for a doc types request.
+   */
+  private buildDocTypesUrl () {
+    return this.url + 'docTypes/'
+  }
+
+  /**
+   * Builds the target url for a doc type request.
+   * @param docTypeName The name of the doc type.
+   */
+  private buildDocTypeUrl (docTypeName: string) {
+    return this.url + 'docTypes/' + encodeURIComponent(docTypeName)
   }
 
   /**
@@ -499,14 +521,34 @@ export class SengiClient {
     }
   }
 
-    /**
+  /**
+   * Get the enum type overviews.
+   */
+  async getEnumTypeOverviews (): Promise<SerializableEnumTypeOverview> {
+    const url = this.buildEnumTypesUrl()
+
+    const result = await this.retryableFetch(url, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    if (result.status === 200) {
+      const json = await result.json()
+      return json.enumTypes as SerializableEnumTypeOverview
+    } else {
+      const err = await this.generateError(url, result)
+      throw err
+    }
+  }
+
+  /**
    * Get the enum type.
-   * @param docTypePluralName The plural name of a doc type.
-   * @param documentIds An array of document ids.
-   * @param fieldNames An array of field names.
+   * @param fullyQualifiedEnumTypeName The fully qualified name of an enum type.
    */
   async getEnumType ({ fullyQualifiedEnumTypeName }: { fullyQualifiedEnumTypeName: string; }): Promise<SerializableEnumType> {
-    const url = this.buildEnumTypeItemsUrl(fullyQualifiedEnumTypeName)
+    const url = this.buildEnumTypeUrl(fullyQualifiedEnumTypeName)
 
     const result = await this.retryableFetch(url, {
       method: 'get',
@@ -518,6 +560,51 @@ export class SengiClient {
     if (result.status === 200) {
       const json = await result.json()
       return json.enumType as SerializableEnumType
+    } else {
+      const err = await this.generateError(url, result)
+      throw err
+    }
+  }
+
+  /**
+   * Get the doc type overviews.
+   */
+  async getDocTypeOverviews (): Promise<SerializableDocTypeOverview> {
+    const url = this.buildDocTypesUrl()
+
+    const result = await this.retryableFetch(url, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    if (result.status === 200) {
+      const json = await result.json()
+      return json.docTypes as SerializableDocTypeOverview
+    } else {
+      const err = await this.generateError(url, result)
+      throw err
+    }
+  }
+
+  /**
+   * Get the doc type.
+   * @param docTypeName The name of a doc type.
+   */
+  async getDocType ({ docTypeName }: { docTypeName: string; }): Promise<SerializableDocType> {
+    const url = this.buildDocTypeUrl(docTypeName)
+
+    const result = await this.retryableFetch(url, {
+      method: 'get',
+      headers: {
+        'content-type': 'application/json'
+      }
+    })
+
+    if (result.status === 200) {
+      const json = await result.json()
+      return json.docType as SerializableDocType
     } else {
       const err = await this.generateError(url, result)
       throw err

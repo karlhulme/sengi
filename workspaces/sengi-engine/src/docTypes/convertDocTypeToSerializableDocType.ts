@@ -1,4 +1,28 @@
-import { DocType, DocTypeAggregate, DocTypeAggregateField, DocTypeAggregateParameter, DocTypeCalculatedField, DocTypeConstructorParameter, DocTypeField, DocTypeFilter, DocTypeFilterParameter, DocTypeOperation, DocTypeOperationParameter, SerializableDocType, SerializableDocTypeAggregate, SerializableDocTypeAggregateField, SerializableDocTypeAggregateParameter, SerializableDocTypeCalculatedField, SerializableDocTypeConstructorParameter, SerializableDocTypeField, SerializableDocTypeFilter, SerializableDocTypeFilterParameter, SerializableDocTypeOperation, SerializableDocTypeOperationParameter } from 'sengi-interfaces'
+import {
+  DocType,
+  DocTypeAggregate,
+  DocTypeAggregateField,
+  DocTypeAggregateParameter,
+  DocTypeCalculatedField,
+  DocTypeConstructorParameter,
+  DocTypeField,
+  DocTypeFilter,
+  DocTypeFilterParameter,
+  DocTypeOperation,
+  DocTypeOperationParameter,
+  SerializableDocType,
+  SerializableDocTypeAggregate,
+  SerializableDocTypeAggregateField,
+  SerializableDocTypeAggregateParameter,
+  SerializableDocTypeCalculatedField,
+  SerializableDocTypeConstructorParameter,
+  SerializableDocTypeField,
+  SerializableDocTypeFilter,
+  SerializableDocTypeFilterParameter,
+  SerializableDocTypeOperation,
+  SerializableDocTypeOperationParameter
+} from 'sengi-interfaces'
+import { Jsonotron } from 'jsonotron-js'
 
 /**
  * Returns a new object where the value of each key is the result of
@@ -17,7 +41,7 @@ function convertKeys<Source, Target> (obj: Record<string, Source>, converter: (s
  * Returns a serializable doc type.
  * @param docType A doc type.
  */
-export function convertDocTypeToSerializableDocType (docType: DocType): SerializableDocType {
+export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docType: DocType): SerializableDocType {
   return {
     name: docType.name,
     pluralName: docType.pluralName,
@@ -27,6 +51,7 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
     documentation: docType.documentation,
     fields: convertKeys<DocTypeField, SerializableDocTypeField>(docType.fields, f => ({
       type: f.type,
+      graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: f.type, isArray: f.isArray }),
       documentation: f.documentation,
       deprecation: f.deprecation,
       default: f.default,
@@ -38,6 +63,7 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
     patchExamples: docType.patchExamples,
     calculatedFields: convertKeys<DocTypeCalculatedField, SerializableDocTypeCalculatedField>(docType.calculatedFields, calc => ({
       type: calc.type,
+      graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: calc.type, isArray: calc.isArray }),
       documentation: calc.documentation,
       deprecation: calc.deprecation,
       inputFields: calc.inputFields,
@@ -50,6 +76,7 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
       examples: f.examples,
       parameters: convertKeys<DocTypeFilterParameter, SerializableDocTypeFilterParameter>(f.parameters, p => ({
         type: p.type,
+        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,
@@ -63,12 +90,14 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
       deprecation: agg.deprecation,
       fields: convertKeys<DocTypeAggregateField, SerializableDocTypeAggregateField>(agg.fields, f => ({
         type: f.type,
+        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: f.type, isArray: f.isArray }),
         documentation: f.documentation,
         deprecation: f.deprecation,
         isArray: f.isArray
       })),
       parameters: convertKeys<DocTypeAggregateParameter, SerializableDocTypeAggregateParameter>(agg.parameters, p => ({
         type: p.type,
+        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,
@@ -81,6 +110,7 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
       examples: docType.ctor.examples,
       parameters: convertKeys<DocTypeConstructorParameter, SerializableDocTypeConstructorParameter>(docType.ctor.parameters, p => ({
         type: p.type,
+        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
         documentation: p.documentation,
         deprecated: p.deprecated,
         isArray: p.isArray,
@@ -93,6 +123,7 @@ export function convertDocTypeToSerializableDocType (docType: DocType): Serializ
       examples: op.examples,
       parameters: convertKeys<DocTypeOperationParameter, SerializableDocTypeOperationParameter>(op.parameters, p => ({
         type: p.type,
+        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,

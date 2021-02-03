@@ -291,7 +291,7 @@ export class Sengi {
     const docType = this.docTypes.find(d => d.name === docTypeName)
 
     if (docType) {
-      return convertDocTypeToSerializableDocType(docType)
+      return convertDocTypeToSerializableDocType(this.jsonotron, docType)
     } else {
       return null
     }

@@ -2,6 +2,7 @@ import { DocStoredField } from '../doc'
 
 export interface SerializableDocTypeField {
   type: string
+  graphQlType: string
   default?: DocStoredField
   isArray?: boolean
   isRequired?: boolean

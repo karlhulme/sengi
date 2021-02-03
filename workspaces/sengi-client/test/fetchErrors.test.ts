@@ -49,6 +49,20 @@ test('404 - An error is thrown if the enum type is not recognised.', async () =>
   }
 })
 
+test('404 - An error is thrown if the doc type is not recognised.', async () => {
+  try {
+    const fetchFunc = createErrorFetchFunc(404, 'not available')
+    const client = createClient(fetchFunc)
+    await client.getDocType({
+      docTypeName: 'unknown-doc-type'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
+    expect(err.message).toMatch(/path component of the url/)
+  }
+})
+
 test('412 - An error is thrown if the required doc version is not available.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(412, 'not available')

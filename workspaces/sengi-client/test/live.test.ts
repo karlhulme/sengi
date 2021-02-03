@@ -212,6 +212,18 @@ test('Upsert a document.', async () => {
   expect(docs.findIndex(d => d.id === '67a5aa97-1a94-477a-884b-b2555f9aa230')).toBeGreaterThan(-1)
 })
 
+test('Get enum type overviews.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const enumTypes = await client.getEnumTypeOverviews()
+  expect(enumTypes).toBeDefined()
+  expect(enumTypes).toEqual(expect.arrayContaining([{
+    domain: 'https://jsonotron.org',
+    system: 'jss',
+    name: 'yesNo',
+    title: 'Yes or No'
+  }]))
+})
+
 test('Get enum type.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   const enumType = await client.getEnumType({
@@ -221,9 +233,27 @@ test('Get enum type.', async () => {
   expect(enumType.items.length).toEqual(2)
   expect(enumType.items[0]).toHaveProperty('value', 'yes')
   expect(enumType.items[0]).toHaveProperty('text', 'Yes')
-
   expect(enumType.items[1]).toHaveProperty('value', 'no')
   expect(enumType.items[1]).toHaveProperty('text', 'No')
+})
+
+test('Get doc type overviews.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const docTypes = await client.getDocTypeOverviews()
+  expect(docTypes).toBeDefined()
+  expect(docTypes).toEqual(expect.arrayContaining([{
+    name: 'ns.hobby',
+    pluralName: 'ns.hobbies',
+    title: 'Hobby',
+    pluralTitle: 'Hobbies',
+    summary: ''
+  }]))
+})
+
+test('Get doc type.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const docType = await client.getDocType({ docTypeName: 'ns.hobby' })
+  expect(docType).toBeDefined()
 })
 
 afterAll(async () => {

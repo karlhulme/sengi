@@ -1,5 +1,17 @@
 import { expect, test } from '@jest/globals'
+import { readFileSync } from 'fs'
 import { DocType } from 'sengi-interfaces'
+import { Jsonotron } from 'jsonotron-js'
+
+export function createJsonotron (): Jsonotron {
+  const mediumStringType = readFileSync('./test/testTypeSystem/mediumString.yaml', 'utf-8')
+  const positiveIntegerType = readFileSync('./test/testTypeSystem/positiveInteger.yaml', 'utf-8')
+  const shortStringType = readFileSync('./test/testTypeSystem/shortString.yaml', 'utf-8')
+
+  return new Jsonotron({
+    types: [mediumStringType, positiveIntegerType, shortStringType]
+  })
+}
 
 export function createCarDocType (): DocType {
   return {
@@ -44,7 +56,7 @@ export function createLessonDocType (): DocType {
     summary: 'A lesson',
     documentation: 'This is a lesson document type.',
     fields: {
-      teacher: { type: 'string', documentation: 'The teacher', canUpdate: true, isRequired: true }
+      teacher: { type: 'shortString', documentation: 'The teacher', canUpdate: true, isRequired: true }
     },
     examples: [{
       documentation: 'An example lesson',
@@ -73,13 +85,13 @@ export function createLessonDocType (): DocType {
           }
         }],
         parameters: {
-          decimalPlaces: { type: 'integer', documentation: 'The docs' }
+          decimalPlaces: { type: 'positiveInteger', documentation: 'The docs' }
         }
       }
     },
     calculatedFields: {
       revenue: {
-        type: 'positiveFloat',
+        type: 'positiveInteger',
         documentation: 'Calculated field docs',
         inputFields: ['a', 'b'],
         value: () => 100000
@@ -89,7 +101,7 @@ export function createLessonDocType (): DocType {
       title: 'New lesson',
       documentation: 'Create a new lesson',
       parameters: {
-        numberOfClasses: { type: 'integer', documentation: 'Ctor parameter docs' }
+        numberOfClasses: { type: 'positiveInteger', documentation: 'Ctor parameter docs' }
       },
       examples: [{
         documentation: 'The ctor example',
@@ -105,7 +117,7 @@ export function createLessonDocType (): DocType {
         documentation: 'filter docs',
         implementation: () => ({}),
         parameters: {
-          cutoff: { type: 'integer', documentation: 'Filter param docs' }
+          cutoff: { type: 'positiveInteger', documentation: 'Filter param docs' }
         },
         examples: [{
           documentation: 'Filter example',
@@ -121,7 +133,7 @@ export function createLessonDocType (): DocType {
         documentation: 'Operation docs',
         implementation: () => ({}),
         parameters: {
-          score: { type: 'integer', documentation: 'Operation param docs' }
+          score: { type: 'positiveInteger', documentation: 'Operation param docs' }
         },
         examples: [{
           documentation: 'Operation example',
