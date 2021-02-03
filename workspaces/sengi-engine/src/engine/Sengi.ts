@@ -33,12 +33,13 @@ import {
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
-  RuntimeEnumTypeOverview,
-  RuntimeEnumType,
+  SerializableEnumTypeOverview,
+  SerializableEnumType,
   SavedDocCallback,
   SavedDocCallbackProps,
   SengiCallbackError,
-  RuntimeDocTypeOverview
+  SerializableDocTypeOverview,
+  SerializableDocType
  } from 'sengi-interfaces'
  import { ensureUpsertSuccessful, SafeDocStore } from '../docStore'
  import {
@@ -60,7 +61,8 @@ import {
    applyDeclaredFieldDefaultsToDocument,
    applyCalculatedFieldValuesToDocument,
    removeSurplusFieldsFromDocument,
-   evaluateFilter
+   evaluateFilter,
+   convertDocTypeToSerializableDocType
   } from '../docTypes'
  import {
    ensureCreatePermission,
@@ -232,7 +234,7 @@ export class Sengi {
   /**
    * Returns an array of enum type overviews.
    */
-  getEnumTypes (): RuntimeEnumTypeOverview[] {
+  getEnumTypes (): SerializableEnumTypeOverview[] {
     return this.enumTypes.map(e => ({
       domain: e.domain,
       system: e.system,
@@ -245,7 +247,7 @@ export class Sengi {
    * Returns the enum type identified by the given fully qualified enum type name, or null if not found.
    * @param fullyQualifiedEnumTypeName An enum type name that includes the domain and system.
    */
-  getEnumType (fullyQualifiedEnumTypeName: string): RuntimeEnumType|null {
+  getEnumType (fullyQualifiedEnumTypeName: string): SerializableEnumType|null {
     const enumType = this.enumTypes.find(e => `${e.domain}/${e.system}/${e.name}` === fullyQualifiedEnumTypeName)
 
     if (enumType) {
@@ -271,7 +273,7 @@ export class Sengi {
   /**
    * Returns an array of the doc types.
    */
-  getDocTypes (): RuntimeDocTypeOverview[] {
+  getDocTypes (): SerializableDocTypeOverview[] {
     return this.docTypes.map(d => ({
       name: d.name,
       pluralName: d.pluralName,
@@ -282,6 +284,21 @@ export class Sengi {
   }
 
   /**
+   * Returns the serializable parts of a doc type.
+   * @param docTypeName The name of a document type.
+   */
+  getDocType (docTypeName: string): SerializableDocType|null {
+    const docType = this.docTypes.find(d => d.name === docTypeName)
+
+    if (docType) {
+      return convertDocTypeToSerializableDocType(docType)
+    } else {
+      return null
+    }
+  }
+
+  /**
+   * @deprecated
    * Returns a GraphQL definition string for an enum type item.
    */
   getEnumTypeItemAsGraphQL (): string {
@@ -289,6 +306,7 @@ export class Sengi {
   }
 
   /**
+   * @deprecated
    * Returns a Graph QL definition string for the named doc type
    * and the set of queryable role types. 
    * @param props A property bag that describes what to generate.

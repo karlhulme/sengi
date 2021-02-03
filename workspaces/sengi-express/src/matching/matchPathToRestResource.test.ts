@@ -90,3 +90,9 @@ test('Find a request for doc types.', () => {
   expect(matchPathToRestResource('/docTypes', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
   expect(matchPathToRestResource('/docTypes/', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
 })
+
+test('Find a request for a doc type.', () => {
+  const pathMatchArray = createRestResourceMatcherArray(0)
+  expect(matchPathToRestResource('/docTypes/example', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPE, urlParams: { docTypeName: 'example' } })
+  expect(matchPathToRestResource('/docTypes/examples/', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPE, urlParams: { docTypeName: 'example' } })
+})

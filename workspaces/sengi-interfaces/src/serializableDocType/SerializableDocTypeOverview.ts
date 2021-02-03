@@ -1,7 +1,7 @@
 /**
- * Represents a doc type made available at runtime.
+ * Represents a doc type that can be serialized.
  */
-export interface RuntimeDocTypeOverview {
+export interface SerializableDocTypeOverview {
   /**
    * The name of a doc type.
    */

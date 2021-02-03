@@ -1,9 +1,9 @@
-import { RuntimeEnumTypeItem } from './RuntimeEnumTypeItem';
+import { SerializableEnumTypeItem } from './SerializableEnumTypeItem';
 
 /**
- * Represents an enum accessed at runtime.
+ * Represents a serializable enum type.
  */
-export interface RuntimeEnumType {
+export interface SerializableEnumType {
   /**
    * The domain of the enum, used to guarantee uniqueness.
    */
@@ -32,5 +32,5 @@ export interface RuntimeEnumType {
   /**
    * An array of the items that make up the enum type.
    */
-  items: RuntimeEnumTypeItem[]
+  items: SerializableEnumTypeItem[]
 }

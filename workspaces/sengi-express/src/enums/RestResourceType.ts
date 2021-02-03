@@ -9,5 +9,6 @@ export enum RestResourceType {
   OPERATION,
   ENUM_TYPES,
   ENUM_TYPE,
-  DOC_TYPES
+  DOC_TYPES,
+  DOC_TYPE
 }

@@ -22,6 +22,7 @@ export * from './enumTypesHandler'
 
 // doc type handlers
 export * from './docTypesHandler'
+export * from './docTypeHandler'
 
 // errors
 export * from './invalidEndPointVerbHandlerFactory'

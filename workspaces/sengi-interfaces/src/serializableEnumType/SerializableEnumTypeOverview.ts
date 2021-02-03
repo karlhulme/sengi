@@ -1,7 +1,7 @@
 /**
- * Represents an enum accessed at runtime.
+ * Represents the overview of a serializable enum type.
  */
-export interface RuntimeEnumTypeOverview {
+export interface SerializableEnumTypeOverview {
   /**
    * The domain of the enum, used to guarantee uniqueness.
    */

@@ -4,6 +4,7 @@ import {
   createDocumentHandler,
   deleteDocumentHandler,
   docTypesHandler,
+  docTypeHandler,
   enumTypesHandler,
   enumTypeHandler,
   getDocumentHandler,
@@ -66,6 +67,11 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
   } else if (matchedResource.type === RestResourceType.DOC_TYPES) {
     switch (req.method) {
       case 'GET': return docTypesHandler
+      default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
+    }
+  } else if (matchedResource.type === RestResourceType.DOC_TYPE) {
+    switch (req.method) {
+      case 'GET': return docTypeHandler
       default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
     }
   } else if (matchedResource.type === RestResourceType.ROOT) {

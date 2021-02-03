@@ -47,3 +47,14 @@ test('Fetch the array of doc types.', async () => {
     { name: 'person', pluralName: 'persons', title: 'Person', pluralTitle: 'Persons', summary: 'A person document' }
   ])
 })
+
+test('Fetch a doc type definition.', async () => {
+  const { sengi } = createSengiWithMockStore()
+  expect(sengi.getDocType('car')).toBeDefined()
+  expect(sengi.getDocType('person')).toBeDefined()
+})
+
+test('Fail to find an unknown doc type definition.', async () => {
+  const { sengi } = createSengiWithMockStore()
+  expect(sengi.getDocType('madeup')).toEqual(null)
+})

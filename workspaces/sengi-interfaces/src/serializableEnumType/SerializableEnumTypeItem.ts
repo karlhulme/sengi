@@ -1,11 +1,11 @@
 /**
- * Represents an item in an enumeration deduced at runtime.
+ * Represents an item in a serializable enum type.
  * This will follow a very similar (if not exact) structure to
  * the jsonotron-js type EnumTypeItem.  It is declared here so
  * that consumers can work with this type without having to
  * import jsonotron-js.
  */
-export interface RuntimeEnumTypeItem {
+export interface SerializableEnumTypeItem {
   /**
    * The underlying value of the item.
    */

@@ -14,6 +14,7 @@ export function createRestResourceMatcherArray (adc: number): RestResourceMatche
     { type: RestResourceType.OPERATION, expr: new RegExp(`^/records(?<adc>(/[a-zA-Z0-9_.]+){${adc}})/(?<docTypePluralName>[a-zA-Z0-9_.]+)/(?<id>[a-zA-Z0-9_-]+):(?<operationName>[a-zA-Z0-9_]+)/?$`) },
     { type: RestResourceType.ENUM_TYPES, expr: new RegExp(`^/enumTypes/?$`) },
     { type: RestResourceType.ENUM_TYPE, expr: new RegExp(`^/enumTypes/(?<enumTypeEncodedFqn>[a-zA-Z0-9_.%]+)/?$`) },
-    { type: RestResourceType.DOC_TYPES, expr: new RegExp(`^/docTypes/?$`) }
+    { type: RestResourceType.DOC_TYPES, expr: new RegExp(`^/docTypes/?$`) },
+    { type: RestResourceType.DOC_TYPE, expr: new RegExp(`^/docTypes/(?<docTypeName>[a-zA-Z0-9_.%]+)/?$`) }
   ]
 }
