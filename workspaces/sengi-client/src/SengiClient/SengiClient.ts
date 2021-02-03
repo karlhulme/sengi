@@ -1,5 +1,5 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
-import { Doc, DocFragment, DocPatch, RuntimeEnumTypeItem } from 'sengi-interfaces'
+import { Doc, DocFragment, DocPatch, SerializableEnumType } from 'sengi-interfaces'
 import {
   SengiClientGatewayError,
   SengiClientInvalidInputError,
@@ -169,7 +169,7 @@ export class SengiClient {
    * @param fullyQualifiedEnumTypeName The fully qualified name of the enum.
    */
   private buildEnumTypeItemsUrl (fullyQualifiedEnumTypeName: string) {
-    return this.url + 'enumTypes/' + encodeURIComponent(fullyQualifiedEnumTypeName) + '/items'
+    return this.url + 'enumTypes/' + encodeURIComponent(fullyQualifiedEnumTypeName)
   }
 
   /**
@@ -500,12 +500,12 @@ export class SengiClient {
   }
 
     /**
-   * Query for documents using an array of ids.
+   * Get the enum type.
    * @param docTypePluralName The plural name of a doc type.
    * @param documentIds An array of document ids.
    * @param fieldNames An array of field names.
    */
-  async getEnumTypeItems ({ fullyQualifiedEnumTypeName }: { fullyQualifiedEnumTypeName: string; }): Promise<RuntimeEnumTypeItem[]> {
+  async getEnumType ({ fullyQualifiedEnumTypeName }: { fullyQualifiedEnumTypeName: string; }): Promise<SerializableEnumType> {
     const url = this.buildEnumTypeItemsUrl(fullyQualifiedEnumTypeName)
 
     const result = await this.retryableFetch(url, {
@@ -517,15 +517,7 @@ export class SengiClient {
 
     if (result.status === 200) {
       const json = await result.json()
-      const items = json.items as Record<string, string>[]
-
-      return items.map(item => ({
-        deprecated: item.deprecated,
-        documentation: item.documentation,
-        symbol: item.symbol,
-        text: item.text,
-        value: item.value
-      }))
+      return json.enumType as SerializableEnumType
     } else {
       const err = await this.generateError(url, result)
       throw err

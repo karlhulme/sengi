@@ -212,17 +212,18 @@ test('Upsert a document.', async () => {
   expect(docs.findIndex(d => d.id === '67a5aa97-1a94-477a-884b-b2555f9aa230')).toBeGreaterThan(-1)
 })
 
-test('Get enum type items.', async () => {
+test('Get enum type.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
-  const enumTypeItems = await client.getEnumTypeItems({
+  const enumType = await client.getEnumType({
     fullyQualifiedEnumTypeName: 'https://jsonotron.org/jss/yesNo'
   })
-  expect(enumTypeItems.length).toEqual(2)
-  expect(enumTypeItems[0]).toHaveProperty('value', 'yes')
-  expect(enumTypeItems[0]).toHaveProperty('text', 'Yes')
+  expect(enumType).toBeDefined()
+  expect(enumType.items.length).toEqual(2)
+  expect(enumType.items[0]).toHaveProperty('value', 'yes')
+  expect(enumType.items[0]).toHaveProperty('text', 'Yes')
 
-  expect(enumTypeItems[1]).toHaveProperty('value', 'no')
-  expect(enumTypeItems[1]).toHaveProperty('text', 'No')
+  expect(enumType.items[1]).toHaveProperty('value', 'no')
+  expect(enumType.items[1]).toHaveProperty('text', 'No')
 })
 
 afterAll(async () => {

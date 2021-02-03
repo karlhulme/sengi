@@ -39,7 +39,7 @@ test('404 - An error is thrown if the enum type is not recognised.', async () =>
   try {
     const fetchFunc = createErrorFetchFunc(404, 'not available')
     const client = createClient(fetchFunc)
-    await client.getEnumTypeItems({
+    await client.getEnumType({
       fullyQualifiedEnumTypeName: 'unknown-enum-type'
     })
     throw new Error('fail')
