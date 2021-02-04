@@ -8,15 +8,15 @@ function run () {
   // calling `.parse` is the trigger for validating the inputs and executing the commands.
   yargs
     .command(
-      'clone <server> <roleName> <file>',
+      'clone <server> <roleName> <path>',
       'Clone doc types to local file',
       args => {
         yargs.positional('server', { describe: 'Url of server', type: 'string' })
         yargs.positional('roleName', { describe: 'A role name for access', type: 'string' })
-        yargs.positional('file', { describe: 'A target file', type: 'string' })
+        yargs.positional('path', { describe: 'A target file', type: 'string' })
         return args
       },
-      async (args: Record<string, unknown>) => { clone(args.server as string, args.roleName as string, args.dir as string) }
+      async (args: Record<string, unknown>) => { clone(args.server as string, args.roleName as string, args.path as string) }
     )
     // .command(
     //   'codegen <server> <path>',

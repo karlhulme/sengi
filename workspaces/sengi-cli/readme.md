@@ -19,7 +19,7 @@ Command | Output
 --- | ---
 npm start | Show the help output
 npm start clone -- --help | Show the help output for the clone command
-npm start clone https://localhost:3002 ./temp/folder | Clone the doc types to a local JSON file
+npm start clone http://localhost:3002 root ./temp/folder | Clone the doc types to a local JSON file
 
 
 ## Development

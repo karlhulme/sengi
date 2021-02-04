@@ -1,4 +1,4 @@
-import { writeFile } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import { SerializableDocType } from 'sengi-interfaces'
 import { SengiClient } from 'sengi-client'
 
@@ -9,14 +9,14 @@ import { SengiClient } from 'sengi-client'
  * @param roleName The role name to use for access.
  * @param file The file to write.
  */
-export async function clone (serverUrl: string, roleName: string, file: string): Promise<void> {
-  // normalise the server url
-  const normalisedUrl = serverUrl.endsWith('/') ? serverUrl : serverUrl + '/'
-  const docTypesUrl = normalisedUrl + 'docTypes'
-
+export async function clone (serverUrl: string, roleName: string, path: string): Promise<void> {
   // fetch the list of doc types
-  const sengiClient = new SengiClient({ url: docTypesUrl, roleNames: [roleName] })
+  const sengiClient = new SengiClient({ url: serverUrl, roleNames: [roleName] })
   const docTypeOverviews = await sengiClient.getDocTypeOverviews()
+
+  // ensure all the directories are created, upto the path
+  const lastDividerIndex = path.lastIndexOf('/')
+  await mkdir(path.slice(0, lastDividerIndex), { recursive: true })
 
   // build the list
   const docTypes: SerializableDocType[] = []
@@ -29,5 +29,5 @@ export async function clone (serverUrl: string, roleName: string, file: string):
   }
 
   // write the result
-  await writeFile(file, JSON.stringify(docTypes, null, 2), 'utf8')
+  await writeFile(path, JSON.stringify(docTypes, null, 2), 'utf8')
 }
