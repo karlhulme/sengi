@@ -6,15 +6,16 @@ import { SengiClient } from 'sengi-client'
  * Clone the doc types from a remote sengi-based service and store them
  * as a local JSON file.
  * @param serverUrl The url of a jsonoserve server.
+ * @param roleName The role name to use for access.
  * @param file The file to write.
  */
-export async function clone (serverUrl: string, file: string): Promise<void> {
+export async function clone (serverUrl: string, roleName: string, file: string): Promise<void> {
   // normalise the server url
   const normalisedUrl = serverUrl.endsWith('/') ? serverUrl : serverUrl + '/'
   const docTypesUrl = normalisedUrl + 'docTypes'
 
   // fetch the list of doc types
-  const sengiClient = new SengiClient({ url: docTypesUrl })
+  const sengiClient = new SengiClient({ url: docTypesUrl, roleNames: [roleName] })
   const docTypeOverviews = await sengiClient.getDocTypeOverviews()
 
   // build the list
