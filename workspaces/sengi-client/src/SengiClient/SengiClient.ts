@@ -524,7 +524,7 @@ export class SengiClient {
   /**
    * Get the enum type overviews.
    */
-  async getEnumTypeOverviews (): Promise<SerializableEnumTypeOverview> {
+  async getEnumTypeOverviews (): Promise<SerializableEnumTypeOverview[]> {
     const url = this.buildEnumTypesUrl()
 
     const result = await this.retryableFetch(url, {
@@ -536,7 +536,7 @@ export class SengiClient {
 
     if (result.status === 200) {
       const json = await result.json()
-      return json.enumTypes as SerializableEnumTypeOverview
+      return json.enumTypes as SerializableEnumTypeOverview[]
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -569,7 +569,7 @@ export class SengiClient {
   /**
    * Get the doc type overviews.
    */
-  async getDocTypeOverviews (): Promise<SerializableDocTypeOverview> {
+  async getDocTypeOverviews (): Promise<SerializableDocTypeOverview[]> {
     const url = this.buildDocTypesUrl()
 
     const result = await this.retryableFetch(url, {
@@ -581,7 +581,7 @@ export class SengiClient {
 
     if (result.status === 200) {
       const json = await result.json()
-      return json.docTypes as SerializableDocTypeOverview
+      return json.docTypes as SerializableDocTypeOverview[]
     } else {
       const err = await this.generateError(url, result)
       throw err

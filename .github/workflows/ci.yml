@@ -68,3 +68,7 @@ jobs:
         cd workspaces/sengi-client
         npm test
         npm run build
+    - name: Test cli
+      run: |
+        cd workspaces/sengi-cli
+        npm run build
