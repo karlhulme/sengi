@@ -199,6 +199,16 @@ test('Query documents with an id array.', async () => {
   expect(fetchedDocs.length).toEqual(1)
 })
 
+test('Query documents with an empty id array.', async () => {
+  const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
+  const fetchedDocs = await client.queryDocumentsByIds({
+    docTypePluralName: 'ns.hobbies',
+    documentIds: [],
+    fieldNames: ['id', 'inventor']
+  })
+  expect(fetchedDocs.length).toEqual(0)
+})
+
 test('Upsert a document.', async () => {
   const client = new SengiClient({ url: `http://localhost:${PORT}/`, roleNames: ['admin'] })
   await client.upsertDocument({

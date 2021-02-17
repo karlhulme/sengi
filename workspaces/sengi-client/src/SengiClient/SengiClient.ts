@@ -466,6 +466,10 @@ export class SengiClient {
    * @param roleNames An array of role names to use just for this request. 
    */
   async queryDocumentsByIds ({ docTypePluralName, documentIds, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentIds: string[]; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
+    if (documentIds.length === 0) {
+      return []
+    }
+    
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?ids=${documentIds.join(',')}&fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
