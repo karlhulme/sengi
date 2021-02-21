@@ -32,7 +32,9 @@ jobs:
     - name: Test document stores (cosmos)
       run: |
         cd workspaces/sengi-docstore-cosmosdb
+        npm run setup
         npm test
+        npm run teardown
         npm run build
       env:
         SENGI_COSMOS_URL: ${{ secrets.SENGI_COSMOS_URL }}
