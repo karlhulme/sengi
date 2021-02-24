@@ -1,5 +1,5 @@
 import { writeFile } from 'fs/promises'
-import { fetchDocTypes, ensureDirectory } from '../utils'
+import { ensureDirectory, fetchDocTypes, generateTypedSengiClient } from '../utils'
 
 /**
  * Clone the doc types from a remote sengi-based service and store them
@@ -8,13 +8,16 @@ import { fetchDocTypes, ensureDirectory } from '../utils'
  * @param roleName The role name to use for access.
  * @param file The file to write.
  */
-export async function clone (serverUrl: string, roleName: string, path: string): Promise<void> {
+export async function codegen (serverUrl: string, roleName: string, path: string): Promise<void> {
   // fetch the list of doc types
   const docTypes = await fetchDocTypes(serverUrl, roleName)
 
   // ensure all the directories are created, upto the path
-  ensureDirectory(path)
+  await ensureDirectory(path)
+
+  // generate a strongly-typed sub-class based on the doc types
+  const typedSengiClientCode = generateTypedSengiClient(docTypes)
 
   // write the result
-  await writeFile(path, JSON.stringify(docTypes, null, 2), 'utf8')
+  await writeFile(path, typedSengiClientCode, 'utf8')
 }
