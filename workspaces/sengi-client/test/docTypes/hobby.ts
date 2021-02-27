@@ -55,6 +55,5 @@ export const hobby: DocType = {
     parameters: {}
   },
   docStoreOptions: {},
-  examples: [],
-  patchExamples: []
+  examples: []
 }

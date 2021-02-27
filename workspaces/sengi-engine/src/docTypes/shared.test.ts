@@ -24,7 +24,6 @@ export function createCarDocType (): DocType {
 
     fields: {},
     examples: [],
-    patchExamples: [],
 
     aggregates: {},
     calculatedFields: {},
@@ -62,12 +61,6 @@ export function createLessonDocType (): DocType {
       documentation: 'An example lesson',
       value: {
         teacher: 'Mr Jones'
-      }
-    }],
-    patchExamples: [{
-      documentation: 'An example patch to a lesson',
-      value: {
-        teacher: 'Mrs Jones'
       }
     }],
     aggregates: {

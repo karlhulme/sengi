@@ -74,6 +74,5 @@ export const film: DocType = {
     }
   },
   docStoreOptions: {},
-  examples: [],
-  patchExamples: []
+  examples: []
 }

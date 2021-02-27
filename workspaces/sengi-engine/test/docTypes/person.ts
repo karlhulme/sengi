@@ -17,7 +17,6 @@ export const person: DocType = {
   },
   docStoreOptions: {},
   examples: [],
-  patchExamples: [],
   fields: {
     tenantId: { type: 'shortString', isRequired: true, documentation: 'The id of a tenant.' },
     shortName: { type: 'shortString', isRequired: true, canUpdate: true, documentation: 'The short name for the person.' },

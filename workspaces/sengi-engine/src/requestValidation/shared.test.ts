@@ -24,7 +24,6 @@ export function createFilmDocType (): DocType {
 
     fields: {},
     examples: [],
-    patchExamples: [],
 
     aggregates: {},
     calculatedFields: {},

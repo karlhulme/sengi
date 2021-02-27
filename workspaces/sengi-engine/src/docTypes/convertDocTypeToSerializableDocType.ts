@@ -60,7 +60,6 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
       isRequired: f.isRequired
     })),
     examples: docType.examples,
-    patchExamples: docType.patchExamples,
     calculatedFields: convertKeys<DocTypeCalculatedField, SerializableDocTypeCalculatedField>(docType.calculatedFields, calc => ({
       type: calc.type,
       graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: calc.type, isArray: calc.isArray }),

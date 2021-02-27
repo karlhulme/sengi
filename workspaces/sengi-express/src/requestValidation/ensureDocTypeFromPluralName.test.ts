@@ -17,7 +17,6 @@ const docTypes: DocType[] = [{
   fields: {},
   filters: {},
   operations: {},
-  patchExamples: [],
   policy: {
     canDeleteDocuments: false,
     canFetchWholeCollection: false,
@@ -45,7 +44,6 @@ const docTypes: DocType[] = [{
   fields: {},
   filters: {},
   operations: {},
-  patchExamples: [],
   policy: {
     canDeleteDocuments: false,
     canFetchWholeCollection: false,

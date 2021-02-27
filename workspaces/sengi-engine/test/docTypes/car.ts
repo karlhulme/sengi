@@ -10,7 +10,6 @@ export const car: DocType = {
   summary: 'A car',
   documentation: 'The information about a car document.',
   examples: [],
-  patchExamples: [],
   policy: {
     canDeleteDocuments: false,
     canReplaceDocuments: false,

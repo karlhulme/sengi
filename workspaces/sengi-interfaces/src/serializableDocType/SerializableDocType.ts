@@ -4,7 +4,7 @@ import { SerializableDocTypeFilter } from './SerializableDocTypeFilter'
 import { SerializableDocTypeAggregate } from './SerializableDocTypeAggregate'
 import { SerializableDocTypeConstructor } from './SerializableDocTypeConstructor'
 import { SerializableDocTypeOperation } from './SerializableDocTypeOperation'
-import { DocExample, DocPatchExample } from '../doc'
+import { DocExample } from '../doc'
 
 export interface SerializableDocType {
   name: string
@@ -15,7 +15,6 @@ export interface SerializableDocType {
   documentation: string
   fields: Record<string, SerializableDocTypeField>
   examples: DocExample[]
-  patchExamples: DocPatchExample[]
   calculatedFields: Record<string, SerializableDocTypeCalculatedField>
   filters: Record<string, SerializableDocTypeFilter>
   aggregates: Record<string, SerializableDocTypeAggregate>

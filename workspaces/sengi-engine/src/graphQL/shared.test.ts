@@ -42,7 +42,6 @@ export function createPizzaDocType (): DocType {
       toppings: { type: 'https://jsonotron.org/jss/shortString', isArray: true, canUpdate: true, documentation: 'The toppings on the pizza.' }
     },
     examples: [],
-    patchExamples: [],
 
     aggregates: {},
     calculatedFields: {

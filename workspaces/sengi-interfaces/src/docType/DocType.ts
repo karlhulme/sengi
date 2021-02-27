@@ -6,7 +6,7 @@ import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeOperation } from './DocTypeOperation'
 import { DocTypePolicy } from './DocTypePolicy'
 import { DocStoreOptions } from '../docStore'
-import { Doc, DocExample, DocPatchExample } from '../doc'
+import { Doc, DocExample } from '../doc'
 
 export interface DocType {
   name: string
@@ -31,8 +31,6 @@ export interface DocType {
   validate?: (doc: Doc) => void
 
   examples: DocExample[]
-  patchExamples: DocPatchExample[]
-
   calculatedFields: Record<string, DocTypeCalculatedField>
   filters: Record<string, DocTypeFilter>
   aggregates: Record<string, DocTypeAggregate>
