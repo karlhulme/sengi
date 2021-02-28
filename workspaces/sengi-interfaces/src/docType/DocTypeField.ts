@@ -7,5 +7,6 @@ export interface DocTypeField {
   isRequired?: boolean
   deprecation?: string
   canUpdate?: boolean
+  mustInitialise?: boolean
   documentation: string
 }

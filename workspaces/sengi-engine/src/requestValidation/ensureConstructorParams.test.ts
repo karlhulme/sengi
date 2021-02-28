@@ -12,14 +12,15 @@ function createDocType (): DocType {
 
   docType.fields = {
     movieName: { type: 'shortString', isRequired: true, canUpdate: true, documentation: '' },
-    rating: { type: 'shortString', documentation: '', default: 'Unrated' }
+    rating: { type: 'shortString', documentation: '', default: 'Unrated' },
+    publisher: { type: 'shortString', documentation: '', mustInitialise: true }
   }
 
   return docType
 }
 
 test('Valid doc type ctor params are accepted using both constructor parameters and updateable regular fields.', () => {
-  const ctorParams: DocFragment = { movieName: 'jaws', runLengthInSeconds: 6480 }
+  const ctorParams: DocFragment = { movieName: 'jaws', runLengthInSeconds: 6480, publisher: 'Paramount' }
   const cache = {}
   expect(() => ensureConstructorParams(createJsonotron(), cache, createDocType(), ctorParams)).not.toThrow()
   expect(cache).toHaveProperty(['[film].ctor.parameters'])

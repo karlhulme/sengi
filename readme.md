@@ -33,7 +33,7 @@ title | The display name of the doc type.
 pluralTitle | The display name of the doc type in plural form.
 summary | A short summary of the doc type, typically a single line.
 documentation | A markdown expression describing how to use the doc type.
-fields | A `Record<string, DocTypeField>` of field definitions.  Each field can be marked as `isRequired`, `isArray` and `canUpdate`.  Each field must also be described in the markdown `documentation` field.
+fields | A `Record<string, DocTypeField>` of field definitions.  Each field can be marked as `isRequired`, `isArray`, `canUpdate` and/or `mustInitialise`.  Each field must also be described in the markdown `documentation` field.
 preSave | A function `(doc: Doc) => void` that is called prior to saving a document that can be used to perform cleanup.
 validate | A function `(doc: Doc) => void` that is called prior to saving a document that can raise an error if the document is not valid and should not be saved.
 examples | An array of example instances of the doc type with corresponding documentation.
@@ -41,7 +41,7 @@ patchExamples | An array of example merge patches that would be valid for this d
 calculatedFields | A `Record<string, DocTypeCalculatedField>` of fields that will be calculated from the declared fields on the document.  This will be updated whenever the document is saved regardless of whether the document is patched or mutated through an operation.  The resulting fields are saved as top-level fields.  If you change the implementation then existing documents will not reflect the new implementation until re-saved.
 filters | A `Record<string, DocTypeFilter>` that provides a range of filters that can be used to return subsets of documents.  The required response from a filter implementation will depend on the choice of document store.
 aggregates | A `Record<string, DocTypeAggregate>` that provides summary calculations across a whole set of documents.
-ctor | A `DocTypeConstructor` that defines how to create a new instance of this doc type.  An implementation of `() => ({})` is fine where no special construction is required.  A client can always pass fields marked as `canUpdate` in addition to the defined constructor parameters.
+ctor | A `DocTypeConstructor` that defines how to create a new instance of this doc type.  An implementation of `() => ({})` is fine where no special construction is required.  A client can always pass fields marked as `canUpdate` in addition to the defined constructor parameters.  Any fields marked as `mustInitialise` will be a required constructor parameter.
 operations | A `Record<string, DocTypeOperation>` that provides all the mutations that can be carried out server-side on a document.  An operation is useful where (a) you want to strictly control the types of mutation on a document, such as payment records, or (b) you want to allow rapid changes to a single field without clients patching it.
 policy | A `DocTypePolicy` object that defines the types of permitted operations on the document.
 docStoreOptions | A property bag that is passed to many of the document store operation callbacks.

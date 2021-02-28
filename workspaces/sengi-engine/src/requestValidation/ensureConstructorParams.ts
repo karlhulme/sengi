@@ -22,12 +22,12 @@ function createValidationStructure (docType: DocType): Structure {
   for (const fieldName in docType.fields) {
     const field = docType.fields[fieldName]
     
-    if (field.canUpdate) {
+    if (field.mustInitialise || field.canUpdate) {
       structure[fieldName] = {
         type: field.type,
         isArray: field.isArray,
         isNullable: false,
-        isRequired: false
+        isRequired: field.mustInitialise
       }
     }
   }

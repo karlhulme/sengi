@@ -14,7 +14,10 @@ function createDocTypeWithValidConstructor (): DocType {
       propA: { type: 'string', documentation: '' },
       propB: { type: 'string', documentation: '' }
     },
-    implementation: input => ({ combined: input.propA + ' ' + input.propB })
+    implementation: (ctorParams, mergeParams) => ({
+      combined: ctorParams.propA + ' ' + ctorParams.propB,
+      other: mergeParams.propC
+    })
   }
 
   return docType
@@ -51,12 +54,12 @@ function createDocTypeWithConstructorThatReturnsString (): DocType {
 }
 
 test('Executing a doc type constructor with valid parameters creates a doc.', () => {
-  expect(executeConstructor(createDocTypeWithValidConstructor(), { propA: 'hello', propB: 'world' })).toEqual({ combined: 'hello world' })
+  expect(executeConstructor(createDocTypeWithValidConstructor(), { propA: 'hello', propB: 'world' }, { propC: 'foo' })).toEqual({ combined: 'hello world', other: 'foo' })
 })
 
 test('Executing a doc type constructor that returns a non-object raises an error.', () => {
   try {
-    executeConstructor(createDocTypeWithConstructorThatReturnsString(), {})
+    executeConstructor(createDocTypeWithConstructorThatReturnsString(), {}, {})
   } catch (err) {
     expect(err).toBeInstanceOf(SengiConstructorNonObjectResponseError)
     expect(err.message).toMatch(/failed to return an object./)
@@ -65,7 +68,7 @@ test('Executing a doc type constructor that returns a non-object raises an error
 
 test('Executing a faulty doc type constructor raises an error.', () => {
   try {
-    executeConstructor(createDocTypeWithErroringConstructor(), {})
+    executeConstructor(createDocTypeWithErroringConstructor(), {}, {})
   } catch (err) {
     expect(err).toBeInstanceOf(SengiConstructorFailedError)
     expect(err.message).toMatch(/Error: wrong/)

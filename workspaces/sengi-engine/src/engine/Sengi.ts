@@ -357,10 +357,11 @@ export class Sengi {
     if (!existsResult.found) {
       const ctorDeclaredParams = extractConstructorDeclaredParams(docType, props.constructorParams)
       ensureConstructorParams(this.jsonotron, this.validateCache, docType, props.constructorParams)
-      const doc = executeConstructor(docType, ctorDeclaredParams)
-  
+
       const ctorMergeParams = extractConstructorMergeParams(docType, props.constructorParams)
       ensurePatch(this.jsonotron, this.validateCache, docType, ctorMergeParams)
+
+      const doc = executeConstructor(docType, ctorDeclaredParams, ctorMergeParams)  
       applyPatch(doc, ctorMergeParams)
   
       addSystemFieldValuesToNewDocument(doc, docType.name, props.id)
