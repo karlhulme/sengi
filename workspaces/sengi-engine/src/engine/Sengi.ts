@@ -100,6 +100,7 @@ export interface SengiConstructorProps {
   docTypes?: DocType[]
   roleTypes?: RoleType[]
   docStore?: DocStore
+  log?: boolean
   onSavedDoc?: SavedDocCallback
   onDeletedDoc?: DeletedDocCallback
   onPreSaveDoc?: PreSaveDocCallback
@@ -116,11 +117,22 @@ export class Sengi {
   private safeDocStore: SafeDocStore
   private jsonotron: Jsonotron
   private validateCache: Record<string, Structure> = {}
+  private log: boolean
 
   private onSavedDoc?: SavedDocCallback
   private onDeletedDoc?: DeletedDocCallback
   private onPreSaveDoc?: PreSaveDocCallback
   private onPreQueryDocs?: PreQueryDocsCallback
+
+  /**
+   * Log a request to the console.
+   * @param request A string that represents the request.
+   */
+  private logRequest (request: string) {
+    if (this.log) {
+      console.log(request)
+    }
+  }
 
   /**
    * Raises the onPreSaveDoc callback if one was registered in the constructor.
@@ -187,6 +199,7 @@ export class Sengi {
   constructor (props: SengiConstructorProps) {
     this.docTypes = props.docTypes || []
     this.roleTypes = props.roleTypes || []
+    this.log = Boolean(props.log)
 
     if (!props.docStore) {
       throw new Error('Must supply a docStore.')
@@ -334,6 +347,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async createDocument (props: CreateDocumentProps): Promise<CreateDocumentResult> {
+    this.logRequest(`CREATE ${props.docTypeName}`)
     ensureCreatePermission(props.roleNames, this.roleTypes, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -379,6 +393,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async deleteDocument (props: DeleteDocumentProps): Promise<DeleteDocumentResult> {
+    this.logRequest(`DELETE ${props.docTypeName} ${props.id}`)
     ensureDeletePermission(props.roleNames, this.roleTypes, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -402,6 +417,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async operateOnDocument (props: OperateOnDocumentProps): Promise<OperateOnDocumentResult> {
+    this.logRequest(`OPERATE (${props.operationName}) ${props.docTypeName} ${props.id}`)
     ensureOperatePermission(props.roleNames, this.roleTypes, props.docTypeName, props.operationName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -450,6 +466,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async patchDocument (props: PatchDocumentProps): Promise<PatchDocumentResult> {
+    this.logRequest(`PATCH ${props.docTypeName} ${props.id}`)
     ensurePatchPermission(props.roleNames, this.roleTypes, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -494,6 +511,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async queryDocumentsByFilter (props: QueryDocumentsByFilterProps): Promise<QueryDocumentsByFilterResult> {
+    this.logRequest(`QUERY (${props.filterName}) ${props.docTypeName}`)
     ensureQueryPermission(props.roleNames, this.roleTypes, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -528,6 +546,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async queryDocumentsByIds (props: QueryDocumentsByIdsProps): Promise<QueryDocumentsByIdsResult> {
+    this.logRequest(`QUERY (IDS) ${props.docTypeName} ${props.ids}`)
     ensureQueryPermission(props.roleNames, this.roleTypes, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -554,6 +573,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async queryDocuments (props: QueryDocumentsProps): Promise<QueryDocumentsResult> {
+    this.logRequest(`QUERY (TYPE) ${props.docTypeName}`)
     ensureQueryPermission(props.roleNames, this.roleTypes, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -584,6 +604,7 @@ export class Sengi {
    * @param props A property bag.
    */
   async replaceDocument (props: ReplaceDocumentProps): Promise<ReplaceDocumentResult> {
+    this.logRequest(`REPLACE ${props.docTypeName}`)
     ensureReplacePermission(props.roleNames, this.roleTypes, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)

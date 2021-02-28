@@ -47,6 +47,8 @@ To instantiate a Sengi engine you have to provide the following parameters:
 
 * **onDeleteDoc** - A function `(props: DeletedDocCallbackProps) => void` that is invoked just after a document is deleted.
 
+* **log** True if each request should be logged to the console.
+
 The following example shows how to setup a Sengi-engine using the in-memory document store.
 
 ```javascript
