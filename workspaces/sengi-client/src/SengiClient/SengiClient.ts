@@ -1,5 +1,5 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
-import { Doc, DocFragment, DocPatch, SerializableDocType, SerializableDocTypeOverview } from 'sengi-interfaces'
+import { SerializableDocType, SerializableDocTypeOverview } from 'sengi-interfaces'
 import {
   SengiClientGatewayError,
   SengiClientInvalidInputError,
@@ -14,7 +14,18 @@ import {
  */
 const DEFAULT_RETRY_INTERVALS = [100, 250, 500, 1000, 2000, 4000, 8000, 15000, 30000]
 
+/**
+ * A function for fetching data using a url and a property bag of options.
+ * This is signature is based around the node-fetch library.
+ */
 export type FetchFunc = (url: string, init: RequestInit) => Promise<Response>
+
+/**
+ * Provides an id property of type string.
+ */
+interface WithId {
+  id: string
+}
 
 /**
  * Represents the constructor properties of the Sengi client.
@@ -196,7 +207,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async createDocument ({ docTypePluralName, newDocumentId, constructorParams, pathComponents, roleNames }: { docTypePluralName: string; newDocumentId: string; constructorParams: DocFragment; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
+  async createDocument<ConstructorParams> ({ docTypePluralName, newDocumentId, constructorParams, pathComponents, roleNames }: { docTypePluralName: string; newDocumentId: string; constructorParams: ConstructorParams; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents)
 
     const result = await this.retryableFetch(url, {
@@ -247,7 +258,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async getDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc> {
+  async getDocumentById<Doc, DocFieldNames extends string> ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: DocFieldNames[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -266,7 +277,7 @@ export class SengiClient {
         console.warn(json.deprecations)
       }
 
-      return json.doc
+      return json.doc as Doc
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -284,7 +295,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async operateOnDocument ({ docTypePluralName, operationId, documentId, operationName, operationParams, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: DocFragment, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
+  async operateOnDocument<OperationParams> ({ docTypePluralName, operationId, documentId, operationName, operationParams, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; operationName: string; operationParams: OperationParams, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `${documentId}:${operationName}`
 
     const optionalHeaders: Record<string, string> = {}
@@ -317,7 +328,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async patchDocument ({ docTypePluralName, operationId, documentId, patch, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; patch: DocPatch, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
+  async patchDocument<PatchParams> ({ docTypePluralName, operationId, documentId, patch, reqVersion, pathComponents, roleNames }: { docTypePluralName: string; operationId: string; documentId: string; patch: PatchParams, reqVersion?: string; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + documentId
 
     const optionalHeaders: Record<string, string> = {}
@@ -347,7 +358,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async queryAllDocuments ({ docTypePluralName, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
+  async queryAllDocuments<Doc, DocFieldNames extends string> ({ docTypePluralName, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; fieldNames: DocFieldNames[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -366,7 +377,7 @@ export class SengiClient {
         console.warn(json.deprecations)
       }
 
-      return json.docs
+      return json.docs as Doc[]
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -382,7 +393,11 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async queryDocumentsByFilter ({ docTypePluralName, filterName, filterParams, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; filterName: string; filterParams: Record<string, unknown>; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
+  async queryDocumentsByFilter<Doc, FilterParams, DocFieldNames extends string> ({ docTypePluralName, filterName, filterParams, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; filterName: string; filterParams: FilterParams; fieldNames: DocFieldNames[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
+    if (typeof filterName !== 'string' || filterName.length === 0) {
+      throw new Error('Must supply a filter name.')
+    }
+
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?filterName=${filterName}&filterParams=${JSON.stringify(filterParams)}&fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -401,7 +416,7 @@ export class SengiClient {
         console.warn(json.deprecations)
       }
 
-      return json.docs
+      return json.docs as Doc[]
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -416,7 +431,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async queryDocumentById ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc|null> {
+  async queryDocumentById<Doc, DocFieldNames extends string> ({ docTypePluralName, documentId, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentId: string; fieldNames: DocFieldNames[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc|null> {
     const url = this.buildRecordsUrl(docTypePluralName, pathComponents) + `?ids=${documentId}&fields=${fieldNames.join(',')}`
 
     const result = await this.retryableFetch(url, {
@@ -435,7 +450,7 @@ export class SengiClient {
         console.warn(json.deprecations)
       }
 
-      return json.docs.length === 1 ? json.docs[0] : null
+      return json.docs.length === 1 ? json.docs[0] as Doc : null
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -450,7 +465,7 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async queryDocumentsByIds ({ docTypePluralName, documentIds, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentIds: string[]; fieldNames: string[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
+  async queryDocumentsByIds<Doc, DocFieldNames extends string> ({ docTypePluralName, documentIds, fieldNames, pathComponents, roleNames }: { docTypePluralName: string; documentIds: string[]; fieldNames: DocFieldNames[]; pathComponents?: string[]; roleNames?: string[] }): Promise<Doc[]> {
     if (documentIds.length === 0) {
       return []
     }
@@ -473,7 +488,7 @@ export class SengiClient {
         console.warn(json.deprecations)
       }
 
-      return json.docs
+      return json.docs as Doc[]
     } else {
       const err = await this.generateError(url, result)
       throw err
@@ -487,8 +502,8 @@ export class SengiClient {
    * @param pathComponents An array of components to be added to the path for this request.
    * @param roleNames An array of role names to use just for this request. 
    */
-  async upsertDocument ({ docTypePluralName, document, pathComponents, roleNames }: { docTypePluralName: string; document: Doc; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
-    if (typeof document.id !== 'string') {
+  async upsertDocument<Doc extends WithId> ({ docTypePluralName, document, pathComponents, roleNames }: { docTypePluralName: string; document: Doc; pathComponents?: string[]; roleNames?: string[] }): Promise<void> {
+    if (typeof document.id !== 'string' || document.id.length === 0) {
       throw new Error('Document must have id.')
     }
 

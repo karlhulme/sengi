@@ -186,7 +186,7 @@ test('Query documents with a filter.', async () => {
     filterParams: { minRules: 3 },
     fieldNames: ['id', 'inventor']
   })
-  expect(fetchedDocs.findIndex(d => d.id === '8c6e2aa0-b88d-4d14-966e-da8d3941d13c')).toEqual(-1)
+  expect(fetchedDocs.findIndex(d => (d as Record<string, unknown>).id === '8c6e2aa0-b88d-4d14-966e-da8d3941d13c')).toEqual(-1)
 })
 
 test('Query documents with an id array.', async () => {
