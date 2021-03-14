@@ -12,8 +12,8 @@ test('Produce a strongly typed sengi client.', () => {
       summary: 'A car',
       documentation: '',
       fields: {
-        make: { type: 'https://jsonotron.org/jss/shortString', documentation: '', graphQlType: '' },
-        model: { type: 'https://jsonotron.org/jss/mediumString', documentation: '', graphQlType: '' }
+        make: { typeDomain: 'https://jsonotron.org', typeSystem: 'jss', typeName: 'shortString', documentation: '' },
+        model: { typeDomain: 'https://jsonotron.org', typeSystem: 'jss', typeName: 'mediumString', documentation: '' }
       },
       examples: [],
       calculatedFields: {},

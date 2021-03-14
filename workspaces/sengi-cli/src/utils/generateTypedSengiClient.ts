@@ -21,7 +21,10 @@ export function generateTypedSengiClient (docTypes: SerializableDocType[]): stri
         '  id?: string',
         '  docType?: string',
         '  docOps?: DocOp[]',
-        ...Object.keys(docType.fields).map(fieldName => `  ${fieldName}?: ${docType.fields[fieldName].type}`)
+        ...Object.keys(docType.fields)
+          .map(fieldName => {
+            return `  ${fieldName}?: ${docType.fields[fieldName].typeName}`
+          })
       ]
 
       return `export interface ${capitaliseFirstLetter(docType.name)} {\n${fieldLines.join('\n')}\n}`
