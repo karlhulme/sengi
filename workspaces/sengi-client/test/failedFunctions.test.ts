@@ -163,18 +163,6 @@ test('An error is thrown if upsertDocument does not work.', async () => {
   }
 })
 
-test('An error is thrown if getEnumTypeOverviews does not work.', async () => {
-  try {
-    const fetchFunc = createErrorFetchFunc(500, 'not working')
-    const client = createClient(fetchFunc)
-    await client.getEnumTypeOverviews()
-    throw new Error('fail')
-  } catch (err) {
-    expect(err).toBeInstanceOf(SengiClientUnexpectedError)
-    expect(err.message).toMatch(/not working/)
-  }
-})
-
 test('An error is thrown if getDocTypeOverviews does not work.', async () => {
   try {
     const fetchFunc = createErrorFetchFunc(500, 'not working')

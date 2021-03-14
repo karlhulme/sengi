@@ -16,9 +16,9 @@ export const hobby: DocType = {
     canReplaceDocuments: true
   },
   fields: {
-    name: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The name of the hobby.' },
-    inventor: { type: 'mediumString', canUpdate: true, documentation: 'The inventor of the hobby.' },
-    rules: { type: 'mediumString', isArray: true, documentation: 'The rules of the hobby.' },
+    name: { type: 'https://jsonotron.org/jss/mediumString', isRequired: true, canUpdate: true, documentation: 'The name of the hobby.' },
+    inventor: { type: 'https://jsonotron.org/jss/mediumString', canUpdate: true, documentation: 'The inventor of the hobby.' },
+    rules: { type: 'https://jsonotron.org/jss/mediumString', isArray: true, documentation: 'The rules of the hobby.' },
   },
   calculatedFields: {
   },
@@ -27,7 +27,7 @@ export const hobby: DocType = {
       title: 'By Rules Count',
       documentation: 'Fetch hobbies with a certain number of rules.',
       parameters: {
-        minRules: { type: 'positiveInteger', isRequired: true, documentation: 'The minimum number of rules.' }
+        minRules: { type: 'https://jsonotron.org/jss/positiveInteger', isRequired: true, documentation: 'The minimum number of rules.' }
       },
       examples: [],
       implementation: input => (d: Doc) => (d.rules as string[] || []).length >= input.minRules
@@ -38,7 +38,7 @@ export const hobby: DocType = {
       title: 'Add Rule',
       documentation: 'Adds a rule.',
       parameters: {
-        newRule: { type: 'mediumString', isRequired: true, documentation: 'The new rule.' }
+        newRule: { type: 'https://jsonotron.org/jss/mediumString', isRequired: true, documentation: 'The new rule.' }
       },
       examples: [],
       implementation: (doc, input) => ({

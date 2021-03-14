@@ -1,5 +1,5 @@
 import nodeFetch, { RequestInit, Response } from 'node-fetch'
-import { Doc, DocFragment, DocPatch, SerializableDocType, SerializableDocTypeOverview, SerializableEnumType, SerializableEnumTypeOverview } from 'sengi-interfaces'
+import { Doc, DocFragment, DocPatch, SerializableDocType, SerializableDocTypeOverview } from 'sengi-interfaces'
 import {
   SengiClientGatewayError,
   SengiClientInvalidInputError,
@@ -165,25 +165,10 @@ export class SengiClient {
   }
 
   /**
-   * Builds the target url for an enum types request.
-   */
-  private buildEnumTypesUrl () {
-    return this.url + 'enumTypes/'
-  }
-
-  /**
-   * Builds the target url for an enum type request.
-   * @param fullyQualifiedEnumTypeName The fully qualified name of the enum.
-   */
-  private buildEnumTypeUrl (fullyQualifiedEnumTypeName: string) {
-    return this.url + 'enumTypes/' + encodeURIComponent(fullyQualifiedEnumTypeName)
-  }
-
-  /**
    * Builds the target url for a doc types request.
    */
-  private buildDocTypesUrl () {
-    return this.url + 'docTypes/'
+   private buildDocTypesUrl () {
+    return this.url + 'docTypes'
   }
 
   /**
@@ -520,51 +505,6 @@ export class SengiClient {
     })
 
     if (result.status !== 204) {
-      const err = await this.generateError(url, result)
-      throw err
-    }
-  }
-
-  /**
-   * Get the enum type overviews.
-   */
-  async getEnumTypeOverviews (): Promise<SerializableEnumTypeOverview[]> {
-    const url = this.buildEnumTypesUrl()
-
-    const result = await this.retryableFetch(url, {
-      method: 'get',
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
-
-    if (result.status === 200) {
-      const json = await result.json()
-      return json.enumTypes as SerializableEnumTypeOverview[]
-    } else {
-      const err = await this.generateError(url, result)
-      throw err
-    }
-  }
-
-  /**
-   * Get the enum type.
-   * @param fullyQualifiedEnumTypeName The fully qualified name of an enum type.
-   */
-  async getEnumType ({ fullyQualifiedEnumTypeName }: { fullyQualifiedEnumTypeName: string; }): Promise<SerializableEnumType> {
-    const url = this.buildEnumTypeUrl(fullyQualifiedEnumTypeName)
-
-    const result = await this.retryableFetch(url, {
-      method: 'get',
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
-
-    if (result.status === 200) {
-      const json = await result.json()
-      return json.enumType as SerializableEnumType
-    } else {
       const err = await this.generateError(url, result)
       throw err
     }

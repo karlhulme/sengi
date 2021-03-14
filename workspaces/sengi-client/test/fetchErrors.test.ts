@@ -1,5 +1,9 @@
 import { expect, test } from '@jest/globals'
-import { SengiClientGatewayError, SengiClientInvalidInputError, SengiClientRequiredVersionNotAvailableError, SengiClientUnexpectedError, SengiClientUnrecognisedPathError } from '../src'
+import {
+  SengiClientGatewayError, SengiClientInvalidInputError,
+  SengiClientRequiredVersionNotAvailableError,
+  SengiClientUnexpectedError, SengiClientUnrecognisedPathError
+} from '../src'
 import { createClient, createErrorFetchFunc } from './shared.test'
 
 test('400 - An error is thrown if the input parameters are not valid.', async () => {
@@ -32,20 +36,6 @@ test('404 - An error is thrown if the path is invalid, such as when docTypePlura
     expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
     expect(err.message).toMatch(/path component of the url/)
     expect(err.message).toMatch(/docTypePluralName/)
-  }
-})
-
-test('404 - An error is thrown if the enum type is not recognised.', async () => {
-  try {
-    const fetchFunc = createErrorFetchFunc(404, 'not available')
-    const client = createClient(fetchFunc)
-    await client.getEnumType({
-      fullyQualifiedEnumTypeName: 'unknown-enum-type'
-    })
-    throw new Error('fail')
-  } catch (err) {
-    expect(err).toBeInstanceOf(SengiClientUnrecognisedPathError)
-    expect(err.message).toMatch(/path component of the url/)
   }
 })
 
