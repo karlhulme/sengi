@@ -15,3 +15,11 @@ test('Convert a full doc type to a serializable doc type.', () => {
   const result = convertDocTypeToSerializableDocType(jsonotron, lessonDocType)
   expect(result).toBeDefined()
 })
+
+test('Fail to convert a doc type to a serializable doc type if a field type is not valid.', () => {
+  const lessonDocType = createLessonDocType()
+  lessonDocType.fields['teacher'].type = 'madeup' 
+
+  const jsonotron = createJsonotron()
+  expect(() => convertDocTypeToSerializableDocType(jsonotron, lessonDocType)).toThrow()
+})

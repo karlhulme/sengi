@@ -20,7 +20,8 @@ import {
   SerializableDocTypeFilter,
   SerializableDocTypeFilterParameter,
   SerializableDocTypeOperation,
-  SerializableDocTypeOperationParameter
+  SerializableDocTypeOperationParameter,
+  SengiTypeNotFoundError
 } from 'sengi-interfaces'
 import { Jsonotron } from 'jsonotron-js'
 
@@ -38,6 +39,26 @@ function convertKeys<Source, Target> (obj: Record<string, Source>, converter: (s
 }
 
 /**
+ * Returns an object that contains typeDomain, typeSystem and typeName
+ * keys that are appropriate for the given fully qualified type name.
+ * @param jsonotron A jsonotron engine.
+ * @param fullyQualifiedTypeName A fully qualified name of a type.
+ */
+function getJsonotronTypeProperties (jsonotron: Jsonotron, fullyQualifiedTypeName: string): { typeDomain: string, typeSystem: string, typeName: string } {
+  const type = jsonotron.getType(fullyQualifiedTypeName)
+
+  if (!type) {
+    throw new SengiTypeNotFoundError(fullyQualifiedTypeName)
+  }
+
+  return {
+    typeDomain: type.domain,
+    typeSystem: type.system,
+    typeName: type.name
+  }
+}
+
+/**
  * Returns a serializable doc type.
  * @param docType A doc type.
  */
@@ -50,8 +71,7 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
     summary: docType.summary,
     documentation: docType.documentation,
     fields: convertKeys<DocTypeField, SerializableDocTypeField>(docType.fields, f => ({
-      type: f.type,
-      graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: f.type, isArray: f.isArray }),
+      ...getJsonotronTypeProperties(jsonotron, f.type),
       documentation: f.documentation,
       deprecation: f.deprecation,
       default: f.default,
@@ -61,8 +81,7 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
     })),
     examples: docType.examples,
     calculatedFields: convertKeys<DocTypeCalculatedField, SerializableDocTypeCalculatedField>(docType.calculatedFields, calc => ({
-      type: calc.type,
-      graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: calc.type, isArray: calc.isArray }),
+      ...getJsonotronTypeProperties(jsonotron, calc.type),
       documentation: calc.documentation,
       deprecation: calc.deprecation,
       inputFields: calc.inputFields,
@@ -74,8 +93,7 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
       deprecation: f.deprecation,
       examples: f.examples,
       parameters: convertKeys<DocTypeFilterParameter, SerializableDocTypeFilterParameter>(f.parameters, p => ({
-        type: p.type,
-        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
+        ...getJsonotronTypeProperties(jsonotron, p.type),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,
@@ -88,15 +106,13 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
       examples: agg.examples,
       deprecation: agg.deprecation,
       fields: convertKeys<DocTypeAggregateField, SerializableDocTypeAggregateField>(agg.fields, f => ({
-        type: f.type,
-        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: f.type, isArray: f.isArray }),
+        ...getJsonotronTypeProperties(jsonotron, f.type),
         documentation: f.documentation,
         deprecation: f.deprecation,
         isArray: f.isArray
       })),
       parameters: convertKeys<DocTypeAggregateParameter, SerializableDocTypeAggregateParameter>(agg.parameters, p => ({
-        type: p.type,
-        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
+        ...getJsonotronTypeProperties(jsonotron, p.type),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,
@@ -108,8 +124,7 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
       documentation: docType.ctor.documentation,
       examples: docType.ctor.examples,
       parameters: convertKeys<DocTypeConstructorParameter, SerializableDocTypeConstructorParameter>(docType.ctor.parameters, p => ({
-        type: p.type,
-        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
+        ...getJsonotronTypeProperties(jsonotron, p.type),
         documentation: p.documentation,
         deprecated: p.deprecated,
         isArray: p.isArray,
@@ -121,8 +136,7 @@ export function convertDocTypeToSerializableDocType (jsonotron: Jsonotron, docTy
       documentation: op.documentation,
       examples: op.examples,
       parameters: convertKeys<DocTypeOperationParameter, SerializableDocTypeOperationParameter>(op.parameters, p => ({
-        type: p.type,
-        graphQlType: jsonotron.getGraphQLPrimitiveType({ typeName: p.type, isArray: p.isArray }),
+        ...getJsonotronTypeProperties(jsonotron, p.type),
         documentation: p.documentation,
         deprecation: p.deprecation,
         isArray: p.isArray,

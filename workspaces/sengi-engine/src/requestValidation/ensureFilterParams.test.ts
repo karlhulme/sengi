@@ -9,7 +9,7 @@ function createDocType (): DocType {
   docType.filters = {
     byRuntime: {
       parameters: {
-        runLengthInSeconds: { type: 'positiveInteger', documentation: '' }
+        runLengthInSeconds: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: '' }
       },
       documentation: '',
       examples: [],

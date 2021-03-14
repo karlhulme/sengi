@@ -16,10 +16,6 @@ export * from './queryAllDocumentsHandler'
 export * from './queryDocumentsByFilterHandler'
 export * from './queryDocumentsByIdsHandler'
 
-// enum handlers
-export * from './enumTypeHandler'
-export * from './enumTypesHandler'
-
 // doc type handlers
 export * from './docTypesHandler'
 export * from './docTypeHandler'

@@ -102,3 +102,12 @@ export class SengiPreSaveFailedError extends SengiEngineError {
     this.innerErr = innerErr
   }
 }
+
+export class SengiTypeNotFoundError extends SengiEngineError {
+  constructor (readonly typeName: string) {
+    super(`The fully qualified type name '${typeName}' was not recognised by the validation engine.`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.typeName = typeName
+  }
+}

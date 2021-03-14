@@ -1,9 +1,5 @@
-import {
-  EnumType,
-  Jsonotron,
-  JsonSchemaFormatValidatorFunc,
-  Structure
-} from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
+import { EnumType, JsonSchemaFormatValidatorFunc, Structure } from 'jsonotron-interfaces'
 import { 
   CreateDocumentProps,
   CreateDocumentResult,
@@ -11,7 +7,6 @@ import {
   DeletedDocCallbackProps,
   DeleteDocumentProps,
   DeleteDocumentResult,
-  GetDocTypeAsGraphQLProps,
   DocStore,
   DocStoreDeleteByIdResultCode,
   DocStoreUpsertResultCode,
@@ -33,8 +28,6 @@ import {
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
-  SerializableEnumTypeOverview,
-  SerializableEnumType,
   SavedDocCallback,
   SavedDocCallbackProps,
   SengiCallbackError,
@@ -86,13 +79,6 @@ import {
    ensurePatch,
    selectDocTypeFromArray
 } from '../requestValidation'
-import {
-  generateConstructorGraphQLTypeForDocType,
-  generateOperationGraphQLTypeForDocType,
-  generatePatchGraphQLTypeForDocType,
-  generateQueryableGraphQLTypeForDocType,
-  generateRuntimeEnumTypeItemGraphQLType
-} from '../graphQL'
 
 export interface SengiConstructorProps {
   jsonotronTypes?: string[]
@@ -245,45 +231,6 @@ export class Sengi {
   }
 
   /**
-   * Returns an array of enum type overviews.
-   */
-  getEnumTypes (): SerializableEnumTypeOverview[] {
-    return this.enumTypes.map(e => ({
-      domain: e.domain,
-      system: e.system,
-      name: e.name,
-      title: e.title
-    }))
-  }
-
-  /**
-   * Returns the enum type identified by the given fully qualified enum type name, or null if not found.
-   * @param fullyQualifiedEnumTypeName An enum type name that includes the domain and system.
-   */
-  getEnumType (fullyQualifiedEnumTypeName: string): SerializableEnumType|null {
-    const enumType = this.enumTypes.find(e => `${e.domain}/${e.system}/${e.name}` === fullyQualifiedEnumTypeName)
-
-    if (enumType) {
-      return {
-        domain: enumType.domain,
-        system: enumType.system,
-        name: enumType.name,
-        title: enumType.title,
-        documentation: enumType.documentation,
-        items: enumType.items.map(item => ({
-          text: item.text,
-          value: item.value,
-          deprecated: item.deprecated,
-          symbol: item.symbol,
-          documentation: item.documentation
-        }))
-      }
-    } else {
-      return null
-    }
-  }
-
-  /**
    * Returns an array of the doc types.
    */
   getDocTypes (): SerializableDocTypeOverview[] {
@@ -308,38 +255,6 @@ export class Sengi {
     } else {
       return null
     }
-  }
-
-  /**
-   * @deprecated
-   * Returns a GraphQL definition string for an enum type item.
-   */
-  getEnumTypeItemAsGraphQL (): string {
-    return generateRuntimeEnumTypeItemGraphQLType()
-  }
-
-  /**
-   * @deprecated
-   * Returns a Graph QL definition string for the named doc type
-   * and the set of queryable role types. 
-   * @param props A property bag that describes what to generate.
-   */
-  getDocTypeAsGraphQL (props: GetDocTypeAsGraphQLProps): string {
-    const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
-
-    const queryGqls = props.roleTypeSets.map(roleTypeSet => {
-      const roleTypes = this.roleTypes.filter(r => roleTypeSet.roleTypeNames.includes(r.name))
-      return generateQueryableGraphQLTypeForDocType(this.jsonotron, docType, roleTypes, roleTypeSet.suffix)
-    })
-
-    const constructorGql = generateConstructorGraphQLTypeForDocType(this.jsonotron, docType)
-
-    const patchGql = generatePatchGraphQLTypeForDocType(this.jsonotron, docType)
-
-    const operationGqls = Object.keys(docType.operations)
-      .map(operationName => generateOperationGraphQLTypeForDocType(this.jsonotron, docType, operationName))
-
-    return `${queryGqls.join('\n\n')}\n\n${constructorGql}\n\n${patchGql}\n\n${operationGqls.join('\n\n')}`
   }
 
   /**

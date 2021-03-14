@@ -16,15 +16,15 @@ export const film: DocType = {
     canReplaceDocuments: true
   },
   fields: {
-    filmTitle: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The title of the film.' },
-    durationInMinutes: { type: 'positiveInteger', documentation: 'The runtime of the movie in minutes.' },
-    castMembers: { type: 'mediumString', isRequired: true, isArray: true, documentation: 'A list of cast members.' }
+    filmTitle: { type: 'https://jsonotron.org/jss/mediumString', isRequired: true, canUpdate: true, documentation: 'The title of the film.' },
+    durationInMinutes: { type: 'https://jsonotron.org/jss/positiveInteger', documentation: 'The runtime of the movie in minutes.' },
+    castMembers: { type: 'https://jsonotron.org/jss/mediumString', isRequired: true, isArray: true, documentation: 'A list of cast members.' }
   },
   calculatedFields: {
     totalCastSize: {
       inputFields: ['castMembers'],
       documentation: 'The number of cast members.',
-      type: 'integer',
+      type: 'https://jsonotron.org/jss/integer',
       value: doc => (doc.castMembers as string[] || []).length
     }
   },
@@ -33,7 +33,7 @@ export const film: DocType = {
       title: 'By runtime',
       documentation: 'Fetch films that exceed the given runtime.',
       parameters: {
-        minRuntime: { type: 'positiveInteger', isRequired: true, documentation: 'A film duration in minutes.' }
+        minRuntime: { type: 'https://jsonotron.org/jss/positiveInteger', isRequired: true, documentation: 'A film duration in minutes.' }
       },
       examples: [],
       implementation: input => (d: Doc) => d.durationInMinutes > input.minRuntime
@@ -51,7 +51,7 @@ export const film: DocType = {
       title: 'Add Cast Member',
       documentation: 'Adds a cast member to the list.',
       parameters: {
-        actor: { type: 'mediumString', isRequired: true, documentation: 'The name of an actor.' }
+        actor: { type: 'https://jsonotron.org/jss/mediumString', isRequired: true, documentation: 'The name of an actor.' }
       },
       examples: [],
       implementation: (doc, input) => ({
@@ -69,8 +69,8 @@ export const film: DocType = {
     }),
     examples: [],
     parameters: {
-      initialDurationInMinutes: { type: 'positiveInteger', documentation: '', isRequired: true },
-      initialCastMembers: { type: 'mediumString', documentation: '', isArray: true }
+      initialDurationInMinutes: { type: 'https://jsonotron.org/jss/positiveInteger', documentation: '', isRequired: true },
+      initialCastMembers: { type: 'https://jsonotron.org/jss/mediumString', documentation: '', isArray: true }
     }
   },
   docStoreOptions: {},

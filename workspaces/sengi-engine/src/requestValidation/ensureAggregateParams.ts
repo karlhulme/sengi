@@ -1,5 +1,6 @@
 import { DocFragment, DocType, SengiAggregateParamsValidationFailedError } from 'sengi-interfaces'
-import { Field, Jsonotron, Structure } from 'jsonotron-js'
+import { Jsonotron } from 'jsonotron-js'
+import { Field, Structure } from 'jsonotron-interfaces'
 
 /**
  * Create a validation structure.

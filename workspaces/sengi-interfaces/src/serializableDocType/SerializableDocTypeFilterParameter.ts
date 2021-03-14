@@ -1,6 +1,7 @@
 export interface SerializableDocTypeFilterParameter {
-  type: string
-  graphQlType: string
+  typeDomain: string
+  typeSystem: string
+  typeName: string
   isArray?: boolean
   isRequired?: boolean
   deprecation?: string

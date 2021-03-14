@@ -7,12 +7,12 @@ function createDocType (): DocType {
   const docType = createFilmDocType()
 
   docType.fields = {
-    movieName: { type: 'shortString', isRequired: true, canUpdate: true, documentation: '' },
-    rating: { type: 'shortString', documentation: '', default: 'Unrated' }
+    movieName: { type: 'https://jsonotron.org/jsl/shortString', isRequired: true, canUpdate: true, documentation: '' },
+    rating: { type: 'https://jsonotron.org/jsl/shortString', documentation: '', default: 'Unrated' }
   }
 
   docType.calculatedFields = {
-    actorCount: { type: 'positiveInteger', documentation: '', inputFields: ['actorNames'], value: input => (input.actorNames as [] || []).length }
+    actorCount: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: '', inputFields: ['actorNames'], value: input => (input.actorNames as [] || []).length }
   }
 
   return docType

@@ -55,7 +55,7 @@ export function createLessonDocType (): DocType {
     summary: 'A lesson',
     documentation: 'This is a lesson document type.',
     fields: {
-      teacher: { type: 'shortString', documentation: 'The teacher', canUpdate: true, isRequired: true }
+      teacher: { type: 'https://jsonotron.org/jsl/shortString', documentation: 'The teacher', canUpdate: true, isRequired: true }
     },
     examples: [{
       documentation: 'An example lesson',
@@ -68,7 +68,7 @@ export function createLessonDocType (): DocType {
         title: 'Sum of students',
         documentation: 'The docs',
         fields: {
-          result: { type: 'positiveInteger', documentation: 'The docs' }
+          result: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: 'The docs' }
         },
         implementation: () => ({}),
         examples: [{
@@ -78,13 +78,13 @@ export function createLessonDocType (): DocType {
           }
         }],
         parameters: {
-          decimalPlaces: { type: 'positiveInteger', documentation: 'The docs' }
+          decimalPlaces: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: 'The docs' }
         }
       }
     },
     calculatedFields: {
       revenue: {
-        type: 'positiveInteger',
+        type: 'https://jsonotron.org/jsl/positiveInteger',
         documentation: 'Calculated field docs',
         inputFields: ['a', 'b'],
         value: () => 100000
@@ -94,7 +94,7 @@ export function createLessonDocType (): DocType {
       title: 'New lesson',
       documentation: 'Create a new lesson',
       parameters: {
-        numberOfClasses: { type: 'positiveInteger', documentation: 'Ctor parameter docs' }
+        numberOfClasses: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: 'Ctor parameter docs' }
       },
       examples: [{
         documentation: 'The ctor example',
@@ -110,7 +110,7 @@ export function createLessonDocType (): DocType {
         documentation: 'filter docs',
         implementation: () => ({}),
         parameters: {
-          cutoff: { type: 'positiveInteger', documentation: 'Filter param docs' }
+          cutoff: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: 'Filter param docs' }
         },
         examples: [{
           documentation: 'Filter example',
@@ -126,7 +126,7 @@ export function createLessonDocType (): DocType {
         documentation: 'Operation docs',
         implementation: () => ({}),
         parameters: {
-          score: { type: 'positiveInteger', documentation: 'Operation param docs' }
+          score: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: 'Operation param docs' }
         },
         examples: [{
           documentation: 'Operation example',

@@ -11,7 +11,7 @@
     "setup": "node ./setup/setup.mjs setup",
     "teardown": "node ./setup/setup.mjs teardown",
     "test": "jest --runInBand --detectOpenHandles && eslint '*/**/*.{js,ts}'",
-    "build": "rm -rf types && rm -rf lib && tsc --target es5 --downlevelIteration true"
+    "build": "rm -rf types && rm -rf lib && tsc"
   },
   "repository": {
     "type": "git",

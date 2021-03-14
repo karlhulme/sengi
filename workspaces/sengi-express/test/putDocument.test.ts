@@ -38,7 +38,7 @@ test('400 - fail to put new document with missing required fields', async () => 
   expect(response.status).toEqual(400)
   expect(response.text).toMatch(/filmTitle/)
   expect(response.text).toMatch(/values supplied/)
-  expect(response.text).toMatch(/were not valid/)
+  expect(response.text).toMatch(/not a valid instance/)
   expect(docs).toHaveLength(2)
 })
 

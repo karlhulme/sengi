@@ -18,15 +18,15 @@ export const car: DocType = {
   },
   docStoreOptions: {},
   fields: {
-    manufacturer: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The manufacturer of the car.' },
-    model: { type: 'mediumString', isRequired: true, canUpdate: true, documentation: 'The model of the car.' },
-    registration: { type: 'shortString', isRequired: true, canUpdate: true, documentation: 'The registration number that appears on the car plate.' }
+    manufacturer: { type: 'https://jsonotron.org/jsl/mediumString', isRequired: true, canUpdate: true, documentation: 'The manufacturer of the car.' },
+    model: { type: 'https://jsonotron.org/jsl/mediumString', isRequired: true, canUpdate: true, documentation: 'The model of the car.' },
+    registration: { type: 'https://jsonotron.org/jsl/shortString', isRequired: true, canUpdate: true, documentation: 'The registration number that appears on the car plate.' }
   },
   calculatedFields: {
     displayName: {
       documentation: 'A combination of manufacturer and model.',
       inputFields: ['manufacturer', 'model'],
-      type: 'mediumString',
+      type: 'https://jsonotron.org/jsl/mediumString',
       value: data => `${data.manufacturer || ''} ${data.model || ''}`
     }
   },

@@ -5,5 +5,5 @@
  * @param docTypeName The name of a doc type.
  */
 export function getSafeDocTypeName (docTypeName: string): string {
-  return docTypeName.replace(/./g, '_')
+  return docTypeName.replace(/[^a-zA-Z0-9]/g, '_')
 }

@@ -5,8 +5,6 @@ import {
   deleteDocumentHandler,
   docTypesHandler,
   docTypeHandler,
-  enumTypesHandler,
-  enumTypeHandler,
   getDocumentHandler,
   invalidEndPointVerbHandlerFactory,
   invalidPathHandler,
@@ -53,16 +51,6 @@ export function selectHandlerForRequest (req: Request, matchedResource: MatchedR
     switch (req.method) {
       case 'POST': return operateOnDocumentHandler
       default: return invalidEndPointVerbHandlerFactory(['POST'], req.method)
-    }
-  } else if (matchedResource.type === RestResourceType.ENUM_TYPES) {
-    switch (req.method) {
-      case 'GET': return enumTypesHandler
-      default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
-    }
-  } else if (matchedResource.type === RestResourceType.ENUM_TYPE) {
-    switch (req.method) {
-      case 'GET': return enumTypeHandler
-      default: return invalidEndPointVerbHandlerFactory(['GET'], req.method)
     }
   } else if (matchedResource.type === RestResourceType.DOC_TYPES) {
     switch (req.method) {

@@ -9,10 +9,10 @@ function createDocType (): DocType {
   docType.aggregates = {
     documentCount: {
       parameters: {
-        propA: { type: 'shortString', documentation: '' }
+        propA: { type: 'https://jsonotron.org/jsl/shortString', documentation: '' }
       },
       fields: {
-        documentCount: { type: 'positiveInteger', documentation: '' }
+        documentCount: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: '' }
       },
       documentation: '',
       examples: [],

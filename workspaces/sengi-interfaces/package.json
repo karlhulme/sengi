@@ -8,7 +8,7 @@
     "types"
   ],
   "scripts": {
-    "build": "rm -rf types && rm -rf lib && tsc --target es5 --downlevelIteration true"
+    "build": "rm -rf types && rm -rf lib && tsc"
   },
   "repository": {
     "type": "git",

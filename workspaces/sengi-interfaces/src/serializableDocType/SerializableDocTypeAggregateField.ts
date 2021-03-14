@@ -1,6 +1,7 @@
 export interface SerializableDocTypeAggregateField {
-  type: string
-  graphQlType: string
+  typeDomain: string
+  typeSystem: string
+  typeName: string
   isArray?: boolean
   deprecation?: string
   documentation: string

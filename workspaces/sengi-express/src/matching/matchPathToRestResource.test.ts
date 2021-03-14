@@ -8,7 +8,6 @@ test('Find no match where there is no path match for zero additional components.
   expect(matchPathToRestResource('unknown', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
   expect(matchPathToRestResource('unknown/', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
   expect(matchPathToRestResource('unkno:wn/', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
-  expect(matchPathToRestResource('/enum-types/foo/bar', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
   expect(matchPathToRestResource('/records/films/123/addReview/morepaths', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
   expect(matchPathToRestResource('/records/films/123/addReview/morepaths/', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
   expect(matchPathToRestResource('/records/films/123/addReview/morepaths/evenmorepaths', pathMatchArray)).toEqual({ type: RestResourceType.NO_MATCH, urlParams: {} })
@@ -71,18 +70,6 @@ test('Find a specific record and operation name method within a record collectio
 
   const pathMatchArray2 = createRestResourceMatcherArray(2)
   expect(matchPathToRestResource('/records/orgA/tenantA/films/123:addReview/', pathMatchArray2)).toEqual({ type: RestResourceType.OPERATION, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films', id: '123', operationName: 'addReview' } })
-})
-
-test('Find a request for enums.', () => {
-  const pathMatchArray = createRestResourceMatcherArray(0)
-  expect(matchPathToRestResource('/enumTypes', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPES, urlParams: {} })
-  expect(matchPathToRestResource('/enumTypes/', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPES, urlParams: {} })
-})
-
-test('Find a request for an enum.', () => {
-  const pathMatchArray = createRestResourceMatcherArray(0)
-  expect(matchPathToRestResource('/enumTypes/myEnum', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE, urlParams: { enumTypeEncodedFqn: 'myEnum' } })
-  expect(matchPathToRestResource('/enumTypes/https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek/', pathMatchArray)).toEqual({ type: RestResourceType.ENUM_TYPE, urlParams: { enumTypeEncodedFqn: 'https%3A%2F%2Fjsonotron.org%2Fjss%2FdayOfWeek' } })
 })
 
 test('Find a request for doc types.', () => {

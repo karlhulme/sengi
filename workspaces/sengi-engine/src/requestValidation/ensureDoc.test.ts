@@ -7,15 +7,15 @@ function createDocType (): DocType {
   const docType = createFilmDocType()
 
   docType.fields = {
-    movieName: { type: 'shortString', isRequired: true, canUpdate: true, documentation: '' },
-    directorName: { type: 'shortString', canUpdate: true, documentation: '' },
-    actorNames: { type: 'mediumString', canUpdate: true, isArray: true, documentation: '' },
-    runLength: { type: 'positiveInteger', canUpdate: true, documentation: '', deprecation: 'Do not judge a film by length' },
-    rating: { type: 'shortString', canUpdate: true, documentation: '', default: 'Unrated' }
+    movieName: { type: 'https://jsonotron.org/jsl/shortString', isRequired: true, canUpdate: true, documentation: '' },
+    directorName: { type: 'https://jsonotron.org/jsl/shortString', canUpdate: true, documentation: '' },
+    actorNames: { type: 'https://jsonotron.org/jsl/mediumString', canUpdate: true, isArray: true, documentation: '' },
+    runLength: { type: 'https://jsonotron.org/jsl/positiveInteger', canUpdate: true, documentation: '', deprecation: 'Do not judge a film by length' },
+    rating: { type: 'https://jsonotron.org/jsl/shortString', canUpdate: true, documentation: '', default: 'Unrated' }
   }
 
   docType.calculatedFields = {
-    actorCount: { type: 'positiveInteger', documentation: '', inputFields: ['actorNames'], value: input => (input.actorNames as [] || []).length }
+    actorCount: { type: 'https://jsonotron.org/jsl/positiveInteger', documentation: '', inputFields: ['actorNames'], value: input => (input.actorNames as [] || []).length }
   }
 
   return docType

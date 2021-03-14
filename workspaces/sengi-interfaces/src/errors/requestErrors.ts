@@ -52,7 +52,7 @@ export class SengiDocTypeValidateFunctionError extends SengiRequestError {
 
 export class SengiDocValidationFailedError extends SengiRequestError {
   constructor (readonly docTypeName: string, readonly errors: ValidationError[]) {
-    super(`The values supplied to make a new instance of doc type '${docTypeName}' were not valid.`)
+    super(`The values supplied are not a valid instance of doc type '${docTypeName}'.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
