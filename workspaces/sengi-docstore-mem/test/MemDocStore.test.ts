@@ -4,18 +4,30 @@ import { MemDocStore } from '../src'
 
 function createDocs (): Doc[] {
   return [
-    { id: '001', docType: 'test', fruit: 'apple', docVersion: 'aaa1' },
-    { id: '002', docType: 'test', fruit: 'banana', docVersion: 'aaa2' },
-    { id: '003', docType: 'test', fruit: 'orange', docVersion: 'aaa3' },
-    { id: '101', docType: 'test2', vehicle: 'car', docVersion: 'a101' },
-    { id: '102', docType: 'test2', vehicle: 'cargoBoat', docVersion: 'a102' },
-    { id: '103', docType: 'test2', vehicle: 'plane', docVersion: 'a103' }
+    { id: '001', docType: 'test', fruit: 'apple', docVersion: 'aaa1', docOpIds: [] },
+    { id: '002', docType: 'test', fruit: 'banana', docVersion: 'aaa2', docOpIds: [] },
+    { id: '003', docType: 'test', fruit: 'orange', docVersion: 'aaa3', docOpIds: [] },
+    { id: '101', docType: 'test2', vehicle: 'car', docVersion: 'a101', docOpIds: [] },
+    { id: '102', docType: 'test2', vehicle: 'cargoBoat', docVersion: 'a102', docOpIds: [] },
+    { id: '103', docType: 'test2', vehicle: 'plane', docVersion: 'a103', docOpIds: [] }
   ]
 }
 
 function generateDocVersionFunc () {
   return 'xxxx'
 }
+
+test('A count command can be executed.', async () => {
+  const docs = createDocs()
+  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
+  await expect(docStore.command('test', 'tests', 'count', {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
+})
+
+test('An unknown  command can be executed.', async () => {
+  const docs = createDocs()
+  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
+  await expect(docStore.command('test', 'tests', 'unknown', {}, {})).resolves.toEqual({ commandResult: {} })
+})
 
 test('A document can be deleted.', async () => {
   const docs = createDocs()
@@ -48,7 +60,7 @@ test('A non-existent document is not found.', async () => {
 test('A document can be fetched.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.fetch('test', 'tests', '003', {}, {})).resolves.toEqual({ doc: { id: '003', docType: 'test', fruit: 'orange', docVersion: 'aaa3' } })
+  await expect(docStore.fetch('test', 'tests', '003', {}, {})).resolves.toEqual({ doc: { id: '003', docType: 'test', fruit: 'orange', docVersion: 'aaa3', docOpIds: [] } })
 })
 
 test('A non-existent document cannot be fetched.', async () => {
@@ -71,7 +83,7 @@ test('All documents of a type can be retrieved in pages.', async () => {
   await expect(docStore.queryAll('test', 'tests', ['id'], {}, { limit: 2, offset: 2 })).resolves.toEqual({ docs: [{ id: '003' }] })
 })
 
-test('All documents of an recognised type can queried.', async () => {
+test('All documents of a recognised type can queried.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
   await expect(docStore.queryAll('test3', 'tests', ['fieldA', 'fieldB'], {}, {})).resolves.toEqual({ docs: [] })
@@ -110,34 +122,34 @@ test('Query documents using ids that appear multiple times.', async () => {
 test('Insert a new document and rely on doc store to generate doc version.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.upsert('test', 'tests', { id: '004', docType: 'test', fruit: 'kiwi' }, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
+  await expect(docStore.upsert('test', 'tests', { id: '004', docType: 'test', fruit: 'kiwi', docVersion: '000', docOpIds: [] }, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
   expect(docs.length).toEqual(7)
   expect(docs.map(d => d.id)).toEqual(['001', '002', '003', '101', '102', '103', '004'])
-  expect(docs[6]).toEqual({ id: '004', docType: 'test', fruit: 'kiwi', docVersion: 'xxxx' })
+  expect(docs[6]).toEqual({ id: '004', docType: 'test', fruit: 'kiwi', docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Update an existing document.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank' }, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
+  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank', docVersion: '000', docOpIds: [] }, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
   expect(docs.length).toEqual(6)
   expect(docs.map(d => d.id)).toEqual(['001', '002', '003', '101', '102', '103'])
-  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'tank', docVersion: 'xxxx' })
+  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'tank', docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Update an existing document with a required version.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank' }, {}, { reqVersion: 'a102' })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
+  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank', docVersion: '000', docOpIds: [] }, {}, { reqVersion: 'a102' })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
   expect(docs.length).toEqual(6)
   expect(docs.map(d => d.id)).toEqual(['001', '002', '003', '101', '102', '103'])
-  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'tank', docVersion: 'xxxx' })
+  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'tank', docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Fail to update an existing document if the required version is unavailable.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank' }, {}, { reqVersion: 'a999' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
+  await expect(docStore.upsert('test2', 'test2s', { id: '102', docType: 'test2', vehicle: 'tank', docVersion: '000', docOpIds: [] }, {}, { reqVersion: 'a999' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
   expect(docs.length).toEqual(6)
-  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'cargoBoat', docVersion: 'a102' })
+  expect(docs[4]).toEqual({ id: '102', docType: 'test2', vehicle: 'cargoBoat', docVersion: 'a102', docOpIds: [] })
 })

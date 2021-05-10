@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { 
-  Doc, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreOptions, DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode
+  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, SengiCommandFailedError
 } from 'sengi-interfaces'
+import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
+import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
 
 /**
  * The parameters for constructing a MemDocStore.
@@ -20,10 +22,15 @@ interface MemDocStoreConstructorProps {
   generateDocVersionFunc: () => string
 }
 
+type MemDocStoreOptions = Record<string, unknown>
+type MemDocStoreFilter = (d: Doc) => boolean
+type MemDocStoreCommand = string
+interface MemDocStoreCommandResult { count?: number }
+
 /**
  * An in-memory document store.
  */
-export class MemDocStore implements DocStore {
+export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilter, MemDocStoreCommand, MemDocStoreCommandResult> {
   /**
    * An array of documents.
    */
@@ -40,7 +47,7 @@ export class MemDocStore implements DocStore {
    * @param limit The maximum number of documents to return.
    * @param offset The number of documents to skip.
    */
-  private spliceArrayForLimitAndOffset (docs: Doc[], limit?: number, offset?: number): void {
+  private spliceArrayForLimitAndOffset (docs: DocFragment[], limit?: number, offset?: number): void {
     if (limit && limit > 0 && offset && offset > 0) {
       docs.splice(0, offset)
       docs.splice(limit)
@@ -59,7 +66,7 @@ export class MemDocStore implements DocStore {
     const results = []
 
     for (let i = 0; i < docs.length; i++) {
-      const result: Doc = {}
+      const result: DocFragment = {}
 
       for (const fieldName of fieldNames) {
         result[fieldName] = docs[i][fieldName]
@@ -81,6 +88,25 @@ export class MemDocStore implements DocStore {
   }
 
   /**
+   * Executes a command against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param command A command to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+  async command (docTypeName: string, docTypePluralName: string, command: MemDocStoreCommand, options: MemDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<MemDocStoreCommandResult>> {
+    if (command === 'count') {
+      return {
+        commandResult: { count: this.docs.filter(d => d.docType === docTypeName).length }
+      }
+    } else return {
+      commandResult: {}
+    }
+  }
+
+  /**
    * Delete a single document from the store using it's id.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
@@ -89,7 +115,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async deleteById (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreDeleteByIdProps): Promise<DocStoreDeleteByIdResult> {
+  async deleteById (docTypeName: string, docTypePluralName: string, id: string, options: MemDocStoreOptions, props: DocStoreDeleteByIdProps): Promise<DocStoreDeleteByIdResult> {
     const index = this.docs.findIndex(d => d.docType === docTypeName && d.id === id)
 
     if (index > -1) {
@@ -109,7 +135,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async exists (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreExistsProps): Promise<DocStoreExistsResult> {
+  async exists (docTypeName: string, docTypePluralName: string, id: string, options: MemDocStoreOptions, props: DocStoreExistsProps): Promise<DocStoreExistsResult> {
     return { found: this.docs.findIndex(d => d.docType === docTypeName && d.id === id) > -1 }
   }
 
@@ -122,7 +148,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreFetchProps): Promise<DocStoreFetchResult> {
+  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: MemDocStoreOptions, props: DocStoreFetchProps): Promise<DocStoreFetchResult> {
     const doc = this.docs.find(d => d.docType === docTypeName && d.id === id)
     return { doc: doc ? JSON.parse(JSON.stringify(doc)) : null }
   }
@@ -136,7 +162,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName)
     this.spliceArrayForLimitAndOffset(matchedDocs, props.limit, props.offset)  
     return this.buildQueryResult(matchedDocs, fieldNames)
@@ -153,7 +179,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     const filterFunc = filterExpression as (d: Doc) => boolean
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName && filterFunc(d))
     this.spliceArrayForLimitAndOffset(matchedDocs, props.limit, props.offset)    
@@ -170,7 +196,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName && ids.includes(d.id as string))
     return this.buildQueryResult(matchedDocs, fieldNames)
   }
@@ -184,7 +210,7 @@ export class MemDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: DocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: MemDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     const docCopy = JSON.parse(JSON.stringify(doc))
     docCopy.docVersion = this.generateDocVersionFunc()
   
