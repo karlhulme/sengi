@@ -2,10 +2,22 @@
 import { FilterQuery, MongoClient, MongoClientOptions } from 'mongodb'
 import { 
   Doc, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
-  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreOptions, DocStoreQueryProps,
+  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
   DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
 } from 'sengi-interfaces'
+import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
+import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
+import { MongoDbDoc } from './MongoDbDoc'
+
+type MongoDbDocStoreOptions = Record<string, unknown>
+type MongoDbDocStoreFilter = FilterQuery<Doc>
+interface MongoDbDocStoreCommand {
+  count?: boolean
+}
+interface MongoDbDocStoreCommandResult {
+  count?: number
+}
 
 /**
  * Encapsulates the construction parameters of the MongoDbDocStore.
@@ -29,21 +41,21 @@ interface MongoDbDocStoreConstructorProps {
   /**
    * A function that names the database that contains the documents identified by the docTypeName or docTypePluralName.
    */
-  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string
+  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
 
   /**
    * A function that names the collection that contains the documents identified by the docTypeName or docTypePluralName.
    */
-  getCollectionNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string
+  getCollectionNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
 }
 
 /**
  * An document store based on MongoDB.
  */
-export class MongoDbDocStore implements DocStore {
+export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDbDocStoreFilter, MongoDbDocStoreCommand, MongoDbDocStoreCommandResult> {
   generateDocVersionFunc: () => string
-  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string
-  getCollectionNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string
+  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
+  getCollectionNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
   mongoClient: MongoClient
 
   /**
@@ -66,7 +78,7 @@ export class MongoDbDocStore implements DocStore {
   private buildQueryResult (docs: Doc[], fieldNames: string[]) {
     if (fieldNames.includes('id')) {
       docs.forEach(doc => {
-        doc.id = doc._id
+        doc.id = doc._id as string
         delete doc._id
       })
     }
@@ -100,6 +112,35 @@ export class MongoDbDocStore implements DocStore {
   }
 
   /**
+   * Executes a command against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param command A command to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+   async command (docTypeName: string, docTypePluralName: string, command: MongoDbDocStoreCommand, options: MongoDbDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<MongoDbDocStoreCommandResult>> {
+    try {
+      const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
+      const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
+  
+      if (command.count) {
+        const result = await this.mongoClient.db(databaseName).collection(collectionName).estimatedDocumentCount()
+
+        return {
+          commandResult: { count: result }
+        }
+      } else {
+        return { commandResult: {} }
+      }
+    } catch (err) {
+      // istanbul ignore next
+      throw new UnexpectedDocStoreError('Mongo database error processing \'command\'.', err)
+    }
+  }
+
+  /**
    * Delete a single document from the store using it's id.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
@@ -108,7 +149,7 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async deleteById (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreDeleteByIdProps): Promise<DocStoreDeleteByIdResult> {
+  async deleteById (docTypeName: string, docTypePluralName: string, id: string, options: MongoDbDocStoreOptions, props: DocStoreDeleteByIdProps): Promise<DocStoreDeleteByIdResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -133,7 +174,7 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async exists (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreExistsProps): Promise<DocStoreExistsResult> {
+  async exists (docTypeName: string, docTypePluralName: string, id: string, options: MongoDbDocStoreOptions, props: DocStoreExistsProps): Promise<DocStoreExistsResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -156,7 +197,7 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreFetchProps): Promise<DocStoreFetchResult> {
+  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: MongoDbDocStoreOptions, props: DocStoreFetchProps): Promise<DocStoreFetchResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -185,7 +226,7 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -214,12 +255,12 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: MongoDbDocStoreFilter, options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
-      const docs = await this.mongoClient.db(databaseName).collection(collectionName).find(filterExpression as FilterQuery<Doc>, {
+      const docs = await this.mongoClient.db(databaseName).collection(collectionName).find(filter, {
         projection: this.buildQueryProjection(fieldNames),
         limit: props.limit,
         skip: props.offset
@@ -242,7 +283,7 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -269,12 +310,12 @@ export class MongoDbDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: DocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: MongoDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
-      const readyDoc = {
+      const readyDoc: MongoDbDoc = {
         ...doc,
         _id: doc.id,
         docVersion: this.generateDocVersionFunc()
@@ -285,7 +326,8 @@ export class MongoDbDocStore implements DocStore {
         _id: doc.id as string,
         docVersion: props.reqVersion
       },
-      readyDoc, {
+      readyDoc,
+      {
         // generally upsert if the doc is missing, but not if we were looking for a required version
         upsert: !props.reqVersion
       })

@@ -7,11 +7,13 @@
 
 A wrapper for Mongo DB that implements the Sengi document store interface.
 
+
 ## Installation
 
 ```bash
 npm install sengi-docstore-mongodb
 ```
+
 
 ## Usage
 
@@ -54,16 +56,18 @@ The Mongo documentation explains how to specify filter objects in more detail.
 This is an example filter expression returned from a DocType filter implementation:
 
 ```javascript
-const filterExpression = {
+const filter = {
   heightInCms: { $gt: 200 }
 }
 ```
+
 
 ## Indexes
 
 See the Mongo documentation for setting up secondary indexes on Mongo collections.
 
 Ensure any DocType filters will hit a specific index to ensure performant responses.
+
 
 
 ## Limitations

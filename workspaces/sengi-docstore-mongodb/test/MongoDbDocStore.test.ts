@@ -2,6 +2,7 @@ import { expect, test } from '@jest/globals'
 import { Db, Collection, MongoClient, MongoClientOptions } from 'mongodb'
 import { DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
 import { MongoDbDocStore } from '../src'
+import { MongoDbDoc } from '../src/MongoDbDoc'
 
 function getMongoUrl (): string {
   return 'mongodb://localhost:27017'
@@ -54,15 +55,40 @@ async function initDb (): Promise<MongoTestConnection> {
   // delete the existing docs from the collection
   await mongoCollection.deleteMany({})
 
+  // define docs for the database
+  const docs: MongoDbDoc[] = [
+    { _id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'aaa1', docOpIds: [] },
+    { _id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2', docOpIds: [] },
+    { _id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3', docOpIds: [] }
+  ]
+
   // add the new docs into the collection
-  await mongoCollection.insertMany([
-    { _id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'aaa1' },
-    { _id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2' },
-    { _id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3' }
-  ])
+  await mongoCollection.insertMany(docs)
 
   return { mongoClient, mongoDatabase, mongoCollection }
 }
+
+test('A command can be executed.', async () => {
+  const testConn = await initDb()
+  const docStore = await createMongoDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', { count: true }, {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
+  await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
+
+  await docStore.close()
+  await testConn.mongoClient.close()
+})
+
+test('An empty command can be executed.', async () => {
+  const testConn = await initDb()
+  const docStore = await createMongoDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
+  await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
+
+  await docStore.close()
+  await testConn.mongoClient.close()
+})
 
 test('A document can be deleted.', async () => {
   const testConn = await initDb()
@@ -110,7 +136,7 @@ test('A document can be fetched.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.fetch('tree', 'trees', '02', {}, {})).resolves.toEqual({ doc: { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2' } })
+  await expect(docStore.fetch('tree', 'trees', '02', {}, {})).resolves.toEqual({ doc: { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2', docOpIds: [] } })
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -191,12 +217,12 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  const doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150 }
+  const doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
 
   await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(4)
   const newDoc = await testConn.mongoCollection.findOne({ _id: '04' })
-  expect(newDoc).toEqual({ _id: '04', id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'xxxx' })
+  expect(newDoc).toEqual({ _id: '04', id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'xxxx', docOpIds: [] })
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -206,12 +232,12 @@ test('Update an existing document.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
   const newDoc = await testConn.mongoCollection.findOne({ _id: '03' })
-  expect(newDoc).toEqual({ _id: '03', id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx' })
+  expect(newDoc).toEqual({ _id: '03', id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx', docOpIds: [] })
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -221,12 +247,12 @@ test('Update an existing document with a required version.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'aaa3' })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
   const newDoc = await testConn.mongoCollection.findOne({ _id: '03' })
-  expect(newDoc).toEqual({ _id: '03', id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx' })
+  expect(newDoc).toEqual({ _id: '03', id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx', docOpIds: [] })
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -236,7 +262,7 @@ test('Fail to update an existing document if the required version is unavailable
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'bbbb' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
 
   await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
