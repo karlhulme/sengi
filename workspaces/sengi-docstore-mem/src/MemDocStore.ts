@@ -179,7 +179,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: MemDocStoreFilter, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
     const filterFunc = filterExpression as (d: Doc) => boolean
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName && filterFunc(d))
     this.spliceArrayForLimitAndOffset(matchedDocs, props.limit, props.offset)    

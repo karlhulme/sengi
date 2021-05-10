@@ -99,9 +99,9 @@ test('Query documents using a filter.', async () => {
 test('Query documents using a filter and paging.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => (d.vehicle as string), {}, { limit: 1 }))
+  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1 }))
     .resolves.toEqual({ docs: [{ id: '101', vehicle: 'car' }] })
-  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => (d.vehicle as string), {}, { limit: 1, offset: 1 }))
+  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1, offset: 1 }))
     .resolves.toEqual({ docs: [{ id: '102', vehicle: 'cargoBoat' }] })
 })
 

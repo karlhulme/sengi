@@ -7,11 +7,13 @@
 
 An in-memory implementation of the Sengi document store interface.
 
+
 ## Installation
 
 ```bash
 npm install sengi-docstore-mem
 ```
+
 
 ## Usage
 
@@ -32,16 +34,6 @@ const memDocStore = new MemDocStore({
 
 This example uses the standard NodeJs `crypto` library to produce a string of 20 random hex characters for `generateDocVersionFunc`.
 
-
-## Filters
-
-Filter expressions are expected to be a function `(doc: Doc) => Boolean` that returns true if the filter is a match, or false otherwise.
-
-This is an example filter expression returned from a DocType filter implementation:
-
-```javascript
-const filterExpression = d => d.heightParam > 200
-```
 
 ## Limitations
 
