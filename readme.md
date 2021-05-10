@@ -105,9 +105,7 @@ If you have a dataset for which no partition key makes sense, then you can store
 
 ### Synchronisation
 
-To keep all the documents in sync you'll a mechanism that can write to multiple records in sequence in a fault-tolerant manner.  Crucially, if a second or third record needs to be updated but fails, you'll need a system that identifies these failed updates and provides a mechanism to retry or resume at a later point.  You don't want a system that silently fails and leads to increasing synchronisation issues.
-
-[Piggle](https://github.com/karlhulme/piggle) is an appropriate framework for this.
+To keep all the documents in sync you'll need a mechanism that can write to multiple records in sequence in a fault-tolerant manner.  Crucially, if a second or third record needs to be updated but fails, you'll need a system that identifies these failed updates and provides a mechanism to retry or resume at a later point.  You don't want a system that silently fails and leads to increasing synchronisation issues.
 
 
 ## Guidance on Filters
@@ -119,7 +117,7 @@ Filter parameters could be used to control the ordering but only options covered
 
 ## Guidance on Extracting Whole Collections
 
-If you need to extract all the documents from a non-trivial collection then it will be necessary to do it sections.
+If you need to extract all the documents from a non-trivial collection then it will be necessary to do it in sections.
 
 To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documents that were added during the extraction (or holding documents removed during the extraction) but of course that can be resolved the next time the synchronisation takes place.
 
@@ -130,7 +128,7 @@ Skip and Limit are included as a convenience but should not be used for enumerat
 
 The sengi engine will replace any field that is included in a patch.  If a field should be removed, then specify null.
 
-A field is always replaced in it's entirety, you cannot replace part of a schema type field.  This makes it easier for clients to produce new values, without having to keep track of the individual changes made to parts of a field.  As a side effect, it means that nulls value can be stored within schema types if desired.
+A field is always replaced in it's entirety, you cannot replace part of a schema type field.  This makes it easier for clients to produce new values, without having to keep track of the individual changes made to parts of a field.  As a side effect, it means that null values can be stored within schema types if desired.
 
 
 ## Development

@@ -7,7 +7,6 @@
 
 A set of **interfaces**, **types**, **function signatures**, **callback signatures** and **errors** used by the packages of the Sengi system.
 
-This package only exports definitions that can be consumed by Typescript interpreters.  This package does not export any executable code.
 
 ## Installation
 
