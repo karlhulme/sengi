@@ -1,4 +1,14 @@
+/**
+ * Defines a set of allowed update mechanisms. 
+ */
 export interface RoleTypeDocUpdatePermissionSet {
+  /**
+   * True if a client may issue patches.
+   */
   patch?: boolean
-  operations: string[]
+
+  /**
+   * A list of operations that the client may call.
+   */
+  operations?: string[]
 }

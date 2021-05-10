@@ -1,17 +1,26 @@
-import { DocFragmentExample } from '../doc'
-import { DocTypeFilterParameter } from './DocTypeFilterParameter'
-import { DocTypeFilterImplementation } from './DocTypeFilterImplementation'
+/**
+ * Represents a filter that can be applied to a collection of documents.
+ */
+export interface DocTypeFilter<Filter, Parameters> {
+  /**
+   * A description of this filter.
+   */
+  summary: string
 
-export interface DocTypeFilter {
-  title: string
-  documentation: string
-  parameters: Record<string, DocTypeFilterParameter>
-  examples: DocFragmentExample[]
+  /**
+   * If populated, this filter has been deprecated, and the property describes
+   * the reason and/or the filter to use instead.
+   */
   deprecation?: string
 
   /**
-   * A function (inputs) that returns an object or value
-   * that the document store is able to interpret as a filter.
+   * A JSON schema that describes the shape of the filter parameters.
    */
-  implementation: DocTypeFilterImplementation
+  parametersJsonSchema: Record<string, unknown>
+
+  /**
+   * A function that builds a doc store filter based on the given parameters.
+   * The Filter type is dependent upon the doc store in use.
+   */
+  parse: (parameters: Parameters) => Filter
 }

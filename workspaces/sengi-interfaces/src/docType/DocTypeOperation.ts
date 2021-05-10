@@ -1,17 +1,25 @@
-import { DocFragmentExample } from '../doc'
-import { DocTypeOperationImplementation } from './DocTypeOperationImplementation'
-import { DocTypeOperationParameter } from './DocTypeOperationParameter'
-
-export interface DocTypeOperation {
-  title: string
-  documentation: string
-  parameters: Record<string, DocTypeOperationParameter>
+/**
+ * Represents an operation that can be applied to a document.
+ */
+export interface DocTypeOperation<Doc, Parameters> {
+  /**
+   * A description of the operation.
+   */
+  summary: string
 
   /**
-   * A function that returns an initial document.
+   * If populated, this operation has been deprecated, and this property describes
+   * the reason and/or the operation to use instead.
    */
-  implementation: DocTypeOperationImplementation
-
-  examples: DocFragmentExample[]
   deprecation?: string
+
+  /**
+   * A JSON schema that describes the shape of the parameters to the operation.
+   */
+  parametersJsonSchema: Record<string, unknown>
+
+  /**
+   * A function that updates a document based on the given operation parameters.
+   */
+  implementation: (doc: Doc, parameters: Parameters) => void
 }

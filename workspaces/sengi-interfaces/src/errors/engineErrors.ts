@@ -1,23 +1,12 @@
 import { SengiEngineError } from './baseErrors'
 
-export class SengiAggregateFailedError extends SengiEngineError {
-  constructor (readonly docTypeName: string, readonly aggregateName: string, readonly innerErr: Error) {
-    super(`Aggregate '${aggregateName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+export class SengiCommandFailedError extends SengiEngineError {
+  constructor (readonly docTypeName: string, readonly commandName: string, readonly innerErr: Error) {
+    super(`Command '${commandName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.aggregateName = aggregateName
-    this.innerErr = innerErr
-  }
-}
-
-export class SengiCalculatedFieldFailedError extends SengiEngineError {
-  constructor (readonly docTypeName: string, readonly fieldName: string, readonly innerErr: Error) {
-    super(`Calculated field '${fieldName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
-    Object.setPrototypeOf(this, new.target.prototype)
-    this.name = this.constructor.name
-    this.docTypeName = docTypeName
-    this.fieldName = fieldName
+    this.commandName = commandName
     this.innerErr = innerErr
   }
 }
@@ -80,16 +69,6 @@ export class SengiOperationFailedError extends SengiEngineError {
     this.docTypeName = docTypeName
     this.operationName = operationName
     this.innerErr = innerErr
-  }
-}
-
-export class SengiOperationNonObjectResponseError extends SengiEngineError {
-  constructor (readonly docTypeName: string, readonly operationName: string) {
-    super(`Operation '${operationName}' on document type '${docTypeName}' failed to return an object.`)
-    Object.setPrototypeOf(this, new.target.prototype)
-    this.name = this.constructor.name
-    this.docTypeName = docTypeName
-    this.operationName = operationName
   }
 }
 

@@ -1,51 +1,71 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { DocTypeCommand } from './DocTypeCommand'
+import { DocTypeConstructor } from './DocTypeConstructor'
+import { DocTypeFilter } from './DocTypeFilter'
+import { DocTypeOperation } from './DocTypeOperation'
 import { DocTypePolicy } from './DocTypePolicy'
-import { DocStoreOptions } from '../docStore'
 
-export interface DocTypeConstructor<Doc, Parameters> {
-  summary: string
-  deprecation?: string
-  parametersJsonSchema: string
-  implementation: (parameters: Parameters) => Doc
-}
-
-export interface DocTypeFilter<Filter, Parameters> {
-  summary: string
-  deprecation?: string
-  parametersJsonSchema: string
-  implementation: (parameters: Parameters) => Filter
-}
-
-export interface DocTypeOperation<Doc, Parameters> {
-  summary: string
-  deprecation?: string
-  parametersJsonSchema: string
-  implementation: (doc: Doc, parameters: Parameters) => void
-}
-
-export interface DocTypeAggregate<Response, Parameters> {
-  summary: string
-  deprecation?: string
-  responseJsonSchema: string
-  parametersJsonSchema: string
-  implementation: (parameters: Parameters) => Response
-}
-
-export interface DocType<Doc, Filter> {
+/**
+ * Represents a type of document that can be stored and managed.
+ */
+export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
+  /**
+   * The name of the document type.
+   */
   name: string
+
+  /**
+   * The plural name of the document type.
+   */
   pluralName: string
+
+  /**
+   * The title of the document type.
+   */
   title: string
+
+  /**
+   * The plural title of the document type.
+   */
   pluralTitle: string
+
+  /**
+   * A description of the usage of the document type.
+   */
   summary: string
 
-  jsonSchema: string
+  /**
+   * A JSON schema that fully describes the acceptable shape of this document type.
+   */
+  jsonSchema: Record<string, unknown>
 
+  /**
+   * If populated, this document type has been deprecated, and this property describes
+   * the reason and/or the document type to use in it's place.
+   */
+  deprecation?: string
+
+  /**
+   * A constructor for this document type.
+   */
   ctor?: DocTypeConstructor<Doc, any>
 
+  /**
+   * A record of filters that can be used to extract sections of the
+   * document collection.
+   */
   filters?: Record<string, DocTypeFilter<Filter, any>>
 
+  /**
+   * A record of operations that can be used to update a document.
+   */
   operations?: Record<string, DocTypeOperation<Doc, any>>
+
+  /**
+   * A record of commands that can be executed against a document collection.
+   */
+  commands?: Record<string, DocTypeCommand<any, any, CommandResult, Command>>
 
   /**
    * A function that can perform cleanup adjustments on a document, such as removing 
@@ -59,74 +79,15 @@ export interface DocType<Doc, Filter> {
    */
   validate?: (doc: Doc) => void
 
+  /**
+   * The policy of the document type that governs which high level actions
+   * can be invoked by clients.
+   */
   policy?: DocTypePolicy
 
+  /**
+   * Options that will be passed to the document store.
+   * The type of data will be dependent on the choice of document store.
+   */
   docStoreOptions?: DocStoreOptions
 }
-
-export interface FieldShape {
-  a: string
-  b: number
-  c: boolean
-} 
-
-export interface ExampleParameters {
-  d: string
-  e: number
-}
-
-export interface ExampleFilter {
-  awsId: string
-  awsSort: string
-}
-
-export interface ExampleAggegate {
-  getCount: boolean
-}
-
-const testDocType: DocType<FieldShape, ExampleFilter> = {
-  name: 'test',
-  pluralName: 'tests',
-  title: 'Test',
-  pluralTitle: 'Tests',
-  summary: 'Use the type as follows...',
-  jsonSchema: 'type=object,properties,etc,etc',
-  ctor: {
-    summary: 'Create a new instance of the type.',
-    parametersJsonSchema: '....',
-    implementation: (parameters: ExampleParameters) => ({
-      a: parameters.d,
-      b: 123,
-      c: true
-    })
-  },
-  filters: {
-    byExample: {
-      summary: 'A filter',
-      parametersJsonSchema: '...',
-      implementation: (parameters: ExampleParameters) => ({
-        awsId: parameters.d,
-        awsSort: 'up'
-      })
-    }
-  },
-  operations: {
-    addSignature: {
-      summary: 'Add Signature',
-      parametersJsonSchema: '...',
-      implementation: (doc, parameters: ExampleParameters) => {
-        doc.a = parameters.d
-      }
-    }
-  },
-  preSave: shape => {
-    shape.a = 'something else'
-  },
-  validate: shape => {
-    if (shape.a === 'whatever') {
-      throw new Error()
-    }
-  }
-}
-
-console.log(testDocType)

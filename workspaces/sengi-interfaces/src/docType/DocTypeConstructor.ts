@@ -1,16 +1,19 @@
-import { DocFragmentExample } from '../doc'
-import { DocTypeConstructorParameter } from './DocTypeConstructorParameter'
-import { DocTypeConstructorImplementation } from './DocTypeConstructorImplementation'
-
-export interface DocTypeConstructor {
-  title: string
-  documentation: string
-  parameters: Record<string, DocTypeConstructorParameter>
+/**
+ * Represents the constructor for a document type.
+ */
+export interface DocTypeConstructor<Doc, Parameters> {
+  /**
+   * A description of the purpose of the constructor.
+   */
+  summary: string
 
   /**
-   * A function that returns an initial document.
+   * A JSON schema that describes the shape of the constructor parameters.
    */
-  implementation: DocTypeConstructorImplementation
+  parametersJsonSchema: Record<string, unknown>
 
-  examples: DocFragmentExample[]
+  /**
+   * A function that returns a new document based on the given parameters.
+   */
+  implementation: (parameters: Parameters) => Doc
 }

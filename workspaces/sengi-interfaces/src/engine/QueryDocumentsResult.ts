@@ -1,6 +1,12 @@
-import { Deprecations, Doc } from '../doc'
+import { DocFragment } from '../doc'
 
+/**
+ * Defines the shape of the response following a request to
+ * query for all documents from a collection.
+ */
 export interface QueryDocumentsResult {
-  deprecations: Deprecations
-  docs: Doc[]
+  /**
+   * An array of documents.
+   */
+  docs: DocFragment[]
 }

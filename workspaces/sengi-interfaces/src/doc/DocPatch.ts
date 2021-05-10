@@ -1,7 +1,6 @@
 import { DocPatchField } from './DocPatchField'
 
 /**
- * Represents a document patch, which can contain null as the value
- * part of the record.
+ * Represents a patch to be applied to a document.
  */
 export type DocPatch = Record<string, DocPatchField>

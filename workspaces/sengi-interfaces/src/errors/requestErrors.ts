@@ -11,13 +11,13 @@ export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HT
   }
 }
 
-export class SengiAggregateParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly aggregateName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied to aggregate '${aggregateName}' for doc type '${docTypeName}' were not valid.`)
+export class SengiCommandParamsValidationFailedError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly commandName: string, readonly errors: ValidationError[]) {
+    super(`The parameters supplied to command '${commandName}' for doc type '${docTypeName}' were not valid.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.aggregateName = aggregateName
+    this.commandName = commandName
     this.errors = errors
   }
 }
@@ -121,13 +121,13 @@ export class SengiRequiredVersionNotAvailableError extends SengiRequestError { /
   }
 }
 
-export class SengiUnrecognisedAggregateNameError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly aggregateName: string) {
-    super(`Document type '${docTypeName}' does not define an aggregate named '${aggregateName}'.`)
+export class SengiUnrecognisedCommandNameError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly commandName: string) {
+    super(`Document type '${docTypeName}' does not define a command named '${commandName}'.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.aggregateName = aggregateName
+    this.commandName = commandName
   }
 }
 
