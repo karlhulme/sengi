@@ -1,11 +1,11 @@
-import { Doc } from '../doc'
+import { DocFragment } from '../doc'
 
 /**
  * The result from a document store of querying a collection of documents.
  */
 export interface DocStoreQueryResult {
   /**
-   * A collection of documents.
+   * A collection of document fragments.
    */
-  docs: Doc[]
+  docs: DocFragment[]
 }

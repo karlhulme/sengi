@@ -7,11 +7,13 @@
 
 A wrapper for Amazon's AWS Dynamo DB that implements the Sengi document store interface.
 
+
 ## Installation
 
 ```bash
 npm install sengi-docstore-dynamodb
 ```
+
 
 ## Usage
 
@@ -71,6 +73,7 @@ const filterExpression = {
   }
 }
 ```
+
 
 ## Indexes
 

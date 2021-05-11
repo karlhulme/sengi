@@ -49,10 +49,10 @@ async function initDb (): Promise<void> {
   }
 
   // populate trees container
-  const trees = [
-    { id: '01', docType: 'tree', name: 'ash', heightInCms: 210 },
-    { id: '02', docType: 'tree', name: 'beech', heightInCms: 225 },
-    { id: '03', docType: 'tree', name: 'pine', heightInCms: 180 }
+  const trees: Doc[] = [
+    { id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'not_used', docOpIds: [] },
+    { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'not_used', docOpIds: [] },
+    { id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'not_used', docOpIds: [] }
   ]
   // console.log('populating trees')
   for (const tree of trees) {
@@ -61,11 +61,11 @@ async function initDb (): Promise<void> {
   }
 
   // populate treePacks container
-  const treePacks = [
-    { id: '01', docType: 'treePack', name: 'ash', environment: 'forest', heightInCms: 210 },
-    { id: '02', docType: 'treePack', name: 'beech', environment: 'forest', heightInCms: 225 },
-    { id: '03', docType: 'treePack', name: 'palm', environment: 'tropical', heightInCms: 180 },
-    { id: '04', docType: 'treePack', name: 'coconut', environment: 'tropical', heightInCms: 175 }
+  const treePacks: Doc[] = [
+    { id: '01', docType: 'treePack', name: 'ash', environment: 'forest', heightInCms: 210, docVersion: 'not_used', docOpIds: [] },
+    { id: '02', docType: 'treePack', name: 'beech', environment: 'forest', heightInCms: 225, docVersion: 'not_used', docOpIds: [] },
+    { id: '03', docType: 'treePack', name: 'palm', environment: 'tropical', heightInCms: 180, docVersion: 'not_used', docOpIds: [] },
+    { id: '04', docType: 'treePack', name: 'coconut', environment: 'tropical', heightInCms: 175, docVersion: 'not_used', docOpIds: [] }
   ]
   // console.log('populating tree packs')
   for (const treePack of treePacks) {
@@ -74,7 +74,7 @@ async function initDb (): Promise<void> {
   }
 }
 
-async function readContainer (containerName: string): Promise<Doc[]> {
+async function readContainer (containerName: string): Promise<Record<string, unknown>[]> {
   const cosmosClient = new CosmosClient({
     endpoint: TEST_COSMOS_URL || '',
     key: TEST_COSMOS_KEY || ''
@@ -88,6 +88,22 @@ async function readContainer (containerName: string): Promise<Doc[]> {
 beforeEach(async () => {
   jest.setTimeout(30 * 1000) // 30 secs - first run can be slow
   await initDb()
+})
+
+test('A sql command can be executed.', async () => {
+  const docStore = createCosmosDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', { sqlCommand: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({ sqlCommandResult: expect.objectContaining({ resources: expect.objectContaining({ count: 3 }) }) })
+
+  await expect(readContainer('trees')).resolves.toHaveLength(2)
+})
+
+test('An empty command can be executed.', async () => {
+  const docStore = createCosmosDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ sqlCommandResult: {} })
+
+  await expect(readContainer('trees')).resolves.toHaveLength(2)
 })
 
 test('A document can be deleted.', async () => {
@@ -131,7 +147,7 @@ test('A document can be fetched.', async () => {
   const docStore = createCosmosDbDocStore()
 
   await expect(docStore.fetch('tree', 'trees', '02', {}, {})).resolves.toEqual({
-    doc: expect.objectContaining({ id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: expect.any(String) })
+    doc: expect.objectContaining({ id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: expect.any(String), docOpIds: [] })
   })
 })
 
@@ -146,7 +162,7 @@ test('A document can be fetched from a container with an unknown partition key.'
 
   // getPartitionKeyFunc will return, forcing the partition key to be looked up.
   await expect(docStore.fetch('treePack', 'treePacks', '02', {}, {})).resolves.toEqual({
-    doc: expect.objectContaining({ id: '02', docType: 'treePack', name: 'beech', environment: 'forest', heightInCms: 225, docVersion: expect.any(String) })
+    doc: expect.objectContaining({ id: '02', docType: 'treePack', name: 'beech', environment: 'forest', heightInCms: 225, docVersion: expect.any(String), docOpIds: [] })
   })
 })
 
@@ -171,7 +187,7 @@ test('All documents of a type can be retrieved in pages.', async () => {
 test('Query documents using a filter.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByFilter('treePack', 'treePacks', ['id'], 'd.heightInCms > 200', {}, {})
+  const result = await docStore.queryByFilter('treePack', 'treePacks', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.findIndex(d => d.id === '01')).toBeGreaterThanOrEqual(0)
   expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
@@ -180,7 +196,7 @@ test('Query documents using a filter.', async () => {
 test('Query documents using a filter and paging.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByFilter('tree', 'trees', ['id'], 'd.heightInCms > 200', {}, { limit: 1, offset: 1 })
+  const result = await docStore.queryByFilter('tree', 'trees', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, { limit: 1, offset: 1 })
   expect(result.docs).toHaveLength(1)
   expect(result.docs.findIndex(d => ['01', '02'].includes(d.id as string))).toBeGreaterThanOrEqual(0)
 })
@@ -207,7 +223,7 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
   const docStore = createCosmosDbDocStore()
 
   // docVersion will be stripped out before upsert
-  const doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'ignore_me' }
+  const doc: Doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'ignore_me', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
 
   const contents = await readContainer('trees')
@@ -220,7 +236,7 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
 test('Update an existing document.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readContainer('trees')
@@ -236,7 +252,7 @@ test('Update an existing document with a required version.', async () => {
   const initialContents = await readContainer('trees')
   const reqVersion = (initialContents.find(d => d.id === '03') || {})._etag as string
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readContainer('trees')
@@ -249,7 +265,7 @@ test('Update an existing document with a required version.', async () => {
 test('Fail to update an existing document if the required version is unavailable.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'bbbb' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
 
   const contents = await readContainer('trees')

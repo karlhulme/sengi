@@ -1,22 +1,68 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FilterQuery, MongoClient, MongoClientOptions } from 'mongodb'
 import { 
-  Doc, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  DocStoredField,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
   DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
 } from 'sengi-interfaces'
 import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
 import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
-import { MongoDbDoc } from './MongoDbDoc'
 
-type MongoDbDocStoreOptions = Record<string, unknown>
-type MongoDbDocStoreFilter = FilterQuery<Doc>
-interface MongoDbDocStoreCommand {
+/**
+ * Represents the options that can be passed to a mongodb document store.
+ */
+export type MongoDbDocStoreOptions = Record<string, unknown>
+
+/**
+ * Represents a filter that can be applied to a collection of documents.
+ */
+export type MongoDbDocStoreFilter = FilterQuery<Doc>
+
+/**
+ * Represents a command that can be applied to a collection of documents.
+ */
+export interface MongoDbDocStoreCommand {
+  /**
+   * If true, determine the approximate number of documents in a collection.
+   */
   estimatedCount?: boolean
 }
-interface MongoDbDocStoreCommandResult {
+
+/**
+ * Represents the result of a command executed against a collection of documents.
+ */
+export interface MongoDbDocStoreCommandResult {
+  /**
+   * If populated, contains the approximate number of documents in a collection.
+   */
   estimatedCount?: number
+}
+
+/**
+ * Represents a document stored in the Mongo database.
+ */
+ export type MongoDbDoc = Record<string, DocStoredField> & {
+  /**
+   * The id of the document.
+   */
+  _id: string,
+
+  /**
+   * The type of the document.
+   */
+  docType: string,
+
+  /**
+   * The version of the document.
+   */
+  docVersion: string,
+
+  /**
+   * An array of operation ids that have been applied to the document.
+   */
+  docOpIds: string[]
 }
 
 /**
@@ -75,7 +121,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * @param {Array} docs An array of docs.
    * @param {Array} fieldNames An array of field names.
    */
-  private buildQueryResult (docs: Doc[], fieldNames: string[]) {
+  private buildQueryResult (docs: DocFragment[], fieldNames: string[]) {
     if (fieldNames.includes('id')) {
       docs.forEach(doc => {
         doc.id = doc._id as string

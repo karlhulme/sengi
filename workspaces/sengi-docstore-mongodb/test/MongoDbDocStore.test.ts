@@ -1,8 +1,7 @@
 import { expect, test } from '@jest/globals'
 import { Db, Collection, MongoClient, MongoClientOptions } from 'mongodb'
 import { DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
-import { MongoDbDocStore } from '../src'
-import { MongoDbDoc } from '../src/MongoDbDoc'
+import { MongoDbDoc, MongoDbDocStore } from '../src'
 
 function getMongoUrl (): string {
   return 'mongodb://localhost:27017'

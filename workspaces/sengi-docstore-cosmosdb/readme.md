@@ -7,11 +7,13 @@
 
 A wrapper for Microsoft's Azure Cosmos DB that implements the Sengi document store interface.
 
+
 ## Installation
 
 ```bash
 npm install sengi-docstore-cosmosdb
 ```
+
 
 ## Usage
 
@@ -23,28 +25,30 @@ To instantiate a `CosmosDbDocStore` you have to provide the following parameters
 
 * **cosmosKey** - A master key with read and write access to your Cosmos DB instance.
 
-* **getDatabaseNameFunc** - A function `(docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string` that returns the name of the database to connect to.
+* **getDatabaseNameFunc** - A function `(docTypeName: string, docTypePluralName: string, options: CosmosDbDocStoreOptions) => string` that returns the name of the database to connect to.
 
-* **getContainerNameFunc** - A function `(databaseName: string, docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => string` that returns the name of the container to edit.
+* **getContainerNameFunc** - A function `(databaseName: string, docTypeName: string, docTypePluralName: string, options: CosmosDbDocStoreOptions) => string` that returns the name of the container to edit.
 
-* **getPartitionKeyFunc** - A function `(databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions) => string|null` that returns the value of a document's partition key.  Typically this will return the id or something from the options
+* **getPartitionKeyFunc** - A function `(databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string, options: CosmosDbDocStoreOptions) => string|null` that returns the value of a document's partition key.  Typically this will return the id or something from the options
 object that has been populated by the Sengi interface.  For example, the Sengi-Express library will place the additional path components (for example the tenant ID) into the options for use here.  If the partition key is not known, just return null and the library will look it up.
 
 ```javascript
 const cosmosDbDocStore = new CosmosDbDocStore({
   cosmosUrl: TEST_COSMOS_URL,
   cosmosKey: TEST_COSMOS_KEY,
-  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: DocStoreOptions) => 'sengi',
+  getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: CosmosDbDocStoreOptions) => 'sengi',
   getContainerNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string) => docTypePluralName,
   getPartitionKeyFunc: (databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string) => docTypePluralName === 'trees' ? id : null
 })
 ```
+
 
 ## Filters
 
 Filters are passed unchanged to the SQL execution engine.  For this reason, filters should always be specified server side.
 
 Assume the table is qualified with the letter `d`.  For example, `d.myField = 'VALUE' and d.myOtherField > 25`.
+
 
 ## Setup
 
@@ -59,6 +63,7 @@ You will then need to run `npm run setup` in order to create database.  This nee
 
 You can remove the database by running `npm run teardown`.
 
+
 ## Development
 
 Test run requires the --detectOpenHandles flag because occassionally a handle is held open - no idea why.
@@ -72,6 +77,7 @@ npm test
 ```
 
 Note that the tests run sequentially (`jest --runInBand`) so that only one test can access the database at a time. 
+
 
 ## Continuous Deployment
 

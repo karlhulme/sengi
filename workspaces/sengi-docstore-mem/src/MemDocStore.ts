@@ -2,10 +2,41 @@
 import { 
   Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, SengiCommandFailedError
+  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode
 } from 'sengi-interfaces'
 import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
 import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
+
+/**
+ * Represents the options that can be passed to the memory document store.
+ */
+export type MemDocStoreOptions = Record<string, unknown>
+
+/**
+ * Represents a filter that can be applied by a memory document store.
+ */
+export type MemDocStoreFilter = (d: Doc) => boolean
+
+/**
+ * Represents a command that can be executed by a memory document store.
+ */
+export interface MemDocStoreCommand {
+  /**
+   * True if the count of the documents should be found.
+   */
+  count?: boolean
+}
+
+/**
+ * Represents the result of executing a command.
+ */
+export interface MemDocStoreCommandResult {
+  /**
+   * If populated, will be set to the number of documents found
+   * in the document store.
+   */
+  count?: number
+}
 
 /**
  * The parameters for constructing a MemDocStore.
@@ -21,11 +52,6 @@ interface MemDocStoreConstructorProps {
    */
   generateDocVersionFunc: () => string
 }
-
-type MemDocStoreOptions = Record<string, unknown>
-type MemDocStoreFilter = (d: Doc) => boolean
-type MemDocStoreCommand = { count?: boolean }
-interface MemDocStoreCommandResult { count?: number }
 
 /**
  * An in-memory document store.
@@ -63,7 +89,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * @param fieldNames An array of field names.
    */
   private buildQueryResult (docs: Doc[], fieldNames: string[]): DocStoreQueryResult {
-    const results = []
+    const results: DocFragment[] = []
 
     for (let i = 0; i < docs.length; i++) {
       const result: DocFragment = {}

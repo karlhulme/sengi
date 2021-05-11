@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
 import AWS from 'aws-sdk'
-import { Doc, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
+import { Doc, DocFragment, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
 import { DynamoDbDocStore } from '../src'
 
 const DYNAMO_URL = 'http://localhost:8000'
@@ -45,10 +45,10 @@ async function initDb (): Promise<void> {
     await dynamoClient.delete({ TableName: TABLE_NAME, Key: key }).promise()
   }
 
-  const docs = [
-    { id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'aaa1' },
-    { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2' },
-    { id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3' }
+  const docs: Doc[] = [
+    { id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'aaa1', docOpIds: [] },
+    { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2', docOpIds: [] },
+    { id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3', docOpIds: [] }
   ]
 
   // add the test docs into the table
@@ -57,7 +57,7 @@ async function initDb (): Promise<void> {
   }
 }
 
-async function readTable (): Promise<Doc[]> {
+async function readTable (): Promise<DocFragment[]> {
   const dynamoClient = new AWS.DynamoDB.DocumentClient({
     endpoint: DYNAMO_URL,
     region: TEST_DYNAMODB_REGION,
@@ -68,6 +68,20 @@ async function readTable (): Promise<Doc[]> {
 
   return (allContents.Items || []).sort((a, b) => a.id.localeCompare(b.id))
 }
+
+test('A count command can be executed.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ commandResult: { estimatedCount: 3 } })
+})
+
+test('A blank command can be executed.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
+})
 
 test('A document can be deleted.', async () => {
   await initDb()
@@ -105,7 +119,7 @@ test('A document can be fetched.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  await expect(docStore.fetch('tree', 'trees', '02', {}, {})).resolves.toEqual({ doc: { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2' } })
+  await expect(docStore.fetch('tree', 'trees', '02', {}, {})).resolves.toEqual({ doc: { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2', docOpIds: [] } })
 })
 
 test('A non-existent document cannot be fetched.', async () => {
@@ -227,46 +241,46 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150 }
+  const doc: Doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
 
   const contents = await readTable()
   expect(contents).toHaveLength(4)
-  expect(contents.find(d => d.id === '04')).toEqual({ id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'xxxx' })
+  expect(contents.find(d => d.id === '04')).toEqual({ id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Update an existing document.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readTable()
   expect(contents).toHaveLength(3)
-  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx' })
+  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Update an existing document with a required version.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'aaa3' })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readTable()
   expect(contents).toHaveLength(3)
-  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx' })
+  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'xxxx', docOpIds: [] })
 })
 
 test('Fail to update an existing document if the required version is unavailable.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123 }
+  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'bbbb' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
 
   const contents = await readTable()
   expect(contents).toHaveLength(3)
-  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3' })
+  expect(contents.find(d => d.id === '03')).toEqual({ id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3', docOpIds: [] })
 })

@@ -40,11 +40,11 @@ async function setup () {
   })
 
   if (await doesTableExist(dynamoClient, TABLE_NAME)) {
-    console.log('Delete table')
+    console.log(`Deleting table ${TABLE_NAME}. `)
     await dynamoClient.deleteTable({ TableName: TABLE_NAME }).promise()
   }
 
-  console.log('Create table')
+  console.log(`Creating table ${TABLE_NAME}. `)
   await dynamoClient.createTable({
     TableName: TABLE_NAME,
     KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
@@ -64,6 +64,8 @@ async function setup () {
       ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
     }]
   }).promise()
+
+  console.log('Done.')
 }
 
 setup()
