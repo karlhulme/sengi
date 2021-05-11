@@ -20,13 +20,13 @@ function generateDocVersionFunc () {
 test('A count command can be executed.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.command('test', 'tests', 'count', {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
+  await expect(docStore.command('test', 'tests', { count: true }, {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
 })
 
 test('An unknown  command can be executed.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.command('test', 'tests', 'unknown', {}, {})).resolves.toEqual({ commandResult: {} })
+  await expect(docStore.command('test', 'tests', {}, {}, {})).resolves.toEqual({ commandResult: {} })
 })
 
 test('A document can be deleted.', async () => {

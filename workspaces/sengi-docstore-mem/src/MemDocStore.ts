@@ -24,7 +24,7 @@ interface MemDocStoreConstructorProps {
 
 type MemDocStoreOptions = Record<string, unknown>
 type MemDocStoreFilter = (d: Doc) => boolean
-type MemDocStoreCommand = string
+type MemDocStoreCommand = { count?: boolean }
 interface MemDocStoreCommandResult { count?: number }
 
 /**
@@ -97,7 +97,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * @param props Properties that define how to carry out this action.
    */
   async command (docTypeName: string, docTypePluralName: string, command: MemDocStoreCommand, options: MemDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<MemDocStoreCommandResult>> {
-    if (command === 'count') {
+    if (command.count) {
       return {
         commandResult: { count: this.docs.filter(d => d.docType === docTypeName).length }
       }
