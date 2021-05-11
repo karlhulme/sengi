@@ -72,8 +72,8 @@ test('A command can be executed.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.command('tree', 'trees', { count: true }, {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
-  await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
+  await expect(docStore.command('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ commandResult: { estimatedCount: 3 } })
+  await expect(testConn.mongoCollection.estimatedDocumentCount()).resolves.toEqual(3)
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -84,7 +84,6 @@ test('An empty command can be executed.', async () => {
   const docStore = await createMongoDbDocStore()
 
   await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
-  await expect(testConn.mongoCollection.countDocuments()).resolves.toEqual(3)
 
   await docStore.close()
   await testConn.mongoClient.close()

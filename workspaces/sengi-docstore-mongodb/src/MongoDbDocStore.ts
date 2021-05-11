@@ -13,10 +13,10 @@ import { MongoDbDoc } from './MongoDbDoc'
 type MongoDbDocStoreOptions = Record<string, unknown>
 type MongoDbDocStoreFilter = FilterQuery<Doc>
 interface MongoDbDocStoreCommand {
-  count?: boolean
+  estimatedCount?: boolean
 }
 interface MongoDbDocStoreCommandResult {
-  count?: number
+  estimatedCount?: number
 }
 
 /**
@@ -125,11 +125,11 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
-      if (command.count) {
+      if (command.estimatedCount) {
         const result = await this.mongoClient.db(databaseName).collection(collectionName).estimatedDocumentCount()
 
         return {
-          commandResult: { count: result }
+          commandResult: { estimatedCount: result }
         }
       } else {
         return { commandResult: {} }
