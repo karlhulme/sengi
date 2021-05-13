@@ -41,7 +41,7 @@ export interface CosmosDbDocStoreCommandResult {
   /**
    * If populated, contains the result of an executed sql command.
    */
-  sqlCommandResults?: FeedResponse<DocFragment>
+  sqlCommandResult?: FeedResponse<DocFragment>
 }
 
 /**
@@ -226,7 +226,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
         
         const result = await cosmosContainer.items.query({ query: command.sqlCommand }).fetchAll()
 
-        return { commandResult: { sqlCommandResults: result } }
+        return { commandResult: { sqlCommandResult: result } }
       } else {
         return { commandResult: {} }
       }

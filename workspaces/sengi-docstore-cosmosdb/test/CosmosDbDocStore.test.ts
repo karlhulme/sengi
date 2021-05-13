@@ -93,17 +93,19 @@ beforeEach(async () => {
 test('A sql command can be executed.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  await expect(docStore.command('tree', 'trees', { sqlCommand: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({ sqlCommandResult: expect.objectContaining({ resources: expect.objectContaining({ count: 3 }) }) })
-
-  await expect(readContainer('trees')).resolves.toHaveLength(2)
+  await expect(docStore.command('tree', 'trees', { sqlCommand: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({
+    commandResult: {
+      sqlCommandResult: expect.objectContaining({
+        resources: [3]
+      })
+    }
+  })
 })
 
 test('An empty command can be executed.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ sqlCommandResult: {} })
-
-  await expect(readContainer('trees')).resolves.toHaveLength(2)
+  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
 })
 
 test('A document can be deleted.', async () => {
