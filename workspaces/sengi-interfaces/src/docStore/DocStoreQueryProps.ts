@@ -1,15 +1,6 @@
 /**
- * The additional parameters that can be supplied when querying for documents. 
+ * The additional parameters that can be supplied when executing a
+ * query against a document collection.
  */
-export interface DocStoreQueryProps {
-  /**
-   * The maximum number of documents to return.
-   */
-  limit?: number
-
-  /**
-   * The offset into the collection that the documents should start
-   * being returned from.
-   */
-  offset?: number
-}
+ export type DocStoreQueryProps = Record<string, unknown>
+ 

@@ -10,13 +10,13 @@ export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HT
   }
 }
 
-export class SengiCommandParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly commandName: string, readonly validationError: string) {
-    super(`The parameters supplied to command '${commandName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
+export class SengiQueryParamsValidationFailedError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly queryName: string, readonly validationError: string) {
+    super(`The parameters supplied to query '${queryName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.commandName = commandName
+    this.queryName = queryName
     this.validationError = validationError
   }
 }
@@ -30,11 +30,12 @@ export class SengiConflictOnSaveError extends SengiRequestError { // HTTP 409
 }
 
 export class SengiCtorParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly validationError: string) {
-    super(`The parameters supplied to the constructor for doc type '${docTypeName}' were not valid.\n${validationError}`)
+  constructor (readonly docTypeName: string, readonly ctorName: string, readonly validationError: string) {
+    super(`The parameters supplied to constructor '${ctorName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
+    this.ctorName = ctorName
     this.validationError = validationError
   }
 }
@@ -120,13 +121,13 @@ export class SengiRequiredVersionNotAvailableError extends SengiRequestError { /
   }
 }
 
-export class SengiUnrecognisedCommandNameError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly commandName: string) {
-    super(`Document type '${docTypeName}' does not define a command named '${commandName}'.`)
+export class SengiUnrecognisedCtorNameError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly ctorName: string) {
+    super(`Document type '${docTypeName}' does not define a constructor named '${ctorName}'.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.commandName = commandName
+    this.ctorName = ctorName
   }
 }
 
@@ -166,5 +167,15 @@ export class SengiUnrecognisedOperationNameError extends SengiRequestError {
     this.name = this.constructor.name
     this.docTypeName = docTypeName
     this.operationName = operationName
+  }
+}
+
+export class SengiUnrecognisedQueryNameError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly queryName: string) {
+    super(`Document type '${docTypeName}' does not define a query named '${queryName}'.`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.queryName = queryName
   }
 }

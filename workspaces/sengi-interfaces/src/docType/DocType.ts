@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { DocTypeCommand } from './DocTypeCommand'
 import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeFilter } from './DocTypeFilter'
 import { DocTypeOperation } from './DocTypeOperation'
+import { DocTypeQuery } from './DocTypeQuery'
 import { DocTypePolicy } from './DocTypePolicy'
 
 /**
  * Represents a type of document that can be stored and managed.
  */
-export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
+export interface DocType<Doc, DocStoreOptions, Filter, QueryResult, Query> {
   /**
    * The name of the document type.
    */
@@ -41,9 +41,11 @@ export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
   jsonSchema: Record<string, unknown>
 
   /**
-   * The names of the fields that cannot be patched. 
+   * The names of the fields that cannot be patched directly.  These fields can be
+   * set by operations, constructors and a preSave function.  System field names
+   * are treated as readonly automatically.  
    */
-  locked?: string[]
+  readonlyFieldNames?: string[]
 
   /**
    * If populated, this document type has been deprecated, and this property describes
@@ -52,9 +54,9 @@ export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
   deprecation?: string
 
   /**
-   * A constructor for this document type.
+   * A record of constructors that can be used to build new documents.
    */
-  ctor?: DocTypeConstructor<Doc, any>
+  constructors?: Record<string, DocTypeConstructor<Doc, any>>
 
   /**
    * A record of filters that can be used to extract sections of the
@@ -68,9 +70,9 @@ export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
   operations?: Record<string, DocTypeOperation<Doc, any>>
 
   /**
-   * A record of commands that can be executed against a document collection.
+   * A record of queries that can be executed against a document collection.
    */
-  commands?: Record<string, DocTypeCommand<any, any, CommandResult, Command>>
+  queries?: Record<string, DocTypeQuery<any, any, QueryResult, Query>>
 
   /**
    * A function that can perform cleanup adjustments on a document, such as removing 

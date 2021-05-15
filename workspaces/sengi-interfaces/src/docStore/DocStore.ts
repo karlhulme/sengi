@@ -1,6 +1,4 @@
 import { Doc } from '../doc'
-import { DocStoreCommandProps } from './DocStoreCommandProps'
-import { DocStoreCommandResult } from './DocStoreCommandResult'
 import { DocStoreDeleteByIdProps } from './DocStoreDeleteByIdProps'
 import { DocStoreDeleteByIdResult } from './DocStoreDeleteByIdResult'
 import { DocStoreExistsProps } from './DocStoreExistsProps'
@@ -9,18 +7,15 @@ import { DocStoreFetchProps } from './DocStoreFetchProps'
 import { DocStoreFetchResult } from './DocStoreFetchResult'
 import { DocStoreQueryProps } from './DocStoreQueryProps'
 import { DocStoreQueryResult } from './DocStoreQueryResult'
+import { DocStoreSelectProps } from './DocStoreSelectProps'
+import { DocStoreSelectResult } from './DocStoreSelectResult'
 import { DocStoreUpsertProps } from './DocStoreUpsertProps'
 import { DocStoreUpsertResult } from './DocStoreUpsertResult'
 
 /**
  * Defines the functions that must be implemented by a document store.
  */
-export interface DocStore<DocStoreOptions, Filter, Command, CommandResult> {
-  /**
-   * Execute a command against a document collection.
-   */
-  command: (docTypeName: string, docTypePluralName: string, command: Command, options: DocStoreOptions, props: DocStoreCommandProps) => Promise<DocStoreCommandResult<CommandResult>>
-
+export interface DocStore<DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * Delete a document using a document id.
    */
@@ -37,20 +32,25 @@ export interface DocStore<DocStoreOptions, Filter, Command, CommandResult> {
   fetch: (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreFetchProps) => Promise<DocStoreFetchResult>
 
   /**
-   * Fetch all the documents of one document type from a collection.
+   * Execute a query against a document collection.
    */
-  queryAll: (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DocStoreOptions, props: DocStoreQueryProps) => Promise<DocStoreQueryResult>
+  query: (docTypeName: string, docTypePluralName: string, query: Query, options: DocStoreOptions, props: DocStoreQueryProps) => Promise<DocStoreQueryResult<QueryResult>>
 
   /**
-   * Fetch the documents of one document type from a collection that
+   * Select all the documents of one document type from a collection.
+   */
+  selectAll: (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DocStoreOptions, props: DocStoreSelectProps) => Promise<DocStoreSelectResult>
+
+  /**
+   * Select the documents of one document type from a collection that
    * satisfy a given filter.
    */
-  queryByFilter: (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: Filter, options: DocStoreOptions, props: DocStoreQueryProps) => Promise<DocStoreQueryResult>
+  selectByFilter: (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: Filter, options: DocStoreOptions, props: DocStoreSelectProps) => Promise<DocStoreSelectResult>
 
   /**
-   * Fetch the documents of one document type from a collection using a set of document ids.
+   * Select the documents of one document type from a collection using a set of document ids.
    */
-  queryByIds: (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DocStoreOptions, props: DocStoreQueryProps) => Promise<DocStoreQueryResult>
+  selectByIds: (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DocStoreOptions, props: DocStoreSelectProps) => Promise<DocStoreSelectResult>
 
   /**
    * Update or insert a document into a collection. 

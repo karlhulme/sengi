@@ -1,11 +1,10 @@
-import { DocFragment } from '../doc'
-
 /**
- * The result from a document store of querying a collection of documents.
+ * The result from a document store of executing a query.
  */
-export interface DocStoreQueryResult {
+export interface DocStoreQueryResult<QueryResult> {
   /**
-   * A collection of document fragments.
+   * A result object that contains the data from the document store
+   * as a result of executing a query.
    */
-  docs: DocFragment[]
+  queryResult: QueryResult
 }
