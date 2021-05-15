@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { 
-  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
-  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode
+  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps,
+  DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps,
+  DocStoreFetchResult, DocStoreQueryProps,
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult,
+  DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode
 } from 'sengi-interfaces'
-import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
-import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
 
 /**
  * Represents the options that can be passed to the memory document store.
@@ -18,9 +19,9 @@ export type MemDocStoreOptions = Record<string, unknown>
 export type MemDocStoreFilter = (d: Doc) => boolean
 
 /**
- * Represents a command that can be executed by a memory document store.
+ * Represents a query that can be executed by a memory document store.
  */
-export interface MemDocStoreCommand {
+export interface MemDocStoreQuery {
   /**
    * True if the count of the documents should be found.
    */
@@ -28,9 +29,9 @@ export interface MemDocStoreCommand {
 }
 
 /**
- * Represents the result of executing a command.
+ * Represents the result of executing a query.
  */
-export interface MemDocStoreCommandResult {
+export interface MemDocStoreQueryResult {
   /**
    * If populated, will be set to the number of documents found
    * in the document store.
@@ -56,7 +57,7 @@ interface MemDocStoreConstructorProps {
 /**
  * An in-memory document store.
  */
-export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilter, MemDocStoreCommand, MemDocStoreCommandResult> {
+export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult> {
   /**
    * An array of documents.
    */
@@ -88,7 +89,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * @param docs An array of docs.
    * @param fieldNames An array of field names.
    */
-  private buildQueryResult (docs: Doc[], fieldNames: string[]): DocStoreQueryResult {
+  private buildSelectResult (docs: Doc[], fieldNames: string[]): DocStoreSelectResult {
     const results: DocFragment[] = []
 
     for (let i = 0; i < docs.length; i++) {
@@ -111,25 +112,6 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
   constructor (props: MemDocStoreConstructorProps) {
     this.docs = props.docs
     this.generateDocVersionFunc = props.generateDocVersionFunc
-  }
-
-  /**
-   * Executes a command against the document store.
-   * @param docTypeName The name of a doc type.
-   * @param docTypePluralName The plural name of a doc type.
-   * @param command A command to execute.
-   * @param options A set of options supplied with the original request
-   * and options defined on the document type.
-   * @param props Properties that define how to carry out this action.
-   */
-  async command (docTypeName: string, docTypePluralName: string, command: MemDocStoreCommand, options: MemDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<MemDocStoreCommandResult>> {
-    if (command.count) {
-      return {
-        commandResult: { count: this.docs.filter(d => d.docType === docTypeName).length }
-      }
-    } else return {
-      commandResult: {}
-    }
   }
 
   /**
@@ -180,7 +162,26 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
   }
 
   /**
-   * Query for all documents of a specified type.
+   * Executes a query against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param query A query to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+   async query (docTypeName: string, docTypePluralName: string, query: MemDocStoreQuery, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<MemDocStoreQueryResult>> {
+    if (query.count) {
+      return {
+        queryResult: { count: this.docs.filter(d => d.docType === docTypeName).length }
+      }
+    } else return {
+      queryResult: {}
+    }
+  }
+
+  /**
+   * Selects all documents of a specified type.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -188,32 +189,30 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MemDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName)
     this.spliceArrayForLimitAndOffset(matchedDocs, props.limit, props.offset)  
-    return this.buildQueryResult(matchedDocs, fieldNames)
+    return this.buildSelectResult(matchedDocs, fieldNames)
   }
 
   /**
-   * Query for documents of a specified type that also match a filter.
+   * Select the documents of a specified type that also match a filter.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
-   * @param filterExpression A filter expression that resulted from invoking the filter.
-   * implementation on the doc type.
+   * @param filter A filter.
    * @param options A set of options supplied with the original request
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: MemDocStoreFilter, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
-    const filterFunc = filterExpression as (d: Doc) => boolean
-    const matchedDocs = this.docs.filter(d => d.docType === docTypeName && filterFunc(d))
+  async selectByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: MemDocStoreFilter, options: MemDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
+    const matchedDocs = this.docs.filter(d => d.docType === docTypeName && filter(d))
     this.spliceArrayForLimitAndOffset(matchedDocs, props.limit, props.offset)    
-    return this.buildQueryResult(matchedDocs, fieldNames)
+    return this.buildSelectResult(matchedDocs, fieldNames)
   }
 
   /**
-   * Query for documents of a specified type that also have one of the given ids.
+   * Select documents of a specified type that also have one of the given ids.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -222,9 +221,9 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MemDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     const matchedDocs = this.docs.filter(d => d.docType === docTypeName && ids.includes(d.id as string))
-    return this.buildQueryResult(matchedDocs, fieldNames)
+    return this.buildSelectResult(matchedDocs, fieldNames)
   }
 
   /**

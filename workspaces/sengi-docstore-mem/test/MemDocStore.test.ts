@@ -17,18 +17,6 @@ function generateDocVersionFunc () {
   return 'xxxx'
 }
 
-test('A count command can be executed.', async () => {
-  const docs = createDocs()
-  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.command('test', 'tests', { count: true }, {}, {})).resolves.toEqual({ commandResult: { count: 3 } })
-})
-
-test('An unknown  command can be executed.', async () => {
-  const docs = createDocs()
-  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.command('test', 'tests', {}, {}, {})).resolves.toEqual({ commandResult: {} })
-})
-
 test('A document can be deleted.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
@@ -69,53 +57,65 @@ test('A non-existent document cannot be fetched.', async () => {
   await expect(docStore.fetch('test', 'tests', '005', {}, {})).resolves.toEqual({ doc: null })
 })
 
-test('All documents of a type can be queried.', async () => {
+test('A count query can be executed.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryAll('test', 'tests', ['id'], {}, {})).resolves.toEqual({ docs: [{ id: '001' }, { id: '002' }, { id: '003' }] })
-  await expect(docStore.queryAll('test2', 'test2s', ['vehicle'], {}, {})).resolves.toEqual({ docs: [{ vehicle: 'car' }, { vehicle: 'cargoBoat' }, { vehicle: 'plane' }] })
+  await expect(docStore.query('test', 'tests', { count: true }, {}, {})).resolves.toEqual({ queryResult: { count: 3 } })
+})
+
+test('An unknown query can be executed.', async () => {
+  const docs = createDocs()
+  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
+  await expect(docStore.query('test', 'tests', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+})
+
+test('All documents of a type can be selected.', async () => {
+  const docs = createDocs()
+  const docStore = new MemDocStore({ docs, generateDocVersionFunc })
+  await expect(docStore.selectAll('test', 'tests', ['id'], {}, {})).resolves.toEqual({ docs: [{ id: '001' }, { id: '002' }, { id: '003' }] })
+  await expect(docStore.selectAll('test2', 'test2s', ['vehicle'], {}, {})).resolves.toEqual({ docs: [{ vehicle: 'car' }, { vehicle: 'cargoBoat' }, { vehicle: 'plane' }] })
 })
 
 test('All documents of a type can be retrieved in pages.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryAll('test', 'tests', ['id'], {}, { limit: 2 })).resolves.toEqual({ docs: [{ id: '001' }, { id: '002' }] })
-  await expect(docStore.queryAll('test', 'tests', ['id'], {}, { limit: 2, offset: 2 })).resolves.toEqual({ docs: [{ id: '003' }] })
+  await expect(docStore.selectAll('test', 'tests', ['id'], {}, { limit: 2 })).resolves.toEqual({ docs: [{ id: '001' }, { id: '002' }] })
+  await expect(docStore.selectAll('test', 'tests', ['id'], {}, { limit: 2, offset: 2 })).resolves.toEqual({ docs: [{ id: '003' }] })
 })
 
-test('All documents of a recognised type can queried.', async () => {
+test('All documents of a recognised type can selected.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryAll('test3', 'tests', ['fieldA', 'fieldB'], {}, {})).resolves.toEqual({ docs: [] })
+  await expect(docStore.selectAll('test3', 'tests', ['fieldA', 'fieldB'], {}, {})).resolves.toEqual({ docs: [] })
 })
 
-test('Query documents using a filter.', async () => {
+test('Select documents using a filter.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => (d.vehicle as string).startsWith('c'), {}, {}))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => (d.vehicle as string).startsWith('c'), {}, {}))
     .resolves.toEqual({ docs: [{ id: '101', vehicle: 'car' }, { id: '102', vehicle: 'cargoBoat' }] })
 })
 
-test('Query documents using a filter and paging.', async () => {
+test('Select documents using a filter and paging.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1 }))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1 }))
     .resolves.toEqual({ docs: [{ id: '101', vehicle: 'car' }] })
-  await expect(docStore.queryByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1, offset: 1 }))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1, offset: 1 }))
     .resolves.toEqual({ docs: [{ id: '102', vehicle: 'cargoBoat' }] })
 })
 
-test('Query documents using ids.', async () => {
+test('Select documents using ids.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryByIds('test', 'tests', ['id', 'fruit'], ['002', '003'], {}, {}))
+  await expect(docStore.selectByIds('test', 'tests', ['id', 'fruit'], ['002', '003'], {}, {}))
     .resolves.toEqual({ docs: [{ id: '002', fruit: 'banana' }, { id: '003', fruit: 'orange' }] })
 })
 
-test('Query documents using ids that appear multiple times.', async () => {
+test('Select documents using ids that appear multiple times.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.queryByIds('test', 'tests', ['id', 'fruit'], ['002', '003', '002'], {}, {}))
+  await expect(docStore.selectByIds('test', 'tests', ['id', 'fruit'], ['002', '003', '002'], {}, {}))
     .resolves.toEqual({ docs: [{ id: '002', fruit: 'banana' }, { id: '003', fruit: 'orange' }] })
 })
 
