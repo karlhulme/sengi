@@ -90,24 +90,6 @@ beforeEach(async () => {
   await initDb()
 })
 
-test('A sql command can be executed.', async () => {
-  const docStore = createCosmosDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', { sqlCommand: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({
-    commandResult: {
-      sqlCommandResult: expect.objectContaining({
-        resources: [3]
-      })
-    }
-  })
-})
-
-test('An empty command can be executed.', async () => {
-  const docStore = createCosmosDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
-})
-
 test('A document can be deleted.', async () => {
   const docStore = createCosmosDbDocStore()
 
@@ -168,10 +150,29 @@ test('A document can be fetched from a container with an unknown partition key.'
   })
 })
 
-test('All documents of a type can be queried.', async () => {
+test('A sql query can be executed.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryAll('tree', 'trees', ['id'], {}, {})
+  await expect(docStore.query('tree', 'trees', { sqlQuery: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({
+    queryResult: {
+      sqlQueryResult: expect.objectContaining({
+        resources: [3]
+      })
+    }
+  })
+})
+
+test('An empty query can be executed.', async () => {
+  const docStore = createCosmosDbDocStore()
+
+  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+})
+
+
+test('All documents of a type can be selected.', async () => {
+  const docStore = createCosmosDbDocStore()
+
+  const result = await docStore.selectAll('tree', 'trees', ['id'], {}, {})
   const sortedDocs = result.docs.sort((a, b) => (a.id as string).localeCompare(b.id as string))
   expect(sortedDocs).toEqual([{ id: '01' }, { id: '02' }, { id: '03' }])
 })
@@ -179,43 +180,43 @@ test('All documents of a type can be queried.', async () => {
 test('All documents of a type can be retrieved in pages.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2 })
+  const result = await docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2 })
   expect(result.docs).toHaveLength(2)
 
-  const result2 = await docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 2 })
+  const result2 = await docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 2 })
   expect(result2.docs).toHaveLength(1)
 })
 
-test('Query documents using a filter.', async () => {
+test('Select documents using a filter.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByFilter('treePack', 'treePacks', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, {})
+  const result = await docStore.selectByFilter('treePack', 'treePacks', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.findIndex(d => d.id === '01')).toBeGreaterThanOrEqual(0)
   expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
 })
 
-test('Query documents using a filter and paging.', async () => {
+test('Select documents using a filter and paging.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByFilter('tree', 'trees', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, { limit: 1, offset: 1 })
+  const result = await docStore.selectByFilter('tree', 'trees', ['id'], { whereClause: 'd.heightInCms > 200' }, {}, { limit: 1, offset: 1 })
   expect(result.docs).toHaveLength(1)
   expect(result.docs.findIndex(d => ['01', '02'].includes(d.id as string))).toBeGreaterThanOrEqual(0)
 })
 
-test('Query documents using ids.', async () => {
+test('Select documents using ids.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByIds('tree', 'trees', ['id', 'name', 'docVersion'], ['02', '03'] , {}, {})
+  const result = await docStore.selectByIds('tree', 'trees', ['id', 'name', 'docVersion'], ['02', '03'] , {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.find(d => d.id === '02')).toEqual({ id: '02', name: 'beech', docVersion: expect.any(String) })
   expect(result.docs.find(d => d.id === '03')).toEqual({ id: '03', name: 'pine', docVersion: expect.any(String) })
 })
 
-test('Query documents using ids that appear multiple times.', async () => {
+test('Select documents using ids that appear multiple times.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const result = await docStore.queryByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})
+  const result = await docStore.selectByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.find(d => d.name === 'beech')).toEqual({ name: 'beech' })
   expect(result.docs.find(d => d.name === 'pine')).toEqual({ name: 'pine' })

@@ -3,10 +3,8 @@ import { CosmosClient, FeedResponse, RequestOptions } from  '@azure/cosmos'
 import { 
   Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, UnexpectedDocStoreError
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, UnexpectedDocStoreError
 } from 'sengi-interfaces'
-import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
-import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
 
 /**
  * Represents the options that can be passed to the cosmosdb store.
@@ -25,23 +23,23 @@ export interface CosmosDbDocStoreFilter {
 }
 
 /**
- * Represents a command that can be executed against a document collection.
+ * Represents a query that can be executed against a document collection.
  */
-export interface CosmosDbDocStoreCommand {
+export interface CosmosDbDocStoreQuery {
   /**
    * If populated, executes the given SQL directly against the collection.
    */
-  sqlCommand?: string
+  sqlQuery?: string
 }
 
 /**
- * Represents the result of a command executed against a document collection.
+ * Represents the result of a query executed against a document collection.
  */
-export interface CosmosDbDocStoreCommandResult {
+export interface CosmosDbDocStoreQueryResult {
   /**
    * If populated, contains the result of an executed sql command.
    */
-  sqlCommandResult?: FeedResponse<DocFragment>
+  sqlQueryResult?: FeedResponse<DocFragment>
 }
 
 /**
@@ -79,9 +77,9 @@ interface CosmosDbDocStoreConstructorProps {
 }
 
 /**
- * An in-memory document store.
+ * An document store implementation for Microsoft's Azure Cosmos DB.
  */
-export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, CosmosDbDocStoreFilter, CosmosDbDocStoreCommand, CosmosDbDocStoreCommandResult> {
+export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, CosmosDbDocStoreFilter, CosmosDbDocStoreQuery, CosmosDbDocStoreQueryResult> {
   cosmosUrl: string
   cosmosKey: string
   getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: CosmosDbDocStoreOptions) => string
@@ -120,32 +118,32 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
   }
 
   /**
-   * Returns a command query based on the given inputs.
+   * Returns a select query based on the given inputs.
    * @param fieldNames An array of field names.
    * @param limit The maximum number of documents to retrieve.
    * @param offset The number of documents to skip before retrieving documents.
    * @param whereClause A Cosmos WHERE clause.
    */
-  private buildQueryCommand (fieldNames: string[], limit?: number, offset?: number, whereClause?: string): string {
+  private buildSelectCommand (fieldNames: string[], limit?: number, offset?: number, whereClause?: string): string {
     // the select and from clauses, plus the basic where clause
-    let queryCmd = `
+    let sql = `
       SELECT d._etag ${fieldNames.map(f => `, d.${f}`).join('')}
       FROM Docs d
     `
 
     // the detailed where clause
     if (typeof whereClause === 'string') {
-      queryCmd += `  WHERE (${whereClause})`
+      sql += `  WHERE (${whereClause})`
     }
 
     // the limit and offset clauses
     if (limit && limit > 0 && offset && offset > 0) {
-      queryCmd += `  OFFSET ${offset} LIMIT ${limit}`
+      sql += `  OFFSET ${offset} LIMIT ${limit}`
     } else if (limit && limit > 0) {
-      queryCmd += `  OFFSET 0 LIMIT ${limit}`
+      sql += `  OFFSET 0 LIMIT ${limit}`
     }
 
-    return queryCmd
+    return sql
   }
 
   /**
@@ -205,35 +203,6 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       endpoint: this.cosmosUrl,
       key: this.cosmosKey
     })
-  }
-
-  /**
-   * Delete a single document from the store using it's id.
-   * @param docTypeName The name of a doc type.
-   * @param docTypePluralName The plural name of a doc type.
-   * @param commd A command to execute.
-   * @param options A set of options supplied with the original request
-   * and options defined on the document type.
-   * @param props Properties that define how to carry out this action.
-   */
-  async command (docTypeName: string, docTypePluralName: string, command: CosmosDbDocStoreCommand, options: CosmosDbDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<CosmosDbDocStoreCommandResult>> {
-    try {
-      if (command.sqlCommand) {
-        const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
-        const containerName = this.getContainerNameFunc(databaseName, docTypeName, docTypePluralName, options)
-
-        const cosmosContainer = this.cosmosClient.database(databaseName).container(containerName)
-        
-        const result = await cosmosContainer.items.query({ query: command.sqlCommand }).fetchAll()
-
-        return { commandResult: { sqlCommandResult: result } }
-      } else {
-        return { commandResult: {} }
-      }
-    } catch (err) {
-      // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'command\'.', err)
-    }
   }
 
   /**
@@ -341,7 +310,36 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
   }
 
   /**
-   * Query for all documents of a specified type.
+   * Execute a query against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param query A query to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+   async query (docTypeName: string, docTypePluralName: string, query: CosmosDbDocStoreQuery, options: CosmosDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<CosmosDbDocStoreQueryResult>> {
+    try {
+      if (query.sqlQuery) {
+        const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
+        const containerName = this.getContainerNameFunc(databaseName, docTypeName, docTypePluralName, options)
+
+        const cosmosContainer = this.cosmosClient.database(databaseName).container(containerName)
+        
+        const result = await cosmosContainer.items.query({ query: query.sqlQuery }).fetchAll()
+
+        return { queryResult: { sqlQueryResult: result } }
+      } else {
+        return { queryResult: {} }
+      }
+    } catch (err) {
+      // istanbul ignore next
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'query\'.', err)
+    }
+  }
+
+  /**
+   * Select all documents of a specified type.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -349,14 +347,14 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: CosmosDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: CosmosDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const containerName = this.getContainerNameFunc(databaseName, docTypeName, docTypePluralName, options)
     
       const cosmosContainer = this.cosmosClient.database(databaseName).container(containerName)
     
-      const queryCmd = this.buildQueryCommand(fieldNames, props.limit, props.offset)
+      const queryCmd = this.buildSelectCommand(fieldNames, props.limit, props.offset)
     
       const result = await cosmosContainer.items.query({ query: queryCmd }).fetchAll()
   
@@ -368,7 +366,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
   }
 
   /**
-   * Query for documents of a specified type that also match a filter.
+   * Select documents of a specified type that also match a filter.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -378,14 +376,14 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: CosmosDbDocStoreFilter, options: CosmosDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: CosmosDbDocStoreFilter, options: CosmosDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const containerName = this.getContainerNameFunc(databaseName, docTypeName, docTypePluralName, options)
     
       const cosmosContainer = this.cosmosClient.database(databaseName).container(containerName)
     
-      const queryCmd = this.buildQueryCommand(fieldNames, props.limit, props.offset, filter.whereClause)
+      const queryCmd = this.buildSelectCommand(fieldNames, props.limit, props.offset, filter.whereClause)
   
       const result = await cosmosContainer.items.query({ query: queryCmd }).fetchAll()
   
@@ -397,7 +395,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
   }
 
   /**
-   * Query for documents of a specified type that also have one of the given ids.
+   * Select documents of a specified type that also have one of the given ids.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -406,7 +404,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: CosmosDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: CosmosDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const containerName = this.getContainerNameFunc(databaseName, docTypeName, docTypePluralName, options)
@@ -415,7 +413,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
     
       const whereClauses = `d.id IN (${ids.map(i => `"${i}"`).join(', ')})`
 
-      const queryCmd = this.buildQueryCommand(fieldNames, props.limit, props.offset, whereClauses as string)
+      const queryCmd = this.buildSelectCommand(fieldNames, props.limit, props.offset, whereClauses as string)
     
       const result = await cosmosContainer.items.query({ query: queryCmd }).fetchAll()
   
