@@ -69,20 +69,6 @@ async function readTable (): Promise<DocFragment[]> {
   return (allContents.Items || []).sort((a, b) => a.id.localeCompare(b.id))
 }
 
-test('A count command can be executed.', async () => {
-  await initDb()
-  const docStore = createDynamoDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ commandResult: { estimatedCount: 3 } })
-})
-
-test('A blank command can be executed.', async () => {
-  await initDb()
-  const docStore = createDynamoDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
-})
-
 test('A document can be deleted.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
@@ -129,11 +115,25 @@ test('A non-existent document cannot be fetched.', async () => {
   await expect(docStore.fetch('tree', 'trees', '202', {}, {})).resolves.toEqual({ doc: null })
 })
 
-test('All documents of a type can be queried.', async () => {
+test('A count query can be executed.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const result = await docStore.queryAll('tree', 'trees', ['id'], {}, {})
+  await expect(docStore.query('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ queryResult: { estimatedCount: 3 } })
+})
+
+test('A blank query can be executed.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+})
+
+test('All documents of a type can be selected.', async () => {
+  await initDb()
+  const docStore = createDynamoDbDocStore()
+
+  const result = await docStore.selectAll('tree', 'trees', ['id'], {}, {})
   const sortedDocs = result.docs.sort((a, b) => (a.id as string).localeCompare(b.id as string))
   expect(sortedDocs).toEqual([{ id: '01' }, { id: '02' }, { id: '03' }])
 })
@@ -142,15 +142,15 @@ test('All documents of a type can be retrieved in pages.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const result = await docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2 })
+  const result = await docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2 })
   expect(result.docs).toHaveLength(2)
 
   // dynamodb doc store does not support the offset property.
-  const result2 = await docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 10 })
+  const result2 = await docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 10 })
   expect(result2.docs).toHaveLength(2)
 })
 
-test('Query documents using a filter.', async () => {
+test('Select documents using a filter.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
@@ -163,13 +163,13 @@ test('Query documents using a filter.', async () => {
     }
   }
 
-  const result = await docStore.queryByFilter('tree', 'trees', ['id'], filterExpression, {}, {})
+  const result = await docStore.selectByFilter('tree', 'trees', ['id'], filterExpression, {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.findIndex(d => d.id === '01')).toBeGreaterThanOrEqual(0)
   expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
 })
 
-test('Query documents using a filter with renames.', async () => {
+test('Select documents using a filter with renames.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
@@ -185,13 +185,13 @@ test('Query documents using a filter with renames.', async () => {
     }
   }
 
-  const result = await docStore.queryByFilter('tree', 'trees', ['id'], filterExpression, {}, {})
+  const result = await docStore.selectByFilter('tree', 'trees', ['id'], filterExpression, {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.findIndex(d => d.id === '01')).toBeGreaterThanOrEqual(0)
   expect(result.docs.findIndex(d => d.id === '02')).toBeGreaterThanOrEqual(0)
 })
 
-test('Query documents using a filter and paging.', async () => {
+test('Select documents using a filter and paging.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
@@ -204,34 +204,34 @@ test('Query documents using a filter and paging.', async () => {
     }
   }
 
-  const result = await docStore.queryByFilter('tree', 'trees', ['id'], filterExpression, {}, { limit: 1, offset: 10 })
+  const result = await docStore.selectByFilter('tree', 'trees', ['id'], filterExpression, {}, { limit: 1, offset: 10 })
   expect(result.docs).toHaveLength(1)
   expect(result.docs.findIndex(d => ['01', '02'].includes(d.id as string))).toBeGreaterThanOrEqual(0)
 })
 
-test('Query documents using ids.', async () => {
+test('Select documents using ids.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const result = await docStore.queryByIds('tree', 'trees', ['id', 'name'], ['02', '03'] , {}, {})
+  const result = await docStore.selectByIds('tree', 'trees', ['id', 'name'], ['02', '03'] , {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.find(d => d.id === '02')).toEqual({ id: '02', name: 'beech' })
   expect(result.docs.find(d => d.id === '03')).toEqual({ id: '03', name: 'pine' })
 })
 
-test('Query documents using ids and an empty field list.', async () => {
+test('Select documents using ids and an empty field list.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const result = await docStore.queryByIds('tree', 'trees', [], ['02', '03'] , {}, {})
+  const result = await docStore.selectByIds('tree', 'trees', [], ['02', '03'] , {}, {})
   expect(result.docs).toHaveLength(2)
 })
 
-test('Query documents using ids that appear multiple times.', async () => {
+test('Select documents using ids that appear multiple times.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const result = await docStore.queryByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})
+  const result = await docStore.selectByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})
   expect(result.docs).toHaveLength(2)
   expect(result.docs.find(d => d.name === 'beech')).toEqual({ name: 'beech' })
   expect(result.docs.find(d => d.name === 'pine')).toEqual({ name: 'pine' })

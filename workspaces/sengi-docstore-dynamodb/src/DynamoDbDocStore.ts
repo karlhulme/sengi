@@ -3,11 +3,9 @@ import AWS from 'aws-sdk'
 import { 
   Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
 } from 'sengi-interfaces'
-import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
-import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
 
 /**
  * Represents the options that can be passed to the dynamodb store.
@@ -69,9 +67,9 @@ export interface DynamoDbDocStoreFilter {
 }
 
 /**
- * Represents a command that can be executed against a document collection.
+ * Represents a query that can be executed against a document collection.
  */
-export interface DynamoDbDocStoreCommand {
+export interface DynamoDbDocStoreQuery {
   /**
    * If populated, requests the estimated number of documents in a document collection.
    */
@@ -79,9 +77,9 @@ export interface DynamoDbDocStoreCommand {
 }
 
 /**
- * Represents the result of a command executed against a document collection.
+ * Represents the result of a query executed against a document collection.
  */
-export interface DynamoDbDocStoreCommandResult {
+export interface DynamoDbDocStoreQueryResult {
   /**
    * If populated, the number of documents in a document collection.
    */
@@ -116,7 +114,7 @@ interface DynamoDbDocStoreConstructorProps {
 /**
  * A document store based on AWS DynamoDB.
  */
-export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, DynamoDbDocStoreFilter, DynamoDbDocStoreCommand, DynamoDbDocStoreCommandResult> {
+export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, DynamoDbDocStoreFilter, DynamoDbDocStoreQuery, DynamoDbDocStoreQueryResult> {
   generateDocVersionFunc: () => string
   getTableNameFunc: (docTypeName: string, docTypePluralName: string, options: DynamoDbDocStoreOptions) => string
   dynamoClient: AWS.DynamoDB
@@ -185,36 +183,6 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       endpoint: props.dynamoUrl === 'production' ? undefined : (props.dynamoUrl || 'http://localhost/not_specified'),
       region: props.region
     })
-  }
-
-  /**
-   * Executes a command against the document store.
-   * @param docTypeName The name of a doc type.
-   * @param docTypePluralName The plural name of a doc type.
-   * @param command A command to execute.
-   * @param options A set of options supplied with the original request
-   * and options defined on the document type.
-   * @param props Properties that define how to carry out this action.
-   */
-   async command (docTypeName: string, docTypePluralName: string, command: DynamoDbDocStoreCommand, options: DynamoDbDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<DynamoDbDocStoreCommandResult>> {
-    try {
-      const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
-  
-      if (command.estimatedCount) {
-        const result = await this.dynamoClient.describeTable({ TableName: tableName }).promise()
-        // istanbul ignore next - Table property will always be populated
-        const estimatedCount = result.Table?.ItemCount
-
-        return {
-          commandResult: { estimatedCount }
-        }
-      } else {
-        return { commandResult: {} }
-      }
-    } catch (err) {
-      // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'command\'.', err)
-    }
   }
 
   /**
@@ -292,7 +260,37 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
   }
 
   /**
-   * Query for all documents of a specified type.
+   * Executes a query against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param query A query to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+   async query (docTypeName: string, docTypePluralName: string, query: DynamoDbDocStoreQuery, options: DynamoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<DynamoDbDocStoreQueryResult>> {
+    try {
+      const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
+  
+      if (query.estimatedCount) {
+        const result = await this.dynamoClient.describeTable({ TableName: tableName }).promise()
+        // istanbul ignore next - Table property will always be populated
+        const estimatedCount = result.Table?.ItemCount
+
+        return {
+          queryResult: { estimatedCount }
+        }
+      } else {
+        return { queryResult: {} }
+      }
+    } catch (err) {
+      // istanbul ignore next
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'command\'.', err)
+    }
+  }
+
+  /**
+   * Select all documents of a specified type.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -300,7 +298,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DynamoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DynamoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
 
@@ -325,19 +323,18 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
   }
 
   /**
-   * Query for documents of a specified type that also match a filter.
+   * Select documents of a specified type that also match a filter.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
-   * @param filterExpression A filter expression that resulted from invoking the filter.
-   * implementation on the doc type.
+   * @param filter A filter.
    * @param options A set of options supplied with the original request
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: DynamoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: unknown, options: DynamoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
-      const dynamoFilterExpression = filterExpression as DynamoDbDocStoreFilter
+      const dynamoFilterExpression = filter as DynamoDbDocStoreFilter
       const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
       const result = await this.dynamoDocumentClient.query({
         TableName: tableName,
@@ -357,7 +354,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
   }
 
   /**
-   * Query for documents of a specified type that also have one of the given ids.
+   * Select documents of a specified type that also have one of the given ids.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -366,7 +363,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DynamoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DynamoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
       const result = await this.dynamoDocumentClient.batchGet({
