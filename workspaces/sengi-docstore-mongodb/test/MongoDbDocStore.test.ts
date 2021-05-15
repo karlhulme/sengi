@@ -67,27 +67,6 @@ async function initDb (): Promise<MongoTestConnection> {
   return { mongoClient, mongoDatabase, mongoCollection }
 }
 
-test('A command can be executed.', async () => {
-  const testConn = await initDb()
-  const docStore = await createMongoDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ commandResult: { estimatedCount: 3 } })
-  await expect(testConn.mongoCollection.estimatedDocumentCount()).resolves.toEqual(3)
-
-  await docStore.close()
-  await testConn.mongoClient.close()
-})
-
-test('An empty command can be executed.', async () => {
-  const testConn = await initDb()
-  const docStore = await createMongoDbDocStore()
-
-  await expect(docStore.command('tree', 'trees', {}, {}, {})).resolves.toEqual({ commandResult: {} })
-
-  await docStore.close()
-  await testConn.mongoClient.close()
-})
-
 test('A document can be deleted.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
@@ -150,11 +129,32 @@ test('A non-existent document cannot be fetched.', async () => {
   await testConn.mongoClient.close()
 })
 
-test('All documents of a type can be queried.', async () => {
+test('A query can be executed.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryAll('tree', 'trees', ['id'], {}, {})).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }, { id: '03' }] })
+  await expect(docStore.query('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ queryResult: { estimatedCount: 3 } })
+  await expect(testConn.mongoCollection.estimatedDocumentCount()).resolves.toEqual(3)
+
+  await docStore.close()
+  await testConn.mongoClient.close()
+})
+
+test('An empty command can be executed.', async () => {
+  const testConn = await initDb()
+  const docStore = await createMongoDbDocStore()
+
+  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+
+  await docStore.close()
+  await testConn.mongoClient.close()
+})
+
+test('All documents of a type can be selected.', async () => {
+  const testConn = await initDb()
+  const docStore = await createMongoDbDocStore()
+
+  await expect(docStore.selectAll('tree', 'trees', ['id'], {}, {})).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }, { id: '03' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()
@@ -164,48 +164,48 @@ test('All documents of a type can be retrieved in pages.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2 })).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }] })
-  await expect(docStore.queryAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 2 })).resolves.toEqual({ docs: [{ id: '03' }] })
+  await expect(docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2 })).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }] })
+  await expect(docStore.selectAll('tree', 'trees', ['id'], {}, { limit: 2, offset: 2 })).resolves.toEqual({ docs: [{ id: '03' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()
 })
 
-test('Query documents using a filter.', async () => {
+test('Select documents using a filter.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryByFilter('tree', 'trees', ['id'], { heightInCms: { $gt: 200 } }, {}, {})).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }] })
+  await expect(docStore.selectByFilter('tree', 'trees', ['id'], { heightInCms: { $gt: 200 } }, {}, {})).resolves.toEqual({ docs: [{ id: '01' }, { id: '02' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()
 })
 
-test('Query documents using a filter and paging.', async () => {
+test('Select documents using a filter and paging.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryByFilter('tree', 'trees', ['id'], { heightInCms: { $gt: 200 } }, {}, { limit: 1, offset: 1 })).resolves.toEqual({ docs: [{ id: '02' }] })
+  await expect(docStore.selectByFilter('tree', 'trees', ['id'], { heightInCms: { $gt: 200 } }, {}, { limit: 1, offset: 1 })).resolves.toEqual({ docs: [{ id: '02' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()
 })
 
-test('Query documents using ids.', async () => {
+test('Select documents using ids.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryByIds('tree', 'trees', ['id', 'name'], ['02', '03'] , {}, {})).resolves.toEqual({ docs: [{ id: '02', name: 'beech' }, { id: '03', name: 'pine' }] })
+  await expect(docStore.selectByIds('tree', 'trees', ['id', 'name'], ['02', '03'] , {}, {})).resolves.toEqual({ docs: [{ id: '02', name: 'beech' }, { id: '03', name: 'pine' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()
 })
 
-test('Query documents using ids that appear multiple times.', async () => {
+test('Select documents using ids that appear multiple times.', async () => {
   const testConn = await initDb()
   const docStore = await createMongoDbDocStore()
 
-  await expect(docStore.queryByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})).resolves.toEqual({ docs: [{ name: 'beech' }, { name: 'pine' }] })
+  await expect(docStore.selectByIds('tree', 'trees', ['name'], ['02', '03', '03', '02'] , {}, {})).resolves.toEqual({ docs: [{ name: 'beech' }, { name: 'pine' }] })
 
   await docStore.close()
   await testConn.mongoClient.close()

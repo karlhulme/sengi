@@ -4,11 +4,9 @@ import {
   Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoredField,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
 } from 'sengi-interfaces'
-import { DocStoreCommandProps } from 'sengi-interfaces/types/docStore/DocStoreCommandProps'
-import { DocStoreCommandResult } from 'sengi-interfaces/types/docStore/DocStoreCommandResult'
 
 /**
  * Represents the options that can be passed to a mongodb document store.
@@ -23,7 +21,7 @@ export type MongoDbDocStoreFilter = FilterQuery<Doc>
 /**
  * Represents a command that can be applied to a collection of documents.
  */
-export interface MongoDbDocStoreCommand {
+export interface MongoDbDocStoreQuery {
   /**
    * If true, determine the approximate number of documents in a collection.
    */
@@ -33,7 +31,7 @@ export interface MongoDbDocStoreCommand {
 /**
  * Represents the result of a command executed against a collection of documents.
  */
-export interface MongoDbDocStoreCommandResult {
+export interface MongoDbDocStoreQueryResult {
   /**
    * If populated, contains the approximate number of documents in a collection.
    */
@@ -98,7 +96,7 @@ interface MongoDbDocStoreConstructorProps {
 /**
  * An document store based on MongoDB.
  */
-export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDbDocStoreFilter, MongoDbDocStoreCommand, MongoDbDocStoreCommandResult> {
+export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDbDocStoreFilter, MongoDbDocStoreQuery, MongoDbDocStoreQueryResult> {
   generateDocVersionFunc: () => string
   getDatabaseNameFunc: (docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
   getCollectionNameFunc: (databaseName: string, docTypeName: string, docTypePluralName: string, options: MongoDbDocStoreOptions) => string
@@ -108,7 +106,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * Returns a mongo projection object
    * @param {Array} fieldNames An array of field names.
    */
-  private buildQueryProjection (fieldNames: string[]) {
+  private buildSelectProjection (fieldNames: string[]) {
     return fieldNames.reduce((agg: Record<string, number>, fname: string) => {
       agg[fname] = 1
       return agg
@@ -121,7 +119,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * @param {Array} docs An array of docs.
    * @param {Array} fieldNames An array of field names.
    */
-  private buildQueryResult (docs: DocFragment[], fieldNames: string[]) {
+  private buildSelectResult (docs: DocFragment[], fieldNames: string[]) {
     if (fieldNames.includes('id')) {
       docs.forEach(doc => {
         doc.id = doc._id as string
@@ -155,35 +153,6 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    */
   async close (): Promise<void> {
     await this.mongoClient.close()
-  }
-
-  /**
-   * Executes a command against the document store.
-   * @param docTypeName The name of a doc type.
-   * @param docTypePluralName The plural name of a doc type.
-   * @param command A command to execute.
-   * @param options A set of options supplied with the original request
-   * and options defined on the document type.
-   * @param props Properties that define how to carry out this action.
-   */
-   async command (docTypeName: string, docTypePluralName: string, command: MongoDbDocStoreCommand, options: MongoDbDocStoreOptions, props: DocStoreCommandProps): Promise<DocStoreCommandResult<MongoDbDocStoreCommandResult>> {
-    try {
-      const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
-      const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
-  
-      if (command.estimatedCount) {
-        const result = await this.mongoClient.db(databaseName).collection(collectionName).estimatedDocumentCount()
-
-        return {
-          commandResult: { estimatedCount: result }
-        }
-      } else {
-        return { commandResult: {} }
-      }
-    } catch (err) {
-      // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'command\'.', err)
-    }
   }
 
   /**
@@ -264,7 +233,36 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
   }
 
   /**
-   * Query for all documents of a specified type.
+   * Executes a query against the document store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param query A query to execute.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+   async query (docTypeName: string, docTypePluralName: string, query: MongoDbDocStoreQuery, options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<MongoDbDocStoreQueryResult>> {
+    try {
+      const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
+      const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
+  
+      if (query.estimatedCount) {
+        const result = await this.mongoClient.db(databaseName).collection(collectionName).estimatedDocumentCount()
+
+        return {
+          queryResult: { estimatedCount: result }
+        }
+      } else {
+        return { queryResult: {} }
+      }
+    } catch (err) {
+      // istanbul ignore next
+      throw new UnexpectedDocStoreError('Mongo database error processing \'query\'.', err)
+    }
+  }
+
+  /**
+   * Select all documents of a specified type.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -272,26 +270,26 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: MongoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
       const docs = await this.mongoClient.db(databaseName).collection(collectionName).find({}, {
-        projection: this.buildQueryProjection(fieldNames),
+        projection: this.buildSelectProjection(fieldNames),
         limit: props.limit,
         skip: props.offset
       }).toArray()
   
-      return this.buildQueryResult(docs, fieldNames)
+      return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'queryAll\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'selectAll\'.', err)
     }
   }
 
   /**
-   * Query for documents of a specified type that also match a filter.
+   * Select documents of a specified type that also match a filter.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -301,26 +299,26 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: MongoDbDocStoreFilter, options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: MongoDbDocStoreFilter, options: MongoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
       const docs = await this.mongoClient.db(databaseName).collection(collectionName).find(filter, {
-        projection: this.buildQueryProjection(fieldNames),
+        projection: this.buildSelectProjection(fieldNames),
         limit: props.limit,
         skip: props.offset
       }).toArray()
   
-      return this.buildQueryResult(docs, fieldNames)
+      return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error procesing \'queryByFilter\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByFilter\'.', err)
     }
   }
 
   /**
-   * Query for documents of a specified type that also have one of the given ids.
+   * Select documents of a specified type that also have one of the given ids.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -329,21 +327,21 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MongoDbDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: MongoDbDocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
       const docs = await this.mongoClient.db(databaseName).collection(collectionName).find({ _id: { $in: ids } }, {
-        projection: this.buildQueryProjection(fieldNames),
+        projection: this.buildSelectProjection(fieldNames),
         limit: props.limit,
         skip: props.offset
       }).toArray()
   
-      return this.buildQueryResult(docs, fieldNames)
+      return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error procesing \'queryByIds\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByIds\'.', err)
     }
   }
 
