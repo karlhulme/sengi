@@ -1,5 +1,4 @@
 import { SengiRequestError } from './baseErrors'
-import { ValidationError } from '../validation'
 
 export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HTTP 403
   constructor (readonly docTypeName: string, readonly action: string) {
@@ -12,13 +11,13 @@ export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HT
 }
 
 export class SengiCommandParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly commandName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied to command '${commandName}' for doc type '${docTypeName}' were not valid.`)
+  constructor (readonly docTypeName: string, readonly commandName: string, readonly validationError: string) {
+    super(`The parameters supplied to command '${commandName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
     this.commandName = commandName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 
@@ -31,12 +30,12 @@ export class SengiConflictOnSaveError extends SengiRequestError { // HTTP 409
 }
 
 export class SengiCtorParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied to the constructor for doc type '${docTypeName}' were not valid.`)
+  constructor (readonly docTypeName: string, readonly validationError: string) {
+    super(`The parameters supplied to the constructor for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 
@@ -51,12 +50,12 @@ export class SengiDocTypeValidateFunctionError extends SengiRequestError {
 }
 
 export class SengiDocValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly errors: ValidationError[]) {
-    super(`The values supplied are not a valid instance of doc type '${docTypeName}'.`)
+  constructor (readonly docTypeName: string, readonly validationError: string) {
+    super(`The values supplied are not a valid instance of doc type '${docTypeName}'.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 
@@ -71,13 +70,13 @@ export class SengiDocNotFoundError extends SengiRequestError { // HTTP 404
 }
 
 export class SengiFilterParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly filterName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied to filter '${filterName}' for doc type '${docTypeName}' were not valid.`)
+  constructor (readonly docTypeName: string, readonly filterName: string, readonly validationError: string) {
+    super(`The parameters supplied to filter '${filterName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
     this.filterName = filterName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 
@@ -93,23 +92,23 @@ export class SengiInsufficientPermissionsError extends SengiRequestError {
 }
 
 export class SengiOperationParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly operationName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied to operation '${operationName}' for doc type '${docTypeName}' were not valid.`)
+  constructor (readonly docTypeName: string, readonly operationName: string, readonly validationError: string) {
+    super(`The parameters supplied to operation '${operationName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
     this.operationName = operationName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 
 export class SengiPatchValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly errors: ValidationError[]) {
-    super(`The parameters supplied for a patch for doc type '${docTypeName}' were not valid.`)
+  constructor (readonly docTypeName: string, readonly validationError: string) {
+    super(`The parameters supplied for a patch for doc type '${docTypeName}' were not valid.\n${validationError}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
-    this.errors = errors
+    this.validationError = validationError
   }
 }
 

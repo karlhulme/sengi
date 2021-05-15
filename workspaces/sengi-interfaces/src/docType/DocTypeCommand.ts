@@ -21,7 +21,7 @@ export interface DocTypeCommand<Response, Parameters, CommandResult, Command> {
   /**
    * A JSON schema that describes the shape of the response of the command.
    */
-  responseJsonSchema: string
+  responseJsonSchema: Record<string, unknown>
 
   /**
    * A function that converts the parameters into a Command that the

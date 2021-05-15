@@ -41,6 +41,11 @@ export interface DocType<Doc, DocStoreOptions, Filter, CommandResult, Command> {
   jsonSchema: Record<string, unknown>
 
   /**
+   * The names of the fields that cannot be patched. 
+   */
+  locked?: string[]
+
+  /**
    * If populated, this document type has been deprecated, and this property describes
    * the reason and/or the document type to use in it's place.
    */
