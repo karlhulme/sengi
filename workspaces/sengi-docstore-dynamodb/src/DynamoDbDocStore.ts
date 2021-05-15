@@ -285,7 +285,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'command\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'query\'.', err)
     }
   }
 
@@ -318,7 +318,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: result.Items || [] }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'queryAll\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectAll\'.', err)
     }
   }
 
@@ -349,7 +349,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: this.createOutputDocs(result.Items || [], fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'queryByFilter\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByFilter\'.', err)
     }
   }
 
@@ -380,7 +380,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: (result.Responses || {})[tableName] }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'queryByIds\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByIds\'.', err)
     }
   }
 
