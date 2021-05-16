@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
 import AWS from 'aws-sdk'
-import { Doc, DocFragment, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
+import { DocRecord, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
 import { DynamoDbDocStore } from '../src'
 
 const DYNAMO_URL = 'http://localhost:8000'
@@ -45,7 +45,7 @@ async function initDb (): Promise<void> {
     await dynamoClient.delete({ TableName: TABLE_NAME, Key: key }).promise()
   }
 
-  const docs: Doc[] = [
+  const docs: DocRecord[] = [
     { id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'aaa1', docOpIds: [] },
     { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'aaa2', docOpIds: [] },
     { id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'aaa3', docOpIds: [] }
@@ -57,7 +57,7 @@ async function initDb (): Promise<void> {
   }
 }
 
-async function readTable (): Promise<DocFragment[]> {
+async function readTable (): Promise<DocRecord[]> {
   const dynamoClient = new AWS.DynamoDB.DocumentClient({
     endpoint: DYNAMO_URL,
     region: TEST_DYNAMODB_REGION,
@@ -241,7 +241,7 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc: Doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
 
   const contents = await readTable()
@@ -253,7 +253,7 @@ test('Update an existing document.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readTable()
@@ -265,7 +265,7 @@ test('Update an existing document with a required version.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'aaa3' })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readTable()
@@ -277,7 +277,7 @@ test('Fail to update an existing document if the required version is unavailable
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'bbbb' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
 
   const contents = await readTable()

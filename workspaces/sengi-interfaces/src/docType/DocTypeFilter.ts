@@ -5,7 +5,7 @@ export interface DocTypeFilter<Filter, Parameters> {
   /**
    * A description of this filter.
    */
-  summary: string
+  summary?: string
 
   /**
    * If populated, this filter has been deprecated, and the property describes

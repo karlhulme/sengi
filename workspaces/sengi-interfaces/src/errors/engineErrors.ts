@@ -22,21 +22,23 @@ export class SengiCallbackError extends SengiEngineError {
 }
 
 export class SengiConstructorFailedError extends SengiEngineError {
-  constructor (readonly docTypeName: string, readonly innerErr: Error) {
-    super(`Constructor on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+  constructor (readonly docTypeName: string, readonly constructorName: string, readonly innerErr: Error) {
+    super(`Constructor '${constructorName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
+    this.constructorName = constructorName
     this.innerErr = innerErr
   }
 }
 
 export class SengiConstructorNonObjectResponseError extends SengiEngineError {
-  constructor (readonly docTypeName: string) {
-    super(`Constructor on document type '${docTypeName}' failed to return an object.`)
+  constructor (readonly docTypeName: string, readonly constructorName: string) {
+    super(`Constructor '${constructorName}' on document type '${docTypeName}' failed to return an object.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
+    this.constructorName = constructorName
   }
 }
 

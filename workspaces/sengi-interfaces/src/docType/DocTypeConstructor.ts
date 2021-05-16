@@ -5,7 +5,7 @@ export interface DocTypeConstructor<Doc, Parameters> {
   /**
    * A description of the purpose of the constructor.
    */
-  summary: string
+  summary?: string
 
   /**
    * A JSON schema that describes the shape of the constructor parameters.

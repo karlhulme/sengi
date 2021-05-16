@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeFilter } from './DocTypeFilter'
 import { DocTypeOperation } from './DocTypeOperation'
 import { DocTypeQuery } from './DocTypeQuery'
 import { DocTypePolicy } from './DocTypePolicy'
+import { DocBase } from '../doc'
 
 /**
  * Represents a type of document that can be stored and managed.
+ * The constructor, filter and operations all work with parameter objects
+ * where any type could be used.  This is preferred to unknown, because it
+ * allows a doc type author to use their strongly typed interface directly
+ * in the implementation parameter declaration.  It is safe to do this
+ * provided the correct jsonSchema has also been supplied. 
  */
-export interface DocType<Doc, DocStoreOptions, Filter, QueryResult, Query> {
+export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * The name of the document type.
    */
@@ -23,17 +28,17 @@ export interface DocType<Doc, DocStoreOptions, Filter, QueryResult, Query> {
   /**
    * The title of the document type.
    */
-  title: string
+  title?: string
 
   /**
    * The plural title of the document type.
    */
-  pluralTitle: string
+  pluralTitle?: string
 
   /**
    * A description of the usage of the document type.
    */
-  summary: string
+  summary?: string
 
   /**
    * A JSON schema that fully describes the acceptable shape of this document type.
@@ -98,3 +103,57 @@ export interface DocType<Doc, DocStoreOptions, Filter, QueryResult, Query> {
    */
   docStoreOptions?: DocStoreOptions
 }
+
+// interface Shape {
+//   id?: string
+//   docType?: string
+//   docOpIds?: string[]
+//   sides?: number
+//   area?: number
+// }
+
+// interface AwsDocStoreOptions {
+//   whatever: string
+// }
+
+// interface AwsFilter {
+//   a: number
+// }
+
+// interface AwsQuery {
+//   findMe: string
+// }
+
+// interface AwsQueryResult {
+//   answer: string
+// }
+
+// interface NewExampleParams {
+//   x: string
+//   y: boolean
+// }
+
+// const exampleDocType: DocType<Shape, AwsDocStoreOptions, AwsFilter, AwsQuery, AwsQueryResult> = {
+//   name: 'example',
+//   pluralName: 'Examples',
+//   title: 'Example',
+//   pluralTitle: 'Examples',
+//   summary: 'This is the example.',
+//   jsonSchema: {},
+//   constructors: {
+//     newExample: {
+//       summary: 'Create a new example',
+//       parametersJsonSchema: {},
+//       implementation: (params: NewExampleParams) => {
+//         return ({
+//           area: params.x.length,
+//           sides: 2
+//         })
+//       }
+//     }
+//   },
+//   docStoreOptions: {
+//     whatever: 'some value'
+//   }
+// }
+// console.log(exampleDocType)

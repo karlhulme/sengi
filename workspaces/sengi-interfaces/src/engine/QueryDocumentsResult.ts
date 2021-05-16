@@ -1,12 +1,12 @@
-import { DocFragment } from '../doc'
+import { DocRecord } from '../doc'
 
 /**
  * Defines the shape of the response following a request to
- * query for all documents from a collection.
+ * execute a query against the collection.
  */
 export interface QueryDocumentsResult {
   /**
-   * An array of documents.
+   * A document containing the result of the query.
    */
-  docs: DocFragment[]
+  doc: DocRecord
 }

@@ -5,7 +5,7 @@ export interface DocTypeOperation<Doc, Parameters> {
   /**
    * A description of the operation.
    */
-  summary: string
+  summary?: string
 
   /**
    * If populated, this operation has been deprecated, and this property describes

@@ -1,39 +1,36 @@
 import {
-  DocStore, DocStoredField, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreExistsResult,
-  DocStoreFetchResult, DocStoreOptions, DocStoreQueryProps,
+  DocStore, DocStoreDeleteByIdProps,
+  DocStoreDeleteByIdResult, DocStoreExistsResult,
+  DocStoreFetchResult, DocStoreQueryProps,
   DocStoreQueryResult, DocStoreUpsertProps, DocStoreUpsertResult,
-  MissingDocStoreFunctionError, UnexpectedDocStoreError
+  MissingDocStoreFunctionError, UnexpectedDocStoreError,
+  DocStoreExistsProps, DocStoreFetchProps, DocStoreSelectResult,
+  DocStoreSelectProps, DocRecord
 } from 'sengi-interfaces'
 
 /**
  * A Doc Store that wraps any errors so the source can be identified.
  */
-export class SafeDocStore implements DocStore {
+export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implements DocStore<DocStoreOptions, Filter, Query, QueryResult> {
   /**
-   * @param docStore A doc store to test.
-   * @param functionName The name of a function that should be attached
-   * to the given docStore.
-   */
-  private ensureDocStoreFunction (docStore: unknown, functionName: string): void {
-    const record = docStore as Record<string, unknown>
-
-    if (typeof record[functionName] !== 'function') {
-      throw new MissingDocStoreFunctionError(functionName)
-    }
-  }
-
-  /**
-   * Constructs a new instance of the class.
+   * Constructs a new instance of the safe doc store.
+   * This function raises an error if a required function is not
+   * defined on the given document store.
    * @param docStore A doc store implementation.
    */
-  constructor (readonly docStore: DocStore) {
-    this.ensureDocStoreFunction(docStore, 'deleteById')
-    this.ensureDocStoreFunction(docStore, 'exists')
-    this.ensureDocStoreFunction(docStore, 'fetch')
-    this.ensureDocStoreFunction(docStore, 'queryAll')
-    this.ensureDocStoreFunction(docStore, 'queryByFilter')
-    this.ensureDocStoreFunction(docStore, 'queryByIds')
-    this.ensureDocStoreFunction(docStore, 'upsert')
+  constructor (readonly docStore: DocStore<DocStoreOptions, Filter, Query, QueryResult>) {
+    const functionNames = [
+      'deleteById', 'exists', 'fetch', 'query',
+      'selectAll', 'selectByFilter', 'selectByIds', 'upsert'
+    ]
+
+    const record = docStore as unknown as Record<string, unknown>
+
+    functionNames.forEach(functionName => {
+      if (typeof record[functionName] !== 'function') {
+        throw new MissingDocStoreFunctionError(functionName)
+      }
+    })
   }
 
   /**
@@ -63,7 +60,7 @@ export class SafeDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async exists (docTypeName: string, docTypePluralName: string, id: string, options: Record<string, unknown>, props: Record<string, unknown>): Promise<DocStoreExistsResult> {
+  async exists (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreExistsProps): Promise<DocStoreExistsResult> {
     try {
       const result = await this.docStore.exists(docTypeName, docTypePluralName, id, options, props)
       return result
@@ -81,7 +78,7 @@ export class SafeDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: Record<string, unknown>, props: Record<string, unknown>): Promise<DocStoreFetchResult> {
+  async fetch (docTypeName: string, docTypePluralName: string, id: string, options: DocStoreOptions, props: DocStoreFetchProps): Promise<DocStoreFetchResult> {
     try {
       const result = await this.docStore.fetch(docTypeName, docTypePluralName, id, options, props)
       return result
@@ -91,7 +88,25 @@ export class SafeDocStore implements DocStore {
   }
 
   /**
-   * Query for all documents of a specified type.
+   * Execute a query against the doc store.
+   * @param docTypeName The name of a doc type.
+   * @param docTypePluralName The plural name of a doc type.
+   * @param query The query to be executed.
+   * @param options A set of options supplied with the original request
+   * and options defined on the document type.
+   * @param props Properties that define how to carry out this action.
+   */
+  async query (docTypeName: string, docTypePluralName: string, query: Query, options: DocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<QueryResult>> {
+    try {
+      const result = await this.docStore.query(docTypeName, docTypePluralName, query, options, props)
+      return result
+    } catch (err) {
+      throw new UnexpectedDocStoreError('query', err)
+    }
+  }
+
+  /**
+   * Select all documents of a specified type.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -99,37 +114,36 @@ export class SafeDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: Record<string, unknown>, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectAll (docTypeName: string, docTypePluralName: string, fieldNames: string[], options: DocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
-      const result = await this.docStore.queryAll(docTypeName, docTypePluralName, fieldNames, options, props)
+      const result = await this.docStore.selectAll(docTypeName, docTypePluralName, fieldNames, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('queryAll', err)
+      throw new UnexpectedDocStoreError('selectAll', err)
     }
   }
 
   /**
-   * Query for documents of a specified type that also match a filter.
+   * Select documents of a specified type that also match a filter.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
-   * @param filterExpression A filter expression that resulted from invoking the filter.
-   * implementation on the doc type.
+   * @param filter A filter.
    * @param options A set of options supplied with the original request
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filterExpression: unknown, options: Record<string, unknown>, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByFilter (docTypeName: string, docTypePluralName: string, fieldNames: string[], filter: Filter, options: DocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
-      const result = await this.docStore.queryByFilter(docTypeName, docTypePluralName, fieldNames, filterExpression, options, props)
+      const result = await this.docStore.selectByFilter(docTypeName, docTypePluralName, fieldNames, filter, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('queryByFilter', err)
+      throw new UnexpectedDocStoreError('selectByFilter', err)
     }
   }
 
   /**
-   * Query for documents of a specified type that also have one of the given ids.
+   * Select documents of a specified type that also have one of the given ids.
    * @param docTypeName The name of a doc type.
    * @param docTypePluralName The plural name of a doc type.
    * @param fieldNames An array of field names to include in the response.
@@ -138,12 +152,12 @@ export class SafeDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async queryByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: Record<string, unknown>, props: DocStoreQueryProps): Promise<DocStoreQueryResult> {
+  async selectByIds (docTypeName: string, docTypePluralName: string, fieldNames: string[], ids: string[], options: DocStoreOptions, props: DocStoreSelectProps): Promise<DocStoreSelectResult> {
     try {
-      const result = await this.docStore.queryByIds(docTypeName, docTypePluralName, fieldNames, ids, options, props)
+      const result = await this.docStore.selectByIds(docTypeName, docTypePluralName, fieldNames, ids, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('queryByIds', err)
+      throw new UnexpectedDocStoreError('selectByIds', err)
     }
   }
 
@@ -156,7 +170,7 @@ export class SafeDocStore implements DocStore {
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Record<string, DocStoredField>, options: Record<string, unknown>, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: DocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     try {
       const result = await this.docStore.upsert(docTypeName, docTypePluralName, doc, options, props)
       return result

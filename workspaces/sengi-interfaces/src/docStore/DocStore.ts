@@ -1,4 +1,4 @@
-import { Doc } from '../doc'
+import { DocRecord } from '../doc'
 import { DocStoreDeleteByIdProps } from './DocStoreDeleteByIdProps'
 import { DocStoreDeleteByIdResult } from './DocStoreDeleteByIdResult'
 import { DocStoreExistsProps } from './DocStoreExistsProps'
@@ -55,5 +55,5 @@ export interface DocStore<DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * Update or insert a document into a collection. 
    */
-  upsert: (docTypeName: string, docTypePluralName: string, doc: Doc, options: DocStoreOptions, props: DocStoreUpsertProps) => Promise<DocStoreUpsertResult>
+  upsert: (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: DocStoreOptions, props: DocStoreUpsertProps) => Promise<DocStoreUpsertResult>
 }

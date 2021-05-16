@@ -42,7 +42,7 @@ export function canQuery (permissionSet: RoleTypeDocPermissionSet, fieldNames: s
   } else if (typeof permissionSet.query === 'object') {
     const queryPermissionSet = permissionSet.query as RoleTypeDocQueryPermissionSet
     
-    if (queryPermissionSet.fieldsTreatment === 'blacklist') {
+    if (queryPermissionSet.fieldsTreatment === 'exclude') {
       return determineIfReqFieldsConformsToBlacklist(fieldNames, queryPermissionSet.fields)
     } else {
       return determineIfReqFieldsConformsToWhitelist(fieldNames, queryPermissionSet.fields)

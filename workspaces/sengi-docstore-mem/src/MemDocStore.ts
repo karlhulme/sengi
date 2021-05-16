@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { 
-  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps,
+  DocRecord, DocStore, DocStoreDeleteByIdProps,
   DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps,
   DocStoreFetchResult, DocStoreQueryProps,
@@ -16,7 +16,7 @@ export type MemDocStoreOptions = Record<string, unknown>
 /**
  * Represents a filter that can be applied by a memory document store.
  */
-export type MemDocStoreFilter = (d: Doc) => boolean
+export type MemDocStoreFilter = (d: DocRecord) => boolean
 
 /**
  * Represents a query that can be executed by a memory document store.
@@ -46,7 +46,7 @@ interface MemDocStoreConstructorProps {
   /**
    * An array of documents to use as the initial contents of the document store.
    */
-  docs: Doc[]
+  docs: DocRecord[]
 
   /**
    * A function that returns a unique string.
@@ -61,7 +61,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
   /**
    * An array of documents.
    */
-  docs: Doc[]
+  docs: DocRecord[]
 
   /**
    * A function that creates a unique document version number.
@@ -74,7 +74,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * @param limit The maximum number of documents to return.
    * @param offset The number of documents to skip.
    */
-  private spliceArrayForLimitAndOffset (docs: DocFragment[], limit?: number, offset?: number): void {
+  private spliceArrayForLimitAndOffset (docs: DocRecord[], limit?: number, offset?: number): void {
     if (limit && limit > 0 && offset && offset > 0) {
       docs.splice(0, offset)
       docs.splice(limit)
@@ -89,11 +89,11 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * @param docs An array of docs.
    * @param fieldNames An array of field names.
    */
-  private buildSelectResult (docs: Doc[], fieldNames: string[]): DocStoreSelectResult {
-    const results: DocFragment[] = []
+  private buildSelectResult (docs: DocRecord[], fieldNames: string[]): DocStoreSelectResult {
+    const results: DocRecord[] = []
 
     for (let i = 0; i < docs.length; i++) {
-      const result: DocFragment = {}
+      const result: DocRecord = {}
 
       for (const fieldName of fieldNames) {
         result[fieldName] = docs[i][fieldName]
@@ -235,7 +235,7 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: MemDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: MemDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     const docCopy = JSON.parse(JSON.stringify(doc))
     docCopy.docVersion = this.generateDocVersionFunc()
   

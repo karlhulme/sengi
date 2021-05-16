@@ -1,9 +1,10 @@
+import { DocBase } from '../doc'
 import { DocType } from '../docType'
 
 /**
  * Defines the properties passed to the pre save doc callback.
  */
-export interface PreSaveDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command> {
+export interface PreSaveDocCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * The names of the roles that were active.
    */
@@ -17,7 +18,7 @@ export interface PreSaveDocCallbackProps<RequestProps, Doc, DocStoreOptions, Fil
   /**
    * The document type associated with the deleted document.
    */
-  docType: DocType<Doc, DocStoreOptions, Filter, CommandResult, Command>
+  docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
 
   /**
    * Any properties passed along with the request.
@@ -38,4 +39,4 @@ export interface PreSaveDocCallbackProps<RequestProps, Doc, DocStoreOptions, Fil
 /**
  * Defines the callback that is raised just before a document is saved.
  */
- export type PreSaveDocCallback<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command> = (props: PreSaveDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command>) => Promise<void>
+ export type PreSaveDocCallback<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> = (props: PreSaveDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, Query, QueryResult>) => Promise<void>

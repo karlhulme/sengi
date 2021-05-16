@@ -5,7 +5,7 @@ export interface DocTypeQuery<Response, Parameters, QueryResult, Query> {
   /**
    * A description of the query.
    */
-  summary: string
+  summary?: string
 
   /**
    * If populated, this query has been deprecated, and the property describes

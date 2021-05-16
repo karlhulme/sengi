@@ -1,0 +1,41 @@
+import Ajv from 'ajv'
+import {
+  AnyDocType, DocRecord, SengiConstructorFailedError,
+  SengiConstructorNonObjectResponseError, SengiCtorParamsValidationFailedError,
+  SengiUnrecognisedCtorNameError
+} from 'sengi-interfaces'
+import { ajvErrorsToString } from '../utils'
+
+/**
+ * Ensure that the given constructor request is valid.
+ * @param ajv A validator.
+ * @param docType A document type.
+ * @param constructorName The name of a constructor.
+ * @param constructorParams A set of constructor params.
+ * @param constructors An array of constructors taking from a doc type.
+ */
+export function executeConstructor (ajv: Ajv, docType: AnyDocType, constructorName: string, constructorParams: unknown): DocRecord {
+  const ctor = docType.constructors?.[constructorName]
+  
+  if (typeof ctor !== 'object') {
+    throw new SengiUnrecognisedCtorNameError(docType.name, constructorName)
+  }
+
+  if (!ajv.validate(ctor.parametersJsonSchema, constructorParams)) {
+    throw new SengiCtorParamsValidationFailedError(docType.name, constructorName, ajvErrorsToString(ajv.errors))
+  }
+
+  let result: DocRecord
+
+  try {
+    result = ctor.implementation(constructorParams)
+  } catch (err) {
+    throw new SengiConstructorFailedError(docType.name, constructorName, err)
+  }
+
+  if (typeof result !== 'object' || result === null || Array.isArray(result)) {
+    throw new SengiConstructorNonObjectResponseError(docType.name, constructorName)
+  }
+
+  return result
+}

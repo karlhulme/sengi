@@ -1,11 +1,11 @@
-import { Doc } from '../doc'
+import { DocRecord } from '../doc'
 
 /**
- * The result from a document store of fetching a document.
+ * The result of fetching a document from a document store.
  */
 export interface DocStoreFetchResult {
   /**
    * The retrieved document.
    */
-  doc: Doc|null
+  doc: DocRecord|null
 }

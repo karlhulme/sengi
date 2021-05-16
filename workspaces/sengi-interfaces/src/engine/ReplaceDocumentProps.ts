@@ -1,4 +1,4 @@
-import { Doc } from '../doc'
+import { DocRecord } from '../doc'
 
 /**
  * Defines the properties that are required to replace a document.
@@ -17,7 +17,7 @@ import { Doc } from '../doc'
   /**
    * A new document to be used in place of any existing document.
    */
-  doc: Doc
+  doc: DocRecord
 
   /**
    * The properties passed with the request.

@@ -35,7 +35,9 @@ async function teardown () {
   try {
     await cosmosClient.database('sengi').delete()
   } catch (err) {
-    if (err.code !== 404) {
+    if (err.code === 404) {
+      console.log('Database not found.')
+    } else {
       throw err
     }
   }

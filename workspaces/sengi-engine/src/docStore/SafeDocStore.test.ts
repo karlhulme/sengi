@@ -1,16 +1,21 @@
 import { expect, test } from '@jest/globals'
-import { DocStore, MissingDocStoreFunctionError, UnexpectedDocStoreError } from 'sengi-interfaces'
+import {
+  DocStore,
+  DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode,
+  MissingDocStoreFunctionError, UnexpectedDocStoreError
+} from 'sengi-interfaces'
 import { SafeDocStore } from './SafeDocStore'
 
-function createDocStoreMock (): Record<string, unknown> {
+function createDocStoreMock (): DocStore<unknown, unknown, unknown, unknown> {
   return {
-    deleteById: () => 'deleteById',
-    exists: () => 'exists',
-    fetch: () => 'fetch',
-    queryAll: () => 'queryAll',
-    queryByFilter: () => 'queryByFilter',
-    queryByIds: () => 'queryByIds',
-    upsert: () => 'upsert'
+    deleteById: async () => ({ code: DocStoreDeleteByIdResultCode.DELETED }),
+    exists: async () => ({ found: true }),
+    fetch: async () => ({ doc: { id: '1234', docType: 'test', docVersion: 'aaaa', docOpIds: [] } }),
+    query: async () => ({ queryResult: null }),
+    selectAll: async () => ({ docs: [] }),
+    selectByFilter: async () => ({ docs: [] }),
+    selectByIds: async () => ({ docs: [] }),
+    upsert: async () => ({ code: DocStoreUpsertResultCode.CREATED })
   }
 }
 
@@ -18,7 +23,7 @@ function testMissingFunction (functionName: string): void {
   try {
     const docStore = createDocStoreMock()
     delete docStore[functionName]
-    new SafeDocStore(docStore as unknown as DocStore)
+    new SafeDocStore(docStore)
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(MissingDocStoreFunctionError)
@@ -30,7 +35,7 @@ async function testErroringFunction (functionName: string): Promise<void> {
   try {
     const docStore = createDocStoreMock()
     docStore[functionName] = () => { throw new Error('doc-store-error' )}
-    const safeDocStore = new SafeDocStore(docStore as unknown as DocStore)
+    const safeDocStore = new SafeDocStore(docStore)
     const callableDocStore = safeDocStore as unknown as Record<string, () => Promise<void>>
     await callableDocStore[functionName]()
     throw new Error('fail')
@@ -41,13 +46,23 @@ async function testErroringFunction (functionName: string): Promise<void> {
   }
 }
 
-test('Creating a SafeDocStore using a doc store with missing functions will raise an error.', async () => {
+async function testReturningFunction (functionName: string): Promise<void> {
+  const docStore = createDocStoreMock()
+  docStore[functionName] = () => 'value'
+  const safeDocStore = new SafeDocStore(docStore)
+  const callableDocStore = safeDocStore as unknown as Record<string, () => Promise<void>>
+  const result = await callableDocStore[functionName]()
+  expect(result).toEqual('value')
+}
+
+test('Creating a safe doc store using a doc store with missing functions will raise an error.', async () => {
   testMissingFunction('deleteById')
   testMissingFunction('exists')
   testMissingFunction('fetch')
-  testMissingFunction('queryAll')
-  testMissingFunction('queryByFilter')
-  testMissingFunction('queryByIds')
+  testMissingFunction('query')
+  testMissingFunction('selectAll')
+  testMissingFunction('selectByFilter')
+  testMissingFunction('selectByIds')
   testMissingFunction('upsert')
 })
 
@@ -55,23 +70,20 @@ test('An error in an underlying doc store will be wrapped by the safe doc store.
   await testErroringFunction('deleteById')
   await testErroringFunction('exists')
   await testErroringFunction('fetch')
-  await testErroringFunction('queryAll')
-  await testErroringFunction('queryByFilter')
-  await testErroringFunction('queryByIds')
+  await testErroringFunction('query')
+  await testErroringFunction('selectAll')
+  await testErroringFunction('selectByFilter')
+  await testErroringFunction('selectByIds')
   await testErroringFunction('upsert')
 })
 
-test('Results from the underlying doc store are passed through the SafeDocStore.', async () => {
-  const docStoreMock = createDocStoreMock()
-
-  const safeDocStore = new SafeDocStore(docStoreMock as unknown as DocStore)
-  const callableSafeDocStore = safeDocStore as unknown as Record<string, () => Promise<string>>
-  
-  await expect(callableSafeDocStore.deleteById()).resolves.toEqual('deleteById')
-  await expect(callableSafeDocStore.exists()).resolves.toEqual('exists')
-  await expect(callableSafeDocStore.fetch()).resolves.toEqual('fetch')
-  await expect(callableSafeDocStore.queryAll()).resolves.toEqual('queryAll')
-  await expect(callableSafeDocStore.queryByFilter()).resolves.toEqual('queryByFilter')
-  await expect(callableSafeDocStore.queryByIds()).resolves.toEqual('queryByIds')
-  await expect(callableSafeDocStore.upsert()).resolves.toEqual('upsert')
+test('Results from the underlying doc store are passed through the safe doc store.', async () => {
+  await testReturningFunction('deleteById')
+  await testReturningFunction('exists')
+  await testReturningFunction('fetch')
+  await testReturningFunction('query')
+  await testReturningFunction('selectAll')
+  await testReturningFunction('selectByFilter')
+  await testReturningFunction('selectByIds')
+  await testReturningFunction('upsert')
 })

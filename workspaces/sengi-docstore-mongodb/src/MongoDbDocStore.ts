@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { FilterQuery, MongoClient, MongoClientOptions } from 'mongodb'
 import { 
-  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
-  DocStoredField,
+  DocRecord,
+  DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode, DocStoredField,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
   DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
@@ -16,7 +16,7 @@ export type MongoDbDocStoreOptions = Record<string, unknown>
 /**
  * Represents a filter that can be applied to a collection of documents.
  */
-export type MongoDbDocStoreFilter = FilterQuery<Doc>
+export type MongoDbDocStoreFilter = FilterQuery<DocRecord>
 
 /**
  * Represents a command that can be applied to a collection of documents.
@@ -48,19 +48,9 @@ export interface MongoDbDocStoreQueryResult {
   _id: string,
 
   /**
-   * The type of the document.
-   */
-  docType: string,
-
-  /**
    * The version of the document.
    */
   docVersion: string,
-
-  /**
-   * An array of operation ids that have been applied to the document.
-   */
-  docOpIds: string[]
 }
 
 /**
@@ -119,7 +109,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * @param {Array} docs An array of docs.
    * @param {Array} fieldNames An array of field names.
    */
-  private buildSelectResult (docs: DocFragment[], fieldNames: string[]) {
+  private buildSelectResult (docs: DocRecord[], fieldNames: string[]) {
     if (fieldNames.includes('id')) {
       docs.forEach(doc => {
         doc.id = doc._id as string
@@ -354,14 +344,14 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: MongoDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: MongoDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     try {
       const databaseName = this.getDatabaseNameFunc(docTypeName, docTypePluralName, options)
       const collectionName = this.getCollectionNameFunc(databaseName, docTypeName, docTypePluralName, options)
   
       const readyDoc: MongoDbDoc = {
         ...doc,
-        _id: doc.id,
+        _id: doc.id as string,
         docVersion: this.generateDocVersionFunc()
       }
   

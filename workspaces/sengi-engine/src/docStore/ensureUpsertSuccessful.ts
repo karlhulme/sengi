@@ -1,4 +1,7 @@
-import { DocStoreUpsertResult, DocStoreUpsertResultCode, SengiConflictOnSaveError, SengiRequiredVersionNotAvailableError } from 'sengi-interfaces'
+import {
+  DocStoreUpsertResult, DocStoreUpsertResultCode,
+  SengiConflictOnSaveError, SengiRequiredVersionNotAvailableError
+} from 'sengi-interfaces'
 
 /**
  * Raises an error if the upsert was not successful.

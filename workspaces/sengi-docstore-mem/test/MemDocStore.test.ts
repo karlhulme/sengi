@@ -1,8 +1,8 @@
 import { expect, test } from '@jest/globals'
-import { Doc, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
+import { DocRecord, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
 import { MemDocStore } from '../src'
 
-function createDocs (): Doc[] {
+function createDocs (): DocRecord[] {
   return [
     { id: '001', docType: 'test', fruit: 'apple', docVersion: 'aaa1', docOpIds: [] },
     { id: '002', docType: 'test', fruit: 'banana', docVersion: 'aaa2', docOpIds: [] },
@@ -92,16 +92,16 @@ test('All documents of a recognised type can selected.', async () => {
 test('Select documents using a filter.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => (d.vehicle as string).startsWith('c'), {}, {}))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], d => (d.vehicle as string).startsWith('c'), {}, {}))
     .resolves.toEqual({ docs: [{ id: '101', vehicle: 'car' }, { id: '102', vehicle: 'cargoBoat' }] })
 })
 
 test('Select documents using a filter and paging.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1 }))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], d => Boolean(d.vehicle), {}, { limit: 1 }))
     .resolves.toEqual({ docs: [{ id: '101', vehicle: 'car' }] })
-  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], (d: Doc) => Boolean(d.vehicle), {}, { limit: 1, offset: 1 }))
+  await expect(docStore.selectByFilter('test2', 'test2s', ['id', 'vehicle'], d => Boolean(d.vehicle), {}, { limit: 1, offset: 1 }))
     .resolves.toEqual({ docs: [{ id: '102', vehicle: 'cargoBoat' }] })
 })
 

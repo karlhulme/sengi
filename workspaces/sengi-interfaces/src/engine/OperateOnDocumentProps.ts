@@ -1,5 +1,3 @@
-import { DocFragment } from '../doc'
-
 /**
  * Defines the properties that are required to operation on a document.
  */
@@ -32,7 +30,7 @@ import { DocFragment } from '../doc'
   /**
    * The parameters to pass to the operation.
    */
-  operationParams: DocFragment
+  operationParams: unknown
 
   /**
    * The properties passed with the request.

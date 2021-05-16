@@ -1,6 +1,6 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 import { CosmosClient } from  '@azure/cosmos'
-import { Doc, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
+import { DocRecord, DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode } from 'sengi-interfaces'
 import { CosmosDbDocStore } from '../src'
 
 const TEST_COSMOS_URL = process.env.SENGI_COSMOS_URL
@@ -49,7 +49,7 @@ async function initDb (): Promise<void> {
   }
 
   // populate trees container
-  const trees: Doc[] = [
+  const trees: DocRecord[] = [
     { id: '01', docType: 'tree', name: 'ash', heightInCms: 210, docVersion: 'not_used', docOpIds: [] },
     { id: '02', docType: 'tree', name: 'beech', heightInCms: 225, docVersion: 'not_used', docOpIds: [] },
     { id: '03', docType: 'tree', name: 'pine', heightInCms: 180, docVersion: 'not_used', docOpIds: [] }
@@ -61,7 +61,7 @@ async function initDb (): Promise<void> {
   }
 
   // populate treePacks container
-  const treePacks: Doc[] = [
+  const treePacks: DocRecord[] = [
     { id: '01', docType: 'treePack', name: 'ash', environment: 'forest', heightInCms: 210, docVersion: 'not_used', docOpIds: [] },
     { id: '02', docType: 'treePack', name: 'beech', environment: 'forest', heightInCms: 225, docVersion: 'not_used', docOpIds: [] },
     { id: '03', docType: 'treePack', name: 'palm', environment: 'tropical', heightInCms: 180, docVersion: 'not_used', docOpIds: [] },
@@ -226,7 +226,7 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
   const docStore = createCosmosDbDocStore()
 
   // docVersion will be stripped out before upsert
-  const doc: Doc = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'ignore_me', docOpIds: [] }
+  const doc: DocRecord = { id: '04', docType: 'tree', name: 'oak', heightInCms: 150, docVersion: 'ignore_me', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.CREATED })
 
   const contents = await readContainer('trees')
@@ -239,7 +239,7 @@ test('Insert a new document and rely on doc store to generate doc version.', asy
 test('Update an existing document.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, {})).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readContainer('trees')
@@ -255,7 +255,7 @@ test('Update an existing document with a required version.', async () => {
   const initialContents = await readContainer('trees')
   const reqVersion = (initialContents.find(d => d.id === '03') || {})._etag as string
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion })).resolves.toEqual({ code: DocStoreUpsertResultCode.REPLACED })
 
   const contents = await readContainer('trees')
@@ -268,7 +268,7 @@ test('Update an existing document with a required version.', async () => {
 test('Fail to update an existing document if the required version is unavailable.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  const doc: Doc = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
+  const doc: DocRecord = { id: '03', docType: 'tree', name: 'palm', heightInCms: 123, docVersion: 'not_used', docOpIds: [] }
   await expect(docStore.upsert('tree', 'trees', doc, {}, { reqVersion: 'bbbb' })).resolves.toEqual({ code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE })
 
   const contents = await readContainer('trees')

@@ -1,3 +1,4 @@
+export * from './AnyDocType'
 export * from './DocType'
 export * from './DocTypeConstructor'
 export * from './DocTypeFilter'

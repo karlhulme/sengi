@@ -1,9 +1,10 @@
+import { DocBase } from '../doc'
 import { DocType } from '../docType'
 
 /**
  * Defines the properties passed to the saved doc callback.
  */
-export interface SavedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command> {
+export interface SavedDocCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * The names of the roles that were active.
    */
@@ -17,7 +18,7 @@ export interface SavedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filte
   /**
    * The document type associated with the deleted document.
    */
-  docType: DocType<Doc, DocStoreOptions, Filter, CommandResult, Command>
+  docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
 
   /**
    * Any properties passed along with the request.
@@ -38,4 +39,4 @@ export interface SavedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filte
 /**
  * Defines the callback that is raised when a document is saved.
  */
- export type SavedDocCallback<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command> = (props: SavedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, CommandResult, Command>) => Promise<void>
+ export type SavedDocCallback<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> = (props: SavedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, Query, QueryResult>) => Promise<void>

@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import AWS from 'aws-sdk'
 import { 
-  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
-  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
+  DocRecord,
+  DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps,
+  DocStoreFetchResult, DocStoreQueryProps,
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult,
+  DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
   UnexpectedDocStoreError
 } from 'sengi-interfaces'
 
@@ -126,12 +129,12 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
    * @param inputDocs An array of docs received from Dynamo DB.
    * @param fieldNames An array of field names.
    */
-  private createOutputDocs (inputDocs: DocFragment[], fieldNames: string[]) {
-    const outputDocs: DocFragment[] = []
+  private createOutputDocs (inputDocs: DocRecord[], fieldNames: string[]) {
+    const outputDocs: DocRecord[] = []
 
     for (let i = 0; i < inputDocs.length; i++) {
       const inputDoc = inputDocs[i]
-      const outputDoc: DocFragment = {}
+      const outputDoc: DocRecord = {}
 
       for (const fieldName of fieldNames) {
         outputDoc[fieldName] = inputDoc[fieldName]
@@ -252,7 +255,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
         ? { ...result.Item }
         : null
   
-      return { doc: doc as Doc }
+      return { doc }
     } catch (err) {
       // istanbul ignore next
       throw new UnexpectedDocStoreError('Dynamo database error processing \'fetch\'.', err)
@@ -393,7 +396,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: DynamoDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: DynamoDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     try {
       const tableName = this.getTableNameFunc(docTypeName, docTypePluralName, options)
       const readyDoc = {

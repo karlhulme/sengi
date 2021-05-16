@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CosmosClient, FeedResponse, RequestOptions } from  '@azure/cosmos'
 import { 
-  Doc, DocFragment, DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
+  DocRecord,
+  DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
   DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
   DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, UnexpectedDocStoreError
 } from 'sengi-interfaces'
@@ -39,7 +40,7 @@ export interface CosmosDbDocStoreQueryResult {
   /**
    * If populated, contains the result of an executed sql command.
    */
-  sqlQueryResult?: FeedResponse<DocFragment>
+  sqlQueryResult?: FeedResponse<DocRecord>
 }
 
 /**
@@ -152,11 +153,11 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * @param {Array} docs An array of docs.
    * @param {Array} fieldNames An array of field names.
    */
-  private buildResultDocs (docs: Doc[], fieldNames: string[]) {
-    const results: DocFragment[] = []
+  private buildResultDocs (docs: DocRecord[], fieldNames: string[]) {
+    const results: DocRecord[] = []
 
     for (let i = 0; i < docs.length; i++) {
-      const result: DocFragment = {}
+      const result: DocRecord = {}
 
       for (const fieldName of fieldNames) {
         if (fieldName === 'docVersion') {
@@ -178,8 +179,8 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * @param doc A document.
    * @param omitKeys An array of property keys.
    */
-  private createSubsetOfDocument (doc: DocFragment, fieldNamesToOmit: string[]) {
-    return Object.keys(doc).reduce((result: DocFragment, key: string) => {
+  private createSubsetOfDocument (doc: DocRecord, fieldNamesToOmit: string[]) {
+    return Object.keys(doc).reduce((result: DocRecord, key: string) => {
       if (!fieldNamesToOmit.includes(key)) {
         result[key] = doc[key]
       }
@@ -433,7 +434,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
    * and options defined on the document type.
    * @param props Properties that define how to carry out this action.
    */
-  async upsert (docTypeName: string, docTypePluralName: string, doc: Doc, options: CosmosDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
+  async upsert (docTypeName: string, docTypePluralName: string, doc: DocRecord, options: CosmosDbDocStoreOptions, props: DocStoreUpsertProps): Promise<DocStoreUpsertResult> {
     try {
       const cleanDoc = this.createSubsetOfDocument(doc, ['docVersion', '_attachments', '_etag', '_ts'])
 

@@ -1,3 +1,4 @@
+export * from './ajvErrorsToString'
 export * from './capitalizeFirstLetter'
 export * from './codeSafeTypeName'
 export * from './consts'

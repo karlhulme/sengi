@@ -1,8 +1,8 @@
 /**
- * Defines the properties that are required to extract all
- * the documents from a collection.
+ * Defines the properties that are required to execute a query
+ * against the collection.
  */
-export interface QueryDocumentsProps<RequestProps, DocStoreOptions> {
+ export interface QueryDocumentsProps<RequestProps, DocStoreOptions> {
   /**
    * The names of the roles that are associaed with the request.
    */
@@ -14,9 +14,9 @@ export interface QueryDocumentsProps<RequestProps, DocStoreOptions> {
   docTypeName: string
 
   /**
-   * An array of fields to be returned with the query.
+   * A set of query parameters.
    */
-  fieldNames: string[]
+  queryParams: unknown
 
   /**
    * The properties passed with the request.
@@ -27,15 +27,4 @@ export interface QueryDocumentsProps<RequestProps, DocStoreOptions> {
    * The document store options passed with the request.
    */
   docStoreOptions: DocStoreOptions
-
-  /**
-   * The maximum number of documents to return.
-   */
-  limit?: number
-
-  /**
-   * The number of documents in the result set to skip
-   * before returning documents to the client.
-   */
-  offset?: number
 }

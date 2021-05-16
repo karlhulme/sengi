@@ -11,7 +11,7 @@ export function canOperate (permissionSet: RoleTypeDocPermissionSet, operationNa
     return permissionSet.update
   } else if (typeof permissionSet.update === 'object') {
     const updatePermissionSet = permissionSet.update as RoleTypeDocUpdatePermissionSet
-    return updatePermissionSet.operations.includes(operationName)
+    return Array.isArray(updatePermissionSet.operations) && updatePermissionSet.operations.includes(operationName)
   } else {
     return false
   }
