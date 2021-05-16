@@ -4,8 +4,6 @@ import { ensureCreatePermission, ensureDeletePermission, ensureOperatePermission
   ensurePatchPermission, ensureQueryPermission, ensureReplacePermission } from './ensurePermissions'
 
 const roleTypes: RoleType[] = [{
-  title: '',
-  documentation: '',
   name: 'admin',
   docPermissions: {
     testDocType: {
@@ -13,7 +11,7 @@ const roleTypes: RoleType[] = [{
       delete: true,
       query: {
         fields: ['a', 'b'],
-        fieldsTreatment: 'whitelist'
+        fieldsTreatment: 'include'
       },
       update: {
         operations: ['someOp'],
@@ -23,8 +21,6 @@ const roleTypes: RoleType[] = [{
     }
   }
 }, {
-  title: '',
-  documentation: '',
   name: 'none',
   docPermissions: false
 }]

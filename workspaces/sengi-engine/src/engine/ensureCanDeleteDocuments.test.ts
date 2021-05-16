@@ -22,8 +22,19 @@ test('Raise error if policy disallows delete action.', () => {
     pluralName: 'tests',
     jsonSchema: {},
     policy: {
-      canDeleteDocuments: true
+      canDeleteDocuments: false
     }
+  }
+
+  expect(() => ensureCanDeleteDocuments(docType)).toThrow(asError(SengiActionForbiddenByPolicyError))
+  expect(() => ensureCanDeleteDocuments(docType)).toThrow(/delete document/)
+})
+
+test('Raise error if policy not specified for delete action.', () => {
+  const docType: UnknownDocType = {
+    name: 'test',
+    pluralName: 'tests',
+    jsonSchema: {}
   }
 
   expect(() => ensureCanDeleteDocuments(docType)).toThrow(asError(SengiActionForbiddenByPolicyError))

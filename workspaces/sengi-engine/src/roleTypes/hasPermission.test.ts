@@ -5,32 +5,22 @@ import { canCreate } from './canCreate'
 
 const roleTypes: RoleType[] = [{
   name: 'admin',
-  title: '',
-  documentation: '',
   docPermissions: true
 }, {
   name: 'none',
-  title: '',
-  documentation: '',
   docPermissions: false
 }, {
   name: 'docWide',
-  title: '',
-  documentation: '',
   docPermissions: {
     testDocType: true
   }
 }, {
   name: 'docWideReject',
-  title: '',
-  documentation: '',
   docPermissions: {
     testDocType: false
   }
 }, {
   name: 'specific',
-  title: '',
-  documentation: '',
   docPermissions: {
     testDocType: {
       create: true
@@ -38,8 +28,6 @@ const roleTypes: RoleType[] = [{
   }
 }, {
   name: 'specificReject',
-  title: '',
-  documentation: '',
   docPermissions: {
     testDocType: {
       create: false

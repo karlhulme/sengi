@@ -8,12 +8,12 @@ test('Check permission set for query permission', () => {
 })
 
 test('Check permission set for query permission against whitelist', () => {
-  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'whitelist' } }, ['a', 'b'])).toEqual(false)
-  expect(canQuery({ query: { fields: ['a', 'b'], fieldsTreatment: 'whitelist' } }, ['a', 'b'])).toEqual(true)
+  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'include' } }, ['a', 'b'])).toEqual(false)
+  expect(canQuery({ query: { fields: ['a', 'b'], fieldsTreatment: 'include' } }, ['a', 'b'])).toEqual(true)
 })
 
 test('Check permission set for query permission against blacklist', () => {
-  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'blacklist' } }, ['a', 'b'])).toEqual(false)
-  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'blacklist' } }, ['b'])).toEqual(true)
+  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'exclude' } }, ['a', 'b'])).toEqual(false)
+  expect(canQuery({ query: { fields: ['a'], fieldsTreatment: 'exclude' } }, ['b'])).toEqual(true)
 })
 

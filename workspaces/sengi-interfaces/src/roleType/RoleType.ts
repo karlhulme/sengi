@@ -12,12 +12,12 @@ export interface RoleType {
   /**
    * The title of the role.
    */
-  title: string
+  title?: string
 
   /**
    * A description of the intended usage of the role.
    */
-  summary: string
+  summary?: string
 
   /**
    * The permission sets awarded by this role.
