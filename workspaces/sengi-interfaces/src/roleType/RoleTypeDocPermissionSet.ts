@@ -1,4 +1,4 @@
-import { RoleTypeDocQueryPermissionSet } from './RoleTypeDocQueryPermissionSet'
+import { RoleTypeDocSelectPermissionSet } from './RoleTypeDocSelectPermissionSet'
 import { RoleTypeDocUpdatePermissionSet } from './RoleTypeDocUpdatePermissionSet'
 
 /**
@@ -6,9 +6,9 @@ import { RoleTypeDocUpdatePermissionSet } from './RoleTypeDocUpdatePermissionSet
  */
 export interface RoleTypeDocPermissionSet {
   /**
-   * The permissions granted for querying.
+   * The permissions granted for selecting.
    */
-  query?: boolean|RoleTypeDocQueryPermissionSet
+  select?: boolean|RoleTypeDocSelectPermissionSet
 
   /**
    * The permissions granted for updating.

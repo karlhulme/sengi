@@ -7,12 +7,11 @@ import {
 import { ajvErrorsToString } from '../utils'
 
 /**
- * Ensure that the given constructor request is valid.
+ * Execute a constructor to produce a new document.
  * @param ajv A validator.
  * @param docType A document type.
  * @param constructorName The name of a constructor.
  * @param constructorParams A set of constructor params.
- * @param constructors An array of constructors taking from a doc type.
  */
 export function executeConstructor (ajv: Ajv, docType: AnyDocType, constructorName: string, constructorParams: unknown): DocRecord {
   const ctor = docType.constructors?.[constructorName]

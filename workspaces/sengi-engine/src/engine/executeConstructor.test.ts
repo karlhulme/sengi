@@ -27,7 +27,6 @@ function createDocType () {
     jsonSchema: {},
     constructors: {
       make: {
-        summary: 'Make a film',
         parametersJsonSchema: exampleConstructorSchema,
         implementation: (params: ExampleConstructorParams) => {
           if (params.ctorPropA === 'fail') {

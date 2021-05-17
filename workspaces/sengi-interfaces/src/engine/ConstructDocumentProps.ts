@@ -13,7 +13,7 @@ export interface ConstructDocumentProps<RequestProps, DocStoreOptions> {
   docTypeName: string
 
   /**
-   * The id of a document.
+   * The id to be assigned to the new document.
    */
   id: string
 

@@ -3,9 +3,10 @@ import { canCreate } from './canCreate'
 import { canDelete } from './canDelete'
 import { canOperate } from './canOperate'
 import { canPatch } from './canPatch'
-import { canQuery } from './canQuery'
+import { canSelect } from './canSelect'
 import { canReplace } from './canReplace'
 import { hasPermission } from './hasPermission'
+import { canQuery } from './canQuery'
 
 /**
  * Raises an error if given role names and role types do not
@@ -66,11 +67,11 @@ export function ensurePatchPermission (roleNames: string[], roleTypes: RoleType[
  * @param roleNames An array of held roles.
  * @param roleTypes An array of role types.
  * @param docTypeName The name of a doc type.
- * @param fieldNames An array of field names.
+ * @param queryName The name of a doc type query.
  */
-export function ensureQueryPermission (roleNames: string[], roleTypes: RoleType[], docTypeName: string, fieldNames: string[]): void {
-  if (!hasPermission(roleNames, roleTypes, docTypeName, r => canQuery(r, fieldNames))) {
-    throw new SengiInsufficientPermissionsError(roleNames, docTypeName, `query (${fieldNames.join(', ')})`)
+ export function ensureQueryPermission (roleNames: string[], roleTypes: RoleType[], docTypeName: string, queryName: string): void {
+  if (!hasPermission(roleNames, roleTypes, docTypeName, r => canQuery(r, queryName))) {
+    throw new SengiInsufficientPermissionsError(roleNames, docTypeName, 'select.' + queryName)
   }
 }
 
@@ -84,5 +85,19 @@ export function ensureQueryPermission (roleNames: string[], roleTypes: RoleType[
 export function ensureReplacePermission (roleNames: string[], roleTypes: RoleType[], docTypeName: string): void {
   if (!hasPermission(roleNames, roleTypes, docTypeName, canReplace)) {
     throw new SengiInsufficientPermissionsError(roleNames, docTypeName, 'replace')
+  }
+}
+
+/**
+ * Raises an error if given role names and role types do not
+ * support the requested select action.
+ * @param roleNames An array of held roles.
+ * @param roleTypes An array of role types.
+ * @param docTypeName The name of a doc type.
+ * @param fieldNames An array of field names.
+ */
+ export function ensureSelectPermission (roleNames: string[], roleTypes: RoleType[], docTypeName: string, fieldNames: string[]): void {
+  if (!hasPermission(roleNames, roleTypes, docTypeName, r => canSelect(r, fieldNames))) {
+    throw new SengiInsufficientPermissionsError(roleNames, docTypeName, `select (${fieldNames.join(', ')})`)
   }
 }

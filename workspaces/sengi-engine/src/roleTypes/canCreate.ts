@@ -7,9 +7,3 @@ import { RoleTypeDocPermissionSet } from 'sengi-interfaces'
 export function canCreate (permissionSet: RoleTypeDocPermissionSet): boolean {
   return permissionSet.create === true
 }
-
-
-
-
-
-

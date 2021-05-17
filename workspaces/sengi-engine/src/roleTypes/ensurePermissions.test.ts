@@ -1,7 +1,9 @@
 import { expect, test } from '@jest/globals'
 import { RoleType } from 'sengi-interfaces'
-import { ensureCreatePermission, ensureDeletePermission, ensureOperatePermission,
-  ensurePatchPermission, ensureQueryPermission, ensureReplacePermission } from './ensurePermissions'
+import {
+  ensureCreatePermission, ensureDeletePermission, ensureOperatePermission,
+  ensurePatchPermission, ensureSelectPermission, ensureReplacePermission, ensureQueryPermission
+} from './ensurePermissions'
 
 const roleTypes: RoleType[] = [{
   name: 'admin',
@@ -9,9 +11,10 @@ const roleTypes: RoleType[] = [{
     testDocType: {
       create: true,
       delete: true,
-      query: {
+      select: {
         fields: ['a', 'b'],
-        fieldsTreatment: 'include'
+        fieldsTreatment: 'include',
+        queries: ['someQuery']
       },
       update: {
         operations: ['someOp'],
@@ -46,11 +49,16 @@ test('Can verify patch permission.', () => {
 })
 
 test('Can verify query permission.', () => {
-  expect(() => ensureQueryPermission(['admin'], roleTypes,'testDocType', ['a', 'b'])).not.toThrow()
-  expect(() => ensureQueryPermission(['none'], roleTypes, 'testDocType', ['a', 'b'])).toThrow()
+  expect(() => ensureQueryPermission(['admin'], roleTypes,'testDocType', 'someQuery')).not.toThrow()
+  expect(() => ensureQueryPermission(['none'], roleTypes, 'testDocType', 'someQuery')).toThrow()
 })
 
 test('Can verify replace permission.', () => {
   expect(() => ensureReplacePermission(['admin'], roleTypes,'testDocType')).not.toThrow()
   expect(() => ensureReplacePermission(['none'], roleTypes, 'testDocType')).toThrow()
+})
+
+test('Can verify select permission.', () => {
+  expect(() => ensureSelectPermission(['admin'], roleTypes,'testDocType', ['a', 'b'])).not.toThrow()
+  expect(() => ensureSelectPermission(['none'], roleTypes, 'testDocType', ['a', 'b'])).toThrow()
 })
