@@ -2,20 +2,21 @@
 import Ajv from 'ajv'
 import {
   AnyDocType,
-  SengiFilterFailedError,
+  SengiFilterParseFailedError,
   SengiFilterParamsValidationFailedError,
   SengiUnrecognisedFilterNameError
 } from 'sengi-interfaces'
 import { ajvErrorsToString } from '../utils'
 
 /**
- * Execute a filter.
+ * Parses a set of filter params to produce a filter that can be
+ * understood by the document store.
  * @param ajv A validator.
  * @param docType A document type.
  * @param filterName The name of a filter.
  * @param filterParams A set of filter params.
  */
-export function executeFilter (ajv: Ajv, docType: AnyDocType, filterName: string, filterParams: unknown): any {
+export function parseFilter (ajv: Ajv, docType: AnyDocType, filterName: string, filterParams: unknown): any {
   const filterDef = docType.filters?.[filterName]
   
   if (typeof filterDef !== 'object') {
@@ -31,7 +32,7 @@ export function executeFilter (ajv: Ajv, docType: AnyDocType, filterName: string
   try {
     filter = filterDef.parse(filterParams)
   } catch (err) {
-    throw new SengiFilterFailedError(docType.name, filterName, err)
+    throw new SengiFilterParseFailedError(docType.name, filterName, err)
   }
 
   return filter

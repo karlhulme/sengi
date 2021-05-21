@@ -10,17 +10,6 @@ export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HT
   }
 }
 
-export class SengiQueryParamsValidationFailedError extends SengiRequestError {
-  constructor (readonly docTypeName: string, readonly queryName: string, readonly validationError: string) {
-    super(`The parameters supplied to query '${queryName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
-    Object.setPrototypeOf(this, new.target.prototype)
-    this.name = this.constructor.name
-    this.docTypeName = docTypeName
-    this.queryName = queryName
-    this.validationError = validationError
-  }
-}
-
 export class SengiConflictOnSaveError extends SengiRequestError { // HTTP 409
   constructor () {
     super('Document could not be updated as it was changed by another process during the operation.')
@@ -109,6 +98,17 @@ export class SengiPatchValidationFailedError extends SengiRequestError {
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
+    this.validationError = validationError
+  }
+}
+
+export class SengiQueryParamsValidationFailedError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly queryName: string, readonly validationError: string) {
+    super(`The parameters supplied to query '${queryName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.queryName = queryName
     this.validationError = validationError
   }
 }

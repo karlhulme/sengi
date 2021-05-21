@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals'
 import { DocBase, DocRecord, DocType, SengiPreSaveFailedError } from 'sengi-interfaces'
+import { asError } from '../utils'
 import { executePreSave } from './executePreSave'
-import { asError } from './shared.test'
 
 interface ExampleDoc extends DocBase {
   propA: string

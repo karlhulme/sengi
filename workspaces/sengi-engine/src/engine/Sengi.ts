@@ -18,8 +18,10 @@ import {
   OperateOnDocumentResult,
   PatchDocumentProps,
   PatchDocumentResult,
-  PreQueryDocsCallback,
   PreSaveDocCallback,
+  PreSelectDocsCallback,
+  QueryDocumentsProps,
+  QueryDocumentsResult,
   ReplaceDocumentProps,
   ReplaceDocumentResult,
   RoleType,
@@ -33,20 +35,32 @@ import {
   SengiCallbackError
  } from 'sengi-interfaces'
  import { SafeDocStore } from '../docStore'
-import { ensureCreatePermission, ensureDeletePermission, ensureOperatePermission, ensurePatchPermission, ensureReplacePermission, ensureSelectPermission } from '../roleTypes'
-import { ensureCanDeleteDocuments } from './ensureCanDeleteDocuments'
-import { ensureCanFetchWholeCollection } from './ensureCanFetchWholeCollection'
-import { ensureCanReplaceDocuments } from './ensureCanReplaceDocuments'
-import { ensureDoc } from './ensureDoc'
-import { ensureDocWasFound } from './ensureDocWasFound'
-import { executeConstructor } from './executeConstructor'
-import { executeFilter } from './executeFilter'
-import { executeOperation } from './executeOperation'
-import { executePatch } from './executePatch'
-import { executePreSave } from './executePreSave'
-import { executeValidator } from './executeValidator'
-import { isOpIdInDocument } from './isOpIdInDocument'
-import { selectDocTypeFromArray } from './selectDocTypeFromArray'
+import {
+  ensureCreatePermission,
+  ensureDeletePermission,
+  ensureOperatePermission,
+  ensurePatchPermission,
+  ensureQueryPermission,
+  ensureReplacePermission,
+  ensureSelectPermission
+} from '../roleTypes'
+import {
+  ensureCanDeleteDocuments,
+  ensureCanFetchWholeCollection,
+  ensureCanReplaceDocuments,
+  ensureDoc,
+  ensureDocWasFound,
+  executeConstructor,
+  parseFilter,
+  executeOperation,
+  executePatch,
+  executePreSave,
+  executeValidator,
+  isOpIdInDocument,
+  selectDocTypeFromArray,
+  parseQuery,
+  coerceQuery
+} from '../docTypes'
 
 /**
  * The properties that are used to manage the construction of a Sengi.
@@ -59,7 +73,7 @@ export interface SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Qu
   onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
   onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
   onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  onPreQueryDocs?: PreQueryDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
+  onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
 }
 
 /**
@@ -76,7 +90,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   private onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
   private onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
   private onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  private onPreQueryDocs?: PreQueryDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
+  private onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
 
   /**
    * Creates a new Sengi engine based on a set of doc types and role types.
@@ -97,7 +111,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     this.onSavedDoc = props.onSavedDoc
     this.onDeletedDoc = props.onDeletedDoc
     this.onPreSaveDoc = props.onPreSaveDoc
-    this.onPreQueryDocs = props.onPreQueryDocs
+    this.onPreSelectDocs = props.onPreSelectDocs
   }
 
   /**
@@ -273,6 +287,25 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   }
 
   /**
+   * Executes a query across a set of documents.
+   * @param props A property bag.
+   */
+  async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions>): Promise<QueryDocumentsResult> {
+    this.logRequest(`QUERY (${props.queryName}) ${props.docTypeName}`)
+    ensureQueryPermission(props.roleNames, this.roleTypes, props.docTypeName, props.queryName)
+
+    const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
+    const query = parseQuery(this.ajv, docType, props.queryName, props.queryParams)
+
+    const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
+    const queryResult = await this.safeDocStore.query(docType.name, docType.pluralName, query, combinedDocStoreOptions, {})
+
+    const response = coerceQuery(this.ajv, docType, props.queryName, queryResult)
+  
+    return { data: response }
+  }
+
+  /**
    * Replaces (or inserts) a document.
    * Unlike the newDocument function, this function will replace an existing document.
    * @param props A property bag.
@@ -308,7 +341,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     ensureSelectPermission(props.roleNames, this.roleTypes, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
-    const filter = executeFilter(this.ajv, docType, props.filterName, props.filterParams)
+    const filter = parseFilter(this.ajv, docType, props.filterName, props.filterParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     const queryResult = await this.safeDocStore.selectByFilter(docType.name, docType.pluralName, props.fieldNames, filter, combinedDocStoreOptions, {
@@ -316,7 +349,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
       offset: props.offset
     })
   
-    await this.invokePreQueryDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
   
     return { docs: queryResult.docs }
   }
@@ -334,7 +367,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
   
-    await this.invokePreQueryDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
   
     return { docs: queryResult.docs }
   }
@@ -356,7 +389,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
       offset: props.offset
     })
   
-    await this.invokePreQueryDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
   
     return { docs: queryResult.docs }
   }
@@ -401,17 +434,17 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   }
 
   /**
-   * Invokes the onPreQueryDocs callback if one has been supplied.
+   * Invokes the onPreSelectDocs callback if one has been supplied.
    * @param roleNames The rolenames associated with the request.
    * @param docStoreOptions A set of doc store options.
    * @param docType A document type.
    * @param reqProps The properties associated with the original request.
    * @param fieldNames An array of requested field names.
    */
-   private async invokePreQueryDocsCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, reqProps: RequestProps, fieldNames: string[]) {
-    this.invokeCallback('onPreQueryDocs', async () => {
-      if (this.onPreQueryDocs) {
-        await this.onPreQueryDocs({ roleNames, docStoreOptions, docType, reqProps, fieldNames })
+   private async invokePreSelectDocsCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, reqProps: RequestProps, fieldNames: string[]) {
+    this.invokeCallback('onPreSelectDocs', async () => {
+      if (this.onPreSelectDocs) {
+        await this.onPreSelectDocs({ roleNames, docStoreOptions, docType, reqProps, fieldNames })
       }
     })
   }

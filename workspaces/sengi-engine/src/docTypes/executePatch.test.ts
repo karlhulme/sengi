@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals'
 import { DocBase, DocRecord, DocType, SengiPatchValidationFailedError } from 'sengi-interfaces'
+import { asError } from '../utils'
 import { executePatch } from './executePatch'
-import { asError } from './shared.test'
 
 interface ExampleDoc extends DocBase {
   propA: string

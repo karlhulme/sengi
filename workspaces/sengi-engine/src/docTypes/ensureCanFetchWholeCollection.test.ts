@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals'
 import { UnknownDocType, SengiActionForbiddenByPolicyError } from 'sengi-interfaces'
 import { ensureCanFetchWholeCollection } from './ensureCanFetchWholeCollection'
-import { asError } from './shared.test'
+import { asError } from '../utils'
 
 test('Remain silent if policy allows fetch whole collection action.', () => {
   const docType: UnknownDocType = {

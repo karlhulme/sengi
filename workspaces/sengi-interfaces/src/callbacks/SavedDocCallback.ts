@@ -16,7 +16,7 @@ export interface SavedDocCallbackProps<RequestProps, Doc extends DocBase, DocSto
   docStoreOptions: DocStoreOptions
 
   /**
-   * The document type associated with the deleted document.
+   * The document type associated with the saved document.
    */
   docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
 

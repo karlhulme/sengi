@@ -4,7 +4,7 @@ import {
   DocStoreDeleteByIdResultCode, DocStoreUpsertResultCode,
   MissingDocStoreFunctionError, UnexpectedDocStoreError
 } from 'sengi-interfaces'
-import { asError } from '../engine/shared.test'
+import { asError } from '../utils'
 import { SafeDocStore } from './SafeDocStore'
 
 function createTestDocStore (): DocStore<unknown, unknown, unknown, unknown> {

@@ -1,7 +1,8 @@
 import { expect, test } from '@jest/globals'
 import { UnknownDocType, SengiDocValidationFailedError } from 'sengi-interfaces'
-import { asError, createValidator } from './shared.test'
+import { createValidator } from './shared.test'
 import { ensureDoc } from './ensureDoc'
+import { asError } from '../utils'
 
 function createDocType () {
   const docType: UnknownDocType = {

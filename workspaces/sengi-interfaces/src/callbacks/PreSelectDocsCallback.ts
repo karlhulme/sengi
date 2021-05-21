@@ -2,9 +2,9 @@ import { DocBase } from '../doc'
 import { DocType } from '../docType'
 
 /**
- * Defines the properties passed to the pre query docs callback.
+ * Defines the properties passed to the pre select docs callback.
  */
-export interface PreQueryDocsCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
+export interface PreSelectDocsCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
   /**
    * The names of the roles that were active.
    */
@@ -16,7 +16,7 @@ export interface PreQueryDocsCallbackProps<RequestProps, Doc extends DocBase, Do
   docStoreOptions: DocStoreOptions
 
   /**
-   * The document type associated with the deleted document.
+   * The document type associated with the documents being queried.
    */
   docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
 
@@ -34,4 +34,4 @@ export interface PreQueryDocsCallbackProps<RequestProps, Doc extends DocBase, Do
 /**
  * Defines the callback that is raised just before a document collection is queried.
  */
- export type PreQueryDocsCallback<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> = (props: PreQueryDocsCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, Query, QueryResult>) => Promise<void>
+ export type PreSelectDocsCallback<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> = (props: PreSelectDocsCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, Query, QueryResult>) => Promise<void>

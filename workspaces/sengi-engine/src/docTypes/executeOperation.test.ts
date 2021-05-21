@@ -5,8 +5,9 @@ import {
   SengiOperationParamsValidationFailedError,
   SengiUnrecognisedOperationNameError
 } from 'sengi-interfaces'
-import { asError, createValidator } from './shared.test'
+import { createValidator } from './shared.test'
 import { executeOperation } from './executeOperation'
+import { asError } from '../utils'
 
 interface ExampleDoc extends DocBase {
   propA: string

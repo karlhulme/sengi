@@ -34,5 +34,5 @@ export interface DocTypeQuery<Response, Parameters, QueryResult, Query> {
    * A function that converts the document store result into a response
    * for clients to consume.
    */
-  coerce: (commandResult: QueryResult) => Response
+  coerce: (queryResult: QueryResult) => Response
 }

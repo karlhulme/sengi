@@ -1,16 +1,5 @@
 import { SengiEngineError } from './baseErrors'
 
-export class SengiCommandFailedError extends SengiEngineError {
-  constructor (readonly docTypeName: string, readonly commandName: string, readonly innerErr: Error) {
-    super(`Command '${commandName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
-    Object.setPrototypeOf(this, new.target.prototype)
-    this.name = this.constructor.name
-    this.docTypeName = docTypeName
-    this.commandName = commandName
-    this.innerErr = innerErr
-  }
-}
-
 export class SengiCallbackError extends SengiEngineError {
   constructor (readonly callbackName: string, readonly innerErr: Error) {
     super(`An error was thrown by the callback delegate for '${callbackName}'\n${innerErr.toString()}`)
@@ -42,9 +31,9 @@ export class SengiConstructorNonObjectResponseError extends SengiEngineError {
   }
 }
 
-export class SengiFilterFailedError extends SengiEngineError {
+export class SengiFilterParseFailedError extends SengiEngineError {
   constructor (readonly docTypeName: string, readonly filterName: string, readonly innerErr: Error) {
-    super(`Filter '${filterName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+    super(`Parsing function of filter '${filterName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
@@ -80,6 +69,39 @@ export class SengiPreSaveFailedError extends SengiEngineError {
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypeName = docTypeName
+    this.innerErr = innerErr
+  }
+}
+
+export class SengiQueryCoerceFailedError extends SengiEngineError {
+  constructor (readonly docTypeName: string, readonly queryName: string, readonly innerErr: Error) {
+    super(`Coercing function of query '${queryName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.queryName = queryName
+    this.innerErr = innerErr
+  }
+}
+
+export class SengiQueryResponseValidationFailedError extends SengiEngineError {
+  constructor (readonly docTypeName: string, readonly queryName: string, readonly validationError: string) {
+    super(`The resulting object from executing query '${queryName}' for doc type '${docTypeName}' did not match the response schema.\n${validationError}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.queryName = queryName
+    this.validationError = validationError
+  }
+}
+
+export class SengiQueryParseFailedError extends SengiEngineError {
+  constructor (readonly docTypeName: string, readonly queryName: string, readonly innerErr: Error) {
+    super(`Parsing function of query '${queryName}' on document type '${docTypeName}' raised an error.\n${innerErr.toString()}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.queryName = queryName
     this.innerErr = innerErr
   }
 }

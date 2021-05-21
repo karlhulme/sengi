@@ -1,4 +1,5 @@
 export * from './ajvErrorsToString'
+export * from './asError'
 export * from './capitalizeFirstLetter'
 export * from './codeSafeTypeName'
 export * from './consts'

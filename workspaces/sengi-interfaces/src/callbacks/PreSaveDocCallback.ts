@@ -16,7 +16,7 @@ export interface PreSaveDocCallbackProps<RequestProps, Doc extends DocBase, DocS
   docStoreOptions: DocStoreOptions
 
   /**
-   * The document type associated with the deleted document.
+   * The document type associated with the document to be saved.
    */
   docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
 

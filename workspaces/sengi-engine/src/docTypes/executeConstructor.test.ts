@@ -1,7 +1,8 @@
 import { expect, test } from '@jest/globals'
 import { DocBase, DocType, SengiConstructorFailedError, SengiConstructorNonObjectResponseError, SengiCtorParamsValidationFailedError, SengiUnrecognisedCtorNameError } from 'sengi-interfaces'
-import { asError, createValidator } from './shared.test'
+import { createValidator } from './shared.test'
 import { executeConstructor } from './executeConstructor'
+import { asError } from '../utils'
 
 interface ExampleDoc extends DocBase {
   propA: string

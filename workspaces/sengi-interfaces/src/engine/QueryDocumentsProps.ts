@@ -14,6 +14,11 @@
   docTypeName: string
 
   /**
+   * The name of a query defined on the document type.
+   */
+  queryName: string
+
+  /**
    * A set of query parameters.
    */
   queryParams: unknown
