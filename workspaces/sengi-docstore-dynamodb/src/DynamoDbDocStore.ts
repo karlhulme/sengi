@@ -281,10 +281,10 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
         const estimatedCount = result.Table?.ItemCount
 
         return {
-          queryResult: { estimatedCount }
+          data: { estimatedCount }
         }
       } else {
-        return { queryResult: {} }
+        return { data: {} }
       }
     } catch (err) {
       // istanbul ignore next

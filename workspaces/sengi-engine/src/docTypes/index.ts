@@ -1,3 +1,4 @@
+export * from './appendDocOpId'
 export * from './coerceQuery'
 export * from './ensureCanDeleteDocuments'
 export * from './ensureCanFetchWholeCollection'

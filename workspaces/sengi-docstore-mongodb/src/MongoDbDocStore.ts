@@ -240,10 +240,10 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
         const result = await this.mongoClient.db(databaseName).collection(collectionName).estimatedDocumentCount()
 
         return {
-          queryResult: { estimatedCount: result }
+          data: { estimatedCount: result }
         }
       } else {
-        return { queryResult: {} }
+        return { data: {} }
       }
     } catch (err) {
       // istanbul ignore next

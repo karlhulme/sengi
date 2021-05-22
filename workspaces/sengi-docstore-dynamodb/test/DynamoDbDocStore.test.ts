@@ -119,14 +119,14 @@ test('A count query can be executed.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  await expect(docStore.query('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ queryResult: { estimatedCount: 3 } })
+  await expect(docStore.query('tree', 'trees', { estimatedCount: true }, {}, {})).resolves.toEqual({ data: { estimatedCount: 3 } })
 })
 
 test('A blank query can be executed.', async () => {
   await initDb()
   const docStore = createDynamoDbDocStore()
 
-  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ data: {} })
 })
 
 test('All documents of a type can be selected.', async () => {

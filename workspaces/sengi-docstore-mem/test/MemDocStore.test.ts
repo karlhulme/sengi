@@ -60,13 +60,13 @@ test('A non-existent document cannot be fetched.', async () => {
 test('A count query can be executed.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.query('test', 'tests', { count: true }, {}, {})).resolves.toEqual({ queryResult: { count: 3 } })
+  await expect(docStore.query('test', 'tests', { count: true }, {}, {})).resolves.toEqual({ data: { count: 3 } })
 })
 
 test('An unknown query can be executed.', async () => {
   const docs = createDocs()
   const docStore = new MemDocStore({ docs, generateDocVersionFunc })
-  await expect(docStore.query('test', 'tests', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+  await expect(docStore.query('test', 'tests', {}, {}, {})).resolves.toEqual({ data: {} })
 })
 
 test('All documents of a type can be selected.', async () => {

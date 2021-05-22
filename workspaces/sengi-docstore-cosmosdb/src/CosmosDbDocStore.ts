@@ -329,9 +329,9 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
         
         const result = await cosmosContainer.items.query({ query: query.sqlQuery }).fetchAll()
 
-        return { queryResult: { sqlQueryResult: result } }
+        return { data: { sqlQueryResult: result } }
       } else {
-        return { queryResult: {} }
+        return { data: {} }
       }
     } catch (err) {
       // istanbul ignore next

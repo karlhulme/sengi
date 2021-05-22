@@ -154,7 +154,7 @@ test('A sql query can be executed.', async () => {
   const docStore = createCosmosDbDocStore()
 
   await expect(docStore.query('tree', 'trees', { sqlQuery: 'SELECT VALUE COUNT(1) FROM Docs d' }, {}, {})).resolves.toEqual({
-    queryResult: {
+    data: {
       sqlQueryResult: expect.objectContaining({
         resources: [3]
       })
@@ -165,7 +165,7 @@ test('A sql query can be executed.', async () => {
 test('An empty query can be executed.', async () => {
   const docStore = createCosmosDbDocStore()
 
-  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ queryResult: {} })
+  await expect(docStore.query('tree', 'trees', {}, {}, {})).resolves.toEqual({ data: {} })
 })
 
 

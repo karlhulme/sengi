@@ -34,7 +34,10 @@ import {
   SelectDocumentsResult,
   SengiCallbackError
  } from 'sengi-interfaces'
- import { SafeDocStore } from '../docStore'
+import {
+  ensureUpsertSuccessful,
+  SafeDocStore
+} from '../docStore'
 import {
   ensureCreatePermission,
   ensureDeletePermission,
@@ -45,6 +48,7 @@ import {
   ensureSelectPermission
 } from '../roleTypes'
 import {
+  appendDocOpId,
   ensureCanDeleteDocuments,
   ensureCanFetchWholeCollection,
   ensureCanReplaceDocuments,
@@ -147,7 +151,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param props A property bag.
    */
    async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions>): Promise<ConstructDocumentResult> {
-    this.logRequest(`CONSTRUCT ${props.docTypeName}`)
+    this.logRequest(`CREATE ${props.docTypeName}`)
     ensureCreatePermission(props.roleNames, this.roleTypes, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -243,13 +247,15 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
 
     if (!opIdAlreadyExists) {
       executeOperation(this.ajv, docType, props.operationName, props.operationParams, doc)
+      appendDocOpId(docType, doc, props.operationId)
 
       executePreSave(docType, doc)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
 
       await this.invokePreSaveDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, false)
-      await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
+      const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
+      ensureUpsertSuccessful(upsertResult, Boolean(props.reqVersion))
       await this.invokeSavedDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, false)
     }
     
@@ -273,16 +279,18 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   
     if (!opIdAlreadyExists) {
       executePatch(docType, doc, props.patch)
+      appendDocOpId(docType, doc, props.operationId)
 
       executePreSave(docType, doc)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
 
       this.invokePreSaveDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, false)
-      await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
+      const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
+      ensureUpsertSuccessful(upsertResult, Boolean(props.reqVersion))
       this.invokeSavedDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, false)
     }
-      
+
     return { isUpdated: !opIdAlreadyExists }
   }
 
@@ -324,7 +332,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
 
-    await this.invokePreSaveDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, false)
+    await this.invokePreSaveDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, null)
     const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, {})
     const isNew = upsertResult.code === DocStoreUpsertResultCode.CREATED
     await this.invokeSavedDocCallback(props.roleNames, combinedDocStoreOptions, docType, doc, props.reqProps, isNew)
@@ -344,13 +352,13 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const filter = parseFilter(this.ajv, docType, props.filterName, props.filterParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
+    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+
     const queryResult = await this.safeDocStore.selectByFilter(docType.name, docType.pluralName, props.fieldNames, filter, combinedDocStoreOptions, {
       limit: props.limit,
       offset: props.offset
     })
-  
-    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
-  
+    
     return { docs: queryResult.docs }
   }
 
@@ -365,9 +373,9 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
   
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
-    const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
-  
     await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+
+    const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
   
     return { docs: queryResult.docs }
   }
@@ -384,12 +392,12 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     ensureCanFetchWholeCollection(docType)
   
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
+    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+
     const queryResult = await this.safeDocStore.selectAll(docType.name, docType.pluralName, props.fieldNames, combinedDocStoreOptions, {
       limit: props.limit,
       offset: props.offset
     })
-  
-    await this.invokePreSelectDocsCallback(props.roleNames, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
   
     return { docs: queryResult.docs }
   }
@@ -426,7 +434,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param reqProps The properties associated with the original request.
    */
   private async invokeDeletedDocCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, id: string, reqProps: RequestProps) {
-    this.invokeCallback('onDeletedDoc', async () => {
+    await this.invokeCallback('onDeletedDoc', async () => {
       if (this.onDeletedDoc) {
         await this.onDeletedDoc({ roleNames, docStoreOptions, docType, id, reqProps })
       }
@@ -442,7 +450,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param fieldNames An array of requested field names.
    */
    private async invokePreSelectDocsCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, reqProps: RequestProps, fieldNames: string[]) {
-    this.invokeCallback('onPreSelectDocs', async () => {
+    await this.invokeCallback('onPreSelectDocs', async () => {
       if (this.onPreSelectDocs) {
         await this.onPreSelectDocs({ roleNames, docStoreOptions, docType, reqProps, fieldNames })
       }
@@ -460,8 +468,8 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * false for replaceDocuments as it is not known if the document exists
    * when this event is raised.
    */
-   private async invokePreSaveDocCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean) {
-    this.invokeCallback('onPreSaveDoc', async () => {
+   private async invokePreSaveDocCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean|null) {
+    await this.invokeCallback('onPreSaveDoc', async () => {
       if (this.onPreSaveDoc) {
         await this.onPreSaveDoc({ roleNames, docStoreOptions, docType, doc, reqProps, isNew })
       }
@@ -478,7 +486,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param isNew True if the document was created as a result of this operation.
    */
   private async invokeSavedDocCallback (roleNames: string[], docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean) {
-    this.invokeCallback('onSavedDoc', async () => {
+    await this.invokeCallback('onSavedDoc', async () => {
       if (this.onSavedDoc) {
         await this.onSavedDoc({ roleNames, docStoreOptions, docType, doc, reqProps, isNew })
       }

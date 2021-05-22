@@ -12,7 +12,7 @@ function createTestDocStore (): DocStore<unknown, unknown, unknown, unknown> {
     deleteById: async () => ({ code: DocStoreDeleteByIdResultCode.DELETED }),
     exists: async () => ({ found: true }),
     fetch: async () => ({ doc: { id: '1234', docType: 'test', docVersion: 'aaaa', docOpIds: [] } }),
-    query: async () => ({ queryResult: null }),
+    query: async () => ({ data: null }),
     selectAll: async () => ({ docs: [] }),
     selectByFilter: async () => ({ docs: [] }),
     selectByIds: async () => ({ docs: [] }),
@@ -35,7 +35,7 @@ test('A safe doc store passes through values from the underlying doc store.', as
   await expect(safeDocStore.deleteById('', '', '', {}, {})).resolves.toEqual({ code: DocStoreDeleteByIdResultCode.DELETED })
   await expect(safeDocStore.exists('', '', '', {}, {})).resolves.toEqual({ found: true })
   await expect(safeDocStore.fetch('', '', '', {}, {})).resolves.toEqual({ doc: { id: '1234', docType: 'test', docVersion: 'aaaa', docOpIds: [] } })
-  await expect(safeDocStore.query('', '', '', {}, {})).resolves.toEqual({ queryResult: null })
+  await expect(safeDocStore.query('', '', '', {}, {})).resolves.toEqual({ data: null })
   await expect(safeDocStore.selectAll('', '', [], {}, {})).resolves.toEqual({ docs: [] })
   await expect(safeDocStore.selectByFilter('', '', [], {}, {}, {})).resolves.toEqual({ docs: [] })
   await expect(safeDocStore.selectByIds('', '', [], [], {}, {})).resolves.toEqual({ docs: [] })

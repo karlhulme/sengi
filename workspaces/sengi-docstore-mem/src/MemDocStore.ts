@@ -173,10 +173,10 @@ export class MemDocStore implements DocStore<MemDocStoreOptions, MemDocStoreFilt
    async query (docTypeName: string, docTypePluralName: string, query: MemDocStoreQuery, options: MemDocStoreOptions, props: DocStoreQueryProps): Promise<DocStoreQueryResult<MemDocStoreQueryResult>> {
     if (query.count) {
       return {
-        queryResult: { count: this.docs.filter(d => d.docType === docTypeName).length }
+        data: { count: this.docs.filter(d => d.docType === docTypeName).length }
       }
     } else return {
-      queryResult: {}
+      data: {}
     }
   }
 
