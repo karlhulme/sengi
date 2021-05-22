@@ -65,15 +65,6 @@ jobs:
         cd workspaces/sengi-express
         npm test
         npm run build
-    - name: Test client
-      run: |
-        cd workspaces/sengi-client
-        npm test
-        npm run build
-    - name: Test cli
-      run: |
-        cd workspaces/sengi-cli
-        npm run build
 
   release:
     runs-on: ubuntu-latest
@@ -168,24 +159,6 @@ jobs:
         if: steps.release.outputs.didRelease == 'yes'
         run: |
           cd workspaces/sengi-express
-          npm version ${{ steps.prepare.outputs.releaseVersion }}
-          npm run build
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-      - name: Publish client
-        if: steps.release.outputs.didRelease == 'yes'
-        run: |
-          cd workspaces/sengi-client
-          npm version ${{ steps.prepare.outputs.releaseVersion }}
-          npm run build
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-      - name: Publish cli
-        if: steps.release.outputs.didRelease == 'yes'
-        run: |
-          cd workspaces/sengi-cli
           npm version ${{ steps.prepare.outputs.releaseVersion }}
           npm run build
           npm publish

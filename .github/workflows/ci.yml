@@ -65,12 +65,3 @@ jobs:
         cd workspaces/sengi-express
         npm test
         npm run build
-    - name: Test client
-      run: |
-        cd workspaces/sengi-client
-        npm test
-        npm run build
-    - name: Test cli
-      run: |
-        cd workspaces/sengi-cli
-        npm run build
