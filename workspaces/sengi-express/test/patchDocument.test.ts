@@ -81,7 +81,7 @@ test('400 - fail to patch a document with invalid fields', async () => {
   expect(docs).toHaveLength(2)
 })
 
-test('400 - fail to patch a unpatchable fields in a document', async () => {
+test('400 - fail to patch a readonly fields in a document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')

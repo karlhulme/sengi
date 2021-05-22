@@ -1,4 +1,4 @@
-import { SengiExpressInvalidRequestId } from '../errors'
+import { SengiExpressInvalidRequestIdError } from '../errors'
 
 /**
  * Raises an error if the request id included in the request was an array,
@@ -11,7 +11,7 @@ export function ensureHeaderRequestId (serverRequestId: string, requestId?: stri
   if (typeof requestId === 'undefined') {
     return serverRequestId
   } else if (Array.isArray(requestId)) {
-    throw new SengiExpressInvalidRequestId(requestId.join(', '))
+    throw new SengiExpressInvalidRequestIdError(requestId.join(', '))
   } else {
     return requestId
   }

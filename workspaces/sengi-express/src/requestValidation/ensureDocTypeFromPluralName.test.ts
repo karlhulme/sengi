@@ -1,62 +1,16 @@
 import { test, expect } from '@jest/globals'
-import { DocType } from 'sengi-interfaces'
+import { AnyDocType } from 'sengi-interfaces'
 import { ensureDocTypeFromPluralName } from './ensureDocTypeFromPluralName'
 import { SengiExpressUnrecognisedDocTypePluralNameError } from '../errors'
 
-const docTypes: DocType[] = [{
+const docTypes: AnyDocType[] = [{
   name: 'red',
   pluralName: 'reds',
-  title: '',
-  pluralTitle: '',
-  summary: '',
-  documentation: '',
-  examples: [],
-  aggregates: {},
-  calculatedFields: {},
-  docStoreOptions: {},
-  fields: {},
-  filters: {},
-  operations: {},
-  policy: {
-    canDeleteDocuments: false,
-    canFetchWholeCollection: false,
-    canReplaceDocuments: false,
-    maxOpsSize: 5
-  },
-  ctor: {
-    title: '',
-    documentation: '',
-    examples: [],
-    parameters: {},
-    implementation: () => ({})
-  }
+  jsonSchema: {}
 }, {
   name: 'blue',
   pluralName: 'blues',
-  title: '',
-  pluralTitle: '',
-  summary: '',
-  documentation: '',
-  examples: [],
-  aggregates: {},
-  calculatedFields: {},
-  docStoreOptions: {},
-  fields: {},
-  filters: {},
-  operations: {},
-  policy: {
-    canDeleteDocuments: false,
-    canFetchWholeCollection: false,
-    canReplaceDocuments: false,
-    maxOpsSize: 5
-  },
-  ctor: {
-    title: '',
-    documentation: '',
-    examples: [],
-    parameters: {},
-    implementation: () => ({})
-  }
+  jsonSchema: {}
 }]
 
 test('Ensure doc type name is valid by returning the singular from the plural.', () => {

@@ -5,12 +5,11 @@ import { createTestableApp } from './shared.test'
 test('200 - get a document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes')
+    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle,durationInMinutes,unknownField')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
-    deprecations: {},
     doc: {
       filmTitle: 'Die Hard',
       durationInMinutes: 105
@@ -20,14 +19,19 @@ test('200 - get a document', async () => {
   expect(docs).toHaveLength(2)
 })
 
-test('400 - request unknown fields', async () => {
+test('200 - get a document id if no fields specified', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79?fields=filmTitle_unknown')
+    .get('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-role-names', 'admin')
 
-  expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/filmTitle_unknown/)
+  expect(response.status).toEqual(200)
+  expect(response.body).toEqual({
+    doc: {
+      id: 'ba8f06b4-9b41-4e71-849c-484433afee79'
+    }
+  })
+  expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
 })
 

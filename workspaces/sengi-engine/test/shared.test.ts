@@ -20,7 +20,7 @@ export interface Car {
   originalOwner?: string
 }
 
-function createCarDocType (): DocType<Car, TestDocStoreOptions, string, string, string> {
+function createCarDocType (): DocType<Car, TestDocStoreOptions, string, string, number> {
   return {
     name: 'car',
     pluralName: 'cars',
@@ -118,19 +118,19 @@ export interface TestRequestProps {
 }
 
 interface SengiTestObjects {
-  sengi: Sengi<TestRequestProps, TestDocStoreOptions, string, string, string>
+  sengi: Sengi<TestRequestProps, TestDocStoreOptions, string, string, number>
   sengiCtorOverrides: Record<string, unknown>
-  docStore: DocStore<TestDocStoreOptions, string, string, string>
-  carDocType: DocType<Car, TestDocStoreOptions, string, string, string>
+  docStore: DocStore<TestDocStoreOptions, string, string, number>
+  carDocType: DocType<Car, TestDocStoreOptions, string, string, number>
   adminRoleType: RoleType
 }
 
 export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unknown>, sengiCtorOverrides?: Record<string, unknown>): SengiTestObjects => {
-  const docStore: DocStore<TestDocStoreOptions, string, string, string> = Object.assign({
+  const docStore: DocStore<TestDocStoreOptions, string, string, number> = Object.assign({
     deleteById: async () => ({ code: DocStoreDeleteByIdResultCode.NOT_FOUND }),
     exists: async () => ({ found: false }),
     fetch: async () => ({ doc: null }),
-    query: async () => ({ data: '' }),
+    query: async () => ({ data: 0 }),
     selectAll: async () => ({ docs: [] }),
     selectByFilter: async () => ({ docs: [] }),
     selectByIds: async () => ({ docs: [] }),
@@ -140,11 +140,11 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
   const carDocType = createCarDocType()
   const adminRoleType = createAdminRoleType()
 
-  const sengi = new Sengi<TestRequestProps, TestDocStoreOptions, string, string, string>(Object.assign({
+  const sengi = new Sengi<TestRequestProps, TestDocStoreOptions, string, string, number>(Object.assign({
     docTypes: [carDocType],
     roleTypes: [adminRoleType],
     docStore
-  }, sengiCtorOverrides) as unknown as SengiConstructorProps<TestRequestProps, TestDocStoreOptions, string, string, string>)
+  }, sengiCtorOverrides) as unknown as SengiConstructorProps<TestRequestProps, TestDocStoreOptions, string, string, number>)
 
   return {
     sengi,

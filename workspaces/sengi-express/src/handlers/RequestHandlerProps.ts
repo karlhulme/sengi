@@ -1,17 +1,16 @@
 import { Request, Response } from 'express'
 import { Sengi } from 'sengi-engine'
-import { DocType, RequestProps } from 'sengi-interfaces'
+import { AnyDocType } from 'sengi-interfaces'
 import { MatchedRestResource } from '../matching'
 
-export interface RequestHandlerProps {
+export interface RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   baseUrl: string
-  docStoreOptions: Record<string, unknown>
-  docTypes: DocType[]
+  docStoreOptions: DocStoreOptions
+  docTypes: AnyDocType[]
   matchedResource: MatchedRestResource
   req: Request
   reqProps: RequestProps
   res: Response
   serverRequestId: string
-  sengi: Sengi
+  sengi: Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult>
 }
-

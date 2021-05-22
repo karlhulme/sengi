@@ -33,7 +33,7 @@ test('Find the root.', () => {
   expect(matchPathToRestResource('/', pathMatchArray)).toEqual({ type: RestResourceType.ROOT, urlParams: {} })
 })
 
-test('Find records collection.', () => {
+test('Find a record collection.', () => {
   const pathMatchArray = createRestResourceMatcherArray(0)
   expect(matchPathToRestResource('/records/films', pathMatchArray)).toEqual({ type: RestResourceType.RECORD_COLLECTION, urlParams: { adc: '', docTypePluralName: 'films' } })
   expect(matchPathToRestResource('/records/films/', pathMatchArray)).toEqual({ type: RestResourceType.RECORD_COLLECTION, urlParams: { adc: '', docTypePluralName: 'films' } })
@@ -44,6 +44,19 @@ test('Find records collection.', () => {
 
   const pathMatchArray2 = createRestResourceMatcherArray(2)
   expect(matchPathToRestResource('/records/orgA/tenantA/films/', pathMatchArray2)).toEqual({ type: RestResourceType.RECORD_COLLECTION, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films' } })
+})
+
+test('Find a constructor on a record collection.', () => {
+  const pathMatchArray = createRestResourceMatcherArray(0)
+  expect(matchPathToRestResource('/records/films:makeFilm', pathMatchArray)).toEqual({ type: RestResourceType.CONSTRUCTOR, urlParams: { adc: '', docTypePluralName: 'films', constructorName: 'makeFilm' } })
+  expect(matchPathToRestResource('/records/films:makeFilm/', pathMatchArray)).toEqual({ type: RestResourceType.CONSTRUCTOR, urlParams: { adc: '', docTypePluralName: 'films', constructorName: 'makeFilm' } })
+  expect(matchPathToRestResource('/records/namespace.films:makeFilm/', pathMatchArray)).toEqual({ type: RestResourceType.CONSTRUCTOR, urlParams: { adc: '', docTypePluralName: 'namespace.films', constructorName: 'makeFilm' } })
+
+  const pathMatchArray1 = createRestResourceMatcherArray(1)
+  expect(matchPathToRestResource('/records/tenantA/films:makeFilm', pathMatchArray1)).toEqual({ type: RestResourceType.CONSTRUCTOR, urlParams: { adc: '/tenantA', docTypePluralName: 'films', constructorName: 'makeFilm' } })
+
+  const pathMatchArray2 = createRestResourceMatcherArray(2)
+  expect(matchPathToRestResource('/records/orgA/tenantA/films:makeFilm/', pathMatchArray2)).toEqual({ type: RestResourceType.CONSTRUCTOR, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films', constructorName: 'makeFilm' } })
 })
 
 test('Find a specific record within a collection.', () => {
@@ -70,16 +83,4 @@ test('Find a specific record and operation name method within a record collectio
 
   const pathMatchArray2 = createRestResourceMatcherArray(2)
   expect(matchPathToRestResource('/records/orgA/tenantA/films/123:addReview/', pathMatchArray2)).toEqual({ type: RestResourceType.OPERATION, urlParams: { adc: '/orgA/tenantA', docTypePluralName: 'films', id: '123', operationName: 'addReview' } })
-})
-
-test('Find a request for doc types.', () => {
-  const pathMatchArray = createRestResourceMatcherArray(0)
-  expect(matchPathToRestResource('/docTypes', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
-  expect(matchPathToRestResource('/docTypes/', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPES, urlParams: {} })
-})
-
-test('Find a request for a doc type.', () => {
-  const pathMatchArray = createRestResourceMatcherArray(0)
-  expect(matchPathToRestResource('/docTypes/example', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPE, urlParams: { docTypeName: 'example' } })
-  expect(matchPathToRestResource('/docTypes/example/', pathMatchArray)).toEqual({ type: RestResourceType.DOC_TYPE, urlParams: { docTypeName: 'example' } })
 })

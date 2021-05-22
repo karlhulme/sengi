@@ -8,7 +8,7 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  * Handles a patch request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function patchDocumentHandler (props: RequestHandlerProps): Promise<void> {
+export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 

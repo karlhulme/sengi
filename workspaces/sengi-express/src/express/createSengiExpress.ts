@@ -1,7 +1,6 @@
 import { Request, RequestHandler, Response } from 'express'
 import { v4 } from 'uuid'
 import { Sengi, SengiConstructorProps } from 'sengi-engine'
-import { DocStoreOptions, RequestProps } from 'sengi-interfaces'
 import { createRestResourceMatcherArray } from '../matching/createRestResourceMatcherArray'
 import { matchPathToRestResource } from '../matching/matchPathToRestResource'
 import { selectHandlerForRequest } from './selectHandlerForRequest'
@@ -11,24 +10,24 @@ import { SengiExpressCallbackProps } from './SengiExpressCallbackProps'
 /**
  * Represents the properties of a sengi express constructor.
  */
-export interface SengiExpressConstructorProps extends SengiConstructorProps {
+export interface SengiExpressConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> extends SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   additionalComponentsCount?: number
   getDocStoreOptions?: (props: SengiExpressCallbackProps) => DocStoreOptions
   getRequestProps?: (props: SengiExpressCallbackProps) => RequestProps
-  getUuid?: () => string
+  newUuid?: () => string
 }
 
 /**
  * Creates a new sengi handler that can be used as an Express route handler.
  * @param props The constructor properties.
  */
-export function createSengiExpress (props: SengiExpressConstructorProps): RequestHandler {
+export function createSengiExpress<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: SengiExpressConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): RequestHandler {
   const sengi = new Sengi(props)
   const matchers = createRestResourceMatcherArray(props.additionalComponentsCount || 0)
 
-  const getDocStoreOptions = props.getDocStoreOptions || (() => ({}))
-  const getRequestProps = props.getRequestProps || (() => ({}))
-  const uuid = props.getUuid || v4
+  const getDocStoreOptions = props.getDocStoreOptions || (() => ({}) as unknown as DocStoreOptions)
+  const getRequestProps = props.getRequestProps || (() => ({}) as unknown as RequestProps)
+  const uuid = props.newUuid || v4
 
   return async (req: Request, res: Response): Promise<void> => {
     const matchedResource = matchPathToRestResource(req.path, matchers)
@@ -43,7 +42,7 @@ export function createSengiExpress (props: SengiExpressConstructorProps): Reques
       urlParams: matchedResource.urlParams
     }
 
-    const handlerParams: RequestHandlerProps = {
+    const handlerParams: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> = {
       baseUrl: req.baseUrl,
       matchedResource,
       docStoreOptions: getDocStoreOptions(callbackProps),

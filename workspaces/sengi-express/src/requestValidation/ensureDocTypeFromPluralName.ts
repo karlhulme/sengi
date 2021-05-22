@@ -1,4 +1,4 @@
-import { DocType } from 'sengi-interfaces'
+import { AnyDocType } from 'sengi-interfaces'
 import { SengiExpressUnrecognisedDocTypePluralNameError } from '../errors'
 
 /**
@@ -7,7 +7,7 @@ import { SengiExpressUnrecognisedDocTypePluralNameError } from '../errors'
  * @param docTypes An array of doc types.
  * @param docTypePluralName The plural name of a doc type.
  */
-export function ensureDocTypeFromPluralName (docTypes: DocType[], docTypePluralName: string): DocType {
+export function ensureDocTypeFromPluralName (docTypes: AnyDocType[], docTypePluralName: string): AnyDocType {
   const docType = docTypes.find(d => d.pluralName === docTypePluralName)
 
   if (!docType) {

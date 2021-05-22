@@ -1,5 +1,5 @@
 import { test, expect } from '@jest/globals'
-import { SengiExpressInvalidReqVersion } from '../errors'
+import { SengiExpressInvalidReqVersionError } from '../errors'
 import { ensureHeaderReqVersion } from './ensureHeaderReqVersion'
 
 test('Use the req version if one is supplied in the request.', () => {
@@ -15,6 +15,6 @@ test('Reject unrecognised req version.', () => {
     ensureHeaderReqVersion(['1234', '5678'])
     throw new Error('fail')
   } catch (err) {
-    expect(err).toBeInstanceOf(SengiExpressInvalidReqVersion)
+    expect(err).toBeInstanceOf(SengiExpressInvalidReqVersionError)
   }
 })

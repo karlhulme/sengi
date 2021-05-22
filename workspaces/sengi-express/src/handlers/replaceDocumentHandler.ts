@@ -1,14 +1,14 @@
-import { Doc } from 'sengi-interfaces'
+import { DocRecord } from 'sengi-interfaces'
 import { ensureHeaderJsonContentType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureDocIdConsistency } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
 
 /**
- * Handles a put document request and produces a response. 
+ * Handles a replace document request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function putDocumentHandler (props: RequestHandlerProps): Promise<void> {
+export async function replaceDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonContentType(props.req.headers[HttpHeaderNames.ContentType])
     ensureDocIdConsistency(props.req.body.id, props.matchedResource.urlParams['id'])
@@ -17,7 +17,7 @@ export async function putDocumentHandler (props: RequestHandlerProps): Promise<v
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
 
     const result = await props.sengi.replaceDocument({
-      doc: props.req.body as Doc,
+      doc: props.req.body as DocRecord,
       docStoreOptions: props.docStoreOptions,
       docTypeName: docType.name,
       reqProps: props.reqProps,

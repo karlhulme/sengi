@@ -11,7 +11,7 @@ import {
   SengiUnrecognisedOperationNameError
 } from 'sengi-interfaces'
 import {
-  SengiExpressDocIdNotFound,
+  SengiExpressDocIdNotFoundError,
   SengiExpressRequestError,
   SengiExpressUnrecognisedDocTypePluralNameError,
   SengiExpressUnsupportedRequestContentTypeError,
@@ -19,11 +19,6 @@ import {
 } from '../errors'
 
 const INTERNAL_ERROR_TEXT = 'Internal Error'
-
-interface ErrorWithErrorsProperty {
-  message: string
-  errors?: Record<string, unknown>
-}
 
 interface ErrorForHttpResponseProps {
   err: Error
@@ -51,7 +46,7 @@ function determineStatusFromError (err: Error): number {
   }
 
   if (err instanceof SengiExpressUnrecognisedDocTypePluralNameError ||
-    err instanceof SengiExpressDocIdNotFound ||
+    err instanceof SengiExpressDocIdNotFoundError ||
     err instanceof SengiDocNotFoundError ||
     err instanceof SengiUnrecognisedDocTypeNameError ||
     err instanceof SengiUnrecognisedOperationNameError) {
@@ -72,20 +67,6 @@ function determineStatusFromError (err: Error): number {
 }
 
 /**
- * Determines the response text of an error.
- * If the provided error has an .errors array property then it
- * will be stringified and included in the response text.
- * @param {Error} err An error.
- */
-function determineResponseTextFromError (err: ErrorWithErrorsProperty): string {
-  if (Array.isArray(err.errors)) {
-    return `${err.message}\n${JSON.stringify(err.errors, null, 2)}`
-  } else {
-    return err.message
-  }
-}
-
-/**
  * Applies an error to an express response.
  * @param res An express response.
  * @param err An Error object.
@@ -96,7 +77,7 @@ export function applyErrorToHttpResponse (req: Request, res: Response, props: Er
   res.status(statusCode)
 
   res.set(HttpHeaderNames.ContentType, 'text/plain')
-  res.send(statusCode < 500 ? determineResponseTextFromError(props.err) : INTERNAL_ERROR_TEXT)
+  res.send(statusCode < 500 ? props.err.message : INTERNAL_ERROR_TEXT)
 
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'test') {

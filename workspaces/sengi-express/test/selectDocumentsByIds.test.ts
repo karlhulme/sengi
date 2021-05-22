@@ -12,8 +12,7 @@ test('200 - get documents by single id', async () => {
   expect(response.body).toEqual({
     docs: [
       { id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c', filmTitle: 'Home Alone' }
-    ],
-    deprecations: {}
+    ]
   })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
@@ -30,8 +29,7 @@ test('200 - get documents with multiple ids', async () => {
     docs: [
       { id: 'ba8f06b4-9b41-4e71-849c-484433afee79', filmTitle: 'Die Hard' },
       { id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c', filmTitle: 'Home Alone' }
-    ],
-    deprecations: {}
+    ]
   })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
@@ -44,7 +42,7 @@ test('200 - get documents with unrecognised ids', async () => {
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
-  expect(response.body).toEqual({ docs: [], deprecations: {} })
+  expect(response.body).toEqual({ docs: [] })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
 })
@@ -56,19 +54,8 @@ test('200 - get documents by ids without specifying fields', async () => {
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
-  expect(response.body).toEqual({ docs: [{}], deprecations: {} })
+  expect(response.body).toEqual({ docs: [{ id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c' }] })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
-  expect(docs).toHaveLength(2)
-})
-
-test('400 - fail to get documents by ids with invalid field names', async () => {
-  const { testableApp, docs } = createTestableApp()
-  const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle,invalid&ids=8c6e2aa0-b88d-4d14-966e-da8d3941d13c')
-    .set('x-role-names', 'admin')
-
-  expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/not define a field named 'invalid'/)
   expect(docs).toHaveLength(2)
 })
 

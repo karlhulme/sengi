@@ -14,10 +14,10 @@ import { ajvErrorsToString } from '../utils'
  * @param ajv A validator.
  * @param docType A document type.
  * @param queryName The name of a query.
- * @param queryResult The result of executing the query as returned
+ * @param queryResultData The result of executing the query as returned
  * from the document store.
  */
-export function coerceQuery (ajv: Ajv, docType: AnyDocType, queryName: string, queryResult: unknown): any {
+export function coerceQuery (ajv: Ajv, docType: AnyDocType, queryName: string, queryResultData: unknown): any {
   const queryDef = docType.queries?.[queryName]
   
   if (typeof queryDef !== 'object') {
@@ -27,7 +27,7 @@ export function coerceQuery (ajv: Ajv, docType: AnyDocType, queryName: string, q
   let response = null
 
   try {
-    response = queryDef.coerce(queryResult)
+    response = queryDef.coerce(queryResultData)
   } catch (err) {
     throw new SengiQueryCoerceFailedError(docType.name, queryName, err)
   }

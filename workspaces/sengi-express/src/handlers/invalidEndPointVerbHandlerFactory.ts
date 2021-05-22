@@ -8,8 +8,8 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  * @param validVerbs An array of strings indicating the valid verbs for the end-point.
  * @param verb A string indicating the attempted verb but disallowed verb.
  */
-export function invalidEndPointVerbHandlerFactory (validVerbs: string[], invalidVerb: string): RequestHandler {
-  return async function (props: RequestHandlerProps): Promise<void> {
+export function invalidEndPointVerbHandlerFactory<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (validVerbs: string[], invalidVerb: string): RequestHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+  return async function (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
     applyResultToHttpResponse(props.res, {
       statusCode: 405,
       text: `Verb '${invalidVerb}' is not valid on this end-point.  The following verbs are acceptable: '${validVerbs.join(', ')}'.`

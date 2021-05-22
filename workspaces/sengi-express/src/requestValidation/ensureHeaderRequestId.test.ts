@@ -1,5 +1,5 @@
 import { test, expect } from '@jest/globals'
-import { SengiExpressInvalidRequestId } from '../errors'
+import { SengiExpressInvalidRequestIdError } from '../errors'
 import { ensureHeaderRequestId } from './ensureHeaderRequestId'
 
 test('Use the server request id if one is not supplied in the request.', () => {
@@ -15,6 +15,6 @@ test('Reject arrays of values.', () => {
     ensureHeaderRequestId('1234', ['5678', '6789'])
     throw new Error('fail')
   } catch (err) {
-    expect(err).toBeInstanceOf(SengiExpressInvalidRequestId)
+    expect(err).toBeInstanceOf(SengiExpressInvalidRequestIdError)
   }
 })

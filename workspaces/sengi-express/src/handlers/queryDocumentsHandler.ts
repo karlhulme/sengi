@@ -1,28 +1,24 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureQueryFieldNames, ensureQueryLimit, ensureQueryOffset } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureQueryQueryName, ensureQueryQueryParams } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
 
 /**
- * Handles a query all documents request and produces a response. 
+ * Handles a query documents request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function queryAllDocumentsHandler (props: RequestHandlerProps): Promise<void> {
+export async function queryDocumentsHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
     const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
-    const fieldNames = ensureQueryFieldNames(props.req.query.fields)
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
-    const limit = ensureQueryLimit(props.req.query.limit)
-    const offset = ensureQueryOffset(props.req.query.offset)
 
     const result = await props.sengi.queryDocuments({
       docStoreOptions: props.docStoreOptions,
       docTypeName: docType.name,
-      fieldNames,
-      limit,
-      offset,
+      queryName: ensureQueryQueryName(props.req.query.queryName),
+      queryParams: ensureQueryQueryParams(props.req.query.queryParams),
       reqProps: props.reqProps,
       roleNames
     })
@@ -31,7 +27,7 @@ export async function queryAllDocumentsHandler (props: RequestHandlerProps): Pro
       headers: {
         'sengi-document-operation-type': 'read'
       },
-      json: { docs: result.docs, deprecations: result.deprecations },
+      json: { data: result.data },
       statusCode: 200
     })
   } catch (err) {

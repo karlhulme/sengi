@@ -14,7 +14,7 @@ export class SengiExpressRequestError extends SengiExpressError {
   }
 }
 
-export class SengiExpressDocIdNotFound extends SengiExpressRequestError {
+export class SengiExpressDocIdNotFoundError extends SengiExpressRequestError {
   constructor (readonly id: string) {
     super(`Document with id (${id}) not found.`)
     Object.setPrototypeOf(this, new.target.prototype)
@@ -23,7 +23,7 @@ export class SengiExpressDocIdNotFound extends SengiExpressRequestError {
   }
 }
 
-export class SengiExpressInvalidRequestId extends SengiExpressRequestError {
+export class SengiExpressInvalidRequestIdError extends SengiExpressRequestError {
   constructor (readonly requestId: string) {
     super(`The value of X-REQUEST-ID (${requestId}) is not valid.`)
     Object.setPrototypeOf(this, new.target.prototype)
@@ -32,9 +32,41 @@ export class SengiExpressInvalidRequestId extends SengiExpressRequestError {
   }
 }
 
-export class SengiExpressInvalidReqVersion extends SengiExpressRequestError {
+export class SengiExpressInvalidReqVersionError extends SengiExpressRequestError {
   constructor () {
     super('The value of the IF-MATCH header is not valid.  It should be a string or left undefined.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
+export class SengiExpressMalformedFilterNameError extends SengiExpressRequestError {
+  constructor () {
+    super('The filterName value in the query string cannot be parsed into a string.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
+export class SengiExpressMalformedFilterParamsError extends SengiExpressRequestError {
+  constructor () {
+    super('The filterParams value in the query string cannot be parsed into a JSON object.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
+export class SengiExpressMalformedQueryNameError extends SengiExpressRequestError {
+  constructor () {
+    super('The queryName value in the query string cannot be parsed into a string.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
+export class SengiExpressMalformedQueryParamsError extends SengiExpressRequestError {
+  constructor () {
+    super('The queryParams value in the query string cannot be parsed into a JSON object.')
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
   }

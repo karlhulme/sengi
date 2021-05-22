@@ -4,7 +4,7 @@ import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 const createSengiForTests = (sengiCtorOverrides?: Record<string, unknown>) => {
   return createSengiWithMockStore({
-    query: jest.fn(async () => 5)
+    query: jest.fn(async () => ({ data: 5 }))
   }, sengiCtorOverrides)
 }
 

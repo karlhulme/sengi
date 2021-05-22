@@ -21,7 +21,6 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
-    "body-parser": "1.19.0",
     "eslint": "^7.12.1",
     "express": "^4.17.1",
     "jest": "^26.4.2",
@@ -37,7 +36,9 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testMatch": ["**/*.test.ts"],
+    "testMatch": [
+      "**/*.test.ts"
+    ],
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {

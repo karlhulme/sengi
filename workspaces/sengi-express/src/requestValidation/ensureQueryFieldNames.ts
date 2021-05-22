@@ -1,13 +1,18 @@
 import { csvStringToArray } from '../utils'
 
 /**
- * Returns the requested field names.
+ * Converts the requested field names in CSV form, to an array of field names.
+ * If no field names are supplied then id is assumed.
  * @param fieldNames A field names string.
  */
 export function ensureQueryFieldNames (fieldNames?: unknown): string[] {
-  if (typeof fieldNames === 'string') {
-    return csvStringToArray(fieldNames)
-  } else {
-    return []
+  const fieldNamesArray = typeof fieldNames === 'string'
+    ? csvStringToArray(fieldNames)
+    : []
+
+  if (fieldNamesArray.length === 0) {
+    fieldNamesArray.push('id')
   }
+
+  return fieldNamesArray
 }

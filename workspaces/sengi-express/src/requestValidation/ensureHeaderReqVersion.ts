@@ -1,4 +1,4 @@
-import { SengiExpressInvalidReqVersion } from '../errors'
+import { SengiExpressInvalidReqVersionError } from '../errors'
 
 /**
  * Raises an error if the request id included in the request was an array,
@@ -12,6 +12,6 @@ export function ensureHeaderReqVersion (reqVersion?: unknown): string|undefined 
   } else if (typeof reqVersion === 'string') {
     return reqVersion
   } else {
-    throw new SengiExpressInvalidReqVersion()
+    throw new SengiExpressInvalidReqVersionError()
   }
 }

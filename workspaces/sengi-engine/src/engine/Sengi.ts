@@ -308,9 +308,9 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     const queryResult = await this.safeDocStore.query(docType.name, docType.pluralName, query, combinedDocStoreOptions, {})
 
-    const response = coerceQuery(this.ajv, docType, props.queryName, queryResult)
+    const responseData = coerceQuery(this.ajv, docType, props.queryName, queryResult.data)
   
-    return { data: response }
+    return { data: responseData }
   }
 
   /**

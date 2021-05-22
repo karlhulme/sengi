@@ -7,7 +7,7 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  * Handles a create document request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function deleteDocumentHandler (props: RequestHandlerProps): Promise<void> {
+export async function deleteDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
     const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])

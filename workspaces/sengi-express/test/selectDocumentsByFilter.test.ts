@@ -5,15 +5,14 @@ import { createTestableApp } from './shared.test'
 test('200 - get documents by parameterised filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle&filterName=byRuntime&filterParams={"minRuntime":100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byDuration&filterParams={"minDuration":100}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
     docs: [
       { id: 'ba8f06b4-9b41-4e71-849c-484433afee79', filmTitle: 'Die Hard' }
-    ],
-    deprecations: {}
+    ]
   })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
@@ -22,15 +21,14 @@ test('200 - get documents by parameterised filter', async () => {
 test('200 - get documents with non-parameterised filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle&filterName=byCastIncludesBob')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byEmptyCast')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
     docs: [
-      { id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c', filmTitle: 'Home Alone' }
-    ],
-    deprecations: {}
+      { id: 'ba8f06b4-9b41-4e71-849c-484433afee79', filmTitle: 'Die Hard' }
+    ]
   })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
@@ -39,15 +37,14 @@ test('200 - get documents with non-parameterised filter', async () => {
 test('200 - get documents with non-parameterised filter that includes empty filter params', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle&filterName=byCastIncludesBob&filterParams={}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byEmptyCast&filterParams={}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
     docs: [
-      { id: '8c6e2aa0-b88d-4d14-966e-da8d3941d13c', filmTitle: 'Home Alone' }
-    ],
-    deprecations: {}
+      { id: 'ba8f06b4-9b41-4e71-849c-484433afee79', filmTitle: 'Die Hard' }
+    ]
   })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
@@ -56,11 +53,15 @@ test('200 - get documents with non-parameterised filter that includes empty filt
 test('200 - get documents by filter without specifying fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?filterName=byCastIncludesBob')
+    .get('/root/records/films?filterName=byEmptyCast')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(200)
-  expect(response.body).toEqual({ docs: [{}], deprecations: {} })
+  expect(response.body).toEqual({
+    docs: [
+      { id: 'ba8f06b4-9b41-4e71-849c-484433afee79' }
+    ]
+  })
   expect(response.header['sengi-document-operation-type']).toEqual('read')
   expect(docs).toHaveLength(2)
 })
@@ -68,7 +69,7 @@ test('200 - get documents by filter without specifying fields', async () => {
 test('400 - fail to get documents for an unknown filter', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle&filterName=byInvalidFilter&filterParams={"minRuntime":100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byInvalidFilter&filterParams={"minDuration":100}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
@@ -76,33 +77,32 @@ test('400 - fail to get documents for an unknown filter', async () => {
   expect(docs).toHaveLength(2)
 })
 
-test('400 - fail to get documents by filter with invalid field names', async () => {
+test('400 - fail to get documents by filter with malformed filter JSON parameters', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle,invalid&filterName=byCastIncludesBob')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byDuration&filterParams={invalid_params}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/not define a field named 'invalid'/)
+  expect(response.text).toMatch(/cannot be parsed into a JSON object/)
   expect(docs).toHaveLength(2)
 })
 
 test('400 - fail to get documents by filter with invalid filter JSON parameters', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?fields=id,filmTitle&filterName=byRuntime&filterParams={minRuntime:100}')
+    .get('/root/records/films?fields=id,filmTitle&filterName=byDuration&filterParams={"missingMinDuration":80}')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/minRuntime/)
-  expect(response.text).toMatch(/Field is required/)
+  expect(response.text).toMatch(/required property 'minDuration'/)
   expect(docs).toHaveLength(2)
 })
 
 test('403 - fail to get documents by filter with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/films?filterName=byCastIncludesBob')
+    .get('/root/records/films?filterName=byEmptyCast')
     .set('x-role-names', 'none')
 
   expect(response.status).toEqual(403)
@@ -113,7 +113,7 @@ test('403 - fail to get documents by filter with insufficient permissions', asyn
 test('404 - fail to get documents by filter from an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .get('/root/records/unknown?filterName=byCastIncludesBob')
+    .get('/root/records/unknown?filterName=byEmptyCast')
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)

@@ -1,14 +1,17 @@
-import { stringToJson } from '../utils'
+import { SengiExpressMalformedFilterParamsError } from '../errors'
 
 /**
- * Returns the filter params or an empty object
- * if the params cannot be converted.
+ * Returns the filter params as a JSON object.
  * @param filterParams A filter params string.
  */
-export function ensureQueryFilterParams (filterParams?: unknown): Record<string, unknown> {
-  if (typeof filterParams === 'string') {
-    return stringToJson(filterParams)
+export function ensureQueryFilterParams (filterParams?: unknown): unknown {
+  if (typeof filterParams === 'string' && filterParams.length > 0) {
+    try {
+      return JSON.parse(filterParams)
+    } catch (err) {
+      throw new SengiExpressMalformedFilterParamsError()
+    }
   } else {
-    return {}
+    return null
   }
 }

@@ -4,13 +4,13 @@ import { RequestHandlerProps } from './RequestHandlerProps'
 /**
  * Handles a request on the mount point.
  */
-export async function rootHandler (props: RequestHandlerProps): Promise<void> {
+export async function rootHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   applyResultToHttpResponse(props.res, {
     statusCode: 200,
     html: `
       <html>
         <body>
-          The express/sengi service is running.
+          The service is running.
         </body>
       </html>
     `

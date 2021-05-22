@@ -9,16 +9,14 @@ export * from './rootHandler'
 export * from './createDocumentHandler'
 export * from './deleteDocumentHandler'
 export * from './getDocumentHandler'
+export * from './newDocumentHandler'
 export * from './operateOnDocumentHandler'
 export * from './patchDocumentHandler'
-export * from './putDocumentHandler'
-export * from './queryAllDocumentsHandler'
-export * from './queryDocumentsByFilterHandler'
-export * from './queryDocumentsByIdsHandler'
-
-// doc type handlers
-export * from './docTypesHandler'
-export * from './docTypeHandler'
+export * from './queryDocumentsHandler'
+export * from './replaceDocumentHandler'
+export * from './selectAllDocumentsHandler'
+export * from './selectDocumentsByFilterHandler'
+export * from './selectDocumentsByIdsHandler'
 
 // errors
 export * from './invalidEndPointVerbHandlerFactory'

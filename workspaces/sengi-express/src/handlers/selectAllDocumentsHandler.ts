@@ -1,40 +1,37 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureQueryFieldNames } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureQueryFieldNames, ensureQueryLimit, ensureQueryOffset } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
-import { SengiExpressDocIdNotFoundError } from '../errors'
 import { RequestHandlerProps } from './RequestHandlerProps'
 
 /**
- * Handles a get document request and produces a response. 
+ * Handles a select all documents request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function getDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
+export async function selectAllDocumentsHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
     const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
     const fieldNames = ensureQueryFieldNames(props.req.query.fields)
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
-    const id = props.matchedResource.urlParams['id']
+    const limit = ensureQueryLimit(props.req.query.limit)
+    const offset = ensureQueryOffset(props.req.query.offset)
 
-    const result = await props.sengi.selectDocumentsByIds({
+    const result = await props.sengi.selectDocuments({
       docStoreOptions: props.docStoreOptions,
       docTypeName: docType.name,
       fieldNames,
-      ids: [id],
+      limit,
+      offset,
       reqProps: props.reqProps,
       roleNames
     })
-
-    if (result.docs.length === 0) {
-      throw new SengiExpressDocIdNotFoundError(id)
-    }
 
     applyResultToHttpResponse(props.res, {
       headers: {
         'sengi-document-operation-type': 'read'
       },
-      json: { doc: result.docs[0] },
+      json: { docs: result.docs },
       statusCode: 200
     })
   } catch (err) {

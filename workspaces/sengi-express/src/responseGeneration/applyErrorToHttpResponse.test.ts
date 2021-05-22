@@ -44,15 +44,15 @@ test('Apply a request error to an http response', () => {
 test('Apply an error with detail errors to an http response', () => {
   const req = createMockReq()
   const res = createMockRes()
-  applyErrorToHttpResponse(req, res, { err: new SengiCtorParamsValidationFailedError('film', [{ name: 'field1', message: 'incorrect' }]) })
+  applyErrorToHttpResponse(req, res, { err: new SengiCtorParamsValidationFailedError('film', 'makeShort', 'unhappy with format') })
   expect(res.status).toHaveProperty('mock.calls.length', 1)
   expect(res.status).toHaveProperty(['mock', 'calls', '0'], [400])
   expect(res.send).toHaveProperty('mock.calls.length', 1)
   expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('The parameters supplied')])
   expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('were not valid')])
-  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('\'film\'')])
-  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('field1')])
-  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('incorrect')])
+  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('film')])
+  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('makeShort')])
+  expect(res.send).toHaveProperty(['mock', 'calls', '0'], [expect.stringContaining('unhappy with format')])
 })
 
 test('Apply an unsupported request type error to an http response', () => {

@@ -2,12 +2,12 @@ import { test, expect } from '@jest/globals'
 import supertest from 'supertest'
 import { createTestableApp } from './shared.test'
 
-test('201 - create a document with a constructor', async () => {
+test('201 - create a new document', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'admin')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
@@ -19,18 +19,17 @@ test('201 - create a document with a constructor', async () => {
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
-    filmTitle: 'Cloudy',
-    durationInMinutes: 15
+    filmTitle: 'Frozen'
   })
 })
 
-test('201 - create a document with a constructor and with an explicit id', async () => {
+test('201 - create a new document with an explicit id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'admin')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
@@ -42,18 +41,17 @@ test('201 - create a document with a constructor and with an explicit id', async
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
-    filmTitle: 'Cloudy',
-    durationInMinutes: 15
+    filmTitle: 'Frozen'
   })
 })
 
-test('201 - create a document with a constructor and with a previously used id', async () => {
+test('201 - create a new document with a previously used id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'admin')
     .set('x-request-id', 'ba8f06b4-9b41-4e71-849c-484433afee79')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(201)
   expect(response.body).toEqual({})
@@ -72,70 +70,70 @@ test('201 - create a document with a constructor and with a previously used id',
   })
 })
 
-test('400 - fail to create document with missing constructor fields', async () => {
+test('400 - fail to create a new document with missing required doc fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'admin')
     .send({})
 
   expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/required property 'title'/)
+  expect(response.text).toMatch(/required property 'filmTitle'/)
   expect(docs).toHaveLength(2)
 })
 
-test('400 - fail to create document with a constructor and with missing X-ROLE-NAMES header', async () => {
+test('400 - fail to create a new document with missing X-ROLE-NAMES header', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
-    .send({ title: 'Cloudy' })
+    .post('/root/records/films')
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(400)
   expect(response.text).toMatch(/X-ROLE-NAMES/)
   expect(docs).toHaveLength(2)
 })
 
-test('403 - fail to create document with a constructor and with insufficient permissions', async () => {
+test('403 - fail to create a new document with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'none')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(403)
   expect(response.text).toMatch(/permissions/)
   expect(docs).toHaveLength(2)
 })
 
-test('404 - fail to create document with a constructor in an unknown collection', async () => {
+test('404 - fail to create a new document in an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/unknown:makeShort')
+    .post('/root/records/unknown')
     .set('x-role-names', 'admin')
     .set('x-user-id', 'testUser')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(404)
   expect(response.text).toMatch(/doc-type name 'unknown' was not recognised/)
   expect(docs).toHaveLength(2)
 })
 
-test('405 - fail to create a document with a constructor and using the PUT method', async () => {
+test('405 - fail to create a new document using the PUT method', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .put('/root/records/films:makeShort')
+    .put('/root/records/films')
     .set('x-role-names', 'admin')
-    .send({ title: 'Cloudy' })
+    .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(405)
   expect(response.text).toMatch(/Verb 'PUT' is not valid /)
   expect(docs).toHaveLength(2)
 })
 
-test('415 - fail to create a document with a constructor and with invalid content-type headers', async () => {
+test('415 - fail to create a document with invalid content-type headers', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
-    .post('/root/records/films:makeShort')
+    .post('/root/records/films')
     .set('x-role-names', 'admin')
     .set('content-type', 'application/xml')
     .send('<?xml version="1.0" encoding="UTF-8"?><root />')
