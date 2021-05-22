@@ -35,7 +35,7 @@ function createCarDocType (): DocType<Car, TestDocStoreOptions, string, string, 
         docVersion: { type: 'string' },
         manufacturer: { type: 'string' },
         model: { type: 'string' },
-        registration: { type: 'string' },
+        registration: { '$ref': 'https://testing.org/test/registration' },
         originalOwner: { type: 'string' }
       }
     },
@@ -141,6 +141,15 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
   const adminRoleType = createAdminRoleType()
 
   const sengi = new Sengi<TestRequestProps, TestDocStoreOptions, string, string, number>(Object.assign({
+    schemas: [
+      {
+        '$id': 'https://testing.org/test/registration',
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        title: 'Registration',
+        type: 'string',
+        maxLength: 10
+      }
+    ],
     docTypes: [carDocType],
     roleTypes: [adminRoleType],
     docStore

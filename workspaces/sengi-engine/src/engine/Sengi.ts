@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Ajv from 'ajv'
+import Ajv, { AnySchema } from 'ajv'
 import { 
   AnyDocType,
   ConstructDocumentProps,
@@ -70,6 +70,7 @@ import {
  * The properties that are used to manage the construction of a Sengi.
  */
 export interface SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+  schemas?: AnySchema[]
   docTypes?: DocType<any, DocStoreOptions, Filter, Query, QueryResult>[]
   roleTypes?: RoleType[]
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
@@ -101,7 +102,10 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param props The constructor properties.
    */
   constructor (props: SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>) {
-    this.ajv = new Ajv()
+    this.ajv = new Ajv({
+      ownProperties: true,
+      schemas: props.schemas || []
+    })
     this.docTypes = props.docTypes || []
     this.roleTypes = props.roleTypes || []
     this.log = Boolean(props.log)
