@@ -1,4 +1,4 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderRoleNames } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderRoleNames } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -11,7 +11,7 @@ export async function operateOnDocumentHandler<RequestProps, DocStoreOptions, Fi
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
-    const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
+    const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const reqVersion = ensureHeaderReqVersion(props.req.headers[HttpHeaderNames.ReqVersion])
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])

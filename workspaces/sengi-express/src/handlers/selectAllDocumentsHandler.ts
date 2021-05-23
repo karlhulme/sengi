@@ -1,4 +1,4 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromPluralName, ensureHeaderRoleNames, ensureQueryFieldNames, ensureQueryLimit, ensureQueryOffset } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames, ensureQueryFieldNames, ensureQueryLimit, ensureQueryOffset } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -11,7 +11,7 @@ export async function selectAllDocumentsHandler<RequestProps, DocStoreOptions, F
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
-    const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
+    const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const fieldNames = ensureQueryFieldNames(props.req.query.fields)
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
     const limit = ensureQueryLimit(props.req.query.limit)

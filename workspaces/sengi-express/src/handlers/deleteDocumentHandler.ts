@@ -1,4 +1,4 @@
-import { ensureDocTypeFromPluralName, ensureHeaderRoleNames } from '../requestValidation'
+import { ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -9,7 +9,7 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  */
 export async function deleteDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
   try {
-    const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
+    const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
 
     const result = await props.sengi.deleteDocument({

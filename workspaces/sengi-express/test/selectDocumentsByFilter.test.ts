@@ -117,6 +117,6 @@ test('404 - fail to get documents by filter from an unknown collection', async (
     .set('x-role-names', 'admin')
 
   expect(response.status).toEqual(404)
-  expect(response.text).toMatch(/doc-type name 'unknown' was not recognised/)
+  expect(response.text).toMatch(/value 'unknown' was not recognised/)
   expect(docs).toHaveLength(2)
 })

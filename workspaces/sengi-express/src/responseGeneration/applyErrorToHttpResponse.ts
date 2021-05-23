@@ -13,7 +13,7 @@ import {
 import {
   SengiExpressDocIdNotFoundError,
   SengiExpressRequestError,
-  SengiExpressUnrecognisedDocTypePluralNameError,
+  SengiExpressUnrecognisedDocTypeNameError,
   SengiExpressUnsupportedRequestContentTypeError,
   SengiExpressUnsupportedResponseContentTypeError
 } from '../errors'
@@ -45,7 +45,7 @@ function determineStatusFromError (err: Error): number {
     return 406
   }
 
-  if (err instanceof SengiExpressUnrecognisedDocTypePluralNameError ||
+  if (err instanceof SengiExpressUnrecognisedDocTypeNameError ||
     err instanceof SengiExpressDocIdNotFoundError ||
     err instanceof SengiDocNotFoundError ||
     err instanceof SengiUnrecognisedDocTypeNameError ||

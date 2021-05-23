@@ -1,5 +1,5 @@
 export * from './ensureDocIdConsistency'
-export * from './ensureDocTypeFromPluralName'
+export * from './ensureDocTypeFromSingularOrPluralName'
 export * from './ensureHeaderJsonAcceptType'
 export * from './ensureHeaderJsonContentType'
 export * from './ensureHeaderRequestId'

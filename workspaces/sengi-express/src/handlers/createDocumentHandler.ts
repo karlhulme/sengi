@@ -1,4 +1,4 @@
-import { ensureHeaderJsonContentType, ensureDocTypeFromPluralName, ensureHeaderRequestId, ensureHeaderRoleNames } from '../requestValidation'
+import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderRoleNames } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -11,7 +11,7 @@ export async function createDocumentHandler<RequestProps, DocStoreOptions, Filte
   try {
     ensureHeaderJsonContentType(props.req.headers[HttpHeaderNames.ContentType])
 
-    const docType = ensureDocTypeFromPluralName(props.docTypes, props.matchedResource.urlParams['docTypePluralName'])
+    const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
 

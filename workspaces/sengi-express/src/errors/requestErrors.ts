@@ -90,9 +90,9 @@ export class SengiExpressMismatchedIdsError extends SengiExpressRequestError {
   }
 }
 
-export class SengiExpressUnrecognisedDocTypePluralNameError extends SengiExpressRequestError {
+export class SengiExpressUnrecognisedDocTypeNameError extends SengiExpressRequestError {
   constructor (readonly docTypePluralName: string) {
-    super(`The plural doc-type name '${docTypePluralName}' was not recognised.`)
+    super(`The value '${docTypePluralName}' was not recognised as either a singular or plural name of a known doc type.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
     this.docTypePluralName = docTypePluralName
