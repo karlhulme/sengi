@@ -4,7 +4,9 @@ const TEST_COSMOS_URL = process.env.SENGI_COSMOS_URL
 const TEST_COSMOS_KEY = process.env.SENGI_COSMOS_KEY
 
 /**
- * Prepares the Azure instance for running the tests.
+ * Adds the database and containers to the Cosmos DB instance as required for the test.
+ * This script assumes that a serverless Cosmos DB instance is being used, and therefore
+ * throughput requirements are not specified.
  */
 async function setup () {
   const cosmosClient = new CosmosClient({
@@ -24,7 +26,7 @@ async function setup () {
 }
 
 /**
- * Removes the resoures from the Azure instance to save costs.
+ * Deletes the sengi database from the Cosmos DB instance.
  */
 async function teardown () {
   const cosmosClient = new CosmosClient({
