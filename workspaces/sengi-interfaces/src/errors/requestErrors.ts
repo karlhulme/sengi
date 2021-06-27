@@ -81,6 +81,16 @@ export class SengiInsufficientPermissionsError extends SengiRequestError {
   }
 }
 
+export class SengiNewDocIdMismatch extends SengiRequestError {
+  constructor (readonly docId?: string, readonly requestId?: string) {
+    super(`The id property of the new document '${docId}' was supplied but does not match the id of the request '${requestId}'.`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docId = docId
+    this.requestId = requestId
+  }
+}
+
 export class SengiOperationParamsValidationFailedError extends SengiRequestError {
   constructor (readonly docTypeName: string, readonly operationName: string, readonly validationError: string) {
     super(`The parameters supplied to operation '${operationName}' for doc type '${docTypeName}' were not valid.\n${validationError}`)

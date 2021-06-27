@@ -23,7 +23,7 @@ test('201 - create a new document', async () => {
   })
 })
 
-test('201 - create a new document with an explicit id', async () => {
+test('201 - create a new document with an explicit id in the request-id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films')
@@ -38,6 +38,27 @@ test('201 - create a new document with an explicit id', async () => {
   expect(docs).toHaveLength(3)
   expect(docs[2]).toEqual({
     id: 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd',
+    docType: 'film',
+    docVersion: 'xxxx',
+    docOpIds: [],
+    filmTitle: 'Frozen'
+  })
+})
+
+test('201 - create a new document with an explicit id in the document body', async () => {
+  const { testableApp, docs } = createTestableApp()
+  const response = await supertest(testableApp)
+    .post('/root/records/films')
+    .set('x-role-names', 'admin')
+    .send({ id: 'e09fa312-ece2-47d7-8a6b-d0b6598a9083', filmTitle: 'Frozen' })
+
+  expect(response.status).toEqual(201)
+  expect(response.body).toEqual({})
+  expect(response.header.location).toEqual('/root/records/films/e09fa312-ece2-47d7-8a6b-d0b6598a9083')
+  expect(response.header['sengi-document-operation-type']).toEqual('create')
+  expect(docs).toHaveLength(3)
+  expect(docs[2]).toEqual({
+    id: 'e09fa312-ece2-47d7-8a6b-d0b6598a9083',
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
@@ -90,6 +111,19 @@ test('400 - fail to create a new document with missing X-ROLE-NAMES header', asy
 
   expect(response.status).toEqual(400)
   expect(response.text).toMatch(/X-ROLE-NAMES/)
+  expect(docs).toHaveLength(2)
+})
+
+test('400 - fail to create a new document when request id and doc id conflict', async () => {
+  const { testableApp, docs } = createTestableApp()
+  const response = await supertest(testableApp)
+    .post('/root/records/films')
+    .set('x-role-names', 'admin')
+    .set('x-request-id', 'ee8afee7-4d02-4472-9380-d45f33d5944b')
+    .send({ id: '5b20018a-6918-4e77-acee-5ba982eb1105', filmTitle: 'Frozen' })
+
+  expect(response.status).toEqual(400)
+  expect(response.text).toMatch(/not match the id of the request/)
   expect(docs).toHaveLength(2)
 })
 

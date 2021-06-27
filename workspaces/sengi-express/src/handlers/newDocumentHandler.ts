@@ -4,7 +4,7 @@ import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
 
 /**
- * Handles a new document request and produces a response. 
+ * Handles a new document request and produces a response.
  * @param props Properties for handling the request.
  */
 export async function newDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
@@ -12,7 +12,7 @@ export async function newDocumentHandler<RequestProps, DocStoreOptions, Filter, 
     ensureHeaderJsonContentType(props.req.headers[HttpHeaderNames.ContentType])
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
-    const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
+    const requestId = ensureHeaderRequestId(props.req.body.id || props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
 
     const result = await props.sengi.newDocument({

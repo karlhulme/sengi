@@ -63,7 +63,8 @@ import {
   isOpIdInDocument,
   selectDocTypeFromArray,
   parseQuery,
-  coerceQuery
+  coerceQuery,
+  ensureNewDocIdsMatch
 } from '../docTypes'
 
 /**
@@ -204,12 +205,13 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   }
 
   /**
-   * Creates a new document by supplying all the data.
+   * Adds a new document to a collection by supplying all the data.
    * @param props A property bag.
    */
   async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions>): Promise<NewDocumentResult> {
     this.logRequest(`NEW ${props.docTypeName}`)
     ensureCreatePermission(props.roleNames, this.roleTypes, props.docTypeName)
+    ensureNewDocIdsMatch(props.id, props.doc.id as string)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
