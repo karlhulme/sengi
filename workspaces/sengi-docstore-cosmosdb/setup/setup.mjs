@@ -13,7 +13,7 @@ async function setup () {
   })
 
   console.log('Creating "sengi" database...')
-  const databaseResult = await cosmosClient.databases.createIfNotExists({ id: 'sengi', throughput: 400 })
+  const databaseResult = await cosmosClient.databases.createIfNotExists({ id: 'sengi' })
 
   console.log('Creating "trees" container ...')
   await databaseResult.database.containers.createIfNotExists({ id: 'trees', partitionKey: '/id' })
