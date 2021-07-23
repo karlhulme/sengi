@@ -1,5 +1,5 @@
 import { DocPatch } from 'sengi-interfaces'
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderRoleNames } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderApiKey } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -15,7 +15,7 @@ export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const reqVersion = ensureHeaderReqVersion(props.req.headers[HttpHeaderNames.ReqVersion])
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
 
     const result = await props.sengi.patchDocument({
       docStoreOptions: props.docStoreOptions,
@@ -25,7 +25,7 @@ export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter
       operationId: requestId,
       reqProps: props.reqProps,
       reqVersion,
-      roleNames
+      apiKey
     })
 
     applyResultToHttpResponse(props.res, {

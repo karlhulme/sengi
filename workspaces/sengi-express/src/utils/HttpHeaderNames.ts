@@ -21,7 +21,7 @@ export const HttpHeaderNames = {
   ReqVersion: 'if-match',
 
   /**
-   * The array of roles that the client has.
+   * The client api key.
    */
-  RoleNames: 'x-role-names'
+  ApiKey: 'x-api-key'
 }

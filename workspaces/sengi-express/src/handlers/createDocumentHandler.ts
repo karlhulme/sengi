@@ -1,4 +1,4 @@
-import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderRoleNames } from '../requestValidation'
+import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderApiKey } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -13,7 +13,7 @@ export async function createDocumentHandler<RequestProps, DocStoreOptions, Filte
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
 
     const result = await props.sengi.createDocument({
       constructorName: props.matchedResource.urlParams['constructorName'],
@@ -22,7 +22,7 @@ export async function createDocumentHandler<RequestProps, DocStoreOptions, Filte
       docTypeName: docType.name,
       id: requestId,
       reqProps: props.reqProps,
-      roleNames
+      apiKey
     })
 
     applyResultToHttpResponse(props.res, {

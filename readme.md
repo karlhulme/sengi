@@ -48,21 +48,34 @@ docStoreOptions | A property bag that is passed to many of the document store op
 
 When naming doc types, you may want to use dotted notation to include one or more containers in order to logically group doc types together.  For example, `automotive.car` and `automotive.boat`.
 
-## Role Type
+## Client
 
-The Sengi system uses RoleType objects to determine the operations and document types that a user can manipulate.
+The Sengi system uses Client objects to control access to the documents.
 
 Property | Description
 ---|---
 name | The unique name of the role type.
-title | The display name of the role type.
-documentation | A markdown expression describing how to use the role type.
 docPermissions | Either true or an object where each key names a doc type...
 docPermissions[docType].query | Either true, or an object with `{ fieldsTreatment: 'whitelist'|'blacklist', fields: string[] }`.  If the `fieldsTreatmnt` property is `'whitelist'` then the `fields` property defines the fields that can be queried.  If the `fieldsTreatmnt` property is `'blacklist'` then the `fields` property defines the only fields that cannot be retrieved.
 docPermissions[docType].update | Either true, or an object with `{ patch: boolean, operations: string[] }`.  If the `patch` property is true then the role can apply merge patches to the `docType`.  The `operations` property lists the specific operations the role may carry out on the `docType`.
 docPermissions[docType].create | True if the role permits `docType` to be created.
 docPermissions[docType].delete | True if the role permits `docType` to be deleted.
 docPermissions[docType].replace | True if the role permits `docType` to be replaced.
+apiKeys | An array of api key strings.  A value prefixed with a dollar ($) sign, indicates that the string is an environment variable and the value should be loaded accordingly.
+
+
+### API Keys
+
+The Sengi-express server expects an `X-API_KEY` header to be provided with an api key.  This should match one of the API keys defined for one of the clients.
+
+API keys are used to provide coarse-grained security on a per-client basis.  A client for sengi should be another service within your architecture, for example a GraphQL service.  The intention here is that you control both the client and the sengi service from within the network boundary.  A client should not be based on the public internet.
+
+A GraphQL service might be entitled to read-only access.  Conversely, a lambda-style service may be allowed to make updates to most documents, but some critical document types are excluded.  You can define these requirements in a client, and then assign an API key.  You can generate an API key using any mechanism as Sengi does not require any specific format be used.  A good choice is to use a [UUID generator](https://www.guidgenerator.com/online-guid-generator.aspx) and tick the base64 encode option.
+
+
+### User Object
+
+A client can also supply a user object.  This should be in the format that Sengi expects, and is established when it is created.  This user object will then be made available to doc type methods so you can determine on a per-request basis whether 
 
 
 ## Field Types
@@ -87,7 +100,7 @@ This document contains the largely normalised data for an entity.
 
 The primary key is always a single unique id.  This ensures a good spread of documents across any logical or physical partitions created by the database while allowing us to access them with only one piece of information.
 
-A **child authoritative document** is one that exists in a one-to-many relationship with a parent.  These records will need a secondary index on the field that links the child to the parent.  If the secondary index is actually a copy of the table (as per DynamoDB) then all keys (but not all fields) should be projected into this secondary index.
+A **child authoritative document** is one that exists in a one-to-many relationship with a parent.  These records will need a secondary index on the field that links the child to the parent.  If the secondary index is actually a copy of the table (as per DynamoDB) then all keys (but not necessary all fields) should be projected into this secondary index.
 
 
 ### A Warehouse Document
@@ -115,13 +128,13 @@ Filters should generally hit a specific index.  This means they should specify t
 Filter parameters could be used to control the ordering but only options covered by indexes should be offered.  This may not be necessary if the number of documents in a collection is small.
 
 
-## Guidance on Extracting Whole Collections
+## Guidance on pagination
 
-If you need to extract all the documents from a non-trivial collection then it will be necessary to do it in sections.
+If you need to extract a large volume of documents from a collection then it will be necessary to do it in pages.  There are various approaches but the most successful, and easiest to implement, is a mechanism based on a cursor.  This does not require the server to remember anything in between requests.
 
-To extract an entire collection, a client should use a filter to extract subsets of the data in multiple queries.  For example, query all the records named A-M, then query all the records N-Z.  The right strategy and the number of queries will depend on the size of the collection.  This approach is resilient to changes in the source collection.  You won't get duplicates and you won't be missing documents that were in the collection at the start of the extraction.  You may be missing documents that were added during the extraction (or holding documents removed during the extraction) but of course that can be resolved the next time the synchronisation takes place.
+A good description on how to achieve this is provided as part of the GraphQL documentation on [Pagination](https://graphql.org/learn/pagination/).
 
-Skip and Limit are included as a convenience but should not be used for enumerating through "pages" of a collection.  This is not reliable because the collection can change between requests.  Imagine you ask for the first 10 records.  Then an additional 3 records get inserted into the database at the front.  Records previously at index 8, 9 and 10 are now at index 11, 12 and 13.  So if you request records 11-20 you'll get duplicates.  Databases do not guarantee the order of documents, so omitting a search order will not help.  It also isn't performant because implementations at the database level will often involve walking the entire result set so skip/limit will take longer and longer to run as the numbers get larger.  For this reason, some databases (e.g. AWS DynamoDO) don't provide any support for Offset. 
+To support pagination you'll need to create a doc type filter that expects a document id and a page size.  You then retrieve the documents from an id-ordered collection, wherever a candidates document id is greater than the given id, limited to the page size.  A client can then make multiple requests, supplying different cursor ids as they work through the collection.  You can also optionally support direction, allowing the client to iterate both forwards and backwards.
 
 
 ## Patching

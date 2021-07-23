@@ -8,7 +8,8 @@ import {
   DocStoreUpsertResultCode,
   DocStoreUpsertResult,
   SengiPatchValidationFailedError,
-  SengiDocValidationFailedError
+  SengiDocValidationFailedError,
+  SengiUnrecognisedApiKeyError
 } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
@@ -75,7 +76,7 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
 
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty(['mock', 'calls', '0', '0'], expect.objectContaining({
-    roleNames: ['admin'],
+    clientName: 'admin',
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'fiesta'})
@@ -83,7 +84,7 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], expect.objectContaining({
-    roleNames: ['admin'],
+    clientName: 'admin',
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'fiesta' })
@@ -274,7 +275,7 @@ test('Fail to patch a document if permissions insufficient.', async () => {
   try {
     await sengi.patchDocument({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
       patch: {
@@ -284,5 +285,24 @@ test('Fail to patch a document if permissions insufficient.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to patch a document if client api key is not recognised.', async () => {
+  const { sengi } = createSengiForTest()
+
+  try {
+    await sengi.patchDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      patch: {
+        model: 'ka'
+      }
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

@@ -6,7 +6,7 @@ test('201 - create a document with a constructor', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(201)
@@ -28,7 +28,7 @@ test('201 - create a document with a constructor and with an explicit id', async
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ title: 'Cloudy' })
 
@@ -51,7 +51,7 @@ test('201 - create a document with a constructor and with a previously used id',
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .set('x-request-id', 'ba8f06b4-9b41-4e71-849c-484433afee79')
     .send({ title: 'Cloudy' })
 
@@ -76,7 +76,7 @@ test('400 - fail to create document with missing constructor fields', async () =
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .send({})
 
   expect(response.status).toEqual(400)
@@ -84,14 +84,14 @@ test('400 - fail to create document with missing constructor fields', async () =
   expect(docs).toHaveLength(2)
 })
 
-test('400 - fail to create document with a constructor and with missing X-ROLE-NAMES header', async () => {
+test('400 - fail to create document with a constructor and with a missing api key', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(400)
-  expect(response.text).toMatch(/X-ROLE-NAMES/)
+  expect(response.text).toMatch(/specify an X-API-KEY/)
   expect(docs).toHaveLength(2)
 })
 
@@ -99,11 +99,10 @@ test('403 - fail to create document with a constructor and with insufficient per
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'none')
+    .set('x-api-key', 'guestKey')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(403)
-  expect(response.text).toMatch(/permissions/)
   expect(docs).toHaveLength(2)
 })
 
@@ -111,7 +110,7 @@ test('404 - fail to create document with a constructor in an unknown collection'
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/unknown:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .set('x-user-id', 'testUser')
     .send({ title: 'Cloudy' })
 
@@ -124,7 +123,7 @@ test('405 - fail to create a document with a constructor and using the PUT metho
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .put('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(405)
@@ -136,7 +135,7 @@ test('415 - fail to create a document with a constructor and with invalid conten
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
     .set('content-type', 'application/xml')
     .send('<?xml version="1.0" encoding="UTF-8"?><root />')
 

@@ -6,7 +6,7 @@ test('200 - get all documents', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .get('/root/records/films?fields=id,filmTitle')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
@@ -23,7 +23,7 @@ test('200 - get all documents without specifying fields', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .get('/root/records/films')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
 
   expect(response.status).toEqual(200)
   expect(response.body).toEqual({
@@ -36,25 +36,23 @@ test('200 - get all documents without specifying fields', async () => {
   expect(docs).toHaveLength(2)
 })
 
+test('401 - fail to get all documents with invalid api key', async () => {
+  const { testableApp, docs } = createTestableApp()
+  const response = await supertest(testableApp)
+    .get('/root/records/films')
+    .set('x-api-key', 'unknown')
+
+  expect(response.status).toEqual(401)
+  expect(docs).toHaveLength(2)
+})
+
 test('403 - fail to get all documents with insufficient permissions', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .get('/root/records/films')
-    .set('x-role-names', 'none')
+    .set('x-api-key', 'guestKey')
 
   expect(response.status).toEqual(403)
-  expect(response.text).toMatch(/permissions/)
-  expect(docs).toHaveLength(2)
-})
-
-test('403 - fail to get all documents with invalid role names', async () => {
-  const { testableApp, docs } = createTestableApp()
-  const response = await supertest(testableApp)
-    .get('/root/records/films')
-    .set('x-role-names', 'guest')
-
-  expect(response.status).toEqual(403)
-  expect(response.text).toMatch(/permissions/)
   expect(docs).toHaveLength(2)
 })
 
@@ -62,7 +60,7 @@ test('404 - fail to get all documents from an unknown collection', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .get('/root/records/unknown')
-    .set('x-role-names', 'admin')
+    .set('x-api-key', 'adminKey')
 
   expect(response.status).toEqual(404)
   expect(response.text).toMatch(/value 'unknown' was not recognised/)

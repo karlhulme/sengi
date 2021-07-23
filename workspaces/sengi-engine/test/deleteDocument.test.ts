@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { DocStoreDeleteByIdResultCode, SengiInsufficientPermissionsError, SengiActionForbiddenByPolicyError } from 'sengi-interfaces'
+import { DocStoreDeleteByIdResultCode, SengiInsufficientPermissionsError, SengiActionForbiddenByPolicyError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 test('Delete document by id should call delete on doc store.', async () => {
@@ -29,7 +29,7 @@ test('Delete document by id should raise callbacks.', async () => {
   })).resolves.toEqual({ isDeleted: true })
 
   expect(sengiCtorOverrides.onDeletedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -57,12 +57,27 @@ test('Fail to delete document if permissions insufficient.', async () => {
   try {
     await sengi.deleteDocument({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9'
     })
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to delete document if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.deleteDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })
 

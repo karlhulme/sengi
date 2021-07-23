@@ -1,7 +1,7 @@
 /**
  * Defines a set of selectable fields. 
  */
-export interface RoleTypeDocSelectPermissionSet {
+export interface ClientDocSelectPermissionSet {
   /**
    * Specifies if the listed fields are the only fields that can be 
    * selected (i.e. include) or whether the client can query for

@@ -1,5 +1,5 @@
 import {
-  ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames,
+  ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderApiKey,
   ensureQueryFieldNames, ensureQueryLimit, ensureQueryOffset,
   ensureQueryFilterName, ensureQueryFilterParams
 } from '../requestValidation'
@@ -17,7 +17,7 @@ export async function selectDocumentsByFilterHandler<RequestProps, DocStoreOptio
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const fieldNames = ensureQueryFieldNames(props.req.query.fields)
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
     const limit = ensureQueryLimit(props.req.query.limit)
     const offset = ensureQueryOffset(props.req.query.offset)
     const filterName = ensureQueryFilterName(props.req.query.filterName)
@@ -32,7 +32,7 @@ export async function selectDocumentsByFilterHandler<RequestProps, DocStoreOptio
       limit,
       offset,
       reqProps: props.reqProps,
-      roleNames
+      apiKey
     })
 
     applyResultToHttpResponse(props.res, {

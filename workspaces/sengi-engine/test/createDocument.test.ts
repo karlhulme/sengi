@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { DocStoreUpsertResultCode, SengiCtorParamsValidationFailedError, SengiDocTypeValidateFunctionError, SengiInsufficientPermissionsError } from 'sengi-interfaces'
+import { DocStoreUpsertResultCode, SengiCtorParamsValidationFailedError, SengiDocTypeValidateFunctionError, SengiInsufficientPermissionsError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { asError } from '../src/utils'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
@@ -51,7 +51,7 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
   })).resolves.toEqual({ isNew: true })
 
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -60,7 +60,7 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -122,7 +122,7 @@ test('Fail to create document if permissions insufficient.', async () => {
   try {
     await sengi.createDocument({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       docTypeName: 'car',
       id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
       constructorName: 'regTesla',
@@ -131,5 +131,23 @@ test('Fail to create document if permissions insufficient.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to create document if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.createDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      docTypeName: 'car',
+      id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+      constructorName: 'regTesla',
+      constructorParams: 'HG12 3AB'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

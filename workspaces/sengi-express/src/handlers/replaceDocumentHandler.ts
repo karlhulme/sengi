@@ -1,5 +1,5 @@
 import { DocRecord } from 'sengi-interfaces'
-import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames, ensureDocIdConsistency } from '../requestValidation'
+import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderApiKey, ensureDocIdConsistency } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -14,14 +14,14 @@ export async function replaceDocumentHandler<RequestProps, DocStoreOptions, Filt
     ensureDocIdConsistency(props.req.body.id, props.matchedResource.urlParams['id'])
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
 
     const result = await props.sengi.replaceDocument({
       doc: props.req.body as DocRecord,
       docStoreOptions: props.docStoreOptions,
       docTypeName: docType.name,
       reqProps: props.reqProps,
-      roleNames
+      apiKey
     })
 
     applyResultToHttpResponse(props.res, {

@@ -2,15 +2,22 @@ import { test, expect } from '@jest/globals'
 import express, { Express, json } from 'express'
 import { MemDocStore } from 'sengi-docstore-mem'
 import { createSengiExpress } from '../src'
-import { DocRecord, DocType, RoleType } from 'sengi-interfaces'
+import { DocRecord, DocType, Client } from 'sengi-interfaces'
 import { MemDocStoreFilter, MemDocStoreOptions, MemDocStoreQuery, MemDocStoreQueryResult } from 'sengi-docstore-mem/src'
 
-function createAdminRoleType (): RoleType {
+function createAdminClient (): Client {
   return {
     name: 'admin',
-    docPermissions: {
-      film: true
-    }
+    docPermissions: true,
+    apiKeys: ['adminKey']
+  }
+}
+
+function createGuestClient (): Client {
+  return {
+    name: 'guest',
+    docPermissions: false,
+    apiKeys: ['guestKey']
   }
 }
 
@@ -141,7 +148,7 @@ function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilt
 
 interface TestableApp {
   filmDocType: DocType<Film, MemDocStoreOptions, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult>
-  adminRoleType: RoleType
+  adminClient: Client
   testableApp: Express
   docs: DocRecord[]
 }
@@ -169,11 +176,13 @@ export function createTestableApp (): TestableApp {
   const memDocStore = new MemDocStore({ docs, generateDocVersionFunc: () => 'xxxx' })
 
   const filmDocType = createFilmDocType()
-  const adminRoleType = createAdminRoleType()
+
+  const adminClient = createAdminClient()
+  const guestClient = createGuestClient()
 
   const sengiExpress = createSengiExpress({
     docTypes: [filmDocType],
-    roleTypes: [adminRoleType],
+    clients: [adminClient, guestClient],
     docStore: memDocStore,
     newUuid: () => '00000000-0000-0000-0000-000000000001'
   })
@@ -184,7 +193,7 @@ export function createTestableApp (): TestableApp {
 
   return {
     filmDocType,
-    adminRoleType,
+    adminClient,
     testableApp,
     docs
   }

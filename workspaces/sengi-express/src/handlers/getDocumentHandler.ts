@@ -1,4 +1,4 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames, ensureQueryFieldNames } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderApiKey, ensureQueryFieldNames } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { SengiExpressDocIdNotFoundError } from '../errors'
@@ -14,7 +14,7 @@ export async function getDocumentHandler<RequestProps, DocStoreOptions, Filter, 
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const fieldNames = ensureQueryFieldNames(props.req.query.fields)
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
     const id = props.matchedResource.urlParams['id']
 
     const result = await props.sengi.selectDocumentsByIds({
@@ -23,7 +23,7 @@ export async function getDocumentHandler<RequestProps, DocStoreOptions, Filter, 
       fieldNames,
       ids: [id],
       reqProps: props.reqProps,
-      roleNames
+      apiKey
     })
 
     if (result.docs.length === 0) {

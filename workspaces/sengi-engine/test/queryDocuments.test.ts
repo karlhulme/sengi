@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { SengiInsufficientPermissionsError } from 'sengi-interfaces'
+import { SengiInsufficientPermissionsError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 const createSengiForTests = (sengiCtorOverrides?: Record<string, unknown>) => {
@@ -27,12 +27,28 @@ test('Fail to execute query if permissions insufficient.', async () => {
   try {
     await sengi.queryDocuments({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       queryName: 'count',
       queryParams: 'ALL'
     })
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to execute query if client api key is not recognised.', async () => {
+  const { sengi } = createSengiForTests()
+
+  try {
+    await sengi.queryDocuments({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      queryName: 'count',
+      queryParams: 'ALL'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

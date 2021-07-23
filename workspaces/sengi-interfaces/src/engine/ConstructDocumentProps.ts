@@ -3,9 +3,9 @@
  */
 export interface ConstructDocumentProps<RequestProps, DocStoreOptions> {
   /**
-   * The names of the roles that are associaed with the request.
+   * The api key associated with the request.
    */
-  roleNames: string[]
+  apiKey: string
 
   /**
    * The name of the document type that is targeted by the request.

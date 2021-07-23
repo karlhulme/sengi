@@ -23,15 +23,13 @@ import { createSengiExpress } from 'sengi-express'
 import { v4 } from 'uuid'
 
 const docTypes = [] // import implementations of DocType interface
-const roleTypes = [] // import implementations of RoleType interface
-const jsonotronTypes = [] // load from YAML files
+const clients = [] // import implementations of Client interface
 
 const memDocStore = new MemDocStore({ docs, generateDocVersionFunc: v4 })
 const sengiExpress = createSengiExpress({
   docStore: memDocStore,
   docTypes,
-  roleTypes,
-  jsonotronTypes
+  clients
 })
 
 const app = express()

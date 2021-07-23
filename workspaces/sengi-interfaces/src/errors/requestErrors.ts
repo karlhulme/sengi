@@ -71,13 +71,21 @@ export class SengiFilterParamsValidationFailedError extends SengiRequestError {
 }
 
 export class SengiInsufficientPermissionsError extends SengiRequestError {
-  constructor (readonly roleNames: string[], readonly docTypeName: string, readonly action: string) {
-    super(`None of the permissions in roles '${roleNames.join(', ')}' support performing action '${action}' on '${docTypeName}'.`)
+  constructor (readonly clientName: string, readonly docTypeName: string, readonly action: string) {
+    super(`The '${clientName}' client does not have permission to perform action '${action}' on '${docTypeName}'.`)
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
-    this.roleNames = roleNames
+    this.clientName = clientName
     this.docTypeName = docTypeName
     this.action = action
+  }
+}
+
+export class SengiUnrecognisedApiKeyError extends SengiRequestError {
+  constructor () {
+    super(`The client supplied an invalid api key.`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
   }
 }
 

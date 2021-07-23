@@ -72,9 +72,9 @@ export class SengiExpressMalformedQueryParamsError extends SengiExpressRequestEr
   }
 }
 
-export class SengiExpressMissingRoleNamesError extends SengiExpressRequestError {
+export class SengiExpressMissingApiKeyError extends SengiExpressRequestError {
   constructor () {
-    super('The request did not specify an X-ROLE-NAMES header.')
+    super('The request did not specify an X-API-KEY header.')
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
   }

@@ -1,4 +1,4 @@
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRoleNames, ensureQueryQueryName, ensureQueryQueryParams } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderApiKey, ensureQueryQueryName, ensureQueryQueryParams } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -12,7 +12,7 @@ export async function queryDocumentsHandler<RequestProps, DocStoreOptions, Filte
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
-    const roleNames = ensureHeaderRoleNames(props.req.headers[HttpHeaderNames.RoleNames])
+    const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
 
     const result = await props.sengi.queryDocuments({
       docStoreOptions: props.docStoreOptions,
@@ -20,7 +20,7 @@ export async function queryDocumentsHandler<RequestProps, DocStoreOptions, Filte
       queryName: ensureQueryQueryName(props.req.query.queryName),
       queryParams: ensureQueryQueryParams(props.req.query.queryParams),
       reqProps: props.reqProps,
-      roleNames
+      apiKey
     })
 
     applyResultToHttpResponse(props.res, {

@@ -1,7 +1,7 @@
 /**
  * Defines a set of allowed update mechanisms. 
  */
-export interface RoleTypeDocUpdatePermissionSet {
+export interface ClientDocUpdatePermissionSet {
   /**
    * True if a client may issue patches.
    */

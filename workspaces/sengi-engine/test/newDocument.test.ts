@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { DocStoreUpsertResultCode, SengiDocTypeValidateFunctionError, SengiInsufficientPermissionsError } from 'sengi-interfaces'
+import { DocStoreUpsertResultCode, SengiDocTypeValidateFunctionError, SengiInsufficientPermissionsError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { asError } from '../src/utils'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
@@ -57,7 +57,7 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
   })).resolves.toEqual({ isNew: true })
 
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -66,7 +66,7 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -111,12 +111,28 @@ test('Fail to add a new document if permissions insufficient.', async () => {
   try {
     await sengi.newDocument({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
       doc: newCar
     })
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to add a new document if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.newDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+      doc: newCar
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

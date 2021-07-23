@@ -7,6 +7,7 @@ import {
   SengiInsufficientPermissionsError,
   SengiRequestError,
   SengiRequiredVersionNotAvailableError,
+  SengiUnrecognisedApiKeyError,
   SengiUnrecognisedDocTypeNameError,
   SengiUnrecognisedOperationNameError
 } from 'sengi-interfaces'
@@ -56,6 +57,10 @@ function determineStatusFromError (err: Error): number {
   if (err instanceof SengiActionForbiddenByPolicyError ||
     err instanceof SengiInsufficientPermissionsError) {
     return 403
+  }
+
+  if (err instanceof SengiUnrecognisedApiKeyError) {
+    return 401
   }
 
   if (err instanceof SengiRequestError ||

@@ -1,14 +1,14 @@
-import { RoleTypeDocPermissionSet, RoleTypeDocUpdatePermissionSet } from 'sengi-interfaces'
+import { ClientDocPermissionSet, ClientDocUpdatePermissionSet } from 'sengi-interfaces'
 
 /**
  * Returns true if patch permission exists on the permission set.
  * @param permissionSet A permission set.
  */
-export function canPatch (permissionSet: RoleTypeDocPermissionSet): boolean {
+export function canPatch (permissionSet: ClientDocPermissionSet): boolean {
   if (typeof permissionSet.update === 'boolean') {
     return permissionSet.update
   } else if (typeof permissionSet.update === 'object') {
-    const updatePermissionSet = permissionSet.update as RoleTypeDocUpdatePermissionSet
+    const updatePermissionSet = permissionSet.update as ClientDocUpdatePermissionSet
     return updatePermissionSet.patch === true
   } else {
     return false

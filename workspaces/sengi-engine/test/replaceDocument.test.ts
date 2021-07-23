@@ -4,7 +4,8 @@ import {
   SengiDocTypeValidateFunctionError,
   SengiInsufficientPermissionsError,
   SengiDocValidationFailedError,
-  DocStoreUpsertResultCode
+  DocStoreUpsertResultCode,
+  SengiUnrecognisedApiKeyError
 } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
@@ -55,7 +56,7 @@ test('Replacing a document should raise the onPreSaveDoc and onSavedDoc delegate
 
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -65,7 +66,7 @@ test('Replacing a document should raise the onPreSaveDoc and onSavedDoc delegate
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -89,7 +90,7 @@ test('Replacing a non-existent document should raise the onSavedDoc delegate.', 
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -149,12 +150,27 @@ test('Fail to replace a document if permissions insufficient.', async () => {
   try {
     await sengi.replaceDocument({
       ...defaultRequestProps,
-      doc: createNewDocument(),
-      roleNames: ['none']
+      apiKey: 'noneKey',
+      doc: createNewDocument()
     })
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to replace a document if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.replaceDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      doc: createNewDocument()
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })
 

@@ -6,7 +6,7 @@ test('200 - root', async () => {
   const { testableApp } = createTestableApp()
   const response = await supertest(testableApp)
     .get('/root')
-    .set('x-role-names', 'none')
+    .set('x-api-key', 'guestKey')
 
   expect(response.status).toEqual(200)
   expect(response.text).toMatch(/service is running/)

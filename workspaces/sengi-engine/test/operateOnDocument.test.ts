@@ -6,6 +6,7 @@ import {
   SengiDocNotFoundError,
   SengiInsufficientPermissionsError,
   SengiRequiredVersionNotAvailableError,
+  SengiUnrecognisedApiKeyError,
   SengiUnrecognisedOperationNameError
 } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
@@ -71,7 +72,7 @@ test('Operating on a document should raise callbacks.', async () => {
 
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onPreSaveDoc).toHaveProperty(['mock', 'calls', '0', '0'], expect.objectContaining({
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -81,7 +82,7 @@ test('Operating on a document should raise callbacks.', async () => {
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], expect.objectContaining({
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
@@ -190,7 +191,7 @@ test('Fail to invoke an operation if permissions insufficient.', async () => {
   try {
     await sengi.operateOnDocument({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       id: '06151119-065a-4691-a7c8-2d84ec746ba9',
       operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
       operationName: 'upgradeModel',
@@ -199,5 +200,23 @@ test('Fail to invoke an operation if permissions insufficient.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to invoke an operation if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.operateOnDocument({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+      operationId: 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028',
+      operationName: 'upgradeModel',
+      operationParams: 2
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

@@ -6,9 +6,9 @@ import { DocType } from '../docType'
  */
 export interface PreSaveDocCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
   /**
-   * The names of the roles that were active.
+   * The name of the client that invoked the operation.
    */
-  roleNames: string[]
+  clientName: string
 
   /**
    * The resolved set of document store options.

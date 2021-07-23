@@ -1,4 +1,4 @@
-import { RoleTypeDocPermissionSet, RoleTypeDocUpdatePermissionSet } from 'sengi-interfaces'
+import { ClientDocPermissionSet, ClientDocUpdatePermissionSet } from 'sengi-interfaces'
 
 /**
  * Returns true if operate permission exists on the permission set
@@ -6,11 +6,11 @@ import { RoleTypeDocPermissionSet, RoleTypeDocUpdatePermissionSet } from 'sengi-
  * @param permissionSet A permission set.
  * @param operationName The name of an operation.
  */
-export function canOperate (permissionSet: RoleTypeDocPermissionSet, operationName: string): boolean {
+export function canOperate (permissionSet: ClientDocPermissionSet, operationName: string): boolean {
   if (typeof permissionSet.update === 'boolean') {
     return permissionSet.update
   } else if (typeof permissionSet.update === 'object') {
-    const updatePermissionSet = permissionSet.update as RoleTypeDocUpdatePermissionSet
+    const updatePermissionSet = permissionSet.update as ClientDocUpdatePermissionSet
     return Array.isArray(updatePermissionSet.operations) && updatePermissionSet.operations.includes(operationName)
   } else {
     return false

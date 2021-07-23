@@ -1,19 +1,19 @@
-import { RoleTypeDocSelectPermissionSet } from './RoleTypeDocSelectPermissionSet'
-import { RoleTypeDocUpdatePermissionSet } from './RoleTypeDocUpdatePermissionSet'
+import { ClientDocSelectPermissionSet } from './ClientDocSelectPermissionSet'
+import { ClientDocUpdatePermissionSet } from './ClientDocUpdatePermissionSet'
 
 /**
  * Represents a set of permissions for a document type.
  */
-export interface RoleTypeDocPermissionSet {
+export interface ClientDocPermissionSet {
   /**
    * The permissions granted for selecting.
    */
-  select?: boolean|RoleTypeDocSelectPermissionSet
+  select?: boolean|ClientDocSelectPermissionSet
 
   /**
    * The permissions granted for updating.
    */
-  update?: boolean|RoleTypeDocUpdatePermissionSet
+  update?: boolean|ClientDocUpdatePermissionSet
 
   /**
    * Specifies if a new document may be created.

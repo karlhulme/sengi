@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { SengiUnrecognisedFilterNameError, SengiInsufficientPermissionsError } from 'sengi-interfaces'
+import { SengiUnrecognisedFilterNameError, SengiInsufficientPermissionsError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 test('Select by document filter with support for paging.', async () => {
@@ -42,8 +42,8 @@ test('Select by document filter with onPreSelectDocs delegate and without paging
   expect(docStore.selectByFilter).toHaveProperty(['mock', 'calls', '0'], ['car', 'cars', ['id', 'model'], 'MODEL=ka', { custom: 'prop' }, { limit: undefined, offset: undefined }])
 
   expect(sengiCtorOverrides.onPreSelectDocs).toHaveProperty('mock.calls.length', 1)
-  expect(sengiCtorOverrides.onPreSelectDocs).toHaveProperty(['mock', 'calls', '0', '0'], { 
-    roleNames: ['admin'],
+  expect(sengiCtorOverrides.onPreSelectDocs).toHaveProperty(['mock', 'calls', '0', '0'], {
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
@@ -73,7 +73,7 @@ test('Fail to select by document filter if permissions insufficient.', async () 
   try {
     await sengi.selectDocumentsByFilter({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       fieldNames: ['id'],
       filterName: 'byModel',
       filterParams: 'ka'
@@ -81,5 +81,22 @@ test('Fail to select by document filter if permissions insufficient.', async () 
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to select by document filter if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.selectDocumentsByFilter({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      fieldNames: ['id'],
+      filterName: 'byModel',
+      filterParams: 'ka'
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })

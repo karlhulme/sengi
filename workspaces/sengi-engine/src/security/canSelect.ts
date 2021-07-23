@@ -1,9 +1,9 @@
-import { RoleTypeDocPermissionSet, RoleTypeDocSelectPermissionSet } from 'sengi-interfaces'
+import { ClientDocPermissionSet, ClientDocSelectPermissionSet } from 'sengi-interfaces'
 
 /**
  * Returns true if the requested field names can be honoured.
  * @param requestedFieldNames An array of requested field names.
- * @param whitelistedFieldNames An array of whitelisted field names from the role type.
+ * @param whitelistedFieldNames An array of whitelisted field names.
  */
 function determineIfReqFieldsConformsToWhitelist (requestedFieldNames: string[], whitelistedFieldNames: string[]): boolean {
   for (const reqFn of requestedFieldNames) {
@@ -18,7 +18,7 @@ function determineIfReqFieldsConformsToWhitelist (requestedFieldNames: string[],
 /**
  * Returns true if the requested field names do not clash with the blacklisted field names.
  * @param requestedFieldNames An array of requested field names.
- * @param blacklistedFieldNames An array of blacklisted field names from the role type.
+ * @param blacklistedFieldNames An array of blacklisted field names.
  */
 function determineIfReqFieldsConformsToBlacklist (requestedFieldNames: string[], blacklistedFieldNames: string[]): boolean {
   for (const reqFn of requestedFieldNames) {
@@ -36,11 +36,11 @@ function determineIfReqFieldsConformsToBlacklist (requestedFieldNames: string[],
  * @param permissionSet A permission set.
  * @param fieldNames An array of field names.
  */
-export function canSelect (permissionSet: RoleTypeDocPermissionSet, fieldNames: string[]): boolean {
+export function canSelect (permissionSet: ClientDocPermissionSet, fieldNames: string[]): boolean {
   if (typeof permissionSet.select === 'boolean') {
     return permissionSet.select
   } else if (typeof permissionSet.select === 'object') {
-    const selectPermissionSet = permissionSet.select as RoleTypeDocSelectPermissionSet
+    const selectPermissionSet = permissionSet.select as ClientDocSelectPermissionSet
     
     if (selectPermissionSet.fieldsTreatment === 'exclude') {
       return determineIfReqFieldsConformsToBlacklist(fieldNames, selectPermissionSet.fields)

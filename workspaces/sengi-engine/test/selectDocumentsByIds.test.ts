@@ -1,5 +1,5 @@
 import { test, expect, jest } from '@jest/globals'
-import { SengiInsufficientPermissionsError } from 'sengi-interfaces'
+import { SengiInsufficientPermissionsError, SengiUnrecognisedApiKeyError } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 test('Select by document ids.', async () => {
@@ -36,7 +36,7 @@ test('Select by document ids using a onPreSelectDocs delegate.', async () => {
 
   expect(sengiCtorOverrides.onPreSelectDocs).toHaveProperty('mock.calls.length', 1)
   expect(sengiCtorOverrides.onPreSelectDocs).toHaveProperty(['mock', 'calls', '0', '0'], {
-    roleNames: ['admin'],
+    clientName: 'admin',
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
@@ -50,12 +50,28 @@ test('Fail to select by document ids if permissions insufficient.', async () => 
   try {
     await sengi.selectDocumentsByIds({
       ...defaultRequestProps,
-      roleNames: ['none'],
+      apiKey: 'noneKey',
       fieldNames: ['id', 'model'],
       ids: ['c75321e5-5c8a-49f8-a525-f0f472fb5fa0', '9070692f-b12c-4bbc-9888-5704fe5bc480']
     })
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiInsufficientPermissionsError)
+  }
+})
+
+test('Fail to select by document ids if client api key is not recognised.', async () => {
+  const { sengi } = createSengiWithMockStore()
+
+  try {
+    await sengi.selectDocumentsByIds({
+      ...defaultRequestProps,
+      apiKey: 'unknown',
+      fieldNames: ['id', 'model'],
+      ids: ['c75321e5-5c8a-49f8-a525-f0f472fb5fa0', '9070692f-b12c-4bbc-9888-5704fe5bc480']
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
   }
 })
