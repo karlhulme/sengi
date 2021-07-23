@@ -210,6 +210,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
 
   /**
    * Deletes an existing document.
+   * If the document does not exist then the call succeeds but indicates that a document was not actually deleted.
    * @param props A property bag.
    */
   async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions>): Promise<DeleteDocumentResult> {
@@ -218,17 +219,23 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     ensureDeletePermission(client, props.docTypeName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
+    const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     ensureCanDeleteDocuments(docType)
   
-    const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
-    const deleteByIdResult = await this.safeDocStore.deleteById(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
-    const isDeleted = deleteByIdResult.code === DocStoreDeleteByIdResultCode.DELETED
-  
-    if (isDeleted) {
-      await this.invokeDeletedDocCallback(client.name, combinedDocStoreOptions, docType, props.id, props.reqProps)
+    const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
+    
+    if (typeof fetchResult.doc === 'object' && !Array.isArray(fetchResult.doc) && fetchResult.doc !== null) {
+      const deleteByIdResult = await this.safeDocStore.deleteById(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
+      const isDeleted = deleteByIdResult.code === DocStoreDeleteByIdResultCode.DELETED
+    
+      if (isDeleted) {
+        await this.invokeDeletedDocCallback(client.name, combinedDocStoreOptions, docType, props.id, props.reqProps)
+      }
+    
+      return { isDeleted }
+    } else {
+      return { isDeleted: false }
     }
-  
-    return { isDeleted }
   }
 
   /**

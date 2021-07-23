@@ -4,6 +4,12 @@ import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
 test('Error in onDeletedDoc callback should be wrapped.', async () => {
   const { sengi } = createSengiWithMockStore({
+    fetch: jest.fn(async () => ({
+      doc: {
+        id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+        docType: 'car'
+      }
+    })),
     deleteById: async() => ({ code: DocStoreDeleteByIdResultCode.DELETED })
   }, {
     onDeletedDoc: () => { throw new Error('callback problem') }
