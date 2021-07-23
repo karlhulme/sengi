@@ -7,7 +7,7 @@
 
 The core Sengi engine.
 
-It interprets the field type definitions, doc type definitions and role definitions.
+It interprets the field type definitions, doc type definitions and clients.
 
 It validates and actions input requests, by issuing queries and instructions to the underlying datastore.
 
@@ -35,7 +35,7 @@ To instantiate a Sengi engine you have to provide the following parameters:
 
 * **docTypes** - An array of Sengi DocType objects as defined in the `sengi-interfaces` package.
 
-* **roleTypes** - An array of Sengi RoleType objects as defined in the `sengi-interfaces` package.
+* **clients** - An array of Sengi Client objects as defined in the `sengi-interfaces` package.
 
 * **docStore** - An object that implements the Sengi document store interface.  There are implementation for in-memory, Microsoft Azure Cosmos, Amazon AWS DynamoDB and MongoDB.
 
@@ -54,8 +54,7 @@ The following example shows how to setup a Sengi-engine using the in-memory docu
 ```javascript
 const sengi = new Sengi({
   docTypes: [], // array of objects that implement DocType interface
-  roleTypes: [], // array of objects that implement RoleType interface
-  jsonotronTypes: [], // array of strings that are YAML jsonotron enum and schema type definitions
+  clients: [], // array of objects that implement Client interface
   docStore: new MemDocStore({ docs: [], generateDocVersionFunc: () => 'xxxx' })
 })
 ```
@@ -68,16 +67,16 @@ Method Name | Parameters | Description
 ---|---|---
 getDocTypeNameFromPluralName | `docTypePluralName: string` | Returns the singular doc type name for the given plural name, or null if not found.
 getDocTypePluralNameFromName | `docTypeName: string` | Returns the plural doc type name for the given singular name, or null if not found.
-getEnumTypeItems | `(fullyQualifiedEnumTypeName: string): RuntimeEnumTypeItem[]|null` | Returns the list of items that are defined within the given enum type.
-getEnumTypeItemAsGraphQL | `(): string` | Returns a GraphQL type that represents an item from an enum.
-getDocTypeAsGraphQL | `(props: GetDocTypeAsGraphQLProps): string` | Returns a set of GraphQL types and inputs for the named doc type and set of role types.  These types do not enforce the isRequired flag because it is expected that additional layers of processing may be applied between a graph service and the sengi-based data store.
+getApiKeysLoadedFromEnvCount | | Returns the number of api keys loaded from environment variables.
+getApiKeysNotFoundInEnvCount | | Returns the number of api keys that were dropped because they referenced unknown environment variables.
 createDocument | `props: CreateDocumentProps` | Creates a new document using a doc type constructor.  Returns `{ isNew }`.
 deleteDocument | `props: DeleteDocumentProps` | Deletes an existing document.  Returns `{ isDeleted }`.
 operateOnDocument | `props: OperateOnDocumentProps` | Operates on an existing document.  Returns `{ isUpdated }`.
 patchDocument | `props: PatchDocumentProps` | Patches an existing document with a merge patch.  Use null to delete fields.  Returns `{ isUpdated }`.
-queryDocumentsByFilter | `props: QueryDocumentsByFilterProps` | Queries for a set of documents using a filter.  Returns `{ deprecations, docs }`.
-queryDocumentsByIds | `props: QueryDocumentsByIdsProps` | Queries for a set of documents using an array of document ids.  Returns `{ deprecations, docs }`.
-queryDocuments | `props: QueryDocumentsProps` | Queries for all documents of a specified doc type.  Returns `{ deprecations, docs }`.
+queryDocuments | `props: QueryDocumentsProps` | Executes a query across a set of documents, typically an aggregate like sum or max.
+selectDocumentsByFilter | `props: SelectDocumentsByFilterProps` | Selects a set of documents using a filter.  Returns `{ deprecations, docs }`.
+selectDocumentsByIds | `props: SelectDocumentsByIdsProps` | Selects a set of documents using an array of document ids.  Returns `{ deprecations, docs }`.
+selectDocuments | `props: SelectDocumentsProps` | Selects all documents of a specified doc type.  Returns `{ deprecations, docs }`.
 replaceDocument | `props: ReplaceDocumentProps` | Replaces (or inserts) a document, without using the doc type constructor.  Returns `{ isNew }`.
 
 For the document-centric methods The properties `isNew`, `isDeleted` and `isUpdated` are booleans.
