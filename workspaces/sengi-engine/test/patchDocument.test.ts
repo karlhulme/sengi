@@ -79,7 +79,8 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     clientName: 'admin',
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
-    doc: expect.objectContaining({ model: 'fiesta'})
+    doc: expect.objectContaining({ model: 'fiesta'}),
+    user: {}
   }))
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
@@ -87,7 +88,8 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     clientName: 'admin',
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
-    doc: expect.objectContaining({ model: 'fiesta' })
+    doc: expect.objectContaining({ model: 'fiesta' }),
+    user: {}
   }))
 })
 

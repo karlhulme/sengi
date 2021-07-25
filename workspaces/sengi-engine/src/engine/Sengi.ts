@@ -71,41 +71,41 @@ import {
 /**
  * The properties that are used to manage the construction of a Sengi.
  */
-export interface SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+export interface SengiConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
   schemas?: AnySchema[]
-  docTypes?: DocType<any, DocStoreOptions, Filter, Query, QueryResult>[]
+  docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   clients?: Client[]
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
   log?: boolean
-  onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
+  onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
 }
 
 /**
  * A sengi engine for processing selection, querying and upsertion of docs
  * to a No-SQL, document based database or backing store.
  */
-export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
   private ajv: Ajv
-  private docTypes: DocType<any, DocStoreOptions, Filter, Query, QueryResult>[]
+  private docTypes: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   private clients: Client[]
   private safeDocStore: SafeDocStore<DocStoreOptions, Filter, Query, QueryResult>
   private apiKeysLoadedFromEnv: number
   private apiKeysNotFoundInEnv: number
   private log: boolean
 
-  private onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  private onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  private onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
-  private onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, Filter, Query, QueryResult>
+  private onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  private onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  private onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+  private onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
 
   /**
    * Creates a new Sengi engine based on a set of doc types and clients.
    * @param props The constructor properties.
    */
-  constructor (props: SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>) {
+  constructor (props: SengiConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult>) {
     this.ajv = new Ajv({
       ownProperties: true,
       schemas: props.schemas || []
@@ -180,7 +180,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Creates a new document by invoking a constructor.
    * @param props A property bag.
    */
-   async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions>): Promise<ConstructDocumentResult> {
+   async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions, User>): Promise<ConstructDocumentResult> {
     this.logRequest(`CREATE ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
@@ -190,19 +190,21 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const existsResult = await this.safeDocStore.exists(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
   
     if (!existsResult.found) {
-      const doc = executeConstructor(this.ajv, docType, props.constructorName, props.constructorParams)
+      const user: User = {} as User // load user and authorise action
+
+      const doc = executeConstructor(this.ajv, docType, user, props.constructorName, props.constructorParams)
 
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
 
-      executePreSave(docType, doc)
+      executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
     
-      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true)
+      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true, user)
       await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, {})
-      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true)
+      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true, user)
     }
     
     return { isNew: !existsResult.found }
@@ -213,7 +215,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * If the document does not exist then the call succeeds but indicates that a document was not actually deleted.
    * @param props A property bag.
    */
-  async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions>): Promise<DeleteDocumentResult> {
+  async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions, User>): Promise<DeleteDocumentResult> {
     this.logRequest(`DELETE ${props.docTypeName} ${props.id}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureDeletePermission(client, props.docTypeName)
@@ -223,13 +225,15 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     ensureCanDeleteDocuments(docType)
   
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
-    
+
     if (typeof fetchResult.doc === 'object' && !Array.isArray(fetchResult.doc) && fetchResult.doc !== null) {
+      const user: User = {} as User // load user and authorise action
+
       const deleteByIdResult = await this.safeDocStore.deleteById(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
       const isDeleted = deleteByIdResult.code === DocStoreDeleteByIdResultCode.DELETED
     
       if (isDeleted) {
-        await this.invokeDeletedDocCallback(client.name, combinedDocStoreOptions, docType, props.id, props.reqProps)
+        await this.invokeDeletedDocCallback(client.name, combinedDocStoreOptions, docType, props.id, props.reqProps, user)
       }
     
       return { isDeleted }
@@ -242,7 +246,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Adds a new document to a collection by supplying all the data.
    * @param props A property bag.
    */
-  async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions>): Promise<NewDocumentResult> {
+  async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions, User>): Promise<NewDocumentResult> {
     this.logRequest(`NEW ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
@@ -255,17 +259,19 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     if (!existsResult.found) {
       const doc = props.doc
 
+      const user: User = {} as User // load user and authorise action
+
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
 
-      executePreSave(docType, doc)
+      executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
     
-      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true)
+      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true, user)
       await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, {})
-      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true)
+      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, true, user)
     }
     
     return { isNew: !existsResult.found }
@@ -275,7 +281,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Operates on an existing document.
    * @param props A property bag.
    */
-  async operateOnDocument (props: OperateOnDocumentProps<RequestProps, DocStoreOptions>): Promise<OperateOnDocumentResult> {
+  async operateOnDocument (props: OperateOnDocumentProps<RequestProps, DocStoreOptions, User>): Promise<OperateOnDocumentResult> {
     this.logRequest(`OPERATE (${props.operationName}) ${props.docTypeName} ${props.id}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureOperatePermission(client, props.docTypeName, props.operationName)
@@ -285,20 +291,23 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
 
     const doc = ensureDocWasFound(docType.name, props.id, fetchResult.doc)
+
+    const user: User = {} as User // load user and authorise action
+
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
 
     if (!opIdAlreadyExists) {
-      executeOperation(this.ajv, docType, props.operationName, props.operationParams, doc)
+      executeOperation(this.ajv, docType, user, props.operationName, props.operationParams, doc)
       appendDocOpId(docType, doc, props.operationId)
 
-      executePreSave(docType, doc)
+      executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
 
-      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false)
+      await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false, user)
       const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
       ensureUpsertSuccessful(upsertResult, Boolean(props.reqVersion))
-      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false)
+      await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false, user)
     }
     
     return { isUpdated: !opIdAlreadyExists }
@@ -308,7 +317,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Patches an existing document with a merge patch.
    * @param props A property bag.
    */
-  async patchDocument (props: PatchDocumentProps<RequestProps, DocStoreOptions>): Promise<PatchDocumentResult> {
+  async patchDocument (props: PatchDocumentProps<RequestProps, DocStoreOptions, User>): Promise<PatchDocumentResult> {
     this.logRequest(`PATCH ${props.docTypeName} ${props.id}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensurePatchPermission(client, props.docTypeName)
@@ -318,20 +327,23 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
   
     const doc = ensureDocWasFound(docType.name, props.id, fetchResult.doc)
+
+    const user: User = {} as User // load user and authorise action
+
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
   
     if (!opIdAlreadyExists) {
       executePatch(docType, doc, props.patch)
       appendDocOpId(docType, doc, props.operationId)
 
-      executePreSave(docType, doc)
+      executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
 
-      this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false)
+      this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false, user)
       const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, { reqVersion: props.reqVersion || (doc.docVersion as string) })
       ensureUpsertSuccessful(upsertResult, Boolean(props.reqVersion))
-      this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false)
+      this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, false, user)
     }
 
     return { isUpdated: !opIdAlreadyExists }
@@ -341,13 +353,16 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Executes a query across a set of documents.
    * @param props A property bag.
    */
-  async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions>): Promise<QueryDocumentsResult> {
+  async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions, User>): Promise<QueryDocumentsResult> {
     this.logRequest(`QUERY (${props.queryName}) ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureQueryPermission(client, props.docTypeName, props.queryName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
-    const query = parseQuery(this.ajv, docType, props.queryName, props.queryParams)
+
+    const user: User = {} as User // load user and authorise action
+
+    const query = parseQuery(this.ajv, docType, user, props.queryName, props.queryParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     const queryResult = await this.safeDocStore.query(docType.name, docType.pluralName, query, combinedDocStoreOptions, {})
@@ -362,7 +377,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Unlike the newDocument function, this function will replace an existing document.
    * @param props A property bag.
    */
-  async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions>): Promise<ReplaceDocumentResult> {
+  async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions, User>): Promise<ReplaceDocumentResult> {
     this.logRequest(`REPLACE ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureReplacePermission(client, props.docTypeName)
@@ -372,16 +387,18 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
   
     const doc = props.doc
 
-    executePreSave(docType, doc)
+    const user: User = {} as User // load user and authorise action
+
+    executePreSave(docType, doc, user)
     ensureDoc(this.ajv, docType, doc)
     executeValidator(docType, doc)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
 
-    await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, null)
+    await this.invokePreSaveDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, null, user)
     const upsertResult = await this.safeDocStore.upsert(docType.name, docType.pluralName, doc, combinedDocStoreOptions, {})
     const isNew = upsertResult.code === DocStoreUpsertResultCode.CREATED
-    await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, isNew)
+    await this.invokeSavedDocCallback(client.name, combinedDocStoreOptions, docType, doc, props.reqProps, isNew, user)
 
     return { isNew }
   }
@@ -390,21 +407,25 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Selects a set of documents using a filter.
    * @param props A property bag.
    */
-  async selectDocumentsByFilter (props: SelectDocumentsByFilterProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByFilterResult> {
+  async selectDocumentsByFilter (props: SelectDocumentsByFilterProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsByFilterResult> {
     this.logRequest(`SELECT (${props.filterName}) ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
-    const filter = parseFilter(this.ajv, docType, props.filterName, props.filterParams)
+
+    const user: User = {} as User // load user
+    const filter = parseFilter(this.ajv, docType, user, props.filterName, props.filterParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
-    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
 
     const queryResult = await this.safeDocStore.selectByFilter(docType.name, docType.pluralName, props.fieldNames, filter, combinedDocStoreOptions, {
       limit: props.limit,
       offset: props.offset
     })
+
+    // auth retrieval of each doc - hide those that fail
     
     return { docs: queryResult.docs }
   }
@@ -413,18 +434,22 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Selects a set of documents using an array of document ids.
    * @param props A property bag.
    */
-  async selectDocumentsByIds (props: SelectDocumentsByIdsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByIdsResult> {
+  async selectDocumentsByIds (props: SelectDocumentsByIdsProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsByIdsResult> {
     this.logRequest(`SELECT (IDS) ${props.docTypeName} ${props.ids}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
   
+    const user: User = {} as User // load user
+
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
-    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
 
     const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
   
+    // auth retrieval of each doc - error if any fail
+
     return { docs: queryResult.docs }
   }
 
@@ -432,7 +457,7 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * Selects all documents of a specified doc type.
    * @param props A property bag.
    */
-  async selectDocuments (props: SelectDocumentsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsResult> {
+  async selectDocuments (props: SelectDocumentsProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsResult> {
     this.logRequest(`SELECT (TYPE) ${props.docTypeName}`)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
@@ -440,14 +465,18 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
     ensureCanFetchWholeCollection(docType)
   
+    const user: User = {} as User // load user
+
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
-    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames)
+    await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
 
     const queryResult = await this.safeDocStore.selectAll(docType.name, docType.pluralName, props.fieldNames, combinedDocStoreOptions, {
       limit: props.limit,
       offset: props.offset
     })
   
+    // auth rerieval of each doc - hide those that fail
+
     return { docs: queryResult.docs }
   }
 
@@ -503,11 +532,12 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param docType A document type.
    * @param id The id of the document that was deleted.
    * @param reqProps The properties associated with the original request.
+   * @param user The user that triggered the callback.
    */
-  private async invokeDeletedDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, id: string, reqProps: RequestProps) {
+  private async invokeDeletedDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, id: string, reqProps: RequestProps, user: User) {
     await this.invokeCallback('onDeletedDoc', async () => {
       if (this.onDeletedDoc) {
-        await this.onDeletedDoc({ clientName, docStoreOptions, docType, id, reqProps })
+        await this.onDeletedDoc({ clientName, docStoreOptions, docType, id, reqProps, user })
       }
     })
   }
@@ -519,11 +549,12 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param docType A document type.
    * @param reqProps The properties associated with the original request.
    * @param fieldNames An array of requested field names.
+   * @param user The user that triggered the callback.
    */
-   private async invokePreSelectDocsCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, reqProps: RequestProps, fieldNames: string[]) {
+   private async invokePreSelectDocsCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, reqProps: RequestProps, fieldNames: string[], user: User) {
     await this.invokeCallback('onPreSelectDocs', async () => {
       if (this.onPreSelectDocs) {
-        await this.onPreSelectDocs({ clientName, docStoreOptions, docType, reqProps, fieldNames })
+        await this.onPreSelectDocs({ clientName, docStoreOptions, docType, reqProps, fieldNames, user })
       }
     })
   }
@@ -538,11 +569,12 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param isNew True if the document does not exist.  This will always be
    * false for replaceDocuments as it is not known if the document exists
    * when this event is raised.
+   * @param user The user that triggered the callback.
    */
-   private async invokePreSaveDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean|null) {
+   private async invokePreSaveDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean|null, user: User) {
     await this.invokeCallback('onPreSaveDoc', async () => {
       if (this.onPreSaveDoc) {
-        await this.onPreSaveDoc({ clientName, docStoreOptions, docType, doc, reqProps, isNew })
+        await this.onPreSaveDoc({ clientName, docStoreOptions, docType, doc, reqProps, isNew, user })
       }
     })
   }
@@ -555,11 +587,12 @@ export class Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
    * @param doc The doc that was saved.
    * @param reqProps The properties associated with the original request.
    * @param isNew True if the document was created as a result of this operation.
+   * @param user The user that triggered the callback.
    */
-  private async invokeSavedDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean) {
+  private async invokeSavedDocCallback (clientName: string, docStoreOptions: DocStoreOptions, docType: AnyDocType, doc: DocRecord, reqProps: RequestProps, isNew: boolean, user: User) {
     await this.invokeCallback('onSavedDoc', async () => {
       if (this.onSavedDoc) {
-        await this.onSavedDoc({ clientName, docStoreOptions, docType, doc, reqProps, isNew })
+        await this.onSavedDoc({ clientName, docStoreOptions, docType, doc, reqProps, isNew, user })
       }
     })
   }

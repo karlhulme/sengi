@@ -2,7 +2,7 @@
  * Defines the properties that are required to extract all
  * the documents from a collection.
  */
-export interface SelectDocumentsProps<RequestProps, DocStoreOptions> {
+export interface SelectDocumentsProps<RequestProps, DocStoreOptions, User> {
   /**
    * The api key associated with the request.
    */
@@ -38,4 +38,9 @@ export interface SelectDocumentsProps<RequestProps, DocStoreOptions> {
    * before returning documents to the client.
    */
   offset?: number
+
+  /**
+   * The user that is making the request.
+   */
+  user: User
 }

@@ -1,11 +1,11 @@
 /**
  * Defines the properties that are required to operation on a document.
  */
- export interface OperateOnDocumentProps<RequestProps, DocStoreOptions> {
+ export interface OperateOnDocumentProps<RequestProps, DocStoreOptions, User> {
   /**
    * The api key associated with the request.
    */
-   apiKey: string
+  apiKey: string
 
   /**
    * The name of the document type that is targeted by the request.
@@ -48,4 +48,9 @@
    * found in the collection otherwise the operation will not be applied.
    */
   reqVersion?: string
+
+  /**
+   * The user that is making the request.
+   */
+  user: User
 }

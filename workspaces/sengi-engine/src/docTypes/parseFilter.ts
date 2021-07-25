@@ -13,10 +13,11 @@ import { ajvErrorsToString } from '../utils'
  * understood by the document store.
  * @param ajv A validator.
  * @param docType A document type.
+ * @param user A user object.
  * @param filterName The name of a filter.
  * @param filterParams A set of filter params.
  */
-export function parseFilter (ajv: Ajv, docType: AnyDocType, filterName: string, filterParams: unknown): any {
+export function parseFilter (ajv: Ajv, docType: AnyDocType, user: unknown, filterName: string, filterParams: unknown): any {
   const filterDef = docType.filters?.[filterName]
   
   if (typeof filterDef !== 'object') {
@@ -30,7 +31,7 @@ export function parseFilter (ajv: Ajv, docType: AnyDocType, filterName: string, 
   let filter = null
 
   try {
-    filter = filterDef.parse(filterParams)
+    filter = filterDef.parse({ user, parameters: filterParams })
   } catch (err) {
     throw new SengiFilterParseFailedError(docType.name, filterName, err)
   }

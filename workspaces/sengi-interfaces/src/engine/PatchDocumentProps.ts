@@ -3,11 +3,11 @@ import { DocPatch } from '../doc'
 /**
  * Defines the properties that are required to patch a document.
  */
- export interface PatchDocumentProps<RequestProps, DocStoreOptions> {
+ export interface PatchDocumentProps<RequestProps, DocStoreOptions, User> {
   /**
    * The api key associated with the request.
    */
-   apiKey: string
+  apiKey: string
 
   /**
    * The name of the document type that is targeted by the request.
@@ -45,4 +45,9 @@ import { DocPatch } from '../doc'
    * found in the collection otherwise the operation will not be applied.
    */
   reqVersion?: string
+
+  /**
+   * The user that is making the request.
+   */
+  user: User
 }

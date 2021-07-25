@@ -1,7 +1,10 @@
+import { DocTypeOperationAuthProps } from './DocTypeOperationAuthProps'
+import { DocTypeOperationImplProps } from './DocTypeOperationImplProps'
+
 /**
  * Represents an operation that can be applied to a document.
  */
-export interface DocTypeOperation<Doc, Parameters> {
+export interface DocTypeOperation<Doc, User, Parameters> {
   /**
    * A description of the operation.
    */
@@ -21,5 +24,13 @@ export interface DocTypeOperation<Doc, Parameters> {
   /**
    * A function that updates a document based on the given operation parameters.
    */
-  implementation: (doc: Doc, parameters: Parameters) => void
+  implementation: (props: DocTypeOperationImplProps<Doc, User, Parameters>) => void
+
+  /**
+   * A function that returns an authorisation error if the request
+   * should not be permitted.
+   * The evaluation can be based on the user making the request and/or
+   * the document to be amended and/or the operation parameters.
+   */
+  authorise?: (props: DocTypeOperationAuthProps<Doc, User, Parameters>) => string|undefined
 }

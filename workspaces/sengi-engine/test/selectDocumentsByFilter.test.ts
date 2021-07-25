@@ -47,7 +47,8 @@ test('Select by document filter with onPreSelectDocs delegate and without paging
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
-    fieldNames: ['id', 'model']
+    fieldNames: ['id', 'model'],
+    user: {}
   })
 })
 

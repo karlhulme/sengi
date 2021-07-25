@@ -2,11 +2,11 @@
  * Defines the properties that are required to select from a
  * document collection using a filter.
  */
- export interface SelectDocumentsByFilterProps<RequestProps, DocStoreOptions> {
+ export interface SelectDocumentsByFilterProps<RequestProps, DocStoreOptions, User> {
   /**
    * The api key associated with the request.
    */
-   apiKey: string
+  apiKey: string
 
   /**
    * The name of the document type that is targeted by the request.
@@ -48,4 +48,9 @@
    * before returning documents to the client.
    */
   offset?: number
+
+  /**
+   * The user that is making the request.
+   */
+  user: User
 }

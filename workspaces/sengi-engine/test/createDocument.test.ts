@@ -56,7 +56,8 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'tesla', model: 'T', registration: 'HG12 3AB' }),
-    isNew: true
+    isNew: true,
+    user: {}
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
@@ -65,7 +66,8 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'tesla', model: 'T', registration: 'HG12 3AB' }),
-    isNew: true
+    isNew: true,
+    user: {}
   })
 })
 

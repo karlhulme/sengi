@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DocTypeAuthProps } from './DocTypeAuthProps'
 import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeFilter } from './DocTypeFilter'
 import { DocTypeOperation } from './DocTypeOperation'
 import { DocTypeQuery } from './DocTypeQuery'
 import { DocTypePolicy } from './DocTypePolicy'
+import { DocTypePreSaveProps } from './DocTypePreSaveProps'
 import { DocBase } from '../doc'
 
 /**
@@ -14,7 +16,7 @@ import { DocBase } from '../doc'
  * in the implementation parameter declaration.  It is safe to do this
  * provided the correct jsonSchema has also been supplied. 
  */
-export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
+export interface DocType<Doc extends DocBase, DocStoreOptions, User, Filter, Query, QueryResult> {
   /**
    * The name of the document type.
    */
@@ -61,29 +63,30 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, Qu
   /**
    * A record of constructors that can be used to build new documents.
    */
-  constructors?: Record<string, DocTypeConstructor<Doc, any>>
+  constructors?: Record<string, DocTypeConstructor<Doc, User, any>>
 
   /**
    * A record of filters that can be used to extract sections of the
    * document collection.
    */
-  filters?: Record<string, DocTypeFilter<Filter, any>>
+  filters?: Record<string, DocTypeFilter<User, Filter, any>>
 
   /**
    * A record of operations that can be used to update a document.
    */
-  operations?: Record<string, DocTypeOperation<Doc, any>>
+  operations?: Record<string, DocTypeOperation<Doc, User, any>>
 
   /**
    * A record of queries that can be executed against a document collection.
    */
-  queries?: Record<string, DocTypeQuery<any, any, QueryResult, Query>>
+  queries?: Record<string, DocTypeQuery<User, any, any, QueryResult, Query>>
 
   /**
    * A function that can perform cleanup adjustments on a document, such as removing 
-   * deprecated fields.  It should operate directly on the given document.
+   * deprecated fields or updating lastUpdated fields.
+   * It operates directly on the given document.
    */
-  preSave?: (doc: Doc) => void
+  preSave?: (props: DocTypePreSaveProps<Doc, User>) => void
 
   /**
    * A function that raises an Error if the given doc does not contain valid field values. 
@@ -102,6 +105,14 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, Qu
    * The type of data will be dependent on the choice of document store.
    */
   docStoreOptions?: DocStoreOptions
+
+  /**
+   * A function that returns an authorisation error if the request
+   * should not be permitted.
+   * The evaluation can be based on the user making the request and/or
+   * the document to be amended.
+   */
+  authorise?: (props: DocTypeAuthProps<Doc, User>) => string|undefined
 }
 
 // interface Shape {
@@ -110,6 +121,13 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, Qu
 //   docOpIds?: string[]
 //   sides?: number
 //   area?: number
+//   lastUpdateBy: string
+// }
+
+// interface User {
+//   name: string
+//   maxArea: number
+//   groups: string[]
 // }
 
 // interface AwsDocStoreOptions {
@@ -133,7 +151,7 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, Qu
 //   y: boolean
 // }
 
-// const exampleDocType: DocType<Shape, AwsDocStoreOptions, AwsFilter, AwsQuery, AwsQueryResult> = {
+// const exampleDocType: DocType<Shape, AwsDocStoreOptions, User, AwsFilter, AwsQuery, AwsQueryResult> = {
 //   name: 'example',
 //   pluralName: 'Examples',
 //   title: 'Example',
@@ -144,16 +162,30 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, Filter, Query, Qu
 //     newExample: {
 //       summary: 'Create a new example',
 //       parametersJsonSchema: {},
-//       implementation: (params: NewExampleParams) => {
+//       implementation: props => {
 //         return ({
-//           area: params.x.length,
+//           area: props.parameters.x.length,
 //           sides: 2
 //         })
+//       },
+//       authorise: req => {
+//         if (req.parameters.x.length > req.user.maxArea) {
+//           return 'Too high a value of x.'
+//         }
 //       }
-//     }
+//     } as DocTypeConstructor<Shape, User, NewExampleParams>
 //   },
 //   docStoreOptions: {
 //     whatever: 'some value'
+//   },
+//   authorise: props => {
+//     if (props.user.maxArea > (props.doc.area || 0)) {
+//       return 'Area too large.'
+//     }
+//   },
+//   preSave: props => {
+//     props.doc.lastUpdateBy = props.user.name
 //   }
 // }
+
 // console.log(exampleDocType)

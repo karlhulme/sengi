@@ -10,6 +10,16 @@ export class SengiActionForbiddenByPolicyError extends SengiRequestError { // HT
   }
 }
 
+export class SengiAuthorisationFailedError extends SengiRequestError {
+  constructor (readonly docTypeName: string, readonly reason: string) {
+    super(`The requested action on doc type '${docTypeName}' was not authorised for the current user.\n${reason}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.docTypeName = docTypeName
+    this.reason = reason
+  }
+}
+
 export class SengiConflictOnSaveError extends SengiRequestError { // HTTP 409
   constructor () {
     super('Document could not be updated as it was changed by another process during the operation.')

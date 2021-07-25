@@ -1,7 +1,10 @@
+import { DocTypeConstructorAuthProps } from './DocTypeConstructorAuthProps'
+import { DocTypeConstructorImplProps } from './DocTypeConstructorImplProps'
+
 /**
  * Represents the constructor for a document type.
  */
-export interface DocTypeConstructor<Doc, Parameters> {
+export interface DocTypeConstructor<Doc, User, Parameters> {
   /**
    * A description of the purpose of the constructor.
    */
@@ -15,5 +18,13 @@ export interface DocTypeConstructor<Doc, Parameters> {
   /**
    * A function that returns a new document based on the given parameters.
    */
-  implementation: (parameters: Parameters) => Doc
+  implementation: (props: DocTypeConstructorImplProps<User, Parameters>) => Doc
+
+  /**
+   * A function that returns an authorisation error if the request
+   * should not be permitted.
+   * The evaluation can be based on the user making the request and/or
+   * the document to be amended and/or the constructor parameters.
+   */
+  authorise?: (req: DocTypeConstructorAuthProps<Doc, User, Parameters>) => string|undefined
 }

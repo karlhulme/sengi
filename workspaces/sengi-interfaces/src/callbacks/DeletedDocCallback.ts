@@ -4,7 +4,7 @@ import { DocType } from '../docType'
 /**
  * Defines the properties passed to the delete callback.
  */
-export interface DeletedDocCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> {
+export interface DeletedDocCallbackProps<RequestProps, Doc extends DocBase, DocStoreOptions, User, Filter, Query, QueryResult> {
   /**
    * The name of the client that invoked the operation.
    */
@@ -18,7 +18,7 @@ export interface DeletedDocCallbackProps<RequestProps, Doc extends DocBase, DocS
   /**
    * The document type associated with the deleted document.
    */
-  docType: DocType<Doc, DocStoreOptions, Filter, Query, QueryResult>
+  docType: DocType<Doc, DocStoreOptions, User, Filter, Query, QueryResult>
 
   /**
    * Any properties passed along with the request.
@@ -29,9 +29,14 @@ export interface DeletedDocCallbackProps<RequestProps, Doc extends DocBase, DocS
    * The id of the document was that deleted.
    */
   id: string
+
+  /**
+   * The user that triggered the callback.
+   */
+  user: User
 }
 
 /**
  * Defines the callback that is raised when a document is deleted.
  */
-export type DeletedDocCallback<RequestProps, Doc extends DocBase, DocStoreOptions, Filter, Query, QueryResult> = (props: DeletedDocCallbackProps<RequestProps, Doc, DocStoreOptions, Filter, Query, QueryResult>) => Promise<void>
+export type DeletedDocCallback<RequestProps, Doc extends DocBase, DocStoreOptions, User, Filter, Query, QueryResult> = (props: DeletedDocCallbackProps<RequestProps, Doc, DocStoreOptions, User, Filter, Query, QueryResult>) => Promise<void>

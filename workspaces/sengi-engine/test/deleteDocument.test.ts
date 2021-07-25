@@ -47,7 +47,8 @@ test('Delete document by id should raise callbacks.', async () => {
     docStoreOptions: { custom: 'prop' },
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
-    id: '06151119-065a-4691-a7c8-2d84ec746ba9'
+    id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+    user: {}
   })
 })
 

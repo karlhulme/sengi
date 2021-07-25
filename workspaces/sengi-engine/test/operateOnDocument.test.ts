@@ -77,7 +77,8 @@ test('Operating on a document should raise callbacks.', async () => {
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka2' }),
-    isNew: false
+    isNew: false,
+    user: {}
   }))
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
@@ -87,7 +88,8 @@ test('Operating on a document should raise callbacks.', async () => {
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka2' }),
-    isNew: false
+    isNew: false,
+    user: {}
   }))
 })
 

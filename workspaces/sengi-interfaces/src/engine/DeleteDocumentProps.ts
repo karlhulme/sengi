@@ -1,11 +1,11 @@
 /**
  * Defines the properties that are required to delete a document.
  */
- export interface DeleteDocumentProps<RequestProps, DocStoreOptions> {
+ export interface DeleteDocumentProps<RequestProps, DocStoreOptions, User> {
   /**
    * The api key associated with the request.
    */
-   apiKey: string
+  apiKey: string
 
   /**
    * The name of the document type that is targeted by the request.
@@ -26,4 +26,9 @@
    * The document store options passed with the request.
    */
   docStoreOptions: DocStoreOptions
+
+  /**
+   * The user that is making the request.
+   */
+  user: User
 }

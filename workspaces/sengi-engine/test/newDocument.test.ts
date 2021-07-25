@@ -62,7 +62,8 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'ford', model: 'ka', registration: 'HG12 3AB' }),
-    isNew: true
+    isNew: true,
+    user: {}
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
@@ -71,7 +72,8 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'ford', model: 'ka', registration: 'HG12 3AB' }),
-    isNew: true
+    isNew: true,
+    user: {}
   })
 })
 

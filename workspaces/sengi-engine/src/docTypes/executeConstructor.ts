@@ -10,10 +10,11 @@ import { ajvErrorsToString } from '../utils'
  * Execute a constructor to produce a new document.
  * @param ajv A validator.
  * @param docType A document type.
+ * @param user A user object.
  * @param constructorName The name of a constructor.
  * @param constructorParams A set of constructor params.
  */
-export function executeConstructor (ajv: Ajv, docType: AnyDocType, constructorName: string, constructorParams: unknown): DocRecord {
+export function executeConstructor (ajv: Ajv, docType: AnyDocType, user: unknown,  constructorName: string, constructorParams: unknown): DocRecord {
   const ctor = docType.constructors?.[constructorName]
   
   if (typeof ctor !== 'object') {
@@ -27,7 +28,7 @@ export function executeConstructor (ajv: Ajv, docType: AnyDocType, constructorNa
   let result: DocRecord
 
   try {
-    result = ctor.implementation(constructorParams)
+    result = ctor.implementation({ user, parameters: constructorParams })
   } catch (err) {
     throw new SengiConstructorFailedError(docType.name, constructorName, err)
   }
