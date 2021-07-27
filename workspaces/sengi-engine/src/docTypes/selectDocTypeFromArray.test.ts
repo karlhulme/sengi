@@ -1,9 +1,9 @@
 import { expect, test } from '@jest/globals'
-import { SengiUnrecognisedDocTypeNameError, UnknownDocType } from 'sengi-interfaces'
+import { SengiUnrecognisedDocTypeNameError, AnyDocType } from 'sengi-interfaces'
 import { selectDocTypeFromArray } from './selectDocTypeFromArray'
 
 function createDocTypes () {
-  const docTypes: UnknownDocType[] = [{
+  const docTypes: AnyDocType[] = [{
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {}

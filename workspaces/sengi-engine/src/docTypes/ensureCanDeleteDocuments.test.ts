@@ -1,10 +1,10 @@
 import { expect, test } from '@jest/globals'
-import { SengiActionForbiddenByPolicyError, UnknownDocType } from 'sengi-interfaces'
+import { SengiActionForbiddenByPolicyError, AnyDocType } from 'sengi-interfaces'
 import { ensureCanDeleteDocuments } from './ensureCanDeleteDocuments'
 import { asError } from '../utils'
 
 test('Remain silent if policy allows delete action.', () => {
-  const docType: UnknownDocType = {
+  const docType: AnyDocType = {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {},
@@ -17,7 +17,7 @@ test('Remain silent if policy allows delete action.', () => {
 })
 
 test('Raise error if policy disallows delete action.', () => {
-  const docType: UnknownDocType = {
+  const docType: AnyDocType = {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {},
@@ -31,7 +31,7 @@ test('Raise error if policy disallows delete action.', () => {
 })
 
 test('Raise error if policy not specified for delete action.', () => {
-  const docType: UnknownDocType = {
+  const docType: AnyDocType = {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {}
