@@ -66,43 +66,49 @@ The `getDocStoreOptions` and `getRequestOptions` callbacks will be passed a `Sen
 
 A SengiExpress mounted at the `/` path would make a number of different routes accessible.  If you want to divide your doc types into collections, then mount multiple handlers at different points, e.g. `/cars` and `/bikes`.
 
+The examples below assume that Sengi is mounted at `/sengi`.
+
 ### To retrieve all documents in a collection:
 
-`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c`
+`GET https://server.com/sengi/records/<docTypePluralName>?fields=a,b,c`
 
 *(This route all supports the offset and limit query parameters, although this is not supported by all doc stores)*
 
 ### To retrieve a subset of documents from a collection using a filter:
 
-`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
+`GET https://server.com/sengi/records/<docTypePluralName>?fields=a,b,c&filterName=myFilter&filterParams={"foo":"bar"}`
 
 ### To retrieve a subset of documents from a collection by specifying id's:
 
-`GET https://server.com/sengi/<docTypePluralName>?fields=a,b,c&ids=1234,5678`
+`GET https://server.com/sengi/records/<docTypePluralName>?fields=a,b,c&ids=1234,5678`
 
-### To create a new document, post constructor parameters to:
+### To create a new document, post the new document to:
 
-`POST https://server.com/sengi/<docTypePluralName>`
+`POST https://server.com/sengi/records/<docTypePluralName>`
+
+### To create a new document using a constructor, post constructor parameters to:
+
+`POST https://server.com/sengi/records/<docTypePluralName>:<constructorName>`
 
 ### To access a single document:
 
-`GET https://server.com/sengi/<docTypePluralName>/<id>?fields=a,b,c`
+`GET https://server.com/sengi/records/<docTypePluralName>/<id>?fields=a,b,c`
 
 ### To update a document, send new field values:
 
-`PATCH https://server.com/sengi/<docTypePluralName>/<id>`
+`PATCH https://server.com/sengi/records/<docTypePluralName>/<id>`
 
 ### To execute an operation, send operation parameters to:
 
-`POST https://server.com/sengi/<docTypePluralName>/<id>:<operationName>`
+`POST https://server.com/sengi/records/<docTypePluralName>/<id>:<operationName>`
 
 ### To patch a document, send a merge patch object to:
 
-`PATCH https://server.com/sengi/<docTypePluralName>/<id>`
+`PATCH https://server.com/sengi/records/<docTypePluralName>/<id>`
 
 ### To delete a document:
 
-`DELETE https://server.com/sengi/<docTypePluralName>/<id>`
+`DELETE https://server.com/sengi/records/<docTypePluralName>/<id>`
 
 
 ## Development

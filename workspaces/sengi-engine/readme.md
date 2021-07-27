@@ -29,9 +29,9 @@ npm install sengi-engine
 
 To instantiate a Sengi engine you have to provide the following parameters:
 
-* **jsonotronTypes** An array of Jsonotron type strings (typically loaded from YAML files).  See the [jsonotron](https://github.com/karlhulme/jsonotron) repo for details.
+* **schemas** An array of schemas that may be referenced by parameter or filter objects.
 
-* **jsonotronFormatValidators** An object where each key is the name of a format validator and each value is a `JsonSchenaFormatValidatorFunc`.  See the [jsonotron-js](https://github.com/karlhulme/jsonotron-js) repo for details.
+* **userSchema** A schema that defines the user object that is passed to the doc type implementation and authorise functions.
 
 * **docTypes** - An array of Sengi DocType objects as defined in the `sengi-interfaces` package.
 
@@ -74,10 +74,10 @@ deleteDocument | `props: DeleteDocumentProps` | Deletes an existing document.  R
 operateOnDocument | `props: OperateOnDocumentProps` | Operates on an existing document.  Returns `{ isUpdated }`.
 patchDocument | `props: PatchDocumentProps` | Patches an existing document with a merge patch.  Use null to delete fields.  Returns `{ isUpdated }`.
 queryDocuments | `props: QueryDocumentsProps` | Executes a query across a set of documents, typically an aggregate like sum or max.
+replaceDocument | `props: ReplaceDocumentProps` | Replaces (or inserts) a document, without using the doc type constructor.  Returns `{ isNew }`.
 selectDocumentsByFilter | `props: SelectDocumentsByFilterProps` | Selects a set of documents using a filter.  Returns `{ deprecations, docs }`.
 selectDocumentsByIds | `props: SelectDocumentsByIdsProps` | Selects a set of documents using an array of document ids.  Returns `{ deprecations, docs }`.
 selectDocuments | `props: SelectDocumentsProps` | Selects all documents of a specified doc type.  Returns `{ deprecations, docs }`.
-replaceDocument | `props: ReplaceDocumentProps` | Replaces (or inserts) a document, without using the doc type constructor.  Returns `{ isNew }`.
 
 For the document-centric methods The properties `isNew`, `isDeleted` and `isUpdated` are booleans.
 

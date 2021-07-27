@@ -189,7 +189,7 @@ export function createTestableApp (): TestableApp {
     clients: [adminClient, guestClient],
     docStore: memDocStore,
     newUuid: () => '00000000-0000-0000-0000-000000000001',
-    userJsonSchema: { type: 'object' }
+    userSchema: { type: 'object' }
   })
 
   const testableApp = express()

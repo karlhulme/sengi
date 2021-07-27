@@ -19,7 +19,8 @@ To create a Sengi-based server, use the `createSengiExpress` function exported f
 
 You will need to choose a document store as well.  If you're just testing/playing then use the in-memory document store.  Otherwise choose between Microsoft Azure CosmosDB, Amazon AWS DynamoDB or Mongo.
 
-It is much easier to supply valid `DocType` and `RoleType` objects if you use the Typescript definitions exported from `sengi-interfaces`.
+It is much easier to supply valid `DocType` and `Client` objects if you use the Typescript definitions exported from `sengi-interfaces`.
+
 
 ## Doc Type
 
@@ -31,22 +32,20 @@ name | The unique name of the doc type.
 pluralName | The unique name of the doc type in plural form.  Some access patterns work better with a plural name, for example, a RESTful API for managing documents about books will use the plural name as follows: https://localhost:1234/docs/books?fields=author
 title | The display name of the doc type.
 pluralTitle | The display name of the doc type in plural form.
-summary | A short summary of the doc type, typically a single line.
-documentation | A markdown expression describing how to use the doc type.
-fields | A `Record<string, DocTypeField>` of field definitions.  Each field can be marked as `isRequired`, `isArray`, `canUpdate` and/or `mustInitialise`.  Each field must also be described in the markdown `documentation` field.
+summary | A summary of the document type.
+jsonSchema | A JSON schema definition that defines the fields that make up this document type.
+readOnlyFields | The names of the fields that cannot be patched directly.  These fields can be set by operations, constructors and a preSave function.  System field names are treated as readonly automatically. 
+deprecation | If populated, it should describe the replacement document type to use instead of this one.
 preSave | A function `(doc: Doc) => void` that is called prior to saving a document that can be used to perform cleanup.
 validate | A function `(doc: Doc) => void` that is called prior to saving a document that can raise an error if the document is not valid and should not be saved.
-examples | An array of example instances of the doc type with corresponding documentation.
-patchExamples | An array of example merge patches that would be valid for this doc type with corresponding documentation.
-calculatedFields | A `Record<string, DocTypeCalculatedField>` of fields that will be calculated from the declared fields on the document.  This will be updated whenever the document is saved regardless of whether the document is patched or mutated through an operation.  The resulting fields are saved as top-level fields.  If you change the implementation then existing documents will not reflect the new implementation until re-saved.
-filters | A `Record<string, DocTypeFilter>` that provides a range of filters that can be used to return subsets of documents.  The required response from a filter implementation will depend on the choice of document store.
-aggregates | A `Record<string, DocTypeAggregate>` that provides summary calculations across a whole set of documents.
-ctor | A `DocTypeConstructor` that defines how to create a new instance of this doc type.  An implementation of `() => ({})` is fine where no special construction is required.  A client can always pass fields marked as `canUpdate` in addition to the defined constructor parameters.  Any fields marked as `mustInitialise` will be a required constructor parameter.
-operations | A `Record<string, DocTypeOperation>` that provides all the mutations that can be carried out server-side on a document.  An operation is useful where (a) you want to strictly control the types of mutation on a document, such as payment records, or (b) you want to allow rapid changes to a single field without clients patching it.
+constructors | A `Record<string, DocTypeConstructor<Doc, User, any>` that provides a range of constructors that can be used to create new documents.
+filters | A `Record<string, DocTypeFilter<User, Filter, any>>` that provides a range of filters that can be used to return subsets of documents.  The required response from a filter implementation will depend on the choice of document store.
+operations | A `Record<string, DocTypeOperation<Doc, User, any>>` that provides all the mutations that can be carried out server-side on a document.  An operation is useful where (a) you want to strictly control the types of mutation on a document, such as payment records, or (b) you want to allow rapid changes to a single field without clients patching it.
+queries | A `Record<string, DocTypeQuery<User, any, any, QueryResult, Query>>` that provides a range of queries that can be executed across a collection of documents.
 policy | A `DocTypePolicy` object that defines the types of permitted operations on the document.
 docStoreOptions | A property bag that is passed to many of the document store operation callbacks.
+authorise |  A function `(props: DocTypeAuthProps<Doc, User>) => string\|undefined` that is called prior to operating or selecting a document.
 
-When naming doc types, you may want to use dotted notation to include one or more containers in order to logically group doc types together.  For example, `automotive.car` and `automotive.boat`.
 
 ## Client
 
@@ -72,19 +71,9 @@ API keys are used to provide coarse-grained security on a per-client basis.  A c
 
 A GraphQL service might be entitled to read-only access.  Conversely, a lambda-style service may be allowed to make updates to most documents, but some critical document types are excluded.  You can define these requirements in a client, and then assign an API key.  You can generate an API key using any mechanism as Sengi does not require any specific format be used.  A good choice is to use a [UUID generator](https://www.guidgenerator.com/online-guid-generator.aspx) and tick the base64 encode option.
 
+### User Object
 
-### User Object
-
-A client can also supply a user object.  This should be in the format that Sengi expects, and is established when it is created.  This user object will then be made available to doc type methods so you can determine on a per-request basis whether 
-
-
-## Field Types
-
-Each Sengi field is given a type.  These types are validated using [Jsonotron](https://github.com/karlhulme/jsonotron).
-
-You can define new enum and schema types using the JSON schema language and Sengi will use them.
-
-This gives you extensive control over the shape of the field values in a Sengi document.
+A client can also supply a user object.  This should be in the format that Sengi expects, and is established when it is created, via the `userSchema` property.  This user object will then be made available to doc type methods so you can determine on a per-request basis whether to complete the request.
 
 
 ## Database Guidance
@@ -105,7 +94,7 @@ A **child authoritative document** is one that exists in a one-to-many relations
 
 ### A Warehouse Document
 
-This document contains largely denormalised data.
+This document contains largely denormalised data.  They have to build (a) directly in response to changes, or (b) periodically.
 
 Like the authoritative documents, they should be given a primary key of a single unique id.  This ensures Sengi can still find, edit and remove individual records - however this won't be the common access pattern.
 

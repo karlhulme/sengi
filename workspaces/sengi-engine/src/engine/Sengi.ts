@@ -78,7 +78,7 @@ export interface SengiConstructorProps<RequestProps, DocStoreOptions, User, Filt
   docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   clients?: Client[]
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
-  userJsonSchema?: AnySchema
+  userSchema?: AnySchema
   log?: boolean
   onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
   onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
@@ -95,7 +95,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   private docTypes: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   private clients: Client[]
   private safeDocStore: SafeDocStore<DocStoreOptions, Filter, Query, QueryResult>
-  private userJsonSchema: AnySchema
+  private userSchema: AnySchema
   private apiKeysLoadedFromEnv: number
   private apiKeysNotFoundInEnv: number
   private log: boolean
@@ -117,7 +117,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
 
     this.docTypes = props.docTypes || []
     this.clients = props.clients || []
-    this.userJsonSchema = props.userJsonSchema || {}
+    this.userSchema = props.userSchema || {}
     this.apiKeysLoadedFromEnv = 0
     this.apiKeysNotFoundInEnv = 0
     this.log = Boolean(props.log)
@@ -187,7 +187,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
    async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions>): Promise<ConstructDocumentResult> {
     this.logRequest(`CREATE ${props.docTypeName}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
 
@@ -221,7 +221,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions>): Promise<DeleteDocumentResult> {
     this.logRequest(`DELETE ${props.docTypeName} ${props.id}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureDeletePermission(client, props.docTypeName)
 
@@ -260,7 +260,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions>): Promise<NewDocumentResult> {
     this.logRequest(`NEW ${props.docTypeName}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
 
@@ -303,7 +303,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async operateOnDocument (props: OperateOnDocumentProps<RequestProps, DocStoreOptions>): Promise<OperateOnDocumentResult> {
     this.logRequest(`OPERATE (${props.operationName}) ${props.docTypeName} ${props.id}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureOperatePermission(client, props.docTypeName, props.operationName)
 
@@ -338,7 +338,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async patchDocument (props: PatchDocumentProps<RequestProps, DocStoreOptions>): Promise<PatchDocumentResult> {
     this.logRequest(`PATCH ${props.docTypeName} ${props.id}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensurePatchPermission(client, props.docTypeName)
 
@@ -383,7 +383,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions>): Promise<QueryDocumentsResult> {
     this.logRequest(`QUERY (${props.queryName}) ${props.docTypeName}`)
-    ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureQueryPermission(client, props.docTypeName, props.queryName)
 
@@ -406,7 +406,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions>): Promise<ReplaceDocumentResult> {
     this.logRequest(`REPLACE ${props.docTypeName}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureReplacePermission(client, props.docTypeName)
 
@@ -443,7 +443,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async selectDocumentsByFilter (props: SelectDocumentsByFilterProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByFilterResult> {
     this.logRequest(`SELECT (${props.filterName}) ${props.docTypeName}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
@@ -479,7 +479,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async selectDocumentsByIds (props: SelectDocumentsByIdsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByIdsResult> {
     this.logRequest(`SELECT (IDS) ${props.docTypeName} ${props.ids}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
@@ -510,7 +510,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    */
   async selectDocuments (props: SelectDocumentsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsResult> {
     this.logRequest(`SELECT (TYPE) ${props.docTypeName}`)
-    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
+    const user = ensureUser<User>(this.ajv, this.userSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
