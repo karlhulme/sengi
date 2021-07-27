@@ -1,7 +1,7 @@
 /**
  * Defines the properties that are required to create a document using a constructor.
  */
-export interface ConstructDocumentProps<RequestProps, DocStoreOptions, User> {
+export interface ConstructDocumentProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -40,5 +40,5 @@ export interface ConstructDocumentProps<RequestProps, DocStoreOptions, User> {
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

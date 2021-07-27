@@ -1,5 +1,5 @@
 import { DocPatch } from 'sengi-interfaces'
-import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderApiKey } from '../requestValidation'
+import { ensureHeaderJsonAcceptType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderReqVersion, ensureHeaderApiKey, ensureHeaderUser } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -8,7 +8,7 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  * Handles a patch request and produces a response. 
  * @param props Properties for handling the request.
  */
-export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
+export async function patchDocumentHandler<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonAcceptType(props.req.headers[HttpHeaderNames.AcceptType])
 
@@ -16,6 +16,7 @@ export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter
     const requestId = ensureHeaderRequestId(props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const reqVersion = ensureHeaderReqVersion(props.req.headers[HttpHeaderNames.ReqVersion])
     const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
+    const user = ensureHeaderUser(props.req.headers[HttpHeaderNames.User])
 
     const result = await props.sengi.patchDocument({
       docStoreOptions: props.docStoreOptions,
@@ -25,7 +26,8 @@ export async function patchDocumentHandler<RequestProps, DocStoreOptions, Filter
       operationId: requestId,
       reqProps: props.reqProps,
       reqVersion,
-      apiKey
+      apiKey,
+      user
     })
 
     applyResultToHttpResponse(props.res, {

@@ -1,4 +1,4 @@
-import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderApiKey } from '../requestValidation'
+import { ensureHeaderJsonContentType, ensureDocTypeFromSingularOrPluralName, ensureHeaderRequestId, ensureHeaderApiKey, ensureHeaderUser } from '../requestValidation'
 import { applyErrorToHttpResponse, applyResultToHttpResponse } from '../responseGeneration'
 import { HttpHeaderNames } from '../utils'
 import { RequestHandlerProps } from './RequestHandlerProps'
@@ -7,13 +7,14 @@ import { RequestHandlerProps } from './RequestHandlerProps'
  * Handles a new document request and produces a response.
  * @param props Properties for handling the request.
  */
-export async function newDocumentHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): Promise<void> {
+export async function newDocumentHandler<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> (props: RequestHandlerProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult>): Promise<void> {
   try {
     ensureHeaderJsonContentType(props.req.headers[HttpHeaderNames.ContentType])
 
     const docType = ensureDocTypeFromSingularOrPluralName(props.docTypes, props.matchedResource.urlParams['docTypeSingularOrPluralName'])
     const requestId = ensureHeaderRequestId(props.req.body.id || props.serverRequestId, props.req.headers[HttpHeaderNames.RequestId])
     const apiKey = ensureHeaderApiKey(props.req.headers[HttpHeaderNames.ApiKey])
+    const user = ensureHeaderUser(props.req.headers[HttpHeaderNames.User])
 
     const result = await props.sengi.newDocument({
       docStoreOptions: props.docStoreOptions,
@@ -21,7 +22,8 @@ export async function newDocumentHandler<RequestProps, DocStoreOptions, Filter, 
       id: requestId,
       doc: props.req.body,
       reqProps: props.reqProps,
-      apiKey
+      apiKey,
+      user
     })
 
     applyResultToHttpResponse(props.res, {

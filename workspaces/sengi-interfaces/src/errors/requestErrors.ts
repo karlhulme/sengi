@@ -207,3 +207,12 @@ export class SengiUnrecognisedQueryNameError extends SengiRequestError {
     this.queryName = queryName
   }
 }
+
+export class SengiUserValidationFailedError extends SengiRequestError {
+  constructor (readonly validationError: string) {
+    super(`The user object was not valid.\n${validationError}`)
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+    this.validationError = validationError
+  }
+}

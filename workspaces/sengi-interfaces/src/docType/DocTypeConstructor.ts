@@ -26,5 +26,5 @@ export interface DocTypeConstructor<Doc, User, Parameters> {
    * The evaluation can be based on the user making the request and/or
    * the document to be amended and/or the constructor parameters.
    */
-  authorise?: (req: DocTypeConstructorAuthProps<Doc, User, Parameters>) => string|undefined
+  authorise?: (req: DocTypeConstructorAuthProps<User, Parameters>) => string|undefined
 }

@@ -24,7 +24,7 @@ import { MatchedRestResource } from '../matching'
  * @param req An express request.
  * @param matchedResource A matched resource.
  */
-export function selectHandlerForRequest<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (req: Request, matchedResource: MatchedRestResource): RequestHandler<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+export function selectHandlerForRequest<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> (req: Request, matchedResource: MatchedRestResource): RequestHandler<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
   if (matchedResource.type === RestResourceType.RECORD_COLLECTION) {
     switch (req.method) {
       case 'GET': {

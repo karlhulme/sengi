@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { HttpHeaderNames } from '../utils'
 import {
   SengiActionForbiddenByPolicyError,
+  SengiAuthorisationFailedError,
   SengiConflictOnSaveError,
   SengiDocNotFoundError,
   SengiInsufficientPermissionsError,
@@ -55,7 +56,8 @@ function determineStatusFromError (err: Error): number {
   }
 
   if (err instanceof SengiActionForbiddenByPolicyError ||
-    err instanceof SengiInsufficientPermissionsError) {
+    err instanceof SengiInsufficientPermissionsError ||
+    err instanceof SengiAuthorisationFailedError) {
     return 403
   }
 

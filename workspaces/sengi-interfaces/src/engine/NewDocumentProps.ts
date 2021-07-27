@@ -4,7 +4,7 @@ import { DocRecord } from '../doc'
  * Defines the properties that are required to create
  * a new document from a fragment.
  */
-export interface NewDocumentProps<RequestProps, DocStoreOptions, User> {
+export interface NewDocumentProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -38,5 +38,5 @@ export interface NewDocumentProps<RequestProps, DocStoreOptions, User> {
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

@@ -7,6 +7,7 @@ test('201 - create a new document', async () => {
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(201)
@@ -28,6 +29,7 @@ test('201 - create a new document with an explicit id in the request-id', async 
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ filmTitle: 'Frozen' })
 
@@ -50,6 +52,7 @@ test('201 - create a new document with an explicit id in the document body', asy
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ id: 'e09fa312-ece2-47d7-8a6b-d0b6598a9083', filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(201)
@@ -71,6 +74,7 @@ test('201 - create a new document with a previously used id', async () => {
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'ba8f06b4-9b41-4e71-849c-484433afee79')
     .send({ filmTitle: 'Frozen' })
 
@@ -96,6 +100,7 @@ test('400 - fail to create a new document with missing required doc fields', asy
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({})
 
   expect(response.status).toEqual(400)
@@ -119,6 +124,7 @@ test('400 - fail to create a new document when request id and doc id conflict', 
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'ee8afee7-4d02-4472-9380-d45f33d5944b')
     .send({ id: '5b20018a-6918-4e77-acee-5ba982eb1105', filmTitle: 'Frozen' })
 
@@ -132,6 +138,7 @@ test('403 - fail to create a new document with insufficient permissions', async 
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'guestKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(403)
@@ -143,7 +150,7 @@ test('404 - fail to create a new document in an unknown collection', async () =>
   const response = await supertest(testableApp)
     .post('/root/records/unknown')
     .set('x-api-key', 'adminKey')
-    .set('x-user-id', 'testUser')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(404)
@@ -156,6 +163,7 @@ test('405 - fail to create a new document using the PUT method', async () => {
   const response = await supertest(testableApp)
     .put('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Frozen' })
 
   expect(response.status).toEqual(405)
@@ -168,6 +176,7 @@ test('415 - fail to create a document with invalid content-type headers', async 
   const response = await supertest(testableApp)
     .post('/root/records/films')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('content-type', 'application/xml')
     .send('<?xml version="1.0" encoding="UTF-8"?><root />')
 

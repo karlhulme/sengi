@@ -2,7 +2,7 @@
  * Defines the properties that are required to execute a query
  * against the collection.
  */
- export interface QueryDocumentsProps<RequestProps, DocStoreOptions, User> {
+ export interface QueryDocumentsProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -36,5 +36,5 @@
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

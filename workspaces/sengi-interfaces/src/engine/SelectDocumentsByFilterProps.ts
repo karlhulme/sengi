@@ -2,7 +2,7 @@
  * Defines the properties that are required to select from a
  * document collection using a filter.
  */
- export interface SelectDocumentsByFilterProps<RequestProps, DocStoreOptions, User> {
+ export interface SelectDocumentsByFilterProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -52,5 +52,5 @@
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

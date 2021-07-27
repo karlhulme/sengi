@@ -1,7 +1,7 @@
 /**
  * Defines the properties that are required to operation on a document.
  */
- export interface OperateOnDocumentProps<RequestProps, DocStoreOptions, User> {
+ export interface OperateOnDocumentProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -52,5 +52,5 @@
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

@@ -1,6 +1,6 @@
 import Ajv from 'ajv'
 import {
-  AnyDocType, DocRecord, SengiConstructorFailedError,
+  AnyDocType, DocRecord, SengiAuthorisationFailedError, SengiConstructorFailedError,
   SengiConstructorNonObjectResponseError, SengiCtorParamsValidationFailedError,
   SengiUnrecognisedCtorNameError
 } from 'sengi-interfaces'
@@ -23,6 +23,17 @@ export function executeConstructor (ajv: Ajv, docType: AnyDocType, user: unknown
 
   if (!ajv.validate(ctor.parametersJsonSchema, constructorParams)) {
     throw new SengiCtorParamsValidationFailedError(docType.name, constructorName, ajvErrorsToString(ajv.errors))
+  }
+
+  if (ctor.authorise) {
+    const authFailure = ctor.authorise({
+      parameters: constructorParams,
+      user
+    })
+
+    if (typeof authFailure === 'string') {
+      throw new SengiAuthorisationFailedError(docType.name, authFailure)
+    }
   }
 
   let result: DocRecord

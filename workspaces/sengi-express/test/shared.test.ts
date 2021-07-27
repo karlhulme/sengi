@@ -2,7 +2,7 @@ import { test, expect } from '@jest/globals'
 import express, { Express, json } from 'express'
 import { MemDocStore } from 'sengi-docstore-mem'
 import { createSengiExpress } from '../src'
-import { DocRecord, DocType, Client } from 'sengi-interfaces'
+import { DocRecord, DocType, Client, DocTypeConstructor } from 'sengi-interfaces'
 import { MemDocStoreFilter, MemDocStoreOptions, MemDocStoreQuery, MemDocStoreQueryResult } from 'sengi-docstore-mem/src'
 
 function createAdminClient (): Client {
@@ -32,7 +32,11 @@ export interface Film {
   totalCastSize?: number
 }
 
-function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult> {
+export interface ExampleUser {
+  name: string
+}
+
+function createFilmDocType (): DocType<Film, MemDocStoreOptions, ExampleUser, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult> {
   return {
     name: 'film',
     pluralName: 'films',
@@ -67,11 +71,11 @@ function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilt
           },
           required: ['title']
         },
-        implementation: (params: { title: string }) => ({
-          filmTitle: params.title,
+        implementation: props => ({
+          filmTitle: props.parameters.title,
           durationInMinutes: 15
         })
-      }
+      } as DocTypeConstructor<Film, ExampleUser, Record<string, string>>
     },
     filters: {
       byDuration: {
@@ -82,7 +86,7 @@ function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilt
           },
           required: ['minDuration']
         },
-        parse: params => (film: Film) => (film.durationInMinutes || 0) > params.minDuration
+        parse: props => (film: Film) => (film.durationInMinutes || 0) > props.parameters.minDuration
       },
       byEmptyCast: {
         parametersJsonSchema: {},
@@ -98,12 +102,12 @@ function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilt
           },
           required: ['actor']
         },
-        implementation: (film, params) => {
-          if (!Array.isArray(film.castMembers)) {
-            film.castMembers = []
+        implementation: props => {
+          if (!Array.isArray(props.doc.castMembers)) {
+            props.doc.castMembers = []
           }
 
-          film.castMembers.push(params.actor)
+          props.doc.castMembers.push(props.parameters.actor)
         }
       }
     },
@@ -147,7 +151,7 @@ function createFilmDocType (): DocType<Film, MemDocStoreOptions, MemDocStoreFilt
 }
 
 interface TestableApp {
-  filmDocType: DocType<Film, MemDocStoreOptions, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult>
+  filmDocType: DocType<Film, MemDocStoreOptions, ExampleUser, MemDocStoreFilter, MemDocStoreQuery, MemDocStoreQueryResult>
   adminClient: Client
   testableApp: Express
   docs: DocRecord[]
@@ -184,7 +188,8 @@ export function createTestableApp (): TestableApp {
     docTypes: [filmDocType],
     clients: [adminClient, guestClient],
     docStore: memDocStore,
-    newUuid: () => '00000000-0000-0000-0000-000000000001'
+    newUuid: () => '00000000-0000-0000-0000-000000000001',
+    userJsonSchema: { type: 'object' }
   })
 
   const testableApp = express()

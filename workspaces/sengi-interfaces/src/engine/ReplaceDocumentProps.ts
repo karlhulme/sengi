@@ -3,7 +3,7 @@ import { DocRecord } from '../doc'
 /**
  * Defines the properties that are required to replace a document.
  */
- export interface ReplaceDocumentProps<RequestProps, DocStoreOptions, User> {
+ export interface ReplaceDocumentProps<RequestProps, DocStoreOptions> {
   /**
    * The api key associated with the request.
    */
@@ -32,5 +32,5 @@ import { DocRecord } from '../doc'
   /**
    * The user that is making the request.
    */
-  user: User
+  user: unknown
 }

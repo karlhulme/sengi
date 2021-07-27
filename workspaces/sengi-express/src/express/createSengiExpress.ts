@@ -10,7 +10,7 @@ import { SengiExpressCallbackProps } from './SengiExpressCallbackProps'
 /**
  * Represents the properties of a sengi express constructor.
  */
-export interface SengiExpressConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> extends SengiConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+export interface SengiExpressConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> extends SengiConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
   additionalComponentsCount?: number
   getDocStoreOptions?: (props: SengiExpressCallbackProps) => DocStoreOptions
   getRequestProps?: (props: SengiExpressCallbackProps) => RequestProps
@@ -21,7 +21,7 @@ export interface SengiExpressConstructorProps<RequestProps, DocStoreOptions, Fil
  * Creates a new sengi handler that can be used as an Express route handler.
  * @param props The constructor properties.
  */
-export function createSengiExpress<RequestProps, DocStoreOptions, Filter, Query, QueryResult> (props: SengiExpressConstructorProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult>): RequestHandler {
+export function createSengiExpress<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> (props: SengiExpressConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult>): RequestHandler {
   const sengi = new Sengi(props)
   const matchers = createRestResourceMatcherArray(props.additionalComponentsCount || 0)
 
@@ -42,7 +42,7 @@ export function createSengiExpress<RequestProps, DocStoreOptions, Filter, Query,
       urlParams: matchedResource.urlParams
     }
 
-    const handlerParams: RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> = {
+    const handlerParams: RequestHandlerProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> = {
       baseUrl: req.baseUrl,
       matchedResource,
       docStoreOptions: getDocStoreOptions(callbackProps),

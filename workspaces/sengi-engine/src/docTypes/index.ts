@@ -1,5 +1,6 @@
 export * from './appendDocOpId'
 export * from './coerceQuery'
+export * from './ensureDocTypeRequestAuthorised'
 export * from './ensureCanDeleteDocuments'
 export * from './ensureCanFetchWholeCollection'
 export * from './ensureCanReplaceDocuments'

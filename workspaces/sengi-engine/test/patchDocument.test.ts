@@ -9,7 +9,8 @@ import {
   DocStoreUpsertResult,
   SengiPatchValidationFailedError,
   SengiDocValidationFailedError,
-  SengiUnrecognisedApiKeyError
+  SengiUnrecognisedApiKeyError,
+  SengiAuthorisationFailedError
 } from 'sengi-interfaces'
 import { createSengiWithMockStore, defaultRequestProps } from './shared.test'
 
@@ -306,5 +307,23 @@ test('Fail to patch a document if client api key is not recognised.', async () =
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiUnrecognisedApiKeyError)
+  }
+})
+
+test('Fail to patch with a field that is protected by authorisation.', async () => {
+  const { sengi } = createSengiForTest()
+
+  try {
+    await sengi.patchDocument({
+      ...defaultRequestProps,
+      id: '06151119-065a-4691-a7c8-2d84ec746ba9',
+      operationId: '3ba01b5c-1ff1-481f-92f1-43d2060e11e7',
+      patch: {
+        engineCode: 'a1231bb'
+      }
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiAuthorisationFailedError)
   }
 })

@@ -7,6 +7,7 @@ test('404 - invalid path', async () => {
   const response = await supertest(testableApp)
     .get('/root/records/route/to/nowhere')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
 
   expect(response.status).toEqual(404)
   expect(response.text).toMatch(/does not point to a recognised resource/)

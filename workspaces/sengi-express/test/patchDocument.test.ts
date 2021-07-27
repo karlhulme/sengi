@@ -7,6 +7,7 @@ test('204 - patch a document', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Die Hard 2' })
 
   expect(response.status).toEqual(204)
@@ -23,6 +24,7 @@ test('204 - patch a document with a required version', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('if-match', 'xyz')
     .send({ filmTitle: 'Die Hard 2' })
 
@@ -40,6 +42,7 @@ test('204 - patch a document with an explicit operation id', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ filmTitle: 'Die Hard 2' })
 
@@ -57,6 +60,7 @@ test('204 - patch a document with a used (previously applied) operation id', asy
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', '0000d8e8-70b5-4968-8fc8-f9ef8b150000')
     .send({ filmTitle: 'Die Hard 2' })
 
@@ -74,6 +78,7 @@ test('400 - fail to patch a document with invalid fields', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 123 })
 
   expect(response.status).toEqual(400)
@@ -86,6 +91,7 @@ test('400 - fail to patch a readonly fields in a document', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ durationInMinutes: 95 })
 
   expect(response.status).toEqual(400)
@@ -99,6 +105,7 @@ test('404 - fail to patch an unknown document', async () => {
   const response = await supertest(testableApp)
     .patch('/root/records/films/unknown_id')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ filmTitle: 'Die Hard 2' })
 
   expect(response.status).toEqual(404)
@@ -111,6 +118,7 @@ test('412 - fail to patch a document with an unavailable required version', asyn
   const response = await supertest(testableApp)
     .patch('/root/records/films/ba8f06b4-9b41-4e71-849c-484433afee79')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('if-match', 'abcd')
     .send({ filmTitle: 'Die Hard 2' })
 

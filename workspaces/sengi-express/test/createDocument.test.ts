@@ -7,6 +7,7 @@ test('201 - create a document with a constructor', async () => {
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(201)
@@ -29,6 +30,7 @@ test('201 - create a document with a constructor and with an explicit id', async
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'abcdd8e8-70b5-4968-8fc8-f9ef8b15abcd')
     .send({ title: 'Cloudy' })
 
@@ -52,6 +54,7 @@ test('201 - create a document with a constructor and with a previously used id',
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('x-request-id', 'ba8f06b4-9b41-4e71-849c-484433afee79')
     .send({ title: 'Cloudy' })
 
@@ -77,6 +80,7 @@ test('400 - fail to create document with missing constructor fields', async () =
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({})
 
   expect(response.status).toEqual(400)
@@ -100,6 +104,7 @@ test('403 - fail to create document with a constructor and with insufficient per
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'guestKey')
+    .set('x-user', '{}')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(403)
@@ -111,7 +116,7 @@ test('404 - fail to create document with a constructor in an unknown collection'
   const response = await supertest(testableApp)
     .post('/root/records/unknown:makeShort')
     .set('x-api-key', 'adminKey')
-    .set('x-user-id', 'testUser')
+    .set('x-user', '{}')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(404)
@@ -124,6 +129,7 @@ test('405 - fail to create a document with a constructor and using the PUT metho
   const response = await supertest(testableApp)
     .put('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .send({ title: 'Cloudy' })
 
   expect(response.status).toEqual(405)
@@ -136,6 +142,7 @@ test('415 - fail to create a document with a constructor and with invalid conten
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')
     .set('x-api-key', 'adminKey')
+    .set('x-user', '{}')
     .set('content-type', 'application/xml')
     .send('<?xml version="1.0" encoding="UTF-8"?><root />')
 

@@ -72,9 +72,25 @@ export class SengiExpressMalformedQueryParamsError extends SengiExpressRequestEr
   }
 }
 
+export class SengiExpressMalformedUserError extends SengiExpressRequestError {
+  constructor () {
+    super('The X-USER header could not be parsed as a JSON object.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
 export class SengiExpressMissingApiKeyError extends SengiExpressRequestError {
   constructor () {
     super('The request did not specify an X-API-KEY header.')
+    Object.setPrototypeOf(this, new.target.prototype)
+    this.name = this.constructor.name
+  }
+}
+
+export class SengiExpressMissingUserError extends SengiExpressRequestError {
+  constructor () {
+    super('The request did not specify an X-USER header.')
     Object.setPrototypeOf(this, new.target.prototype)
     this.name = this.constructor.name
   }

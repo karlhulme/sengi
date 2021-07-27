@@ -4,7 +4,8 @@ import {
   SengiUnrecognisedQueryNameError,
   SengiQueryParamsValidationFailedError,
   SengiQueryParseFailedError,
-  DocTypeQuery
+  DocTypeQuery,
+  SengiAuthorisationFailedError
 } from 'sengi-interfaces'
 import { asError } from '../utils'
 import { createValidator } from './shared.test'
@@ -45,7 +46,12 @@ function createDocType () {
           return props.parameters.queryPropA + 'Query'
         },
         responseJsonSchema: {},
-        coerce: () => ({})
+        coerce: () => ({}),
+        authorise: props => {
+          if (props.parameters.queryPropA === 'noAuth') {
+            return 'noAuth'
+          }
+        }
       } as DocTypeQuery<unknown, unknown, ExampleQueryParams, unknown, ExampleQuery>
     }
   }
@@ -71,6 +77,16 @@ test('Reject production of query object using invalid parameters.', () => {
   expect(() => parseQuery(createValidator(), createDocType(), null, 'count', { queryPropA: 123 })).toThrow(asError(SengiQueryParamsValidationFailedError))
 })
 
-test('Reject production of query object if operation raises error.', () => {
+test('Reject production of query object if parsing raises error.', () => {
   expect(() => parseQuery(createValidator(), createDocType(), null, 'count', { queryPropA: 'fail' })).toThrow(asError(SengiQueryParseFailedError))
+})
+
+test('Reject production of query object if authorisation fails.', () => {
+  expect(() => parseQuery(createValidator(), createDocType(), null, 'count', { queryPropA: 'noAuth' })).toThrow(asError(SengiAuthorisationFailedError))
+})
+
+test('Skip query authorisation if no authorisation method defined.', () => {
+  const docType = createDocType()
+  delete docType.queries?.count.authorise
+  expect(parseQuery(createValidator(), docType, null, 'count', { queryPropA: 'noAuth' })).toEqual('noAuthQuery')
 })

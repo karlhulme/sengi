@@ -65,8 +65,10 @@ import {
   selectDocTypeFromArray,
   parseQuery,
   coerceQuery,
-  ensureNewDocIdsMatch
+  ensureNewDocIdsMatch,
+  ensureDocTypeRequestAuthorised
 } from '../docTypes'
+import { ensureUser } from '../security/ensureUser'
 
 /**
  * The properties that are used to manage the construction of a Sengi.
@@ -76,6 +78,7 @@ export interface SengiConstructorProps<RequestProps, DocStoreOptions, User, Filt
   docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   clients?: Client[]
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
+  userJsonSchema?: AnySchema
   log?: boolean
   onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
   onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
@@ -92,6 +95,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   private docTypes: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   private clients: Client[]
   private safeDocStore: SafeDocStore<DocStoreOptions, Filter, Query, QueryResult>
+  private userJsonSchema: AnySchema
   private apiKeysLoadedFromEnv: number
   private apiKeysNotFoundInEnv: number
   private log: boolean
@@ -113,9 +117,10 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
 
     this.docTypes = props.docTypes || []
     this.clients = props.clients || []
-    this.log = Boolean(props.log)
+    this.userJsonSchema = props.userJsonSchema || {}
     this.apiKeysLoadedFromEnv = 0
     this.apiKeysNotFoundInEnv = 0
+    this.log = Boolean(props.log)
 
     if (!props.docStore) {
       throw new Error('Must supply a docStore.')
@@ -180,8 +185,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Creates a new document by invoking a constructor.
    * @param props A property bag.
    */
-   async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions, User>): Promise<ConstructDocumentResult> {
+   async createDocument (props: ConstructDocumentProps<RequestProps, DocStoreOptions>): Promise<ConstructDocumentResult> {
     this.logRequest(`CREATE ${props.docTypeName}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
 
@@ -190,15 +196,13 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const existsResult = await this.safeDocStore.exists(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
   
     if (!existsResult.found) {
-      const user: User = {} as User // load user and authorise action
-
-      const doc = executeConstructor(this.ajv, docType, user, props.constructorName, props.constructorParams)
+      const doc = executeConstructor(this.ajv, docType, props.user, props.constructorName, props.constructorParams)
 
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
 
-      executePreSave(docType, doc, user)
+      executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
     
@@ -215,8 +219,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * If the document does not exist then the call succeeds but indicates that a document was not actually deleted.
    * @param props A property bag.
    */
-  async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions, User>): Promise<DeleteDocumentResult> {
+  async deleteDocument (props: DeleteDocumentProps<RequestProps, DocStoreOptions>): Promise<DeleteDocumentResult> {
     this.logRequest(`DELETE ${props.docTypeName} ${props.id}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureDeletePermission(client, props.docTypeName)
 
@@ -227,7 +232,14 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
 
     if (typeof fetchResult.doc === 'object' && !Array.isArray(fetchResult.doc) && fetchResult.doc !== null) {
-      const user: User = {} as User // load user and authorise action
+      ensureDocTypeRequestAuthorised(docType, {
+        doc: fetchResult.doc,
+        user: props.user,
+        requestType: 'delete',
+        isRead: false,
+        isWrite: true,
+        fieldNames: []
+      })
 
       const deleteByIdResult = await this.safeDocStore.deleteById(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
       const isDeleted = deleteByIdResult.code === DocStoreDeleteByIdResultCode.DELETED
@@ -246,10 +258,12 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Adds a new document to a collection by supplying all the data.
    * @param props A property bag.
    */
-  async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions, User>): Promise<NewDocumentResult> {
+  async newDocument (props: NewDocumentProps<RequestProps, DocStoreOptions>): Promise<NewDocumentResult> {
     this.logRequest(`NEW ${props.docTypeName}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureCreatePermission(client, props.docTypeName)
+
     ensureNewDocIdsMatch(props.id, props.doc.id as string)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
@@ -259,13 +273,19 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!existsResult.found) {
       const doc = props.doc
 
-      const user: User = {} as User // load user and authorise action
+      ensureDocTypeRequestAuthorised(docType, {
+        user: props.user,
+        requestType: 'new',
+        isRead: false,
+        isWrite: true,
+        fieldNames: Object.keys(doc)
+      })
 
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
 
-      executePreSave(docType, doc, user)
+      executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
     
@@ -281,8 +301,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Operates on an existing document.
    * @param props A property bag.
    */
-  async operateOnDocument (props: OperateOnDocumentProps<RequestProps, DocStoreOptions, User>): Promise<OperateOnDocumentResult> {
+  async operateOnDocument (props: OperateOnDocumentProps<RequestProps, DocStoreOptions>): Promise<OperateOnDocumentResult> {
     this.logRequest(`OPERATE (${props.operationName}) ${props.docTypeName} ${props.id}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureOperatePermission(client, props.docTypeName, props.operationName)
 
@@ -291,8 +312,6 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
 
     const doc = ensureDocWasFound(docType.name, props.id, fetchResult.doc)
-
-    const user: User = {} as User // load user and authorise action
 
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
 
@@ -317,8 +336,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Patches an existing document with a merge patch.
    * @param props A property bag.
    */
-  async patchDocument (props: PatchDocumentProps<RequestProps, DocStoreOptions, User>): Promise<PatchDocumentResult> {
+  async patchDocument (props: PatchDocumentProps<RequestProps, DocStoreOptions>): Promise<PatchDocumentResult> {
     this.logRequest(`PATCH ${props.docTypeName} ${props.id}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensurePatchPermission(client, props.docTypeName)
 
@@ -328,15 +348,23 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   
     const doc = ensureDocWasFound(docType.name, props.id, fetchResult.doc)
 
-    const user: User = {} as User // load user and authorise action
-
+    ensureDocTypeRequestAuthorised(docType, {
+      user: props.user,
+      isRead: false,
+      isWrite: true,
+      requestType: 'patch',
+      fieldNames: Object.keys(props.patch),
+      doc,
+      patch: props.patch
+    })
+    
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
   
     if (!opIdAlreadyExists) {
       executePatch(docType, doc, props.patch)
       appendDocOpId(docType, doc, props.operationId)
 
-      executePreSave(docType, doc, user)
+      executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
 
@@ -353,16 +381,15 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Executes a query across a set of documents.
    * @param props A property bag.
    */
-  async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions, User>): Promise<QueryDocumentsResult> {
+  async queryDocuments (props: QueryDocumentsProps<RequestProps, DocStoreOptions>): Promise<QueryDocumentsResult> {
     this.logRequest(`QUERY (${props.queryName}) ${props.docTypeName}`)
+    ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureQueryPermission(client, props.docTypeName, props.queryName)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
 
-    const user: User = {} as User // load user and authorise action
-
-    const query = parseQuery(this.ajv, docType, user, props.queryName, props.queryParams)
+    const query = parseQuery(this.ajv, docType, props.user, props.queryName, props.queryParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     const queryResult = await this.safeDocStore.query(docType.name, docType.pluralName, query, combinedDocStoreOptions, {})
@@ -377,8 +404,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Unlike the newDocument function, this function will replace an existing document.
    * @param props A property bag.
    */
-  async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions, User>): Promise<ReplaceDocumentResult> {
+  async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions>): Promise<ReplaceDocumentResult> {
     this.logRequest(`REPLACE ${props.docTypeName}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureReplacePermission(client, props.docTypeName)
 
@@ -387,9 +415,15 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   
     const doc = props.doc
 
-    const user: User = {} as User // load user and authorise action
+    ensureDocTypeRequestAuthorised(docType, {
+      user: props.user,
+      isRead: false,
+      isWrite: true,
+      requestType: 'patch',
+      fieldNames: Object.keys(props.doc)
+    })
 
-    executePreSave(docType, doc, user)
+    executePreSave(docType, doc, props.user)
     ensureDoc(this.ajv, docType, doc)
     executeValidator(docType, doc)
 
@@ -407,15 +441,15 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Selects a set of documents using a filter.
    * @param props A property bag.
    */
-  async selectDocumentsByFilter (props: SelectDocumentsByFilterProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsByFilterResult> {
+  async selectDocumentsByFilter (props: SelectDocumentsByFilterProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByFilterResult> {
     this.logRequest(`SELECT (${props.filterName}) ${props.docTypeName}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
 
-    const user: User = {} as User // load user
-    const filter = parseFilter(this.ajv, docType, user, props.filterName, props.filterParams)
+    const filter = parseFilter(this.ajv, docType, props.user, props.filterName, props.filterParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
@@ -425,7 +459,16 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       offset: props.offset
     })
 
-    // auth retrieval of each doc - hide those that fail
+    for (const doc of queryResult.docs) {
+      ensureDocTypeRequestAuthorised(docType, {
+        doc,
+        requestType: 'selectByIds',
+        user: props.user,
+        isRead: true,
+        isWrite: false,
+        fieldNames: props.fieldNames
+      })
+    }
     
     return { docs: queryResult.docs }
   }
@@ -434,21 +477,29 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Selects a set of documents using an array of document ids.
    * @param props A property bag.
    */
-  async selectDocumentsByIds (props: SelectDocumentsByIdsProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsByIdsResult> {
+  async selectDocumentsByIds (props: SelectDocumentsByIdsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsByIdsResult> {
     this.logRequest(`SELECT (IDS) ${props.docTypeName} ${props.ids}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
   
-    const user: User = {} as User // load user
-
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
 
     const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
   
-    // auth retrieval of each doc - error if any fail
+    for (const doc of queryResult.docs) {
+      ensureDocTypeRequestAuthorised(docType, {
+        doc,
+        requestType: 'selectByIds',
+        user: props.user,
+        isRead: true,
+        isWrite: false,
+        fieldNames: props.fieldNames
+      })
+    }
 
     return { docs: queryResult.docs }
   }
@@ -457,16 +508,15 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
    * Selects all documents of a specified doc type.
    * @param props A property bag.
    */
-  async selectDocuments (props: SelectDocumentsProps<RequestProps, DocStoreOptions, User>): Promise<SelectDocumentsResult> {
+  async selectDocuments (props: SelectDocumentsProps<RequestProps, DocStoreOptions>): Promise<SelectDocumentsResult> {
     this.logRequest(`SELECT (TYPE) ${props.docTypeName}`)
+    const user = ensureUser<User>(this.ajv, this.userJsonSchema, props.user)
     const client = ensureClient(props.apiKey, this.clients)
     ensureSelectPermission(client, props.docTypeName, props.fieldNames)
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
     ensureCanFetchWholeCollection(docType)
   
-    const user: User = {} as User // load user
-
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
     await this.invokePreSelectDocsCallback(client.name, combinedDocStoreOptions, docType, props.reqProps, props.fieldNames, user)
 
@@ -475,7 +525,16 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       offset: props.offset
     })
   
-    // auth rerieval of each doc - hide those that fail
+    for (const doc of queryResult.docs) {
+      ensureDocTypeRequestAuthorised(docType, {
+        doc,
+        requestType: 'selectByIds',
+        user: props.user,
+        isRead: true,
+        isWrite: false,
+        fieldNames: props.fieldNames
+      })
+    }
 
     return { docs: queryResult.docs }
   }

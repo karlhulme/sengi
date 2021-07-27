@@ -1,12 +1,7 @@
 /**
  * Represents the properties passed to a constructor authorisation function.
  */
- export interface DocTypeConstructorAuthProps<Doc, User, Parameters> {
-  /**
-   * The document that is the subject of the authorisation request.
-   */
-  doc: Doc
-
+ export interface DocTypeConstructorAuthProps<User, Parameters> {
   /**
    * The user that made the request.
    */

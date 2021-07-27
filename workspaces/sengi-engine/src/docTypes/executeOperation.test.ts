@@ -2,6 +2,7 @@ import { expect, test } from '@jest/globals'
 import {
   DocBase, DocRecord, DocType,
   DocTypeOperation,
+  SengiAuthorisationFailedError,
   SengiOperationFailedError,
   SengiOperationParamsValidationFailedError,
   SengiUnrecognisedOperationNameError
@@ -41,6 +42,11 @@ function createDocType () {
           }
 
           props.doc.propA = props.parameters.opPropA
+        },
+        authorise: props => {
+          if (props.parameters.opPropA === 'noAuth') {
+            return 'noAuth'
+          }
         }
       } as DocTypeOperation<ExampleDoc, unknown, ExampleOperationParams>
     }
@@ -71,4 +77,16 @@ test('Reject operation request with invalid parameters.', () => {
 
 test('Reject operation request if operation raises error.', () => {
   expect(() => executeOperation(createValidator(), createDocType(), null, 'work', { opPropA: 'fail' }, {})).toThrow(asError(SengiOperationFailedError))
+})
+
+test('Reject operation request if authorisation fails.', () => {
+  expect(() => executeOperation(createValidator(), createDocType(), null, 'work', { opPropA: 'noAuth' }, {})).toThrow(asError(SengiAuthorisationFailedError))
+})
+
+test('Skip operation authorisation if no authorisation method defined.', () => {
+  const docType = createDocType()
+  delete docType.operations?.work.authorise
+  const doc: DocRecord = { id: 'abc', propA: 'old' }
+  expect(() => executeOperation(createValidator(), docType, null, 'work', { opPropA: 'noAuth' }, doc)).not.toThrow()
+  expect(doc).toEqual({ id: 'abc', propA: 'noAuth' })
 })

@@ -3,7 +3,7 @@ import { Sengi } from 'sengi-engine'
 import { AnyDocType } from 'sengi-interfaces'
 import { MatchedRestResource } from '../matching'
 
-export interface RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Query, QueryResult> {
+export interface RequestHandlerProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
   baseUrl: string
   docStoreOptions: DocStoreOptions
   docTypes: AnyDocType[]
@@ -12,5 +12,5 @@ export interface RequestHandlerProps<RequestProps, DocStoreOptions, Filter, Quer
   reqProps: RequestProps
   res: Response
   serverRequestId: string
-  sengi: Sengi<RequestProps, DocStoreOptions, Filter, Query, QueryResult>
+  sengi: Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult>
 }

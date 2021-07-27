@@ -23,5 +23,10 @@ export const HttpHeaderNames = {
   /**
    * The client api key.
    */
-  ApiKey: 'x-api-key'
+  ApiKey: 'x-api-key',
+
+  /**
+   * The hydrated user object.
+   */
+  User: 'x-user'
 }

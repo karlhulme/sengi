@@ -18,6 +18,7 @@ export interface Car {
    * @deprecated
    */
   originalOwner?: string
+  engineCode?: string
 }
 
 export interface AuthUser {
@@ -103,6 +104,11 @@ export function createCarDocType (): DocType<Car, TestDocStoreOptions, AuthUser,
         throw new Error('Unrecognised vehicle registration prefix.')
       }
     },
+    authorise: props => {
+      if (props.fieldNames.includes('engineCode')) {
+        return 'engineCode is private.'
+      }
+    },
     docStoreOptions: {
       custom: 'prop'
     }
@@ -168,6 +174,13 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
         maxLength: 10
       }
     ],
+    userJsonSchema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'string' },
+        username: { type: 'string' }
+      }
+    },
     docTypes: [carDocType],
     clients: [adminClient, noneClient],
     docStore

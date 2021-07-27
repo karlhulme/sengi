@@ -5,11 +5,6 @@ import { DocPatch } from '../doc/DocPatch'
  */
 export interface DocTypeAuthProps<Doc, User> {
   /**
-   * The document that is the subject of the authorisation request.
-   */
-   doc: Doc
-
-  /**
    * The user that made the request.
    */
   user: User
@@ -30,13 +25,19 @@ export interface DocTypeAuthProps<Doc, User> {
   isWrite: boolean
 
   /**
-   * The list of fields to be read or written as a result of the request.
+   * A list of the fields that are read, set or updated as a consequence
+   * of executing the request.
    */
   fieldNames: string[]
 
   /**
-   * The patch to be applied to the document, populated if
-   * the request type is 'patch'.
+   * Populated if there is a document that exists prior to the
+   * completion of the request.
+   */
+  doc?: Doc
+
+  /**
+   * Populated for patch requests.
    */
   patch?: DocPatch
 }
