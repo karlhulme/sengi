@@ -8,7 +8,7 @@ interface ExampleDoc extends DocBase {
 }
 
 function createDocType () {
-  const docType: DocType<ExampleDoc, unknown, unknown, unknown, unknown> = {
+  const docType: DocType<ExampleDoc, unknown, unknown, unknown, unknown, unknown> = {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {},

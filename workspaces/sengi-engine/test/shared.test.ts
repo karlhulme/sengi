@@ -174,7 +174,7 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
         maxLength: 10
       }
     ],
-    userJsonSchema: {
+    userSchema: {
       type: 'object',
       properties: {
         userId: { type: 'string' },

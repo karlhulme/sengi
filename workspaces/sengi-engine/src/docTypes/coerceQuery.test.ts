@@ -27,7 +27,7 @@ const exampleQueryResponseSchema = {
 }
 
 function createDocType () {
-  const docType: DocType<ExampleDoc, unknown, unknown, unknown, ExampleResult> = {
+  const docType: DocType<ExampleDoc, unknown, unknown, unknown, unknown, ExampleResult> = {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {},
