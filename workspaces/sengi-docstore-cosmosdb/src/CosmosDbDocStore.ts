@@ -70,9 +70,11 @@ interface CosmosDbDocStoreConstructorProps {
   /**
    * A function that returns the singular value of the partition key for the container that contains
    * documents identified by the given docTypeName or docTypePluralName.
-   * For authoritative documents, with a /id partition key, this function should return { fieldName: 'id', fieldValue: id }.
+   * For authoritative documents, with a /id partition key, this function should return the id parameter, which
+   * is the fifth parameter passed to the method.
    * For warehouse documents, this function should return null.  This connector will then look up the partition key
-   * and the corresponding value on the document to be processed.
+   * and the corresponding value on the document to be processed.  Using a container name suffix is a useful way
+   * of identifying warehouse documents.
    */
   getPartitionKeyFunc: (databaseName: string, containerName: string, docTypeName: string, docTypePluralName: string, id: string, options: CosmosDbDocStoreOptions) => string|null
 }
