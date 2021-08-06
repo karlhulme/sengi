@@ -18,7 +18,7 @@ export interface DocTypeConstructor<Doc, User, Parameters> {
   /**
    * A function that returns a new document based on the given parameters.
    */
-  implementation: (props: DocTypeConstructorImplProps<User, Parameters>) => Doc
+  implementation: (props: DocTypeConstructorImplProps<User, Parameters>) => Omit<Doc, 'id'|'docType'|'docOpIds'|'docVersion'>
 
   /**
    * A function that returns an authorisation error if the request
