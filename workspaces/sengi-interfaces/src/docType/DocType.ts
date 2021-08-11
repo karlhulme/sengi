@@ -44,6 +44,8 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, User, Filter, Que
 
   /**
    * A JSON schema that fully describes the acceptable shape of this document type.
+   * The common fields (id, docType, docOpIds and docVersion) will be added
+   * automatically if they are not present on the supplied schema.
    */
   jsonSchema: Record<string, unknown>
 
