@@ -33,7 +33,7 @@ pluralName | The unique name of the doc type in plural form.  Some access patter
 title | The display name of the doc type.
 pluralTitle | The display name of the doc type in plural form.
 summary | A summary of the document type.
-jsonSchema | A JSON schema definition that defines the fields that make up this document type.
+jsonSchema | A JSON schema definition that defines the fields that make up this document type.  This definition does not need to include the common fields (id, docType, docOpIds and docVersion) as the engine will add these automatically.
 readOnlyFields | The names of the fields that cannot be patched directly.  These fields can be set by operations, constructors and a preSave function.  System field names are treated as readonly automatically. 
 deprecation | If populated, it should describe the replacement document type to use instead of this one.
 preSave | A function `(doc: Doc) => void` that is called prior to saving a document that can be used to perform cleanup.
@@ -70,6 +70,7 @@ The Sengi-express server expects an `X-API_KEY` header to be provided with an ap
 API keys are used to provide coarse-grained security on a per-client basis.  A client for sengi should be another service within your architecture, for example a GraphQL service.  The intention here is that you control both the client and the sengi service from within the network boundary.  A client should not be based on the public internet.
 
 A GraphQL service might be entitled to read-only access.  Conversely, a lambda-style service may be allowed to make updates to most documents, but some critical document types are excluded.  You can define these requirements in a client, and then assign an API key.  You can generate an API key using any mechanism as Sengi does not require any specific format be used.  A good choice is to use a [UUID generator](https://www.guidgenerator.com/online-guid-generator.aspx) and tick the base64 encode option.
+
 
 ### User Object
 

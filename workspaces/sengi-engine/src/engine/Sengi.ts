@@ -66,7 +66,8 @@ import {
   parseQuery,
   coerceQuery,
   ensureNewDocIdsMatch,
-  ensureDocTypeRequestAuthorised
+  ensureDocTypeRequestAuthorised,
+  ensureDocTypeCommonFields
 } from '../docTypes'
 import { ensureUser } from '../security/ensureUser'
 
@@ -125,6 +126,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!props.docStore) {
       throw new Error('Must supply a docStore.')
     }
+
+    this.docTypes.forEach(docType => ensureDocTypeCommonFields(docType))
 
     this.hydrateClientApiKeys()
 
@@ -560,7 +563,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       }
     }
   }
-
+  
   /**
    * Log a request to the console.
    * @param request A string that represents the request.
