@@ -41,7 +41,10 @@ test('Select by document ids using a onPreSelectDocs delegate.', async () => {
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
     fieldNames: ['id', 'model'],
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 

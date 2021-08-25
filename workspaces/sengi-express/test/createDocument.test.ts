@@ -20,6 +20,10 @@ test('201 - create a document with a constructor', async () => {
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
+    docCreatedByUserId: "testUser",
+    docCreatedMillisecondsSinceEpoch: 1629883680000,
+    docLastUpdatedByUserId: "testUser",
+    docLastUpdatedMillisecondsSinceEpoch: 1629883680000,
     filmTitle: 'Cloudy',
     durationInMinutes: 15
   })
@@ -44,12 +48,16 @@ test('201 - create a document with a constructor and with an explicit id', async
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
+    docCreatedByUserId: "testUser",
+    docCreatedMillisecondsSinceEpoch: 1629883680000,
+    docLastUpdatedByUserId: "testUser",
+    docLastUpdatedMillisecondsSinceEpoch: 1629883680000,
     filmTitle: 'Cloudy',
     durationInMinutes: 15
   })
 })
 
-test('201 - create a document with a constructor and with a previously used id', async () => {
+test('201 - ignore instruction to create a document when passed a previously used id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films:makeShort')

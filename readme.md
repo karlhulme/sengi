@@ -76,6 +76,8 @@ A GraphQL service might be entitled to read-only access.  Conversely, a lambda-s
 
 A client can also supply a user object.  This should be in the format that Sengi expects, and is established when it is created, via the `userSchema` property.  This user object will then be made available to doc type methods so you can determine on a per-request basis whether to complete the request.
 
+It's valuable to provide a `getIdFromUser` function to the Sengi engine constructor.  This allows the engine to correctly set the `docCreatedByUserId` and `docLastUpdatedByUserId` fields on documents as they are created and updated.
+
 
 ## Database Guidance
 

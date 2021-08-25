@@ -183,7 +183,9 @@ export const createSengiWithMockStore = (docStoreOverrides?: Record<string, unkn
     },
     docTypes: [carDocType],
     clients: [adminClient, noneClient],
-    docStore
+    docStore,
+    getIdFromUser: (authUser: AuthUser) => authUser.userId as string,
+    getMillisecondsSinceEpoch: () => 1629881470000
   }, sengiCtorOverrides) as unknown as SengiConstructorProps<TestRequestProps, TestDocStoreOptions, AuthUser, string, string, number>)
 
   return {
@@ -200,7 +202,10 @@ export const defaultRequestProps = {
   apiKey: 'adminKey',
   reqProps: { foo: 'bar' },
   docStoreOptions: { custom: 'prop' },
-  user: {}
+  user: {
+    userId: 'user-0001',
+    username: 'testUser'
+  }
 }
 
 test('createSengiWithMockStore creates a valid sengi object.', async () => {

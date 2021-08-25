@@ -51,6 +51,10 @@ test('Patching a document should call fetch and upsert on doc store, retaining e
     docType: 'car',
     docVersion: 'aaaa',
     docOpIds: ['50e02b33-b22c-4207-8785-5a8aa529ec84', '3ba01b5c-1ff1-481f-92f1-43d2060e11e7'],
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
     manufacturer: 'ford',
     model: 'fiesta',
     registration: 'HG12 3AB'
@@ -81,7 +85,10 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'fiesta'}),
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   }))
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
@@ -90,7 +97,10 @@ test('Patching a document should invoke the onPreSaveDoc and onUpdateDoc delegat
     reqProps: { foo: 'bar' },
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'fiesta' }),
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   }))
 })
 

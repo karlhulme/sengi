@@ -23,6 +23,45 @@ test('Creating a document with a constructor should call exists and then upsert 
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     docType: 'car',
     docOpIds: [],
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
+  
+    // fields
+    manufacturer: 'tesla',
+    model: 'T',
+    registration: 'HG12 3AB'
+  }
+
+  expect(docStore.upsert).toHaveProperty('mock.calls.length', 1)
+  expect(docStore.upsert).toHaveProperty(['mock', 'calls', '0'], ['car', 'cars', resultDoc, { custom: 'prop' }, {}])
+})
+
+test('Creating a document using the getMillisecondsSinceEpoch and getIdFromUser default implementations.', async () => {
+  const { docStore, sengi } = createSengiWithMockStore({
+    exists: jest.fn(async() => ({ found: false })),
+    upsert: jest.fn(async () => ({ code: DocStoreUpsertResultCode.CREATED }))
+  }, {
+    getMillisecondsSinceEpoch: null,
+    getIdFromUser: null
+  })
+
+  await expect(sengi.createDocument({
+    ...defaultRequestProps,
+    id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+    constructorName: 'regTesla',
+    constructorParams: 'HG12 3AB' 
+  })).resolves.toEqual({ isNew: true })
+
+  const resultDoc = {
+    id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+    docType: 'car',
+    docOpIds: [],
+    docCreatedByUserId: '<unknown>',
+    docCreatedMillisecondsSinceEpoch: expect.any(Number),
+    docLastUpdatedByUserId: '<unknown>',
+    docLastUpdatedMillisecondsSinceEpoch: expect.any(Number),
   
     // fields
     manufacturer: 'tesla',
@@ -57,7 +96,10 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'tesla', model: 'T', registration: 'HG12 3AB' }),
     isNew: true,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
@@ -67,7 +109,10 @@ test('Creating a document with a constructor should cause the onPreSaveDoc and o
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'tesla', model: 'T', registration: 'HG12 3AB' }),
     isNew: true,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 

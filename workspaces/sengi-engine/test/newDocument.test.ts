@@ -29,7 +29,11 @@ test('Adding a new document should call exists and then upsert on doc store.', a
     id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
     docType: 'car',
     docOpIds: [],
-  
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
+
     // fields
     manufacturer: 'ford',
     model: 'ka',
@@ -63,7 +67,10 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'ford', model: 'ka', registration: 'HG12 3AB' }),
     isNew: true,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty(['mock', 'calls', '0', '0'], {
@@ -73,7 +80,10 @@ test('Adding a new document should cause the onPreSaveDoc and onSavedDoc events 
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ manufacturer: 'ford', model: 'ka', registration: 'HG12 3AB' }),
     isNew: true,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 

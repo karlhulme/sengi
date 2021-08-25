@@ -47,6 +47,10 @@ test('Operate on document should call fetch and upsert on doc store while retain
     docType: 'car',
     docVersion: 'aaaa',
     docOpIds: ['50e02b33-b22c-4207-8785-5a8aa529ec84', 'db93acbc-bc8a-4cf0-a5c9-ffaafcb54028'],
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
     manufacturer: 'ford',
     model: 'ka2',
     registration: 'HG12 3AB'
@@ -78,7 +82,10 @@ test('Operating on a document should raise callbacks.', async () => {
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka2' }),
     isNew: false,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   }))
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
@@ -89,7 +96,10 @@ test('Operating on a document should raise callbacks.', async () => {
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka2' }),
     isNew: false,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   }))
 })
 

@@ -48,7 +48,10 @@ test('Select by document filter with onPreSelectDocs delegate and without paging
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
     fieldNames: ['id', 'model'],
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 

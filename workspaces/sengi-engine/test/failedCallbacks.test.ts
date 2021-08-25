@@ -96,3 +96,49 @@ test('Error in onPreQueryDocs callback should be wrapped.', async () => {
     expect(err.message).toContain('callback problem')
   }
 })
+
+test('Error in getMillisecondsSinceEpoch callback should be wrapped.', async () => {
+  const { sengi } = createSengiWithMockStore(undefined, {
+    getMillisecondsSinceEpoch: () => { throw new Error('callback problem' )}
+  })
+
+  try {
+    await sengi.newDocument({
+      ...defaultRequestProps,
+      id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+      doc: {
+        manufacturer: 'ford',
+        model: 'ka',
+        registration: 'HG12 3AB'
+      }
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiCallbackError)
+    expect(err.callbackName).toEqual('getMillisecondsSinceEpoch')
+    expect(err.message).toContain('callback problem')
+  }
+})
+
+test('Error in getIdFromUser callback should be wrapped.', async () => {
+  const { sengi } = createSengiWithMockStore(undefined, {
+    getIdFromUser: () => { throw new Error('callback problem' )}
+  })
+
+  try {
+    await sengi.newDocument({
+      ...defaultRequestProps,
+      id: 'd7fe060b-2d03-46e2-8cb5-ab18380790d1',
+      doc: {
+        manufacturer: 'ford',
+        model: 'ka',
+        registration: 'HG12 3AB'
+      }
+    })
+    throw new Error('fail')
+  } catch (err) {
+    expect(err).toBeInstanceOf(SengiCallbackError)
+    expect(err.callbackName).toEqual('getIdFromUser')
+    expect(err.message).toContain('callback problem')
+  }
+})

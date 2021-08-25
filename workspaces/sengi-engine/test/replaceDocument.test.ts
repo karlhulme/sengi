@@ -62,7 +62,10 @@ test('Replacing a document should raise the onPreSaveDoc and onSavedDoc delegate
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka' }),
     isNew: null,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 
   expect(sengiCtorOverrides.onSavedDoc).toHaveProperty('mock.calls.length', 1)
@@ -73,7 +76,10 @@ test('Replacing a document should raise the onPreSaveDoc and onSavedDoc delegate
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka' }),
     isNew: false,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 
@@ -98,7 +104,10 @@ test('Replacing a non-existent document should raise the onSavedDoc delegate.', 
     docType: expect.objectContaining({ name: 'car' }),
     doc: expect.objectContaining({ model: 'ka' }),
     isNew: true,
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 
   const resultDoc = {

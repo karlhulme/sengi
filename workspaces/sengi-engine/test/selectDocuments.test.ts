@@ -54,7 +54,10 @@ test('Select all documents of a type in a collection with an onSelectDocs delega
     reqProps: { foo: 'bar' },
     docType: expect.anything(),
     fieldNames: ['id'],
-    user: {}
+    user: {
+      userId: 'user-0001',
+      username: 'testUser'
+    }
   })
 })
 

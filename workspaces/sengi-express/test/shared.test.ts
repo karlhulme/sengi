@@ -189,7 +189,9 @@ export function createTestableApp (): TestableApp {
     clients: [adminClient, guestClient],
     docStore: memDocStore,
     newUuid: () => '00000000-0000-0000-0000-000000000001',
-    userSchema: { type: 'object' }
+    userSchema: { type: 'object' },
+    getMillisecondsSinceEpoch: () => 1629883680000,
+    getIdFromUser: () => 'testUser'
   })
 
   const testableApp = express()

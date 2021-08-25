@@ -20,6 +20,10 @@ test('201 - create a new document', async () => {
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
+    docCreatedByUserId: "testUser",
+    docCreatedMillisecondsSinceEpoch: 1629883680000,
+    docLastUpdatedByUserId: "testUser",
+    docLastUpdatedMillisecondsSinceEpoch: 1629883680000,
     filmTitle: 'Frozen'
   })
 })
@@ -43,6 +47,10 @@ test('201 - create a new document with an explicit id in the request-id', async 
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
+    docCreatedByUserId: "testUser",
+    docCreatedMillisecondsSinceEpoch: 1629883680000,
+    docLastUpdatedByUserId: "testUser",
+    docLastUpdatedMillisecondsSinceEpoch: 1629883680000,
     filmTitle: 'Frozen'
   })
 })
@@ -65,11 +73,15 @@ test('201 - create a new document with an explicit id in the document body', asy
     docType: 'film',
     docVersion: 'xxxx',
     docOpIds: [],
+    docCreatedByUserId: "testUser",
+    docCreatedMillisecondsSinceEpoch: 1629883680000,
+    docLastUpdatedByUserId: "testUser",
+    docLastUpdatedMillisecondsSinceEpoch: 1629883680000,
     filmTitle: 'Frozen'
   })
 })
 
-test('201 - create a new document with a previously used id', async () => {
+test('201 - ignore a request to create a new document with a previously used id', async () => {
   const { testableApp, docs } = createTestableApp()
   const response = await supertest(testableApp)
     .post('/root/records/films')

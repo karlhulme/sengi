@@ -70,17 +70,22 @@ import {
   ensureDocTypeCommonFields
 } from '../docTypes'
 import { ensureUser } from '../security/ensureUser'
+import { applyCommonFieldValuesToDoc } from '../docTypes/applyCommonFieldValuesToDoc'
+
+export const ID_FOR_UNKNOWN_USER = '<unknown>'
 
 /**
  * The properties that are used to manage the construction of a Sengi.
  */
 export interface SengiConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
-  schemas?: AnySchema[]
-  docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
   clients?: Client[]
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
-  userSchema?: AnySchema
+  docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
+  getMillisecondsSinceEpoch?: () => number
+  getIdFromUser?: (user: User) => string
   log?: boolean
+  schemas?: AnySchema[]
+  userSchema?: AnySchema
   onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
   onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
   onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
@@ -100,6 +105,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   private apiKeysLoadedFromEnv: number
   private apiKeysNotFoundInEnv: number
   private log: boolean
+  private getMillisecondsSinceEpoch?: () => number
+  private getIdFromUser?: (user: User) => string
 
   private onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
   private onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
@@ -122,6 +129,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     this.apiKeysLoadedFromEnv = 0
     this.apiKeysNotFoundInEnv = 0
     this.log = Boolean(props.log)
+    this.getMillisecondsSinceEpoch = props.getMillisecondsSinceEpoch
+    this.getIdFromUser = props.getIdFromUser
 
     if (!props.docStore) {
       throw new Error('Must supply a docStore.')
@@ -204,6 +213,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
@@ -287,6 +297,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
@@ -321,6 +332,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!opIdAlreadyExists) {
       executeOperation(this.ajv, docType, user, props.operationName, props.operationParams, doc)
       appendDocOpId(docType, doc, props.operationId)
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
       executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
@@ -366,6 +378,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!opIdAlreadyExists) {
       executePatch(docType, doc, props.patch)
       appendDocOpId(docType, doc, props.operationId)
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
@@ -405,6 +418,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   /**
    * Replaces (or inserts) a document.
    * Unlike the newDocument function, this function will replace an existing document.
+   * It will not attempt to set the common fields (e.g. docOpIds or docLastUpdatedByUserId).
    * @param props A property bag.
    */
   async replaceDocument (props: ReplaceDocumentProps<RequestProps, DocStoreOptions>): Promise<ReplaceDocumentResult> {
@@ -540,6 +554,41 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     }
 
     return { docs: queryResult.docs }
+  }
+
+  /**
+   * Returns the number of milliseconds since the epoch.  This method
+   * uses the getMillisecondsSinceEpoch function passed to the constructor,
+   * or if not supplied, then Date.now().
+   */
+  private getTimestamp (): number {
+    if (this.getMillisecondsSinceEpoch) {
+      try {
+        return this.getMillisecondsSinceEpoch()
+      } catch (err) {
+        throw new SengiCallbackError('getMillisecondsSinceEpoch', err)
+      }
+    } else {
+      return Date.now()
+    }
+  }
+
+  /**
+   * Returns the id of the given user object.  If a getIdFromUser function
+   * has not been supplied then a constant that represents an unknown
+   * user is returned.
+   * @param user A user object.
+   */
+  private getUserId (user: User): string {
+    if (this.getIdFromUser) {
+      try {
+        return this.getIdFromUser(user)
+      } catch (err) {
+        throw new SengiCallbackError('getIdFromUser', err)
+      }
+    } else {
+      return ID_FOR_UNKNOWN_USER
+    }
   }
 
   /**

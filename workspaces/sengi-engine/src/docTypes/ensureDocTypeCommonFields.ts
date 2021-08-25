@@ -38,5 +38,31 @@ export function ensureDocTypeCommonFields (docType: AnyDocType): void {
         maxLength: 50
       }
     }
+
+    if (!propertyBlock.docCreatedMillisecondsSinceEpoch) {
+      propertyBlock.docCreatedMillisecondsSinceEpoch = {
+        type: 'number'
+      }
+    }
+
+    if (!propertyBlock.docCreatedByUserId) {
+      propertyBlock.docCreatedByUserId = {
+        type: 'string',
+        maxLength: 50
+      }
+    }
+
+    if (!propertyBlock.docLastUpdatedMillisecondsSinceEpoch) {
+      propertyBlock.docLastUpdatedMillisecondsSinceEpoch = {
+        type: 'number'
+      }
+    }
+
+    if (!propertyBlock.docLastUpdatedByUserId) {
+      propertyBlock.docLastUpdatedByUserId = {
+        type: 'string',
+        maxLength: 50
+      }
+    }
   }
 }

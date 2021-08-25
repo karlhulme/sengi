@@ -49,6 +49,10 @@ To instantiate a Sengi engine you have to provide the following parameters:
 
 * **log** True if each request should be logged to the console.
 
+* **getMillisecondsSinceEpoch** A function `() => number` that returns the number of milliseconds since the epoch.  A default implementation is provided so this is used primarily for testing.
+
+* **getIdFromUser** A function `(user: User) => string` that returns the id of the given user object.  This is used by the engine to populate the docCreatedByUserId and docLastUpdatedByUserId common fields.  If this function is not provided then the value `<undefined>` will be used instead.
+
 The following example shows how to setup a Sengi-engine using the in-memory document store.
 
 ```javascript
