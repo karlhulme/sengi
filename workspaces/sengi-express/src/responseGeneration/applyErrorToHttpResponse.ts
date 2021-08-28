@@ -88,6 +88,8 @@ export function applyErrorToHttpResponse (req: Request, res: Response, props: Er
 
   /* istanbul ignore next */
   if (process.env.NODE_ENV !== 'test') {
+    console.log(' ')
+    console.log(new Date().toISOString())
     console.log(req.url)
     console.log(req.body)
     console.log(props.err)
