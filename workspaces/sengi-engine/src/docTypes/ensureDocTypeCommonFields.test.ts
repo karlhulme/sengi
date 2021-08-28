@@ -39,7 +39,16 @@ test('A doc type that has the key fields will not be patched.', () => {
         docCreatedByUserId: {},
         docLastUpdatedMillisecondsSinceEpoch: {},
         docLastUpdatedByUserId: {}
-      }
+      },
+      required: [
+        'id',
+        'docType',
+        'docOpIds',
+        'docCreatedByUserId',
+        'docCreatedMillisecondsSinceEpoch',
+        'docLastUpdatedByUserId',
+        'docLastUpdatedMillisecondsSinceEpoch'
+      ]
     }
   }
 
@@ -53,6 +62,16 @@ test('A doc type that has the key fields will not be patched.', () => {
   expect(docType.jsonSchema.properties.docCreatedByUserId).toEqual({})
   expect(docType.jsonSchema.properties.docLastUpdatedMillisecondsSinceEpoch).toEqual({})
   expect(docType.jsonSchema.properties.docLastUpdatedByUserId).toEqual({})
+
+  expect(docType.jsonSchema).toHaveProperty('required', [
+    'id',
+    'docType',
+    'docOpIds',
+    'docCreatedByUserId',
+    'docCreatedMillisecondsSinceEpoch',
+    'docLastUpdatedByUserId',
+    'docLastUpdatedMillisecondsSinceEpoch'
+  ])
 })
 
 test('A doc type that is missing a json schema will be ignored.', () => {

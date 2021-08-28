@@ -31,6 +31,11 @@ test('Replacing a document should call upsert on the doc store.', async () => {
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'car',
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
+    docOpIds: [],
     manufacturer: 'ford',
     model: 'ka',
     registration: 'HG12 3AB'
@@ -113,6 +118,11 @@ test('Replacing a non-existent document should raise the onSavedDoc delegate.', 
   const resultDoc = {
     id: '06151119-065a-4691-a7c8-2d84ec746ba9',
     docType: 'car',
+    docCreatedByUserId: 'user-0001',
+    docCreatedMillisecondsSinceEpoch: 1629881470000,
+    docLastUpdatedByUserId: 'user-0001',
+    docLastUpdatedMillisecondsSinceEpoch: 1629881470000,
+    docOpIds: [],
     manufacturer: 'ford',
     model: 'ka',
     registration: 'HG12 3AB'

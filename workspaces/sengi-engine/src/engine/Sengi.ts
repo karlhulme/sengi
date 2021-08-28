@@ -213,8 +213,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
-      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -297,8 +297,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
-      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -332,8 +332,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!opIdAlreadyExists) {
       executeOperation(this.ajv, docType, user, props.operationName, props.operationParams, doc)
       appendDocOpId(docType, doc, props.operationId)
-      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
       executePreSave(docType, doc, user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -378,8 +378,8 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!opIdAlreadyExists) {
       executePatch(docType, doc, props.patch)
       appendDocOpId(docType, doc, props.operationId)
-      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
 
+      applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -436,10 +436,11 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       user: props.user,
       isRead: false,
       isWrite: true,
-      requestType: 'patch',
+      requestType: 'replace',
       fieldNames: Object.keys(props.doc)
     })
 
+    applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
     executePreSave(docType, doc, props.user)
     ensureDoc(this.ajv, docType, doc)
     executeValidator(docType, doc)
@@ -479,7 +480,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     for (const doc of queryResult.docs) {
       ensureDocTypeRequestAuthorised(docType, {
         doc,
-        requestType: 'selectByIds',
+        requestType: 'selectByFilter',
         user: props.user,
         isRead: true,
         isWrite: false,
@@ -545,7 +546,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     for (const doc of queryResult.docs) {
       ensureDocTypeRequestAuthorised(docType, {
         doc,
-        requestType: 'selectByIds',
+        requestType: 'selectDocs',
         user: props.user,
         isRead: true,
         isWrite: false,

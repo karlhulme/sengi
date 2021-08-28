@@ -64,5 +64,39 @@ export function ensureDocTypeCommonFields (docType: AnyDocType): void {
         maxLength: 50
       }
     }
+
+    if (!docType.jsonSchema.required) {
+      docType.jsonSchema.required = []
+    }
+
+    const requiredBlock = docType.jsonSchema.required as string[]
+
+    if (!requiredBlock.includes('id')) {
+      requiredBlock.push('id')
+    }
+
+    if (!requiredBlock.includes('docType')) {
+      requiredBlock.push('docType')
+    }
+
+    if (!requiredBlock.includes('docOpIds')) {
+      requiredBlock.push('docOpIds')
+    }
+
+    if (!requiredBlock.includes('docCreatedByUserId')) {
+      requiredBlock.push('docCreatedByUserId')
+    }
+
+    if (!requiredBlock.includes('docCreatedMillisecondsSinceEpoch')) {
+      requiredBlock.push('docCreatedMillisecondsSinceEpoch')
+    }
+
+    if (!requiredBlock.includes('docLastUpdatedByUserId')) {
+      requiredBlock.push('docLastUpdatedByUserId')
+    }
+
+    if (!requiredBlock.includes('docLastUpdatedMillisecondsSinceEpoch')) {
+      requiredBlock.push('docLastUpdatedMillisecondsSinceEpoch')
+    }
   }
 }

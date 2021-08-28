@@ -1,12 +1,17 @@
 import { DocRecord } from 'sengi-interfaces'
 
 /**
- * Sets the created and updated fields on the given document.
+ * Ensures the given doc has a docOpIds array and values for the audit fields
+ * that cover when the document was created and last updated.
  * @param doc A document.
  * @param millisecondsSinceEpoch The number of milliseconds since the Unix epoch.
  * @param userId The id of a user.
  */
 export function applyCommonFieldValuesToDoc (doc: DocRecord, millisecondsSinceEpoch: number, userId: string): void {
+  if (!Array.isArray(doc.docOpIds)) {
+    doc.docOpIds = []
+  }
+  
   if (!doc.docCreatedMillisecondsSinceEpoch) {
     doc.docCreatedMillisecondsSinceEpoch = millisecondsSinceEpoch
   }
