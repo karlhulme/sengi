@@ -1,3 +1,6 @@
+/**
+ * Defines the HTTP headers used by the service.
+ */
 export const HttpHeaderNames = {
   /**
    * The clients desired payload type to be included in the response.
