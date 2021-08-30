@@ -12,5 +12,5 @@ export interface AuthenticatedClient {
   /**
    * The permissions assigned to the client.
    */
-   docPermissions: boolean | Record<string, boolean | ClientDocPermissionSet>  
+  docPermissions: boolean | Record<string, boolean | ClientDocPermissionSet>  
 }
