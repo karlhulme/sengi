@@ -78,17 +78,68 @@ export const ID_FOR_UNKNOWN_USER = '<unknown>'
  * The properties that are used to manage the construction of a Sengi.
  */
 export interface SengiConstructorProps<RequestProps, DocStoreOptions, User, Filter, Query, QueryResult> {
+  /**
+   * The clients that have access to the sengi engine.
+   */
   clients?: Client[]
+
+  /**
+   * The document store that provides long-term storage for the sengi engine.
+   */
   docStore?: DocStore<DocStoreOptions, Filter, Query, QueryResult>
+
+  /**
+   * The document types that are managed by the sengi engine.
+   */
   docTypes?: DocType<any, DocStoreOptions, User, Filter, Query, QueryResult>[]
+
+  /**
+   * A function that returns the number of milliseconds since the unix epoch.
+   */
   getMillisecondsSinceEpoch?: () => number
+
+  /**
+   * A function that extracts the id from a user object.
+   */
   getIdFromUser?: (user: User) => string
+
+  /**
+   * True if the actions of the sengi engine should be logged to the console.
+   */
   log?: boolean
+
+  /**
+   * An array of additional JSON schemas that may be referenced by the
+   * schemas supplied as part of the document types.
+   */
   schemas?: AnySchema[]
+
+  /**
+   * A schema that defines the user object.
+   */
   userSchema?: AnySchema
+
+  /**
+   * A callback function that is invoked whenever a document is saved
+   * to the document store.
+   */
   onSavedDoc?: SavedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+
+  /**
+   * A callback function that is invoked whenever a document is deleted.
+   */
   onDeletedDoc?: DeletedDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+
+  /**
+   * A callback function that is invoked just before a document is
+   * saved to the document store.
+   */
   onPreSaveDoc?: PreSaveDocCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
+
+  /**
+   * A callback function that is invoked just before a set of documents
+   * are selected from the document store.
+   */
   onPreSelectDocs?: PreSelectDocsCallback<RequestProps, any, DocStoreOptions, User, Filter, Query, QueryResult>
 }
 
