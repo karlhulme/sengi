@@ -301,9 +301,12 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
 
       const result = await cosmosItem.read()
   
-      const doc = result.resource && result.resource.docType === docTypeName
-        ? { ...result.resource, docVersion: result.resource._etag }
-        : null
+      let doc = null
+
+      if (result.resource && result.resource.docType === docTypeName) {
+        const { _rid, _ts, _self, _etag, _attachments, ...others } = result.resource
+        doc = { ...others, docVersion: _etag }
+      }
   
       return { doc }
     } catch (err) {
