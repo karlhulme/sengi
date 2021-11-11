@@ -3,9 +3,9 @@
  */
  export interface DocTypeOperationAuthProps<Doc, User, Parameters> {
   /**
-   * The document that is the subject of the authorisation request.
+   * The document that is to be operated on, before any changes have been applied.
    */
-  doc: Doc
+  originalDoc: Doc
 
   /**
    * The user that made the request.

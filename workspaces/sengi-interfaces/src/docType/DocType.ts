@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DocTypeAuthProps } from './DocTypeAuthProps'
 import { DocTypeConstructor } from './DocTypeConstructor'
 import { DocTypeFilter } from './DocTypeFilter'
 import { DocTypeOperation } from './DocTypeOperation'
@@ -7,6 +6,7 @@ import { DocTypeQuery } from './DocTypeQuery'
 import { DocTypePolicy } from './DocTypePolicy'
 import { DocTypePreSaveProps } from './DocTypePreSaveProps'
 import { DocBase } from '../doc'
+import { DocTypeCreateAuthProps, DocTypeDeleteAuthProps, DocTypePatchAuthProps, DocTypeReadAuthProps } from '.'
 
 /**
  * Represents a type of document that can be stored and managed.
@@ -91,10 +91,10 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, User, Filter, Que
   preSave?: (props: DocTypePreSaveProps<Doc, User>) => void
 
   /**
-   * A function that raises an Error if the given doc does not contain valid field values. 
+   * A function that returns an error message if the given doc does not contain valid field values. 
    * This function is used to perform validation where fields might depend upon each other.
    */
-  validate?: (doc: Doc) => void
+  validate?: (doc: Doc) => string|void
 
   /**
    * The policy of the document type that governs which high level actions
@@ -109,12 +109,24 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, User, Filter, Que
   docStoreOptions?: DocStoreOptions
 
   /**
-   * A function that returns an authorisation error if the request
-   * should not be permitted.
-   * The evaluation can be based on the user making the request and/or
-   * the document to be amended.
+   * A function that returns an authorisation error if the create request is not permitted.
    */
-  authorise?: (props: DocTypeAuthProps<Doc, User>) => string|undefined
+  authoriseCreate?: (props: DocTypeCreateAuthProps<Doc, User>) => string|undefined
+
+  /**
+   * A function that returns an authorisation error if the delete request is not permitted.
+   */
+  authoriseDelete?: (props: DocTypeDeleteAuthProps<Doc, User>) => string|undefined
+
+  /**
+   * A function that returns an authorisation error if the patch request is not permitted.
+   */
+  authorisePatch?: (props: DocTypePatchAuthProps<Doc, User>) => string|undefined
+
+  /**
+   * A function that returns an authorisation error if the read request is not permitted.
+   */
+  authoriseRead?: (props: DocTypeReadAuthProps<Doc, User>) => string|undefined
 }
 
 // interface Shape {
@@ -169,20 +181,20 @@ export interface DocType<Doc extends DocBase, DocStoreOptions, User, Filter, Que
 //           area: props.parameters.x.length,
 //           sides: 2
 //         })
-//       },
-//       authorise: req => {
-//         if (req.parameters.x.length > req.user.maxArea) {
-//           return 'Too high a value of x.'
-//         }
 //       }
 //     } as DocTypeConstructor<Shape, User, NewExampleParams>
 //   },
 //   docStoreOptions: {
 //     whatever: 'some value'
 //   },
-//   authorise: props => {
+//   authoriseRead: props => {
 //     if (props.user.maxArea > (props.doc.area || 0)) {
 //       return 'Area too large.'
+//     }
+//   },
+//   validate: props => {
+//     if (typeof props.area === 'number' && props.area > 100) {
+//       return 'area is too large'
 //     }
 //   },
 //   preSave: props => {

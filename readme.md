@@ -37,14 +37,17 @@ jsonSchema | A JSON schema definition that defines the fields that make up this 
 readOnlyFields | The names of the fields that cannot be patched directly.  These fields can be set by operations, constructors and a preSave function.  System field names are treated as readonly automatically. 
 deprecation | If populated, it should describe the replacement document type to use instead of this one.
 preSave | A function `(doc: Doc) => void` that is called prior to saving a document that can be used to perform cleanup.
-validate | A function `(doc: Doc) => void` that is called prior to saving a document that can raise an error if the document is not valid and should not be saved.
+validate | A function `(doc: Doc) => string|void` that is called prior to saving a document that can return a validation error message if the document is not valid and will not be saved.
 constructors | A `Record<string, DocTypeConstructor<Doc, User, any>` that provides a range of constructors that can be used to create new documents.
 filters | A `Record<string, DocTypeFilter<User, Filter, any>>` that provides a range of filters that can be used to return subsets of documents.  The required response from a filter implementation will depend on the choice of document store.
 operations | A `Record<string, DocTypeOperation<Doc, User, any>>` that provides all the mutations that can be carried out server-side on a document.  An operation is useful where (a) you want to strictly control the types of mutation on a document, such as payment records, or (b) you want to allow rapid changes to a single field without clients patching it.
 queries | A `Record<string, DocTypeQuery<User, any, any, QueryResult, Query>>` that provides a range of queries that can be executed across a collection of documents.
 policy | A `DocTypePolicy` object that defines the types of permitted operations on the document.
 docStoreOptions | A property bag that is passed to many of the document store operation callbacks.
-authorise |  A function `(props: DocTypeAuthProps<Doc, User>) => string\|undefined` that is called prior to operating or selecting a document.
+authoriseRead |  A function `(props: DocTypeReadAuthProps<Doc, User>) => string\|undefined` that is called to authorise reading a document.
+authoriseCreate |  A function `(props: DocTypeReadCreateProps<Doc, User>) => string\|undefined` that is called to authorise creating a new document.
+authoriseDelete |  A function `(props: DocTypeDeleteAuthProps<Doc, User>) => string\|undefined` that is called to authorise deleting a document.
+authoriseUpdate |  A function `(props: DocTypeUpdateAuthProps<Doc, User>) => string\|undefined` that is called to authorise updating a document.
 
 
 ## Client

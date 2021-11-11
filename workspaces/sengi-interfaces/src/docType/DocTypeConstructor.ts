@@ -1,4 +1,3 @@
-import { DocTypeConstructorAuthProps } from './DocTypeConstructorAuthProps'
 import { DocTypeConstructorImplProps } from './DocTypeConstructorImplProps'
 
 /**
@@ -19,12 +18,4 @@ export interface DocTypeConstructor<Doc, User, Parameters> {
    * A function that returns a new document based on the given parameters.
    */
   implementation: (props: DocTypeConstructorImplProps<User, Parameters>) => Omit<Doc, 'id'|'docType'|'docOpIds'|'docVersion'>
-
-  /**
-   * A function that returns an authorisation error if the request
-   * should not be permitted.
-   * The evaluation can be based on the user making the request and/or
-   * the document to be amended and/or the constructor parameters.
-   */
-  authorise?: (req: DocTypeConstructorAuthProps<User, Parameters>) => string|undefined
 }
