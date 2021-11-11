@@ -28,6 +28,6 @@ test('Fail to find invalid doc types by name.', () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiUnrecognisedDocTypeNameError)
-    expect(err.message).toMatch(/not defined/)
+    expect((err as Error).message).toMatch(/not defined/)
   }
 })

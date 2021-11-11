@@ -12,6 +12,6 @@ test('A doc that was not found should raise an error.', () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiDocNotFoundError)
-    expect(err.message).toMatch(/not found/)
+    expect((err as Error).message).toMatch(/not found/)
   }
 })

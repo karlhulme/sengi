@@ -11,7 +11,7 @@ export function executePreSave (docType: AnyDocType, doc: DocRecord, user: unkno
     try {
       docType.preSave({ doc, user })
     } catch (err) {
-      throw new SengiPreSaveFailedError(docType.name, err)
+      throw new SengiPreSaveFailedError(docType.name, err as Error)
     }
   }
 }

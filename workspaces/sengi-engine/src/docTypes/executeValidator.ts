@@ -9,10 +9,10 @@ import { AnyDocType, DocRecord, SengiDocTypeValidateFunctionError } from 'sengi-
  */
 export function executeValidator (docType: AnyDocType, doc: DocRecord): void {
   if (typeof docType.validate === 'function') {
-    try {
-      docType.validate(doc)
-    } catch (err) {
-      throw new SengiDocTypeValidateFunctionError(docType.name, err)
+    const validationErrorMessage = docType.validate(doc)
+
+    if (validationErrorMessage) {
+      throw new SengiDocTypeValidateFunctionError(docType.name, validationErrorMessage)
     }
   }
 }

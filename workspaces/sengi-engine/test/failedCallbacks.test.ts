@@ -23,8 +23,8 @@ test('Error in onDeletedDoc callback should be wrapped.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('onDeletedDoc')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('onDeletedDoc')
+    expect((err as Error).message).toContain('callback problem')
   }
 })
 
@@ -50,8 +50,8 @@ test('Error in onSavedDoc callback should be wrapped.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('onSavedDoc')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('onSavedDoc')
+    expect((err as Error).message).toContain('callback problem')
   }
 })
 
@@ -75,8 +75,8 @@ test('Error in onPreSaveDoc callback should be wrapped.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('onPreSaveDoc')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('onPreSaveDoc')
+    expect((err as Error).message).toContain('callback problem')
   }
 })
 
@@ -92,8 +92,8 @@ test('Error in onPreQueryDocs callback should be wrapped.', async () => {
     })
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('onPreQueryDocs')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('onPreQueryDocs')
+    expect((err as Error).message).toContain('callback problem')
   }
 })
 
@@ -115,8 +115,8 @@ test('Error in getMillisecondsSinceEpoch callback should be wrapped.', async () 
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('getMillisecondsSinceEpoch')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('getMillisecondsSinceEpoch')
+    expect((err as Error).message).toContain('callback problem')
   }
 })
 
@@ -138,7 +138,7 @@ test('Error in getIdFromUser callback should be wrapped.', async () => {
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiCallbackError)
-    expect(err.callbackName).toEqual('getIdFromUser')
-    expect(err.message).toContain('callback problem')
+    expect((err as SengiCallbackError).callbackName).toEqual('getIdFromUser')
+    expect((err as Error).message).toContain('callback problem')
   }
 })

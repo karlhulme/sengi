@@ -14,7 +14,7 @@ function createDocType () {
     jsonSchema: {},
     validate: (doc: ExampleDoc) => {
       if (doc.propA === 'fail') {
-        throw new Error('validation')
+        return 'doc-rejected'
       }
     }
   }
@@ -26,14 +26,14 @@ test('Executing a validator against valid data raises no errors.', () => {
   expect(() => executeValidator(createDocType(), {})).not.toThrow()
 })
 
-test('Executing a validator function on a doc type that does not define one raises no errors.', () => {
+test('Executing a validator on a doc type that does not define a validator function raises no errors.', () => {
   const docType = createDocType()
   delete docType.validate
   expect(() => executeValidator(docType, {})).not.toThrow()
 })
 
-test('Executing a validator function that raises errors will be wrapped.', () => {
+test('Executing a validator on a doc type that returns an error will be wrapped in a validation error.', () => {
   const doc: DocRecord = { propA: 'fail' }
   expect(() => executeValidator(createDocType(), doc)).toThrow(asError(SengiDocTypeValidateFunctionError))
-  expect(() => executeValidator(createDocType(), doc)).toThrow(/Error: validation/)
+  expect(() => executeValidator(createDocType(), doc)).toThrow(/doc-rejected/)
 })

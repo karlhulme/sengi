@@ -33,7 +33,7 @@ export function parseFilter (ajv: Ajv, docType: AnyDocType, user: unknown, filte
   try {
     filter = filterDef.parse({ user, parameters: filterParams })
   } catch (err) {
-    throw new SengiFilterParseFailedError(docType.name, filterName, err)
+    throw new SengiFilterParseFailedError(docType.name, filterName, err as Error)
   }
 
   return filter

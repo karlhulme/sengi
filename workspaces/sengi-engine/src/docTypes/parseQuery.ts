@@ -4,9 +4,9 @@ import {
   AnyDocType,
   SengiQueryParseFailedError,
   SengiQueryParamsValidationFailedError,
-  SengiUnrecognisedQueryNameError,
-  SengiAuthorisationFailedError
+  SengiUnrecognisedQueryNameError
 } from 'sengi-interfaces'
+import { ensureDocTypeQueryRequestAuthorised } from '.'
 import { ajvErrorsToString } from '../utils'
 
 /**
@@ -29,23 +29,17 @@ export function parseQuery (ajv: Ajv, docType: AnyDocType, user: unknown, queryN
     throw new SengiQueryParamsValidationFailedError(docType.name, queryName, ajvErrorsToString(ajv.errors))
   }
 
-  if (queryDef.authorise) {
-    const authFailure = queryDef.authorise({
-      parameters: queryParams,
-      user
-    })
-
-    if (typeof authFailure === 'string') {
-      throw new SengiAuthorisationFailedError(docType.name, authFailure)
-    }
-  }
+  ensureDocTypeQueryRequestAuthorised(docType, queryDef, {
+    parameters: queryParams,
+    user: user
+  })
   
   let query = null
 
   try {
     query = queryDef.parse({ user, parameters: queryParams })
   } catch (err) {
-    throw new SengiQueryParseFailedError(docType.name, queryName, err)
+    throw new SengiQueryParseFailedError(docType.name, queryName, err as Error)
   }
 
   return query

@@ -66,7 +66,10 @@ import {
   parseQuery,
   coerceQuery,
   ensureNewDocIdsMatch,
-  ensureDocTypeRequestAuthorised,
+  ensureDocTypeCreateRequestAuthorised,
+  ensureDocTypeDeleteRequestAuthorised,
+  ensureDocTypePatchRequestAuthorised,
+  ensureDocTypeReadRequestAuthorised,
   ensureDocTypeCommonFields
 } from '../docTypes'
 import { ensureUser } from '../security/ensureUser'
@@ -264,8 +267,14 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
-
       applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
+
+      ensureDocTypeCreateRequestAuthorised(docType, {
+        newDoc: doc,
+        user: props.user,
+        requestType: 'create'
+      })
+
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -296,13 +305,9 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
 
     if (typeof fetchResult.doc === 'object' && !Array.isArray(fetchResult.doc) && fetchResult.doc !== null) {
-      ensureDocTypeRequestAuthorised(docType, {
+      ensureDocTypeDeleteRequestAuthorised(docType, {
         doc: fetchResult.doc,
-        user: props.user,
-        requestType: 'delete',
-        isRead: false,
-        isWrite: true,
-        fieldNames: []
+        user: props.user
       })
 
       const deleteByIdResult = await this.safeDocStore.deleteById(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
@@ -337,19 +342,17 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     if (!existsResult.found) {
       const doc = props.doc
 
-      ensureDocTypeRequestAuthorised(docType, {
-        user: props.user,
-        requestType: 'new',
-        isRead: false,
-        isWrite: true,
-        fieldNames: Object.keys(doc)
-      })
-
       doc.id = props.id
       doc.docType = docType.name
       doc.docOpIds = []
-
       applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
+
+      ensureDocTypeCreateRequestAuthorised(docType, {
+        newDoc: doc,
+        user: props.user,
+        requestType: 'new'
+      })
+
       executePreSave(docType, doc, props.user)
       ensureDoc(this.ajv, docType, doc)
       executeValidator(docType, doc)
@@ -381,6 +384,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
 
     if (!opIdAlreadyExists) {
+      // The executeOperation functions includes the authorisation check. 
       executeOperation(this.ajv, docType, user, props.operationName, props.operationParams, doc)
       appendDocOpId(docType, doc, props.operationId)
 
@@ -413,20 +417,17 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const fetchResult = await this.safeDocStore.fetch(docType.name, docType.pluralName, props.id, combinedDocStoreOptions, {})
   
     const doc = ensureDocWasFound(docType.name, props.id, fetchResult.doc)
-
-    ensureDocTypeRequestAuthorised(docType, {
-      user: props.user,
-      isRead: false,
-      isWrite: true,
-      requestType: 'patch',
-      fieldNames: Object.keys(props.patch),
-      doc,
-      patch: props.patch
-    })
     
     const opIdAlreadyExists = isOpIdInDocument(doc, props.operationId)
   
     if (!opIdAlreadyExists) {
+      ensureDocTypePatchRequestAuthorised(docType, {
+        originalDoc: doc,
+        user: props.user,
+        fieldNames: Object.keys(props.patch),
+        patch: props.patch
+      })
+
       executePatch(docType, doc, props.patch)
       appendDocOpId(docType, doc, props.operationId)
 
@@ -456,6 +457,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
 
     const docType = selectDocTypeFromArray(this.docTypes, props.docTypeName)
 
+    // The parseQuery function includes the authorise step.
     const query = parseQuery(this.ajv, docType, props.user, props.queryName, props.queryParams)
 
     const combinedDocStoreOptions = { ...docType.docStoreOptions, ...props.docStoreOptions }
@@ -483,12 +485,10 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
   
     const doc = props.doc
 
-    ensureDocTypeRequestAuthorised(docType, {
+    ensureDocTypeCreateRequestAuthorised(docType, {
+      newDoc: doc,
       user: props.user,
-      isRead: false,
-      isWrite: true,
-      requestType: 'replace',
-      fieldNames: Object.keys(props.doc)
+      requestType: 'replace'
     })
 
     applyCommonFieldValuesToDoc(doc, this.getTimestamp(), this.getUserId(user))
@@ -529,12 +529,10 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     })
 
     for (const doc of queryResult.docs) {
-      ensureDocTypeRequestAuthorised(docType, {
+      ensureDocTypeReadRequestAuthorised(docType, {
         doc,
         requestType: 'selectByFilter',
         user: props.user,
-        isRead: true,
-        isWrite: false,
         fieldNames: props.fieldNames
       })
     }
@@ -560,12 +558,10 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     const queryResult = await this.safeDocStore.selectByIds(docType.name, docType.pluralName, props.fieldNames, props.ids, combinedDocStoreOptions, {})
   
     for (const doc of queryResult.docs) {
-      ensureDocTypeRequestAuthorised(docType, {
+      ensureDocTypeReadRequestAuthorised(docType, {
         doc,
         requestType: 'selectByIds',
         user: props.user,
-        isRead: true,
-        isWrite: false,
         fieldNames: props.fieldNames
       })
     }
@@ -595,12 +591,10 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     })
   
     for (const doc of queryResult.docs) {
-      ensureDocTypeRequestAuthorised(docType, {
+      ensureDocTypeReadRequestAuthorised(docType, {
         doc,
         requestType: 'selectDocs',
         user: props.user,
-        isRead: true,
-        isWrite: false,
         fieldNames: props.fieldNames
       })
     }
@@ -618,7 +612,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       try {
         return this.getMillisecondsSinceEpoch()
       } catch (err) {
-        throw new SengiCallbackError('getMillisecondsSinceEpoch', err)
+        throw new SengiCallbackError('getMillisecondsSinceEpoch', err as Error)
       }
     } else {
       return Date.now()
@@ -636,7 +630,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
       try {
         return this.getIdFromUser(user)
       } catch (err) {
-        throw new SengiCallbackError('getIdFromUser', err)
+        throw new SengiCallbackError('getIdFromUser', err as Error)
       }
     } else {
       return ID_FOR_UNKNOWN_USER
@@ -684,7 +678,7 @@ export class Sengi<RequestProps, DocStoreOptions, User, Filter, Query, QueryResu
     try {
       await callback()
     } catch (err) {
-      throw new SengiCallbackError(name, err)
+      throw new SengiCallbackError(name, err as Error)
     }
   }
 

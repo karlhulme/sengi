@@ -278,7 +278,7 @@ test('Reject a patch that produces a doc that fails the docType validate functio
     throw new Error('fail')
   } catch (err) {
     expect(err).toBeInstanceOf(SengiDocTypeValidateFunctionError)
-    expect(err.message).toContain('Unrecognised vehicle registration prefix')
+    expect((err as SengiDocTypeValidateFunctionError).message).toContain('Unrecognised vehicle registration prefix')
   }
 })
 

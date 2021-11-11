@@ -47,7 +47,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.deleteById(docTypeName, docTypePluralName, id, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('deleteById', err)
+      throw new UnexpectedDocStoreError('deleteById', err as Error)
     }
   }
 
@@ -65,7 +65,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.exists(docTypeName, docTypePluralName, id, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('exists', err)
+      throw new UnexpectedDocStoreError('exists', err as Error)
     }
   }
 
@@ -83,7 +83,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.fetch(docTypeName, docTypePluralName, id, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('fetch', err)
+      throw new UnexpectedDocStoreError('fetch', err as Error)
     }
   }
 
@@ -101,7 +101,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.query(docTypeName, docTypePluralName, query, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('query', err)
+      throw new UnexpectedDocStoreError('query', err as Error)
     }
   }
 
@@ -119,7 +119,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.selectAll(docTypeName, docTypePluralName, fieldNames, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('selectAll', err)
+      throw new UnexpectedDocStoreError('selectAll', err as Error)
     }
   }
 
@@ -138,7 +138,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.selectByFilter(docTypeName, docTypePluralName, fieldNames, filter, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('selectByFilter', err)
+      throw new UnexpectedDocStoreError('selectByFilter', err as Error)
     }
   }
 
@@ -157,7 +157,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.selectByIds(docTypeName, docTypePluralName, fieldNames, ids, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('selectByIds', err)
+      throw new UnexpectedDocStoreError('selectByIds', err as Error)
     }
   }
 
@@ -175,7 +175,7 @@ export class SafeDocStore<DocStoreOptions, Filter, Query, QueryResult> implement
       const result = await this.docStore.upsert(docTypeName, docTypePluralName, doc, options, props)
       return result
     } catch (err) {
-      throw new UnexpectedDocStoreError('upsert', err)
+      throw new UnexpectedDocStoreError('upsert', err as Error)
     }
   }
 }

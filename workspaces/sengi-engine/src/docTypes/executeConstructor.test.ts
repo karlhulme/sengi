@@ -1,5 +1,10 @@
 import { expect, test } from '@jest/globals'
-import { DocBase, DocType, DocTypeConstructor, SengiAuthorisationFailedError, SengiConstructorFailedError, SengiConstructorNonObjectResponseError, SengiCtorParamsValidationFailedError, SengiUnrecognisedCtorNameError } from 'sengi-interfaces'
+import {
+  DocBase, DocType, DocTypeConstructor,
+  SengiConstructorFailedError,
+  SengiConstructorNonObjectResponseError, SengiCtorParamsValidationFailedError,
+  SengiUnrecognisedCtorNameError
+} from 'sengi-interfaces'
 import { createValidator } from './shared.test'
 import { executeConstructor } from './executeConstructor'
 import { asError } from '../utils'
@@ -41,11 +46,6 @@ function createDocType () {
           return {
             propA: props.parameters.ctorPropA
           }
-        },
-        authorise: props => {
-          if (props.parameters.ctorPropA === 'noAuth') {
-            return 'noAuth'
-          }
         }
       } as DocTypeConstructor<ExampleDoc, unknown, ExampleConstructorParams>
     }
@@ -78,14 +78,4 @@ test('Reject construction request if constructor raises error.', () => {
 
 test('Reject construction request if constructor does not return an object.', () => {
   expect(() => executeConstructor(createValidator(), createDocType(), null, 'make', { ctorPropA: 'null' })).toThrow(asError(SengiConstructorNonObjectResponseError))
-})
-
-test('Reject construction request if authorisation fails.', () => {
-  expect(() => executeConstructor(createValidator(), createDocType(), null, 'make', { ctorPropA: 'noAuth' })).toThrow(asError(SengiAuthorisationFailedError))
-})
-
-test('Skip construction authorisation if no authorisation method defined.', () => {
-  const docType = createDocType()
-  delete docType.constructors?.make.authorise
-  expect(() => executeConstructor(createValidator(), docType, null, 'make', { ctorPropA: 'noAuth' })).not.toThrow()
 })

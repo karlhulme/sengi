@@ -1,7 +1,14 @@
 import { expect, test } from '@jest/globals'
-import { DocBase, DocType, SengiAuthorisationFailedError } from 'sengi-interfaces'
-import { ensureDocTypeRequestAuthorised } from './ensureDocTypeRequestAuthorised'
+import { DocBase, DocType, DocTypeOperation, DocTypeQuery, SengiAuthorisationFailedError } from 'sengi-interfaces'
 import { asError } from '../utils'
+import {
+  ensureDocTypeCreateRequestAuthorised,
+  ensureDocTypeDeleteRequestAuthorised,
+  ensureDocTypePatchRequestAuthorised,
+  ensureDocTypeQueryRequestAuthorised,
+  ensureDocTypeReadRequestAuthorised,
+  ensureDocTypeOperationRequestAuthorised
+} from './ensureDocTypeRequestAuthorised'
 
 interface ExampleDoc extends DocBase {
   propA: string
@@ -12,9 +19,48 @@ function createDocType () {
     name: 'test',
     pluralName: 'tests',
     jsonSchema: {},
-    authorise: props => {
+    queries: {
+      testQuery: {
+        parametersJsonSchema: {},
+        responseJsonSchema: {},
+        coerce: () => ({ }),
+        parse: () => ({ }),
+        authorise: props => {
+          if (props.parameters.foo === 'private') {
+            return 'something'
+          }
+        }
+      }
+    },
+    operations: {
+      testOperation: {
+        parametersJsonSchema: {},
+        implementation: () => undefined,
+        authorise: props => {
+          if (props.originalDoc.propA === 'private') {
+            return 'OpDenied'
+          }
+        }
+      }
+    },
+    authoriseCreate: props => {
+      if (props.newDoc.propA === 'private') {
+        return 'ReadDenied'
+      }
+    },
+    authoriseDelete: props => {
+      if (props.doc.propA === 'private') {
+        return 'CreateDenied'
+      }
+    },
+    authorisePatch: props => {
+      if (props.originalDoc.propA === 'private') {
+        return 'PatchDenied'
+      }
+    },
+    authoriseRead: props => {
       if (props.fieldNames.includes('private')) {
-        return 'AuthFailed'
+        return 'ReadDenied'
       }
     }
   }
@@ -22,34 +68,42 @@ function createDocType () {
   return docType
 }
 
-test('Accept valid auth request.', () => {
-  expect(() => ensureDocTypeRequestAuthorised(createDocType(), {
-    user: {},
-    fieldNames: ['a', 'b', 'c'],
-    isRead: true,
-    isWrite: true,
-    requestType: 'replace'
-  })).not.toThrow()
-})
-
-test('Reject invalid auth request.', () => {
-  expect(() => ensureDocTypeRequestAuthorised(createDocType(), {
-    user: {},
-    fieldNames: ['a', 'b', 'c', 'private'],
-    isRead: true,
-    isWrite: true,
-    requestType: 'replace'
-  })).toThrow(asError(SengiAuthorisationFailedError))
-})
-
-test('Skip auth request if there is no authorisation method.', () => {
+test('Silent return if auth method is not defined.', () => {
   const docType = createDocType()
-  delete docType.authorise
-  expect(() => ensureDocTypeRequestAuthorised(docType, {
-    user: {},
-    fieldNames: ['a', 'b', 'c', 'private'],
-    isRead: true,
-    isWrite: true,
-    requestType: 'replace'
-  })).not.toThrow()
+
+  delete docType.operations?.testOperation.authorise
+  delete docType.queries?.testQuery.authorise
+  delete docType.authoriseCreate
+  delete docType.authoriseDelete
+  delete docType.authorisePatch
+  delete docType.authoriseRead
+
+  expect(() => ensureDocTypeCreateRequestAuthorised(docType, { user: {}, newDoc: {}, requestType: 'create' })).not.toThrow()
+  expect(() => ensureDocTypeDeleteRequestAuthorised(docType, { user: {}, doc: {} })).not.toThrow()
+  expect(() => ensureDocTypePatchRequestAuthorised(docType, { user: {}, fieldNames: [], originalDoc: {}, patch: {} })).not.toThrow()
+  expect(() => ensureDocTypeReadRequestAuthorised(docType, { user: {}, fieldNames: [], doc: {}, requestType: 'selectByFilter' })).not.toThrow()
+  expect(() => ensureDocTypeQueryRequestAuthorised(docType, docType.queries?.testQuery as DocTypeQuery<unknown, unknown, unknown, unknown, unknown>, { user: {}, parameters: {} })).not.toThrow()
+  expect(() => ensureDocTypeOperationRequestAuthorised(docType, docType.operations?.testOperation as DocTypeOperation<unknown, unknown, unknown>, { user: {}, parameters: {}, originalDoc: {} })).not.toThrow()
 })
+
+test('Silent return if auth method returns void.', () => {
+  const docType = createDocType()
+  expect(() => ensureDocTypeCreateRequestAuthorised(docType, { user: {}, newDoc: {}, requestType: 'create' })).not.toThrow()
+  expect(() => ensureDocTypeDeleteRequestAuthorised(docType, { user: {}, doc: {} })).not.toThrow()
+  expect(() => ensureDocTypePatchRequestAuthorised(docType, { user: {}, fieldNames: [], originalDoc: {}, patch: {} })).not.toThrow()
+  expect(() => ensureDocTypeReadRequestAuthorised(docType, { user: {}, fieldNames: [], doc: {}, requestType: 'selectByFilter' })).not.toThrow()
+  expect(() => ensureDocTypeQueryRequestAuthorised(docType, docType.queries?.testQuery as DocTypeQuery<unknown, unknown, unknown, unknown, unknown>, { user: {}, parameters: {} })).not.toThrow()
+  expect(() => ensureDocTypeOperationRequestAuthorised(docType, docType.operations?.testOperation as DocTypeOperation<unknown, unknown, unknown>, { user: {}, parameters: {}, originalDoc: {} })).not.toThrow()
+})
+
+test('Raise error if auth method returns a string.', () => {
+
+  const docType = createDocType()
+  expect(() => ensureDocTypeCreateRequestAuthorised(docType, { user: {}, newDoc: { propA: 'private' }, requestType: 'create' })).toThrow(asError(SengiAuthorisationFailedError))
+  expect(() => ensureDocTypeDeleteRequestAuthorised(docType, { user: {}, doc: { propA: 'private' } })).toThrow(asError(SengiAuthorisationFailedError))
+  expect(() => ensureDocTypePatchRequestAuthorised(docType, { user: {}, fieldNames: [], originalDoc: { propA: 'private' }, patch: {} })).toThrow(asError(SengiAuthorisationFailedError))
+  expect(() => ensureDocTypeReadRequestAuthorised(docType, { user: {}, fieldNames: ['private'], doc: {}, requestType: 'selectByFilter' })).toThrow(asError(SengiAuthorisationFailedError))
+  expect(() => ensureDocTypeQueryRequestAuthorised(docType, docType.queries?.testQuery as DocTypeQuery<unknown, unknown, unknown, unknown, unknown>, { user: {}, parameters: { foo: 'private' } })).toThrow(asError(SengiAuthorisationFailedError))
+  expect(() => ensureDocTypeOperationRequestAuthorised(docType, docType.operations?.testOperation as DocTypeOperation<unknown, unknown, unknown>, { user: {}, parameters: {}, originalDoc: { propA: 'private' } })).toThrow(asError(SengiAuthorisationFailedError))
+})
+

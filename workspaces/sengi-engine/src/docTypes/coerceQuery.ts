@@ -29,7 +29,7 @@ export function coerceQuery (ajv: Ajv, docType: AnyDocType, queryName: string, q
   try {
     response = queryDef.coerce(queryResultData)
   } catch (err) {
-    throw new SengiQueryCoerceFailedError(docType.name, queryName, err)
+    throw new SengiQueryCoerceFailedError(docType.name, queryName, err as Error)
   }
 
   if (!ajv.validate(queryDef.responseJsonSchema, response)) {

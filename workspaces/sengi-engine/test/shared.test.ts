@@ -101,10 +101,10 @@ export function createCarDocType (): DocType<Car, TestDocStoreOptions, AuthUser,
     },
     validate: doc => {
       if (doc.registration && !(doc.registration as string).startsWith('HG')) {
-        throw new Error('Unrecognised vehicle registration prefix.')
+        return 'Unrecognised vehicle registration prefix.'
       }
     },
-    authorise: props => {
+    authorisePatch: props => {
       if (props.fieldNames.includes('engineCode')) {
         return 'engineCode is private.'
       }

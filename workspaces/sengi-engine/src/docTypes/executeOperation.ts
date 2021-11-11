@@ -1,11 +1,11 @@
 import Ajv from 'ajv'
 import {
   AnyDocType, DocRecord,
-  SengiAuthorisationFailedError,
   SengiOperationFailedError,
   SengiOperationParamsValidationFailedError,
   SengiUnrecognisedOperationNameError
 } from 'sengi-interfaces'
+import { ensureDocTypeOperationRequestAuthorised } from '.'
 import { ajvErrorsToString } from '../utils'
 
 /**
@@ -28,21 +28,15 @@ export function executeOperation (ajv: Ajv, docType: AnyDocType, user: unknown, 
     throw new SengiOperationParamsValidationFailedError(docType.name, operationName, ajvErrorsToString(ajv.errors))
   }
 
-  if (operation.authorise) {
-    const authFailure = operation.authorise({
-      doc,
-      parameters: operationParams,
-      user
-    })
-
-    if (typeof authFailure === 'string') {
-      throw new SengiAuthorisationFailedError(docType.name, authFailure)
-    }
-  }
+  ensureDocTypeOperationRequestAuthorised(docType, operation, {
+    originalDoc: doc,
+    user,
+    parameters: operationParams
+  })
 
   try {
     operation.implementation({ doc, user, parameters: operationParams })
   } catch (err) {
-    throw new SengiOperationFailedError(docType.name, operationName, err)
+    throw new SengiOperationFailedError(docType.name, operationName, err as Error)
   }
 }
