@@ -45,6 +45,6 @@ export async function selectDocumentsByFilterHandler<RequestProps, DocStoreOptio
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

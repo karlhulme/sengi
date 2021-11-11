@@ -212,7 +212,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'deleteById\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'deleteById\'.', err as Error)
     }
   }
 
@@ -233,7 +233,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { found: Boolean(result.Item && result.Item.id) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'exists\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'exists\'.', err as Error)
     }
   }
 
@@ -258,7 +258,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { doc }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'fetch\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'fetch\'.', err as Error)
     }
   }
 
@@ -288,7 +288,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'query\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'query\'.', err as Error)
     }
   }
 
@@ -321,7 +321,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: result.Items || [] }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectAll\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectAll\'.', err as Error)
     }
   }
 
@@ -352,7 +352,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: this.createOutputDocs(result.Items || [], fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByFilter\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByFilter\'.', err as Error)
     }
   }
 
@@ -383,7 +383,7 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       return { docs: (result.Responses || {})[tableName] }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByIds\'.', err)
+      throw new UnexpectedDocStoreError('Dynamo database error processing \'selectByIds\'.', err as Error)
     }
   }
 
@@ -429,10 +429,10 @@ export class DynamoDbDocStore implements DocStore<DynamoDbDocStoreOptions, Dynam
       }
     } catch (err) {
       // istanbul ignore next - cannot produce the else branch
-      if (err.code === 'ConditionalCheckFailedException') {
+      if ((err as { code: string }).code === 'ConditionalCheckFailedException') {
         return { code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE }
       } else {
-        throw new UnexpectedDocStoreError('Dynamo database error processing \'upsert\'.', err)
+        throw new UnexpectedDocStoreError('Dynamo database error processing \'upsert\'.', err as Error)
       }
     }
   }

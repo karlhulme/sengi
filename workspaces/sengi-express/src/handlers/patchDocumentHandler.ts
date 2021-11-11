@@ -39,6 +39,6 @@ export async function patchDocumentHandler<RequestProps, DocStoreOptions, User, 
       statusCode: 204
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

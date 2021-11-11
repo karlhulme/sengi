@@ -166,7 +166,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
         : { code: DocStoreDeleteByIdResultCode.NOT_FOUND }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'deleteById\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'deleteById\'.', err as Error)
     }
   }
 
@@ -189,7 +189,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       return { found: result === 1 }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'exists\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'exists\'.', err as Error)
     }
   }
 
@@ -218,7 +218,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'fetch\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'fetch\'.', err as Error)
     }
   }
 
@@ -247,7 +247,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'query\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'query\'.', err as Error)
     }
   }
 
@@ -274,7 +274,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error processing \'selectAll\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error processing \'selectAll\'.', err as Error)
     }
   }
 
@@ -303,7 +303,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByFilter\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByFilter\'.', err as Error)
     }
   }
 
@@ -331,7 +331,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       return this.buildSelectResult(docs, fieldNames)
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByIds\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error procesing \'selectByIds\'.', err as Error)
     }
   }
 
@@ -375,7 +375,7 @@ export class MongoDbDocStore implements DocStore<MongoDbDocStoreOptions, MongoDb
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Mongo database error procesing \'upsert\'.', err)
+      throw new UnexpectedDocStoreError('Mongo database error procesing \'upsert\'.', err as Error)
     }
   }
 }

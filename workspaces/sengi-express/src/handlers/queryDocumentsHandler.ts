@@ -33,6 +33,6 @@ export async function queryDocumentsHandler<RequestProps, DocStoreOptions, User,
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

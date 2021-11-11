@@ -2,9 +2,12 @@
 import { CosmosClient, FeedResponse, RequestOptions } from  '@azure/cosmos'
 import { 
   DocRecord,
-  DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult, DocStoreDeleteByIdResultCode,
-  DocStoreExistsProps, DocStoreExistsResult, DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
-  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult, DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode, UnexpectedDocStoreError
+  DocStore, DocStoreDeleteByIdProps, DocStoreDeleteByIdResult,
+  DocStoreDeleteByIdResultCode, DocStoreExistsProps, DocStoreExistsResult,
+  DocStoreFetchProps, DocStoreFetchResult, DocStoreQueryProps,
+  DocStoreQueryResult, DocStoreSelectProps, DocStoreSelectResult,
+  DocStoreUpsertProps, DocStoreUpsertResult, DocStoreUpsertResultCode,
+  UnexpectedDocStoreError
 } from 'sengi-interfaces'
 
 /**
@@ -233,10 +236,10 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { code: DocStoreDeleteByIdResultCode.DELETED }
     } catch (err) {
       // istanbul ignore next - cannot produce the else branch
-      if (err.code === 404) {
+      if ((err as { code: number }).code === 404) {
         return { code: DocStoreDeleteByIdResultCode.NOT_FOUND }
       } else {
-        throw new UnexpectedDocStoreError('Cosmos database error processing \'deleteById\'.', err)
+        throw new UnexpectedDocStoreError('Cosmos database error processing \'deleteById\'.', err as Error)
       }
     }
   }
@@ -274,7 +277,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { found: result.resources[0] === 1 }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'exists\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'exists\'.', err as Error)
     }
   }
 
@@ -311,7 +314,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { doc }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'fetch\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'fetch\'.', err as Error)
     }
   }
 
@@ -340,7 +343,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'query\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'query\'.', err as Error)
     }
   }
 
@@ -367,7 +370,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { docs: this.buildResultDocs(result.resources, fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err as Error)
     }
   }
 
@@ -396,7 +399,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { docs: this.buildResultDocs(result.resources, fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err as Error)
     }
   }
 
@@ -426,7 +429,7 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       return { docs: this.buildResultDocs(result.resources, fieldNames) }
     } catch (err) {
       // istanbul ignore next
-      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err)
+      throw new UnexpectedDocStoreError('Cosmos database error processing \'queryAll\'.', err as Error)
     }
   }
 
@@ -463,10 +466,10 @@ export class CosmosDbDocStore implements DocStore<CosmosDbDocStoreOptions, Cosmo
       }
     } catch (err) {
       // istanbul ignore next - cannot produce the else branch
-      if (err.code === 412) {
+      if ((err as { code: number }).code === 412) {
         return { code: DocStoreUpsertResultCode.VERSION_NOT_AVAILABLE }
       } else {
-        throw new UnexpectedDocStoreError('Cosmos database error processing \'upsert\'.', err)
+        throw new UnexpectedDocStoreError('Cosmos database error processing \'upsert\'.', err as Error)
       }
     }
   }

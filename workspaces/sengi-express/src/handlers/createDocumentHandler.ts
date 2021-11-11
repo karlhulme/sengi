@@ -35,6 +35,6 @@ export async function createDocumentHandler<RequestProps, DocStoreOptions, User,
       statusCode: 201
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

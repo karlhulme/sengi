@@ -40,6 +40,6 @@ export async function getDocumentHandler<RequestProps, DocStoreOptions, User, Fi
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

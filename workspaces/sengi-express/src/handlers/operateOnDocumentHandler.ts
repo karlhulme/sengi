@@ -39,6 +39,6 @@ export async function operateOnDocumentHandler<RequestProps, DocStoreOptions, Us
       statusCode: 204
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }

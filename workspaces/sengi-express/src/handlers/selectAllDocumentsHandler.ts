@@ -37,6 +37,6 @@ export async function selectAllDocumentsHandler<RequestProps, DocStoreOptions, U
       statusCode: 200
     })
   } catch (err) {
-    applyErrorToHttpResponse(props.req, props.res, { err })
+    applyErrorToHttpResponse(props.req, props.res, { err: err as Error })
   }
 }
